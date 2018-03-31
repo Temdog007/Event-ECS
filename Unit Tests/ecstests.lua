@@ -1,4 +1,4 @@
-local lu = require("luaunit")
+local lu = require("Unit Tests/luaunit")
 local System = require("system")
 
 function testEntityInitialization()

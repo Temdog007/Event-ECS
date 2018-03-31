@@ -31,8 +31,10 @@ local Entity = Class(function(entity, system)
       error(string.format("Tried to add a '%s' as a component"))
     end
 
+    -- Insert component into list of components
     table.insert(components, component)
-    
+
+    -- Grab all of the components functions and put them into the event tables
     for k,v in pairs(component) do
       if type(v) == "function" then
         if not eventTablesTable[k] then
