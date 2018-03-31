@@ -44,11 +44,17 @@ local Entity = Class(function(entity, system)
       end
     end
 
-    self:dispatchEvent("addedComponent",  {component = component, entity = self})
+    self.system:dispatchEvent("addedComponent",  {component = component, entity = self})
+  end
+
+  function entity:addComponents(...)
+    for _, component in pairs({...}) do
+      self:addComponent(component)
+    end
   end
 
   local function removeComponentFunction(index, component)
-    entity:dispatchEvent("removingComponent", {component = component, entity = entity})
+    entity.system:dispatchEvent("removingComponent", {component = component, entity = entity})
     components[index] = nil
     for eventName,eventTables in pairs(eventTablesTable) do
       for k, eventTable in pairs(eventTables) do
@@ -74,6 +80,14 @@ local Entity = Class(function(entity, system)
         removeComponentFunction(k, component)
       end
     end
+  end
+
+  function entity:componentCount()
+    local count = 0
+    for _ in pairs(components) do
+      count = count + 1
+    end
+    return count
   end
 
   function entity:findComponent(matchFunction)

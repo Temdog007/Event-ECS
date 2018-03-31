@@ -35,6 +35,14 @@ return Class(function(system)
     end
   end
 
+  function system:entityCount()
+    local count = 0
+    for _ in pairs(entities) do
+      count = count + 1
+    end
+    return count
+  end
+
   function system:findEntity(findFunc)
     for _, en in pairs(entities) do
       if findFunc(en) then
