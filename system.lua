@@ -117,5 +117,6 @@ return Class(function(system, serverArgs)
   if serverArgs then
     local Server = require("server")
     local server = Server(system, serverArgs)
+    system.updateServer = server.run
   end
 end)
