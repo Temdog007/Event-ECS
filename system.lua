@@ -82,8 +82,10 @@ return Class(function(system)
   end
 
   function system:dispatchEvent(event, args)
+    local eventsHandled = 0
     for _, entity in pairs(entities) do
-      entity:dispatchEvent(event, args)
+      eventsHandled = eventsHandled + entity:dispatchEvent(event, args)
     end
+    return eventsHandled
   end
 end)

@@ -131,12 +131,15 @@ local Entity = Class(function(entity, system)
   function entity:dispatchEvent(event, args)
     local eventTables = eventTablesTable[event]
     if not eventTables then
-      return
+      return 0
     end
 
+    local count = 0
     for _, eventTable in pairs(eventTables) do
-      eventTable.func(args)
+      eventTable.func(eventTable.component, args)
+      count = count + 1
     end
+    return count
   end
 
   function entity:remove()

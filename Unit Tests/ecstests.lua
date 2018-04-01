@@ -37,6 +37,32 @@ function assertNotIsNil(actual)
   assertError(assertEquals, actual, nil)
 end
 
+local function addedComponent(c, args)
+  if args.component == c then
+    c.added = true
+    c.entity = args.entity
+  end
+  c.addedComponentCalled = c.addedComponentCalled + 1
+end
+
+local function removingComponent(c, args)
+  if args.component == c then
+    c.added = false
+    c.entity = nil
+  end
+  c.removingComponentCalled = c.removingComponentCalled + 1
+end
+
+local function createComponent()
+  return
+  {
+    addedComponentCalled = 0,
+    removingComponentCalled = 0,
+    addedComponent = addedComponent,
+    removingComponent = removingComponent
+  }
+end
+
 ecsTests = {}
 
 function ecsTests:testEntityInitialization()
@@ -92,25 +118,6 @@ function ecsTests:testSystemFind()
   assertIsNil(system:findEntity(function(en) return en == entity end))
 end
 
-local function createComponent()
-  local comp = {addedComponentCalled = 0, removingComponentCalled = 0}
-  comp.addedComponent = function(args)
-    if args.component == comp then
-      comp.added = true
-      comp.entity = args.entity
-    end
-    comp.addedComponentCalled = comp.addedComponentCalled + 1
-  end
-  comp.removingComponent = function(args)
-    if args.component == comp then
-      comp.added = false
-      comp.entity = nil
-    end
-    comp.removingComponentCalled = comp.removingComponentCalled + 1
-  end
-  return comp
-end
-
 function ecsTests:testEntityComponents()
   local system = System()
   local entity = system:createEntity()
@@ -160,6 +167,27 @@ function ecsTests:testEntityFunctions()
   local entity = system:createEntity()
   assertError(entity.addComponent, entity)
   assertError(entity.addComponent, entity, 6)
+end
+
+function ecsTests:testEvents()
+  local system = System()
+  local entity = system:createEntity()
+  local comp1 = createComponent()
+  local comp2 = createComponent()
+  local comp3 = createComponent()
+
+  local function testEvent(c, args)
+    args.handled = args.handled + 1
+  end
+  comp1.testEvent = testEvent
+  comp2.testEvent = testEvent
+
+  entity:addComponents(comp1, comp2, comp3)
+
+  local args = {handled = 0}
+  local count = system:dispatchEvent("testEvent", args)
+  assertEquals(count, 2)
+  assertEquals(args.handled, 2)
 end
 
 LuaUnit:run('ecsTests')
