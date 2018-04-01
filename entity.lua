@@ -28,7 +28,7 @@ end
 
 local function entostring(en)
   if en.name then
-    return string.format("%s: %s", ClassName, en.name)
+    return string.format("%s#%d: %s", ClassName, en:getID(), en.name)
   else
     return ClassName
   end
@@ -151,6 +151,18 @@ local Entity = Class(function(entity, system)
   function entity:remove()
     self:removeComponents(removeAll)
     return self.system:removeEntity(self)
+  end
+
+  function entity:getData()
+    local data = {}
+    for _, component in pairs(components) do
+      for k, compValue in pairs(component) do
+        if type(compValue) == "number" or type(compValue) == "string" then
+          data[k] = compValue
+        end
+      end
+    end
+    return data
   end
 
 end)

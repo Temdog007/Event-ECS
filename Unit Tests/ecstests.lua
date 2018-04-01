@@ -94,7 +94,7 @@ function ecsTests:testEntityInitialization()
   assertEquals(tostring(entity), "Entity")
   entity.name = "Test"
   assertNotEquals(tostring(entity), "Entity")
-  assertEquals(tostring(entity), "Entity: Test")
+  assertEquals(tostring(entity), "Entity#"..entity:getID()..": Test")
 end
 
 function ecsTests:testSystemInitialization()
@@ -198,6 +198,17 @@ function ecsTests:testEvents()
   local count = system:dispatchEvent("testEvent", args)
   assertEquals(count, 2)
   assertEquals(args.handled, 2)
+end
+
+function ecsTests:testEncoding()
+  local system = System()
+  local entity = system:createEntity()
+  local comp1 = createComponent()
+  local comp2 = createComponent()
+  local comp3 = createComponent()
+  entity:addComponents(comp1, comp2, comp3)
+
+  print(system:encode())
 end
 
 LuaUnit:run('ecsTests')

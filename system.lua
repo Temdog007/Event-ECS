@@ -20,6 +20,7 @@
 
 local Class = require("classFactory")
 local Entity = require("entity")
+local json = require("json")
 local ClassName = "Entity Component System"
 
 local function systostring(sys)
@@ -95,8 +96,26 @@ return Class(function(system, serverArgs)
     return eventsHandled
   end
 
+  function system:encode()
+    local rval =
+    {
+      system =
+      {
+        name = tostring(self)
+      },
+    }
+
+    local enData = {}
+    for _, en in pairs(entities) do
+      enData[en:getID()] = en:getData()
+    end
+
+    rval.system.entities = enData
+    return json.encode(rval)
+  end
+
   if serverArgs then
     local Server = require("server")
-    local server = Server()
+    local server = Server(system, serverArgs)
   end
 end)
