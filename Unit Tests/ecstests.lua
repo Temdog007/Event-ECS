@@ -37,6 +37,10 @@ function assertNotIsNil(actual)
   assertError(assertEquals, actual, nil)
 end
 
+function assertNotEquals(actual, notexpected)
+  assertError(assertEquals, actual, notexpected)
+end
+
 local function addedComponent(c, args)
   if args.component == c then
     c.added = true
@@ -88,6 +92,9 @@ function ecsTests:testEntityInitialization()
   assertEquals(type(entity.dispatchEvent), "function")
 
   assertEquals(tostring(entity), "Entity")
+  entity.name = "Test"
+  assertNotEquals(tostring(entity), "Entity")
+  assertEquals(tostring(entity), "Entity: Test")
 end
 
 function ecsTests:testSystemInitialization()
@@ -104,6 +111,9 @@ function ecsTests:testSystemInitialization()
   assertEquals(type(system.dispatchEvent), "function")
 
   assertEquals(tostring(system), "Entity Component System")
+  system.name = "Unit Test"
+  assertNotEquals(tostring(system), "Entity Component System")
+  assertEquals(tostring(system), "Entity Component System: Unit Test")
 end
 
 function ecsTests:testSystemFind()

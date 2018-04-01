@@ -22,18 +22,24 @@ local Class = require("classFactory")
 local Entity = require("entity")
 local ClassName = "Entity Component System"
 
-return Class(function(system)
+local function systostring(sys)
+  if sys.name then
+    return string.format("%s: %s", ClassName, sys.name)
+  else
+    return ClassName
+  end
+end
+
+return Class(function(system, serverArgs)
   local entities = {}
+
+  system.__tostring = systostring
 
   function system:createEntity()
     local entity = Entity(self)
     table.insert(entities, entity)
     self:dispatchEvent("createdEntity", {entity = entity, system = self})
     return entity
-  end
-
-  function system:__tostring()
-    return ClassName
   end
 
   function system:removeEntity(entity)
@@ -87,5 +93,10 @@ return Class(function(system)
       eventsHandled = eventsHandled + entity:dispatchEvent(event, args)
     end
     return eventsHandled
+  end
+
+  if serverArgs then
+    local Server = require("server")
+    local server = Server()
   end
 end)

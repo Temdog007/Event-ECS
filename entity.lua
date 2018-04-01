@@ -26,10 +26,20 @@ local function removeAll()
   return true
 end
 
+local function entostring(en)
+  if en.name then
+    return string.format("%s: %s", ClassName, en.name)
+  else
+    return ClassName
+  end
+end
+
 local Entity = Class(function(entity, system)
   if not system then
     error("Entity must have a system")
   end
+
+  entity.__tostring = entostring
 
   entity.system = system
 
@@ -38,10 +48,6 @@ local Entity = Class(function(entity, system)
   local entityID = id
   entity.getID = function() return entityID end
   id = id + 1
-
-  function entity:__tostring()
-    return ClassName
-  end
 
   function entity:addComponent(component)
     if not component then
