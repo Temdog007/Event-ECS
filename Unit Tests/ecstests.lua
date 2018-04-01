@@ -20,6 +20,32 @@
 
 local LuaUnit = require("luaunit")
 local System = require("system")
+local Component = require("component")
+require("classlib")
+
+local TestComponent = class("TestComponent", Component)
+
+function TestComponent:__init(entity)
+  self.Component:__init(entity)
+  self.addedComponentCalled = 0
+  self.removingComponentCalled = 0
+end
+
+function TestComponent:addedComponent(args)
+  if args.component == self then
+    self.added = true
+    self.entity = args.entity
+  end
+  self.addedComponentCalled = self.addedComponentCalled + 1
+end
+
+function TestComponent:removingComponent(args)
+  if args.component == self then
+    self.added = false
+    self.entity = nil
+  end
+  self.removingComponentCalled = self.removingComponentCalled + 1
+end
 
 function assertIsTrue(actual)
   assertEquals(actual, true)
@@ -41,33 +67,12 @@ function assertNotEquals(actual, notexpected)
   assertError(assertEquals, actual, notexpected)
 end
 
-local function addedComponent(c, args)
-  if args.component == c then
-    c.added = true
-    c.entity = args.entity
-  end
-  c.addedComponentCalled = c.addedComponentCalled + 1
-end
-
-local function removingComponent(c, args)
-  if args.component == c then
-    c.added = false
-    c.entity = nil
-  end
-  c.removingComponentCalled = c.removingComponentCalled + 1
-end
-
-local function createComponent()
-  return
-  {
-    addedComponentCalled = 0,
-    removingComponentCalled = 0,
-    addedComponent = addedComponent,
-    removingComponent = removingComponent
-  }
-end
-
 ecsTests = {}
+
+function ecsTests:testComponents()
+  assertEquals(classname(TestComponent), "TestComponent")
+  assertIsTrue(is_a(TestComponent, Component))
+end
 
 function ecsTests:testEntityInitialization()
   assertError(function()
@@ -109,6 +114,8 @@ function ecsTests:testSystemInitialization()
   assertEquals(type(system.findEntity), "function")
   assertEquals(type(system.findEntities), "function")
   assertEquals(type(system.dispatchEvent), "function")
+  assertEquals(type(system.registerComponent), "function")
+  assertEquals(type(system.registerComponents), "function")
 
   assertEquals(tostring(system), "Entity Component System")
   system.name = "Unit Test"
@@ -128,13 +135,18 @@ function ecsTests:testSystemFind()
   assertIsNil(system:findEntity(function(en) return en == entity end))
 end
 
+function ecsTests:testSystemRegister()
+  local system = System()
+  assertNotIsNil(system:getComponent("Component"))
+end
+
 function ecsTests:testEntityComponents()
   local system = System()
+  system:registerComponent(TestComponent)
   local entity = system:createEntity()
-  local comp1 = createComponent()
-  local comp2 = createComponent()
 
-  entity:addComponent(comp1)
+  local comp1 = entity:addComponent('TestComponent')
+  assertEquals(classname(TestComponent), classname(comp1))
   assertEquals(entity:componentCount(), 1)
   assertEquals(comp1.entity, entity)
   assertEquals(comp1.addedComponentCalled, 1)
@@ -143,7 +155,7 @@ function ecsTests:testEntityComponents()
   assertEquals(entity:componentCount(), 0)
   assertNotIsNil(system:findEntity(function(en) return en == entity end))
 
-  entity:addComponent(comp2)
+  local comp2 = entity:addComponent('TestComponent')
   assertEquals(entity:componentCount(), 1)
   assertEquals(comp2.entity, entity)
   assertEquals(comp2.addedComponentCalled, 1)
@@ -160,12 +172,11 @@ end
 
 function ecsTests:testEntityComponents2()
   local system = System()
+  system:registerComponent(TestComponent)
   local entity = system:createEntity()
-  local comp1 = createComponent()
-  local comp2 = createComponent()
 
   assertEquals(entity:componentCount(), 0)
-  entity:addComponents(comp1, comp2)
+  local comp1, comp2 = entity:addComponents("TestComponent", "TestComponent")
   assertEquals(entity:componentCount(), 2)
 
   assertEquals(comp1.addedComponentCalled, 2)
@@ -179,34 +190,11 @@ function ecsTests:testEntityFunctions()
   assertError(entity.addComponent, entity, 6)
 end
 
-function ecsTests:testEvents()
-  local system = System()
-  local entity = system:createEntity()
-  local comp1 = createComponent()
-  local comp2 = createComponent()
-  local comp3 = createComponent()
-
-  local function testEvent(c, args)
-    args.handled = args.handled + 1
-  end
-  comp1.testEvent = testEvent
-  comp2.testEvent = testEvent
-
-  entity:addComponents(comp1, comp2, comp3)
-
-  local args = {handled = 0}
-  local count = system:dispatchEvent("testEvent", args)
-  assertEquals(count, 2)
-  assertEquals(args.handled, 2)
-end
-
 function ecsTests:testEncoding()
   local system = System()
+  system:registerComponent(TestComponent)
   local entity = system:createEntity()
-  local comp1 = createComponent()
-  local comp2 = createComponent()
-  local comp3 = createComponent()
-  entity:addComponents(comp1, comp2, comp3)
+  local comp1, comp2, comp3 = entity:addComponents("TestComponent", "TestComponent", "TestComponent")
 
   print(system:encode())
 end

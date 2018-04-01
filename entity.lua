@@ -18,7 +18,7 @@
 -- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 -- SOFTWARE.
 
-local Class = require("classFactory")
+local ClassFactory = require("classFactory")
 local ClassName = "Entity"
 local id = 0
 
@@ -34,10 +34,8 @@ local function entostring(en)
   end
 end
 
-local Entity = Class(function(entity, system)
-  if not system then
-    error("Entity must have a system")
-  end
+local Entity = ClassFactory(function(entity, system)
+  assert(system, "Entity must have a system")
 
   entity.__tostring = entostring
 
@@ -49,19 +47,15 @@ local Entity = Class(function(entity, system)
   entity.getID = function() return entityID end
   id = id + 1
 
-  function entity:addComponent(component)
-    if not component then
-      error("Tried to add a component that is nil")
-    end
-    if type(component) ~= "table" then
-      error(string.format("Tried to add a '%s' as a component"))
-    end
+  function entity:addComponent(compName, args)
+    local compClass = assert(self.system:getComponent(compName), "Component not found in system")
+    local component = assert(compClass(self, args), "Class instance couldn't be created")
 
     -- Insert component into list of components
     table.insert(components, component)
 
     -- Grab all of the components functions and put them into the event tables
-    for k,v in pairs(component) do
+    for k,v in pairs(compClass) do
       if type(v) == "function" then
         if not eventTablesTable[k] then
           eventTablesTable[k] = {}
@@ -71,12 +65,18 @@ local Entity = Class(function(entity, system)
     end
 
     self.system:dispatchEvent("addedComponent",  {component = component, entity = self})
+    return component
+  end
+
+  local function addComponentsFromTable(s, t, i)
+    i = i or 1
+    if t[i] ~= nil then
+      return s:addComponent(t[i]), addComponentsFromTable(s, t, i + 1)
+    end
   end
 
   function entity:addComponents(...)
-    for _, component in pairs({...}) do
-      self:addComponent(component)
-    end
+    return addComponentsFromTable(self, {...})
   end
 
   local function removeComponentFunction(index, component)
@@ -142,8 +142,11 @@ local Entity = Class(function(entity, system)
 
     local count = 0
     for _, eventTable in pairs(eventTables) do
-      eventTable.func(eventTable.component, args)
-      count = count + 1
+      local comp = eventTable.component
+      if comp:isEnabled() then
+        eventTable.func(comp, args)
+        count = count + 1
+      end
     end
     return count
   end
@@ -157,7 +160,7 @@ local Entity = Class(function(entity, system)
     local data = {}
     for _, component in pairs(components) do
       for k, compValue in pairs(component) do
-        if type(compValue) == "number" or type(compValue) == "string" then
+        if k ~= "__type" and (type(compValue) == "number" or type(compValue) == "string") then
           data[k] = compValue
         end
       end

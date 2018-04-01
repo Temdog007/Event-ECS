@@ -18,9 +18,10 @@
 -- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 -- SOFTWARE.
 
-local Class = require("classFactory")
+local ClassFactory = require("classFactory")
 local Entity = require("entity")
 local json = require("json")
+local Component = require("component")
 local ClassName = "Entity Component System"
 
 local function systostring(sys)
@@ -31,8 +32,9 @@ local function systostring(sys)
   end
 end
 
-return Class(function(system, serverArgs)
+return ClassFactory(function(system, serverArgs)
   local entities = {}
+  local registeredComponents = {}
 
   system.__tostring = systostring
 
@@ -105,13 +107,40 @@ return Class(function(system, serverArgs)
       },
     }
 
+    local classes = {}
+    for _, comp in pairs(registeredComponents) do
+      table.insert(classes, classname(comp))
+    end
+    rval.system.components = classes
+
     local enData = {}
     for _, en in pairs(entities) do
-      enData[en:getID()] = en:getData()
+      local data = en:getData()
+      data.id = en:getID()
+      table.insert(enData, data)
     end
 
     rval.system.entities = enData
     return json.encode(rval)
+  end
+
+  function system:registerComponent(NewComponent)
+    local name = classname(NewComponent)
+    assert(not registeredComponents[name], "Component has already been registered")
+    assert(is_a(NewComponent, Component), 'Object is not an Component')
+    registeredComponents[name] = NewComponent
+  end
+  system:registerComponent(Component)
+
+  function system:registerComponents(...)
+    for _, comp in pairs({...}) do
+      self:registerComponent(comp)
+    end
+  end
+
+  function system:getComponent(compName)
+    assert(type(compName) == "string", "Must find components by classname")
+    return registeredComponents[compName]
   end
 
   if serverArgs then
