@@ -18,60 +18,78 @@
 -- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 -- SOFTWARE.
 
-local lu = require("Unit Tests/luaunit")
+local LuaUnit = require("luaunit")
 local System = require("system")
 
-function testEntityInitialization()
-  lu.assertError(function()
+function assertIsTrue(actual)
+  assertEquals(actual, true)
+end
+
+function assertNotIsTrue(actual)
+  assertError(assertEquals, actual, true)
+end
+
+function assertIsNil(actual)
+  assertEquals(actual, nil)
+end
+
+function assertNotIsNil(actual)
+  assertError(assertEquals, actual, nil)
+end
+
+ecsTests = {}
+
+function ecsTests:testEntityInitialization()
+  assertError(function()
     local entity = require("Entity")()
   end)
 
   local system = System()
   local entity = system:createEntity()
 
-  lu.assertIsNil(entity.components)
-  lu.assertIsNil(entity.id)
-  lu.assertIsNil(entity.handlingEvent)
+  assertIsNil(entity.components)
+  assertIsNil(entity.id)
+  assertIsNil(entity.handlingEvent)
 
-  lu.assertNotIsNil(entity.system)
+  assertNotIsNil(entity.system)
 
-  lu.assertIs(type(entity.addComponent), "function")
-  lu.assertIs(type(entity.addComponents), "function")
-  lu.assertIs(type(entity.removeComponent), "function")
-  lu.assertIs(type(entity.removeComponents), "function")
-  lu.assertIs(type(entity.getID), "function")
-  lu.assertIs(type(entity.remove), "function")
-  lu.assertIs(type(entity.dispatchEvent), "function")
+  assertEquals(type(entity.addComponent), "function")
+  assertEquals(type(entity.addComponents), "function")
+  assertEquals(type(entity.removeComponent), "function")
+  assertEquals(type(entity.removeComponents), "function")
+  assertEquals(type(entity.getID), "function")
+  assertEquals(type(entity.remove), "function")
+  assertEquals(type(entity.dispatchEvent), "function")
 
-  lu.assertIs(tostring(entity), "Entity")
+  assertEquals(tostring(entity), "Entity")
 end
 
-function testSystemInitialization()
+function ecsTests:testSystemInitialization()
   local system = System()
 
-  lu.assertIsNil(system.entities)
-  lu.assertIsNil(system.addEntity)
+  assertIsNil(system.entities)
+  assertIsNil(system.addEntity)
 
-  lu.assertIs(type(system.createEntity), "function")
-  lu.assertIs(type(system.removeEntity), "function")
-  lu.assertIs(type(system.removeEntities), "function")
-  lu.assertIs(type(system.findEntity), "function")
-  lu.assertIs(type(system.findEntities), "function")
-  lu.assertIs(type(system.dispatchEvent), "function")
+  assertEquals(type(system.createEntity), "function")
+  assertEquals(type(system.removeEntity), "function")
+  assertEquals(type(system.removeEntities), "function")
+  assertEquals(type(system.findEntity), "function")
+  assertEquals(type(system.findEntities), "function")
+  assertEquals(type(system.dispatchEvent), "function")
 
-  lu.assertIs(tostring(system), "Entity Component System")
+  assertEquals(tostring(system), "Entity Component System")
 end
 
-function testSystemFind()
+function ecsTests:testSystemFind()
   local system = System()
-  lu.assertIs(system:entityCount(), 0)
-  lu.assertIsNil(system:findEntity(function() return true end))
+  assertEquals(system:entityCount(), 0)
+  assertIsNil(system:findEntity(function() return true end))
 
   local entity = system:createEntity()
-  lu.assertIs(system:entityCount(), 1)
-  lu.assertNotIsNil(system:findEntity(function() return true end))
-  lu.assertIsTrue(system:removeEntity(entity))
-  lu.assertIsNil(system:findEntity(function(en) return en == entity end))
+  assertEquals(system:entityCount(), 1)
+  assertNotIsNil(system:findEntity(function() return true end))
+  assertIsTrue(system:removeEntity(entity))
+  assertIsNil(system:findEntity(function(en) return en == entity end))
 end
 
 local function createComponent()
@@ -93,57 +111,55 @@ local function createComponent()
   return comp
 end
 
-function testEntityComponents()
+function ecsTests:testEntityComponents()
   local system = System()
   local entity = system:createEntity()
   local comp1 = createComponent()
   local comp2 = createComponent()
 
   entity:addComponent(comp1)
-  lu.assertIs(entity:componentCount(), 1)
-  lu.assertIs(comp1.entity, entity)
-  lu.assertIs(comp1.addedComponentCalled, 1)
-  lu.assertIsTrue(entity:removeComponent(comp1))
-  lu.assertIs(comp1.removingComponentCalled, 1)
-  lu.assertIs(entity:componentCount(), 0)
-  lu.assertNotIsNil(system:findEntity(function(en) return en == entity end))
+  assertEquals(entity:componentCount(), 1)
+  assertEquals(comp1.entity, entity)
+  assertEquals(comp1.addedComponentCalled, 1)
+  assertIsTrue(entity:removeComponent(comp1))
+  assertEquals(comp1.removingComponentCalled, 1)
+  assertEquals(entity:componentCount(), 0)
+  assertNotIsNil(system:findEntity(function(en) return en == entity end))
 
   entity:addComponent(comp2)
-  lu.assertIs(entity:componentCount(), 1)
-  lu.assertIs(comp2.entity, entity)
-  lu.assertIs(comp2.addedComponentCalled, 1)
-  lu.assertIsTrue(entity:remove())
-  lu.assertIs(comp2.removingComponentCalled, 1)
-  lu.assertIs(entity:componentCount(), 0)
-  lu.assertIsNil(system:findEntity(function(en) return en == entity end))
+  assertEquals(entity:componentCount(), 1)
+  assertEquals(comp2.entity, entity)
+  assertEquals(comp2.addedComponentCalled, 1)
+  assertIsTrue(entity:remove())
+  assertEquals(comp2.removingComponentCalled, 1)
+  assertEquals(entity:componentCount(), 0)
+  assertIsNil(system:findEntity(function(en) return en == entity end))
 
-  lu.assertIsNil(comp1.entity)
-  lu.assertIs(comp1.addedComponentCalled, 2)
-  lu.assertNotIsTrue(entity:removeComponent(comp1))
-  lu.assertIs(comp1.removingComponentCalled, 2)
+  assertIsNil(comp1.entity)
+  assertEquals(comp1.addedComponentCalled, 2)
+  assertNotIsTrue(entity:removeComponent(comp1))
+  assertEquals(comp1.removingComponentCalled, 2)
 end
 
-function testEntityComponents2()
+function ecsTests:testEntityComponents2()
   local system = System()
   local entity = system:createEntity()
   local comp1 = createComponent()
   local comp2 = createComponent()
 
-  lu.assertIs(entity:componentCount(), 0)
+  assertEquals(entity:componentCount(), 0)
   entity:addComponents(comp1, comp2)
-  lu.assertIs(entity:componentCount(), 2)
+  assertEquals(entity:componentCount(), 2)
 
-  lu.assertIs(comp1.addedComponentCalled, 2)
-  lu.assertIs(comp2.addedComponentCalled, 1)
+  assertEquals(comp1.addedComponentCalled, 2)
+  assertEquals(comp2.addedComponentCalled, 1)
 end
 
-function testEntityFunctions()
+function ecsTests:testEntityFunctions()
   local system = System()
   local entity = system:createEntity()
-  lu.assertError(entity.addComponent, entity)
-  lu.assertError(entity.addComponent, entity, 6)
+  assertError(entity.addComponent, entity)
+  assertError(entity.addComponent, entity, 6)
 end
 
-local runner = lu.LuaUnit.new()
-runner:setOutputType("text")
-os.exit(runner:runSuite())
+LuaUnit:run('ecsTests')
