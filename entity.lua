@@ -37,7 +37,9 @@ end
 local Entity = ClassFactory(function(entity, system)
   assert(system, "Entity must have a system")
 
-  entity.__tostring = entostring
+  function entity:getName()
+    return entostring(self)
+  end
 
   entity.system = system
 

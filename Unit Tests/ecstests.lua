@@ -96,10 +96,10 @@ function ecsTests:testEntityInitialization()
   assertEquals(type(entity.remove), "function")
   assertEquals(type(entity.dispatchEvent), "function")
 
-  assertEquals(tostring(entity), "Entity")
+  assertEquals(entity:getName(), "Entity")
   entity.name = "Test"
-  assertNotEquals(tostring(entity), "Entity")
-  assertEquals(tostring(entity), "Entity#"..entity:getID()..": Test")
+  assertNotEquals(entity:getName(), "Entity")
+  assertEquals(entity:getName(), "Entity#"..entity:getID()..": Test")
 end
 
 function ecsTests:testSystemInitialization()
@@ -117,10 +117,10 @@ function ecsTests:testSystemInitialization()
   assertEquals(type(system.registerComponent), "function")
   assertEquals(type(system.registerComponents), "function")
 
-  assertEquals(tostring(system), "Entity Component System")
+  assertEquals(system:getName(), "Entity Component System")
   system.name = "Unit Test"
-  assertNotEquals(tostring(system), "Entity Component System")
-  assertEquals(tostring(system), "Entity Component System: Unit Test")
+  assertNotEquals(system:getName(), "Entity Component System")
+  assertEquals(system:getName(), "Entity Component System: Unit Test")
 end
 
 function ecsTests:testSystemFind()

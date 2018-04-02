@@ -36,7 +36,9 @@ return ClassFactory(function(system, serverArgs)
   local entities = {}
   local registeredComponents = {}
 
-  system.__tostring = systostring
+  function system:getName()
+    return systostring(self)
+  end
 
   function system:createEntity()
     local entity = Entity(self)
@@ -103,7 +105,7 @@ return ClassFactory(function(system, serverArgs)
     {
       system =
       {
-        name = tostring(self)
+        name = self:getName()
       },
     }
 

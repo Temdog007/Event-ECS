@@ -42,10 +42,11 @@ return Class(function(server, system, args)
           end
 
           if message == "getdata" then
+            local msg = system:encode()
             if log then
-              log:info("Sending system data")
+              log:info("Sending system data '%s'", msg)
             end
-            assert(client:send(system:encode()))
+            assert(client:send(msg))
           elseif message == "close" then
             if log then
               log:info("Closing connection")
@@ -53,6 +54,7 @@ return Class(function(server, system, args)
             done = true
             break
           elseif message then
+            log:warn("Unknown message: '%s'. Echoing back.", message)
             assert(client:send(message))
           end
         end
