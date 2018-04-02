@@ -1,19 +1,40 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Net.Sockets;
 using System.Text;
 
 namespace Event_ECS_Client_Common
 {
     public static class Extensions
     {
+        public static T GetProperty<T>(this object obj, string propName)
+        {
+            return (T)obj.GetType().GetProperty(propName).GetValue(obj);
+        }
+
+        public static T GetProperty<T>(this object obj)
+        {
+            foreach(var prop in obj.GetType().GetProperties())
+            {
+                if(prop.PropertyType == typeof(T))
+                {
+                    return (T)prop.GetValue(obj);
+                }
+            }
+            throw new ArgumentException("Property not found");
+        }
+
         public static T GetAttribute<T>(this Enum obj) where T : Attribute
         {
             var type = obj.GetType();
             var memInfo = type.GetMember(obj.ToString());
             var attributes = memInfo[0].GetCustomAttributes(typeof(T), false);
             return attributes.Length > 0 ? (T)attributes[0] : null;
+        }
+
+        public static K GetAttribute<T,K>(this Enum obj) where T : Attribute
+        {
+            var attr = GetAttribute<T>(obj);
+            return attr.GetProperty<K>();
         }
 
         public static bool GetAttribute<T>(this Enum obj, out T t) where T : Attribute
@@ -31,31 +52,54 @@ namespace Event_ECS_Client_Common
             return success;
         }
 
-        public static byte[] GetData(this Event_ECS_Message message)
+        public static void Send<T>(this T stream, byte[] buffer) where T : Stream
         {
-            return message.GetAttribute<Event_ECS_MessageAttribute>().Data;
+            stream.Write(buffer, 0, buffer.Length);
+        }
+
+        public static void Send<T>(this T stream, string message) where T : Stream
+        {
+            if(!message.EndsWith(Environment.NewLine))
+            {
+                message += Environment.NewLine;
+            }
+            byte[] data = Encoding.ASCII.GetBytes(message);
+            stream.Send(data);
+        }
+
+        public static void Send<T>(this T stream, string message, out string response) where T : Stream
+        {
+            stream.Send(message);
+            response = stream.Receive();
+        }
+
+        public static string Receive<T>(this T stream) where T: Stream
+        {
+            byte[] data = new byte[256];
+            Int32 bytes = stream.Read(data, 0, data.Length);
+            return Encoding.ASCII.GetString(data, 0, bytes);
         }
 
         public static void Send<T>(this Event_ECS_Message message, T stream) where T : Stream
         {
-            message.GetAttribute<Event_ECS_MessageAttribute>().Send(stream);
+            stream.Send(message.GetAttribute<Event_ECS_MessageAttribute, byte[]>());
         }
 
-        public static int Send<T>(this T socket, Event_ECS_Message message) where T : Socket
+        public static void Send<T>(this Event_ECS_Message message, string arguments, T stream) where T : Stream
         {
-            byte[] data = message.GetData();
-            return socket.Send(data, data.Length, SocketFlags.None);
+            stream.Send(message.GetAttribute<Event_ECS_MessageAttribute, string>() + arguments);
         }
 
-        public static IEnumerable<string> Receive<T>(this T socket) where T : Socket
+        public static void Send<T>(this Event_ECS_Message message, T stream, out string response) where T : Stream
         {
-            int bytes = 0;
-            byte[] buffer = new byte[256];
-            do
-            {
-                bytes = socket.Receive(buffer, buffer.Length, SocketFlags.None);
-                yield return Encoding.ASCII.GetString(buffer, 0, bytes);
-            } while (bytes < 0);
+            message.Send(stream);
+            response = stream.Receive();
+        }
+
+        public static void Send<T>(this Event_ECS_Message message, string args, T stream, out string response) where T : Stream
+        {
+            message.Send(args, stream);
+            response = stream.Receive();
         }
     }
 }

@@ -18,6 +18,59 @@ return Class(function(server, system, args)
   local s = assert(socket.bind(host, port))
   s:settimeout(timeout)
 
+  local function sendToClient(client, msg)
+    if log then
+      log:info("Sending to client '%s'", msg)
+    end
+    assert(client:send(msg))
+  end
+
+  local commands = setmetatable(
+  {
+    getdata = function(client)
+      sendToClient(client, "SYSTEM_DATA"..system:encode())
+    end,
+
+    addentity = function(client)
+      local entity = system:createEntity()
+      if log then
+        log:info("Added entity #'%d'", entity:getID())
+      end
+      sendToClient(client, "ENTITY_DATA"..entity:encode())
+    end,
+
+    removeentity = function(client, message)
+      local id = string.gsub(message, "removeentity", "")
+      id = tonumber(id)
+      if log then
+        log:info("Trying to remove entity #%d", id)
+      end
+      local count = system:removeEntities(function(en)
+        return en:getID() == id
+      end)
+      sendToClient(client, "REMOVED_ENTITY"..tostring(count))
+    end,
+
+    close = function()
+      return true
+    end,
+
+    echo = function(client, message)
+      log:warn("Unknown message: '%s'. Echoing back.", message)
+      assert(client:send(message))
+    end
+  },
+  {
+    __index = function(tab, key)
+      for k,v in pairs(tab) do
+        if string.match(key, k) then
+          return v
+        end
+      end
+      return v.echo
+    end
+  })
+
   local runInstance = coroutine.create(function()
     local done = false
     local lastConnection = os.clock()
@@ -32,30 +85,16 @@ return Class(function(server, system, args)
 
         local message, status
         while not status do
-
           message, status = client:receive()
           if message then
-            message = string.lower(message)
-            if log then
-              log:info("Received '%s' from client", message)
-            end
-          end
 
-          if message == "getdata" then
-            local msg = system:encode()
             if log then
-              log:info("Sending system data '%s'", msg)
+              log:info("Recevied '%s'", message)
             end
-            assert(client:send(msg))
-          elseif message == "close" then
-            if log then
-              log:info("Closing connection")
-            end
-            done = true
-            break
-          elseif message then
-            log:warn("Unknown message: '%s'. Echoing back.", message)
-            assert(client:send(message))
+            message = string.lower(message)
+
+            local command = commands[message]
+            done = command(client, message)
           end
         end
 

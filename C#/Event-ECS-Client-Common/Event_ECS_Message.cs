@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Text;
 
 namespace Event_ECS_Client_Common
@@ -9,8 +8,21 @@ namespace Event_ECS_Client_Common
         [Event_ECS_Message("getdata")]
         GET_DATA,
 
+        [Event_ECS_Message("addentity")]
+        ADD_ENTITY,
+
+        [Event_ECS_Message("removeentity")]
+        REMOVE_ENTITY,
+
         [Event_ECS_Message("close")]
         CLOSE
+    }
+
+    public enum Event_ECS_MessageResponse
+    {
+        SYSTEM_DATA,
+        ENTITY_DATA,
+        REMOVED_ENTITY
     }
 
     public class Event_ECS_MessageAttribute : Attribute
@@ -23,11 +35,5 @@ namespace Event_ECS_Client_Common
         public string Message { get; private set; }
 
         public byte[] Data => Encoding.ASCII.GetBytes(Message + "\n");
-
-        public void Send<T>(T stream) where T : Stream
-        {
-            byte[] data = Data;
-            stream.Write(data, 0, data.Length);
-        }
     }
 }

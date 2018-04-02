@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27428.2015
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Event-ECS-Client-Console", "Event-ECS-Client\Event-ECS-Client-Console.csproj", "{1607D8C6-43FC-4320-9B38-61308C866A55}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Event-ECS-Client-Test", "Event-ECS-Client\Event-ECS-Client-Test.csproj", "{1607D8C6-43FC-4320-9B38-61308C866A55}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Event-ECS-Client-Common", "Event-ECS-Client-Common\Event-ECS-Client-Common.csproj", "{BCA24C62-6D54-45EE-A6FC-6FC0D402A744}"
 EndProject

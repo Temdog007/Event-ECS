@@ -48,6 +48,7 @@ return ClassFactory(function(system, serverArgs)
   end
 
   function system:removeEntity(entity)
+    assert(entity and entity.getName() == "entity", "Must enter a entity to remove")
     for k, en in pairs(entities) do
       if en == entity then
         self:dispatchEvent("removingEntity", {entity = entity, system = self})
@@ -58,12 +59,17 @@ return ClassFactory(function(system, serverArgs)
   end
 
   function system:removeEntities(matchFunction)
+    assert(typeof(matchFunction) == "function", "Must enter a function to remove entities")
+
+    local count = 0
     for k, en in pairs(entities) do
       if matchFunction(en) then
         self:dispatchEvent("removingEntity", {entity = en, system = self})
         entities[k] = nil
+        count = count + 1
       end
     end
+    return count
   end
 
   function system:entityCount()
@@ -100,7 +106,7 @@ return ClassFactory(function(system, serverArgs)
     return eventsHandled
   end
 
-  function system:encode()
+  function system:getData()
     local rval =
     {
       system =
@@ -117,13 +123,15 @@ return ClassFactory(function(system, serverArgs)
 
     local enData = {}
     for _, en in pairs(entities) do
-      local data = en:getData()
-      data.id = en:getID()
-      table.insert(enData, data)
+      table.insert(enData, en:getData())
     end
 
     rval.system.entities = enData
-    return json.encode(rval)
+    return rval
+  end
+
+  function system:encode()
+    return json.encode(self:getData())
   end
 
   function system:registerComponent(NewComponent)

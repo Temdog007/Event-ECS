@@ -18,6 +18,7 @@
 -- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 -- SOFTWARE.
 
+local json = require("json")
 local ClassFactory = require("classFactory")
 local ClassName = "Entity"
 local id = 0
@@ -160,6 +161,7 @@ local Entity = ClassFactory(function(entity, system)
 
   function entity:getData()
     local data = {}
+    data.id = self:getID()
     for _, component in pairs(components) do
       for k, compValue in pairs(component) do
         if k ~= "__type" and (type(compValue) == "number" or type(compValue) == "string") then
@@ -168,6 +170,10 @@ local Entity = ClassFactory(function(entity, system)
       end
     end
     return data
+  end
+
+  function entity:encode()
+    return json.encode(self:getData())
   end
 
 end)
