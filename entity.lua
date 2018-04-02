@@ -21,7 +21,6 @@
 local json = require("json")
 local ClassFactory = require("classFactory")
 local ClassName = "Entity"
-local id = 0
 
 local function removeAll()
   return true
@@ -31,7 +30,7 @@ local function entostring(en)
   if en.name then
     return string.format("%s#%d: %s", ClassName, en:getID(), en.name)
   else
-    return ClassName
+    return string.format("%s#%d", ClassName, en:getID())
   end
 end
 
@@ -46,9 +45,6 @@ local Entity = ClassFactory(function(entity, system)
 
   local components = {}
   local eventTablesTable = {}
-  local entityID = id
-  entity.getID = function() return entityID end
-  id = id + 1
 
   function entity:addComponent(compName, args)
     local compClass = assert(self.system:getComponent(compName), "Component not found in system")

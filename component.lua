@@ -3,7 +3,7 @@ require("classlib")
 local component = class("Component")
 
 function component:__init(entity)
-  assert(entity and entity:getName() == "Entity", "Component must have an entity")
+  assert(entity and string.match(entity:getName(), "Entity"), "Component must have an entity")
 
   self.entity = entity
   self.enabled = true

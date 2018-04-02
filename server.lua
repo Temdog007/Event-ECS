@@ -40,18 +40,31 @@ return Class(function(server, system, args)
     end,
 
     removeentity = function(client, message)
-      local id = string.gsub(message, "removeentity", "")
-      id = tonumber(id)
-      if log then
-        log:info("Trying to remove entity #%d", id)
-      end
-      local count = system:removeEntities(function(en)
-        return en:getID() == id
+      local status, result = pcall(function()
+        local id = string.gsub(message, "removeentity", "")
+        if id then
+          id = tonumber(id)
+        end
+        if id then return id else
+          error("Must send id of entity to remove")
+        end
       end)
-      sendToClient(client, "REMOVED_ENTITY"..tostring(count))
+
+      if not status and result then
+        sendToClient(client, result)
+      else
+        if log then
+          log:info("Trying to remove entity #%d", result)
+        end
+        local count = system:removeEntities(function(en)
+          return en:getID() == result
+        end)
+        sendToClient(client, "REMOVED_ENTITY"..tostring(count))
+      end
     end,
 
-    close = function()
+    close = function(client)
+      sendToClient(client, "CLOSING")
       return true
     end,
 
@@ -67,7 +80,7 @@ return Class(function(server, system, args)
           return v
         end
       end
-      return v.echo
+      return tab.echo
     end
   })
 
@@ -75,7 +88,10 @@ return Class(function(server, system, args)
     local done = false
     local lastConnection = os.clock()
     while not done do
-      log:info("Acquiring new client")
+      if log then
+        log:info("Acquiring new client")
+      end
+
       local client = s:accept()
       if client then
 
@@ -84,7 +100,7 @@ return Class(function(server, system, args)
         end
 
         local message, status
-        while not status do
+        while not status and not done do
           message, status = client:receive()
           if message then
 
@@ -105,7 +121,7 @@ return Class(function(server, system, args)
           log:info("Done with client")
         end
 
-      else
+      elseif log then
         log:warn("Client accept timed out")
       end
       coroutine.yield(lastConnection)

@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Event-ECS-Client-Test", "Ev
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Event-ECS-Client-Common", "Event-ECS-Client-Common\Event-ECS-Client-Common.csproj", "{BCA24C62-6D54-45EE-A6FC-6FC0D402A744}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Event-ECS-Client-Console", "Event-ECS-Client-Console\Event-ECS-Client-Console.csproj", "{4D368A25-36EB-4F65-85BA-EB7D7961C9B5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{BCA24C62-6D54-45EE-A6FC-6FC0D402A744}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BCA24C62-6D54-45EE-A6FC-6FC0D402A744}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BCA24C62-6D54-45EE-A6FC-6FC0D402A744}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4D368A25-36EB-4F65-85BA-EB7D7961C9B5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D368A25-36EB-4F65-85BA-EB7D7961C9B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D368A25-36EB-4F65-85BA-EB7D7961C9B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D368A25-36EB-4F65-85BA-EB7D7961C9B5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

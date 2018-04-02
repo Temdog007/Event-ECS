@@ -33,7 +33,14 @@ local function systostring(sys)
 end
 
 return ClassFactory(function(system, serverArgs)
-  local entities = {}
+  local entities = setmetatable({},
+  {
+    __newindex = function(tab, key, value)
+      value.getID = function() return key end
+      rawset(tab, key, value)
+    end
+  })
+
   local registeredComponents = {}
 
   function system:getName()
@@ -42,13 +49,13 @@ return ClassFactory(function(system, serverArgs)
 
   function system:createEntity()
     local entity = Entity(self)
-    table.insert(entities, entity)
+    entities[#entities + 1] = entity
     self:dispatchEvent("createdEntity", {entity = entity, system = self})
     return entity
   end
 
   function system:removeEntity(entity)
-    assert(entity and entity.getName() == "entity", "Must enter a entity to remove")
+    assert(entity and string.match(entity:getName(), "Entity"), "Must enter a entity to remove")
     for k, en in pairs(entities) do
       if en == entity then
         self:dispatchEvent("removingEntity", {entity = entity, system = self})

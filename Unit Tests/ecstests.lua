@@ -88,6 +88,7 @@ function ecsTests:testEntityInitialization()
 
   assertNotIsNil(entity.system)
 
+  assertEquals(type(entity.getID), "function")
   assertEquals(type(entity.addComponent), "function")
   assertEquals(type(entity.addComponents), "function")
   assertEquals(type(entity.removeComponent), "function")
@@ -95,11 +96,6 @@ function ecsTests:testEntityInitialization()
   assertEquals(type(entity.getID), "function")
   assertEquals(type(entity.remove), "function")
   assertEquals(type(entity.dispatchEvent), "function")
-
-  assertEquals(entity:getName(), "Entity")
-  entity.name = "Test"
-  assertNotEquals(entity:getName(), "Entity")
-  assertEquals(entity:getName(), "Entity#"..entity:getID()..": Test")
 end
 
 function ecsTests:testSystemInitialization()
@@ -140,7 +136,7 @@ function ecsTests:testSystemRegister()
   assertNotIsNil(system:getComponent("Component"))
 end
 
-function ecsTests:testEntityComponents()
+function ecsTests:testEntityComponents1()
   local system = System()
   system:registerComponent(TestComponent)
   local entity = system:createEntity()
@@ -181,6 +177,18 @@ function ecsTests:testEntityComponents2()
 
   assertEquals(comp1.addedComponentCalled, 2)
   assertEquals(comp2.addedComponentCalled, 1)
+end
+
+function ecsTests:testEntityComponents3()
+  local system = System()
+  system:registerComponent(TestComponent)
+  local entity1 = system:createEntity()
+  local entity2 = system:createEntity()
+  local entity3 = system:createEntity()
+
+  assertNotEquals(entity1:getID(), entity2:getID())
+  assertNotEquals(entity1:getID(), entity3:getID())
+  assertNotEquals(entity2:getID(), entity3:getID())
 end
 
 function ecsTests:testEntityFunctions()
