@@ -21,7 +21,7 @@
         </Grid.RowDefinitions>
         
         <GroupBox Header="Game State">
-            <TreeView/>
+            <TreeView ItemsSource="{Binding System, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
         </GroupBox>
 
         <Expander Header="Logs" Grid.Row="1" ExpandDirection="Up" IsExpanded="True">
@@ -29,6 +29,7 @@
 
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="5*"/>
+                    <ColumnDefinition Width="1*"/>
                     <ColumnDefinition Width="1*"/>
                 </Grid.ColumnDefinitions>
 
@@ -58,6 +59,13 @@
                         
                         <Button HorizontalAlignment="Center" VerticalAlignment="Center" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
                             Command="{Binding SendMessage}" Content="Send Message"/>
+                    </StackPanel>
+                </GroupBox>
+
+                <GroupBox Header="Extra" Grid.Column="2">
+                    <StackPanel>
+                        <Button Content="Run System Server" Margin="5"/>
+                        <Button Content="Clear Logs" Command="{Binding ClearLogCommand}" Margin="5"/>
                     </StackPanel>
                 </GroupBox>
 

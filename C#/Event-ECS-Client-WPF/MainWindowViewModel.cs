@@ -4,9 +4,9 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Net.Sockets;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using ECSSystem = Event_ECS_Client_WPF.SystemObjects.System;
 
@@ -90,29 +90,44 @@ namespace Event_ECS_Client_WPF
             }
         }
 
+        private void addLog(string message, params object[] args)
+        {
+            addLog(string.Format(message, args));
+        }
+
+        private void clearLogs()
+        {
+            lock(m_logLock)
+            {
+                Application.Current.Dispatcher.Invoke(new Action(() =>
+                {
+                    Logs.Clear();
+                }));
+            }
+        }
+
+        public ActionCommand<object> ClearLogCommand => m_clearLogCommand ?? (m_clearLogCommand = new ActionCommand<object>(clearLogs));
+        private ActionCommand<object> m_clearLogCommand;
+
         private bool ConnectToServer()
         {
-            try
+            lock (m_lock)
             {
-                m_client?.Connect(server, port);
-                return true;
-            }
-            catch(Exception e)
-            {
-                addLog(e.Message);
-                return false;
-            }
-            finally
-            {
-                OnPropertyChanged("IsConnected");
-                SendMessage.UpdateCanExecute(this, EventArgs.Empty);
+                try
+                {
+                    m_client?.Connect(server, port);
+                    return true;
+                }
+                catch (Exception e)
+                {
+                    addLog(e.Message);
+                    return false;
+                }
             }
         }
 
         public ActionCommand<object> ConnectCommand => m_connectCommand ?? (m_connectCommand = new ActionCommand<object>(obj => ConnectToServer()));
         private ActionCommand<object> m_connectCommand;
-
-        public bool IsConnected => m_client?.Connected ?? false;
 
         public AsyncActionCommand<object> SendMessage => m_sendMessage ?? (m_sendMessage = new AsyncActionCommand<object>(DoSendMessage, obj => IsConnected));
         private AsyncActionCommand<object> m_sendMessage;
@@ -134,8 +149,8 @@ namespace Event_ECS_Client_WPF
                     Message.Send(Arguments, m_client.GetStream(), out string response);
                     if (!string.IsNullOrWhiteSpace(response))
                     {
-                        HandleResponse(response);
                         addLog(response);
+                        HandleResponse(response);
                     }
                 }
                 else
@@ -160,7 +175,12 @@ namespace Event_ECS_Client_WPF
                 string eStr = e.ToString();
                 if(response.Contains(eStr))
                 {
-                    HandleMessage(e, response.Replace(eStr, string.Empty));
+                    try
+                    {
+                        HandleMessage(e, response.Replace(eStr, string.Empty));
+                    }
+                    catch (Exception) { }
+                    break;
                 }
             }
         }
@@ -170,7 +190,20 @@ namespace Event_ECS_Client_WPF
             switch(response)
             {
                 case Event_ECS_MessageResponse.SYSTEM_DATA:
-                    System = JsonConvert.DeserializeObject<ECSSystem>(args);
+                    using (JsonTextReader reader = new JsonTextReader(new StringReader(args)))
+                    {
+                        while (reader.Read())
+                        {
+                            if (reader.Value != null)
+                            {
+                                addLog("Token: {0}, Value: {1}", reader.TokenType, reader.Value);
+                            }
+                            else
+                            {
+                                addLog("Token: {0}", reader.TokenType);
+                            }
+                        }
+                    }
                     break;
                 default:
                     break;

@@ -33,62 +33,62 @@ namespace Event_ECS_Client_WPF.Misc
             DependencyObject d,
             DependencyPropertyChangedEventArgs e)
         {
-            var listBox = d as DataGrid;
-            if (listBox == null) return;
+            var dataGrid = d as DataGrid;
+            if (dataGrid == null) return;
             bool oldValue = (bool)e.OldValue, newValue = (bool)e.NewValue;
             if (newValue == oldValue) return;
             if (newValue)
             {
-                listBox.Loaded += ListBox_Loaded;
-                listBox.Unloaded += ListBox_Unloaded;
-                var itemsSourcePropertyDescriptor = TypeDescriptor.GetProperties(listBox)["ItemsSource"];
-                itemsSourcePropertyDescriptor.AddValueChanged(listBox, ListBox_ItemsSourceChanged);
+                dataGrid.Loaded += DataGrid_Loaded;
+                dataGrid.Unloaded += DataGrid_Unloaded;
+                var itemsSourcePropertyDescriptor = TypeDescriptor.GetProperties(dataGrid)["ItemsSource"];
+                itemsSourcePropertyDescriptor.AddValueChanged(dataGrid, DataGrid_ItemsSourceChanged);
             }
             else
             {
-                listBox.Loaded -= ListBox_Loaded;
-                listBox.Unloaded -= ListBox_Unloaded;
-                if (Associations.ContainsKey(listBox))
-                    Associations[listBox].Dispose();
-                var itemsSourcePropertyDescriptor = TypeDescriptor.GetProperties(listBox)["ItemsSource"];
-                itemsSourcePropertyDescriptor.RemoveValueChanged(listBox, ListBox_ItemsSourceChanged);
+                dataGrid.Loaded -= DataGrid_Loaded;
+                dataGrid.Unloaded -= DataGrid_Unloaded;
+                if (Associations.ContainsKey(dataGrid))
+                    Associations[dataGrid].Dispose();
+                var itemsSourcePropertyDescriptor = TypeDescriptor.GetProperties(dataGrid)["ItemsSource"];
+                itemsSourcePropertyDescriptor.RemoveValueChanged(dataGrid, DataGrid_ItemsSourceChanged);
             }
         }
 
-        private static void ListBox_ItemsSourceChanged(object sender, EventArgs e)
+        private static void DataGrid_ItemsSourceChanged(object sender, EventArgs e)
         {
-            var listBox = (DataGrid)sender;
-            if (Associations.ContainsKey(listBox))
-                Associations[listBox].Dispose();
-            Associations[listBox] = new Capture(listBox);
+            var dataGrid = (DataGrid)sender;
+            if (Associations.ContainsKey(dataGrid))
+                Associations[dataGrid].Dispose();
+            Associations[dataGrid] = new Capture(dataGrid);
         }
 
-        static void ListBox_Unloaded(object sender, RoutedEventArgs e)
+        static void DataGrid_Unloaded(object sender, RoutedEventArgs e)
         {
-            var listBox = (DataGrid)sender;
-            if (Associations.ContainsKey(listBox))
-                Associations[listBox].Dispose();
-            listBox.Unloaded -= ListBox_Unloaded;
+            var dataGrid = (DataGrid)sender;
+            if (Associations.ContainsKey(dataGrid))
+                Associations[dataGrid].Dispose();
+            dataGrid.Unloaded -= DataGrid_Unloaded;
         }
 
-        static void ListBox_Loaded(object sender, RoutedEventArgs e)
+        static void DataGrid_Loaded(object sender, RoutedEventArgs e)
         {
-            var listBox = (DataGrid)sender;
-            var incc = listBox.Items as INotifyCollectionChanged;
+            var dataGrid = (DataGrid)sender;
+            var incc = dataGrid.Items as INotifyCollectionChanged;
             if (incc == null) return;
-            listBox.Loaded -= ListBox_Loaded;
-            Associations[listBox] = new Capture(listBox);
+            dataGrid.Loaded -= DataGrid_Loaded;
+            Associations[dataGrid] = new Capture(dataGrid);
         }
 
         class Capture : IDisposable
         {
-            private readonly DataGrid listBox;
+            private readonly DataGrid dataGrid;
             private readonly INotifyCollectionChanged incc;
 
-            public Capture(DataGrid listBox)
+            public Capture(DataGrid dataGrid)
             {
-                this.listBox = listBox;
-                incc = listBox.ItemsSource as INotifyCollectionChanged;
+                this.dataGrid = dataGrid;
+                incc = dataGrid.ItemsSource as INotifyCollectionChanged;
                 if (incc != null)
                 {
                     incc.CollectionChanged += incc_CollectionChanged;
@@ -99,8 +99,8 @@ namespace Event_ECS_Client_WPF.Misc
             {
                 if (e.Action == NotifyCollectionChangedAction.Add)
                 {
-                    listBox.ScrollIntoView(e.NewItems[0]);
-                    listBox.SelectedItem = e.NewItems[0];
+                    dataGrid.ScrollIntoView(e.NewItems[0]);
+                    dataGrid.SelectedItem = e.NewItems[0];
                 }
             }
 
