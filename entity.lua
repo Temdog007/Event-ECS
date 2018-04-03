@@ -22,6 +22,10 @@ local json = require("json")
 local ClassFactory = require("classFactory")
 local ClassName = "Entity"
 
+function string.starts(str, start)
+  return string.sub(str, 1, string.len(start)) == start
+end
+
 local function removeAll()
   return true
 end
@@ -55,7 +59,8 @@ local Entity = ClassFactory(function(entity, system)
 
     -- Grab all of the components functions and put them into the event tables
     for k,v in pairs(compClass) do
-      if type(v) == "function" then
+      k = string.lower(k)
+      if string.starts(k, "event") and type(v) == "function" then
         if not eventTablesTable[k] then
           eventTablesTable[k] = {}
         end
@@ -63,7 +68,7 @@ local Entity = ClassFactory(function(entity, system)
       end
     end
 
-    self.system:dispatchEvent("addedComponent",  {component = component, entity = self})
+    self.system:dispatchEvent("eventAddedComponent",  {component = component, entity = self})
     return component
   end
 
@@ -79,7 +84,7 @@ local Entity = ClassFactory(function(entity, system)
   end
 
   local function removeComponentFunction(index, component)
-    entity.system:dispatchEvent("removingComponent", {component = component, entity = entity})
+    entity.system:dispatchEvent("eventRemovingComponent", {component = component, entity = entity})
     components[index] = nil
     for eventName,eventTables in pairs(eventTablesTable) do
       for k, eventTable in pairs(eventTables) do
@@ -134,6 +139,7 @@ local Entity = ClassFactory(function(entity, system)
   end
 
   function entity:dispatchEvent(event, args)
+    event = string.lower(event)
     local eventTables = eventTablesTable[event]
     if not eventTables then
       return 0
@@ -155,16 +161,18 @@ local Entity = ClassFactory(function(entity, system)
     return self.system:removeEntity(self)
   end
 
-  function entity:getData()
-    local data = {}
-    data.id = self:getID()
+  function entity:getData(data)
+    data = data or {}
     for _, component in pairs(components) do
-      for k, compValue in pairs(component) do
-        if k ~= "__type" and (type(compValue) == "number" or type(compValue) == "string") then
-          data[k] = compValue
-        end
-      end
+      table.insert(data, component:getData())
     end
+    data.id = self:getID()
+    data.name = self:getName()
+    local events = {}
+    for k in pairs(eventTablesTable) do
+      table.insert(events, k)
+    end
+    data.events = events
     return data
   end
 

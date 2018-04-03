@@ -22,7 +22,8 @@ namespace Event_ECS_Client_Common
     {
         SYSTEM_DATA,
         ENTITY_DATA,
-        REMOVED_ENTITY,
+        REMOVED_ENTITIES,
+        DISPATCHED_EVENT,
         CLOSING
     }
 

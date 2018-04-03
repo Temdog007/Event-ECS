@@ -31,7 +31,7 @@ function TestComponent:__init(entity)
   self.removingComponentCalled = 0
 end
 
-function TestComponent:addedComponent(args)
+function TestComponent:eventAddedComponent(args)
   if args.component == self then
     self.added = true
     self.entity = args.entity
@@ -39,7 +39,19 @@ function TestComponent:addedComponent(args)
   self.addedComponentCalled = self.addedComponentCalled + 1
 end
 
+function TestComponent:addedComponent(args)
+  error("This shouldn't have been called")
+end
+
+function TestComponent:addedComponentEvent(args)
+  error("This shouldn't have been called")
+end
+
 function TestComponent:removingComponent(args)
+  error("This shouldn't have been called")
+end
+
+function TestComponent:eventRemovingComponent(args)
   if args.component == self then
     self.added = false
     self.entity = nil

@@ -40,7 +40,7 @@ namespace Event_ECS_Client_Test
                     // Remove entity
                     Console.WriteLine("Requesting entity to be removed");
                     Event_ECS_Message.REMOVE_ENTITY.Send(((object)obj.id).ToString(), stream, out response);
-                    response = response.Replace(Event_ECS_MessageResponse.REMOVED_ENTITY.ToString(), string.Empty);
+                    response = response.Replace(Event_ECS_MessageResponse.REMOVED_ENTITIES.ToString(), string.Empty);
                     Console.WriteLine("Removed {0} entities", response);
                     
                     // Get system data

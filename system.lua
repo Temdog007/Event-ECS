@@ -50,7 +50,7 @@ return ClassFactory(function(system, serverArgs)
   function system:createEntity()
     local entity = Entity(self)
     entities[#entities + 1] = entity
-    self:dispatchEvent("createdEntity", {entity = entity, system = self})
+    self:dispatchEvent("eventCreatedEntity", {entity = entity, system = self})
     return entity
   end
 
@@ -58,7 +58,7 @@ return ClassFactory(function(system, serverArgs)
     assert(entity and string.match(entity:getName(), "Entity"), "Must enter a entity to remove")
     for k, en in pairs(entities) do
       if en == entity then
-        self:dispatchEvent("removingEntity", {entity = entity, system = self})
+        self:dispatchEvent("eventRemovingEntity", {entity = entity, system = self})
         entities[k] = nil
         return true
       end
@@ -71,7 +71,7 @@ return ClassFactory(function(system, serverArgs)
     local count = 0
     for k, en in pairs(entities) do
       if matchFunction(en) then
-        self:dispatchEvent("removingEntity", {entity = en, system = self})
+        self:dispatchEvent("eventRemovingEntity", {entity = en, system = self})
         entities[k] = nil
         count = count + 1
       end
@@ -113,8 +113,8 @@ return ClassFactory(function(system, serverArgs)
     return eventsHandled
   end
 
-  function system:getData()
-    local rval =
+  function system:getData(data)
+    data = data or
     {
       system =
       {
@@ -126,15 +126,15 @@ return ClassFactory(function(system, serverArgs)
     for _, comp in pairs(registeredComponents) do
       table.insert(classes, classname(comp))
     end
-    rval.system.components = classes
+    data.system.components = classes
 
     local enData = {}
     for _, en in pairs(entities) do
       table.insert(enData, en:getData())
     end
 
-    rval.system.entities = enData
-    return rval
+    data.system.entities = enData
+    return data
   end
 
   function system:encode()

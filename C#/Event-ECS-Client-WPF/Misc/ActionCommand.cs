@@ -51,7 +51,7 @@ namespace Event_ECS_Client_WPF.Misc
             return false;
         }
 
-        public void Execute(object parameter)
+        public virtual void Execute(object parameter)
         {
             m_action.Invoke((T)parameter);
         }

@@ -1,11 +1,14 @@
 ﻿using Event_ECS_Client_Common;
 using Event_ECS_Client_WPF.Misc;
+using Newtonsoft.Json;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using ECSSystem = Event_ECS_Client_WPF.SystemObjects.System;
 
 namespace Event_ECS_Client_WPF
 {
@@ -15,6 +18,8 @@ namespace Event_ECS_Client_WPF
         const Int32 port = 9999;
 
         private TcpClient m_client;
+
+        private object m_lock = new object();
 
         public MainWindowViewModel()
         {
@@ -48,18 +53,41 @@ namespace Event_ECS_Client_WPF
 
         #endregion
 
-        public ObservableCollection<Log> Logs { get; set; } = new ObservableCollection<Log>();
+        public ECSSystem System
+        {
+            get => m_system;
+            set
+            {
+                m_system = value;
+                OnPropertyChanged("System");
+            }
+        }private ECSSystem m_system = new ECSSystem();
 
+        public ObservableCollection<Log> Logs
+        {
+            get => m_logs;
+            set
+            {
+                m_logs = value;
+                OnPropertyChanged("Logs");
+            }
+        }
+        private ObservableCollection<Log> m_logs = new ObservableCollection<Log>();
+
+        private object m_logLock = new object();
         private void addLog(string message)
         {
-            Application.Current.Dispatcher.BeginInvoke(new Action(() => 
+            lock (m_logLock)
             {
-                Logs.Add(new Log()
+                Application.Current.Dispatcher.Invoke(new Action(() =>
                 {
-                    DateTime = DateTime.Now,
-                    Message = message
-                });
-            }));
+                    Logs.Add(new Log()
+                    {
+                        DateTime = DateTime.Now,
+                        Message = message
+                    });
+                }));
+            }
         }
 
         private bool ConnectToServer()
@@ -86,33 +114,66 @@ namespace Event_ECS_Client_WPF
 
         public bool IsConnected => m_client?.Connected ?? false;
 
-        public ActionCommand<object> SendMessage => m_sendMessage ?? (m_sendMessage = new ActionCommand<object>(DoSendMessage, obj => IsConnected));
-        private ActionCommand<object> m_sendMessage;
+        public AsyncActionCommand<object> SendMessage => m_sendMessage ?? (m_sendMessage = new AsyncActionCommand<object>(DoSendMessage, obj => IsConnected));
+        private AsyncActionCommand<object> m_sendMessage;
 
         private void DoSendMessage(object obj)
         {
-            if((m_client?.Connected ?? false) == false)
-            {
-                if(!ConnectToServer())
-                {
-                    return;
-                }
-            }
-
             try
             {
-                Task.Run(async () => 
+                if (Monitor.TryEnter(m_lock))
                 {
-                    string response = await Message.SendAsync(Arguments, m_client.GetStream(), true);
-                    if(!string.IsNullOrWhiteSpace(response))
+                    if ((m_client?.Connected ?? false) == false)
                     {
+                        if (!ConnectToServer())
+                        {
+                            return;
+                        }
+                    }
+
+                    Message.Send(Arguments, m_client.GetStream(), out string response);
+                    if (!string.IsNullOrWhiteSpace(response))
+                    {
+                        HandleResponse(response);
                         addLog(response);
                     }
-                });
+                }
+                else
+                {
+                    addLog("Previous send message task hasn't completed");
+                }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 addLog(e.Message);
+            }
+            finally
+            {
+                Monitor.Exit(m_lock);
+            }
+        }
+
+        private void HandleResponse(string response)
+        {
+            foreach(Event_ECS_MessageResponse e in Enum.GetValues(typeof(Event_ECS_MessageResponse)))
+            {
+                string eStr = e.ToString();
+                if(response.Contains(eStr))
+                {
+                    HandleMessage(e, response.Replace(eStr, string.Empty));
+                }
+            }
+        }
+
+        private void HandleMessage(Event_ECS_MessageResponse response, string args)
+        {
+            switch(response)
+            {
+                case Event_ECS_MessageResponse.SYSTEM_DATA:
+                    System = JsonConvert.DeserializeObject<ECSSystem>(args);
+                    break;
+                default:
+                    break;
             }
         }
 

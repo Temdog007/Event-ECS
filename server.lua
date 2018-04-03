@@ -59,7 +59,18 @@ return Class(function(server, system, args)
         local count = system:removeEntities(function(en)
           return en:getID() == result
         end)
-        sendToClient(client, "REMOVED_ENTITY"..tostring(count))
+        sendToClient(client, "REMOVED_ENTITIES: #"..tostring(count))
+      end
+    end,
+
+    dispatchevent = function(client, message)
+      message = string.gsub(message, "dispatchevent", "")
+      if not message or string.len(message) == 0  then
+        sendToClient(client, "Must send an event name to dispatch")
+      else
+        message = "event"..message
+        local count = system:dispatchEvent(message)
+        sendToClient(client, "DISPATCHED_EVENT: "..message.." HANDLES: #"..tostring(count))
       end
     end,
 

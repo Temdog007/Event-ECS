@@ -42,6 +42,7 @@
   <ItemGroup>
     <Compile Include="Event_ECS_Message.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="NotifyPropertyChanged.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
