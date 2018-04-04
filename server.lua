@@ -64,11 +64,11 @@ return Class(function(server, system, args)
     end,
 
     dispatchevent = function(client, message)
-      message = string.gsub(message, "dispatchevent", "")
+      message = string.gsub(message, "dispatch", "")
       if not message or string.len(message) == 0  then
         sendToClient(client, "Must send an event name to dispatch")
       else
-        message = "event"..message
+        message = message
         local count = system:dispatchEvent(message)
         sendToClient(client, "DISPATCHED_EVENT: "..message.." HANDLES: #"..tostring(count))
       end

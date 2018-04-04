@@ -33,20 +33,19 @@
                     <ColumnDefinition Width="1*"/>
                 </Grid.ColumnDefinitions>
 
-                <GroupBox Header="Logs" Grid.Column="0" >
+                <GroupBox Header="Logs" Grid.Column="0" Grid.ColumnSpan="2">
                     <DataGrid ItemsSource="{Binding Logs, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" Background='LightGray' 
                           AutoGenerateColumns="False" CanUserAddRows="False" ScrollViewer.HorizontalScrollBarVisibility="Visible"
                               misc:DataGridBehaviour.ScrollOnNewItem="True">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Time" Binding="{Binding DateTime}" Width="auto"/>
-                            <DataGridTextColumn Header="Message" Binding="{Binding Message}" Width="*"/>
+                            <DataGridTextColumn Header="Time" Binding="{Binding DateTime}" Width="auto" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Message" Binding="{Binding Message}" Width="*" IsReadOnly="True"/>
                         </DataGrid.Columns>
                         </DataGrid>
                 </GroupBox>
 
                 <GroupBox Header="Send Messages" Background="Beige" Grid.Column="1" >
                     <StackPanel>
-                        <Button Content="Connect" Command="{Binding ConnectCommand}" />
 
                         <GroupBox Header="Message To Send">
                             <ComboBox HorizontalAlignment="Stretch" VerticalAlignment="Stretch" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"

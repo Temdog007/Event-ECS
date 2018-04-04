@@ -1,12 +1,15 @@
 ﻿using Event_ECS_Client_Common;
 using Event_ECS_Client_WPF.Misc;
+using Event_ECS_Client_WPF.Properties;
 using Newtonsoft.Json;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
+using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using ECSSystem = Event_ECS_Client_WPF.SystemObjects.System;
 
@@ -14,18 +17,14 @@ namespace Event_ECS_Client_WPF
 {
     public class MainWindowViewModel : INotifyPropertyChanged, IDisposable
     {
-        const string server = "localhost";
-        const Int32 port = 9999;
+        private static EndPoint IPEndpoint => new IPEndPoint(IPAddress.Parse(Settings.Default.Server), Settings.Default.Port);
 
-        private TcpClient m_client;
-
-        private object m_lock = new object();
+        private Socket m_socket;
 
         public MainWindowViewModel()
         {
-            m_client = new TcpClient();
-            m_client.ReceiveTimeout = 1000;
-            m_client.SendTimeout = 1000;
+            StartConnection(TimeSpan.FromSeconds(Settings.Default.ConnectInterval));
+            addLog("Will connect to Entity Component System server in {0} seconds", Settings.Default.ConnectInterval);
         }
 
         #region IDisposable Support
@@ -37,7 +36,8 @@ namespace Event_ECS_Client_WPF
             {
                 if (disposing)
                 {
-                    m_client?.Close();
+                    m_socket.Shutdown(SocketShutdown.Both);
+                    m_socket.Close();
                 }
 
                 disposedValue = true;
@@ -109,80 +109,87 @@ namespace Event_ECS_Client_WPF
         public ActionCommand<object> ClearLogCommand => m_clearLogCommand ?? (m_clearLogCommand = new ActionCommand<object>(clearLogs));
         private ActionCommand<object> m_clearLogCommand;
 
-        private bool ConnectToServer()
-        {
-            lock (m_lock)
-            {
-                try
-                {
-                    m_client?.Connect(server, port);
-                    return true;
-                }
-                catch (Exception e)
-                {
-                    addLog(e.Message);
-                    return false;
-                }
-            }
-        }
-
-        public ActionCommand<object> ConnectCommand => m_connectCommand ?? (m_connectCommand = new ActionCommand<object>(obj => ConnectToServer()));
-        private ActionCommand<object> m_connectCommand;
-
-        public AsyncActionCommand<object> SendMessage => m_sendMessage ?? (m_sendMessage = new AsyncActionCommand<object>(DoSendMessage, obj => IsConnected));
+        public AsyncActionCommand<object> SendMessage => m_sendMessage ?? (m_sendMessage = new AsyncActionCommand<object>(DoSendMessage));
         private AsyncActionCommand<object> m_sendMessage;
 
         private void DoSendMessage(object obj)
         {
             try
             {
-                if (Monitor.TryEnter(m_lock))
-                {
-                    if ((m_client?.Connected ?? false) == false)
-                    {
-                        if (!ConnectToServer())
-                        {
-                            return;
-                        }
-                    }
-
-                    Message.Send(Arguments, m_client.GetStream(), out string response);
-                    if (!string.IsNullOrWhiteSpace(response))
-                    {
-                        addLog(response);
-                        HandleResponse(response);
-                    }
-                }
-                else
-                {
-                    addLog("Previous send message task hasn't completed");
-                }
+                Message.BeginSend(Arguments, m_socket);
+                addLog("Sent Message: {0}", Message);
             }
             catch (Exception e)
             {
                 addLog(e.Message);
             }
-            finally
+        }
+
+        private async void StartConnection(TimeSpan delay)
+        {
+            await Task.Delay(delay).ContinueWith(task =>
             {
-                Monitor.Exit(m_lock);
+                m_socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                m_socket.ReceiveTimeout = 1000;
+                m_socket.SendTimeout = 1000;
+
+                m_socket.BeginConnect(IPEndpoint, HandleConnect, null);
+                addLog("Attempting to connect to Entity Component System Server");
+            }, TaskContinuationOptions.OnlyOnRanToCompletion);
+        }
+
+        private void HandleConnect(IAsyncResult ar)
+        {
+            try
+            {
+                m_socket.EndConnect(ar);
+                addLog("Connected to Entity Component System Server");
+                m_socket.BeginReceive(HandleResponse);
+            }
+            catch(SocketException se)
+            {
+                if(se.SocketErrorCode == SocketError.ConnectionRefused)
+                {
+                    // Create new socket and try again
+                    StartConnection(TimeSpan.FromSeconds(Settings.Default.ConnectInterval));
+                    addLog("Failed to connect to Entity Component System Server. Re-attempting in {0} seconds", Settings.Default.ConnectInterval);
+                }
+                else
+                {
+                    Console.WriteLine(se);
+                    addLog(se.Message);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                addLog(e.Message);
             }
         }
 
-        private void HandleResponse(string response)
+        private bool HandleResponse(string response)
         {
-            foreach(Event_ECS_MessageResponse e in Enum.GetValues(typeof(Event_ECS_MessageResponse)))
+            if (!string.IsNullOrWhiteSpace(response))
             {
-                string eStr = e.ToString();
-                if(response.Contains(eStr))
+                addLog("Received for system: {0}", response);
+                foreach (Event_ECS_MessageResponse ev in Enum.GetValues(typeof(Event_ECS_MessageResponse)))
                 {
-                    try
+                    string eStr = ev.ToString();
+                    if (response.Contains(eStr))
                     {
-                        HandleMessage(e, response.Replace(eStr, string.Empty));
+                        try
+                        {
+                            HandleMessage(ev, response.Replace(eStr, string.Empty));
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e);
+                        }
+                        break;
                     }
-                    catch (Exception) { }
-                    break;
                 }
             }
+            return m_socket.IsValid();
         }
 
         private void HandleMessage(Event_ECS_MessageResponse response, string args)

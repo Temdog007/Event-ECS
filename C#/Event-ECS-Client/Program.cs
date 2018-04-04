@@ -15,21 +15,22 @@ namespace Event_ECS_Client_Test
 
         static void Main(string[] args)
         {
-            using (TcpClient client = new TcpClient(server, port))
+            using (Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
             {
-                client.SendTimeout = SendTimeout;
-                client.ReceiveTimeout = ReceiveTimeout;
-
-                using (var stream = client.GetStream())
+                try
                 {
+                    socket.Connect(server, port);
+                    socket.SendTimeout = SendTimeout;
+                    socket.ReceiveTimeout = ReceiveTimeout;
+
                     // Get system data
                     Console.WriteLine("Requesting system data");
-                    Event_ECS_Message.GET_DATA.Send(stream, out string response);
+                    Event_ECS_Message.GET_DATA.Send(socket, out string response);
                     Console.WriteLine("Received: {0}", response);
 
                     // Add an entity
                     Console.WriteLine("Adding entity");
-                    Event_ECS_Message.ADD_ENTITY.Send(stream, out response);
+                    Event_ECS_Message.ADD_ENTITY.Send(socket, out response);
                     Console.WriteLine("Received: {0}", response);
 
                     // Show entity ID
@@ -39,18 +40,26 @@ namespace Event_ECS_Client_Test
 
                     // Remove entity
                     Console.WriteLine("Requesting entity to be removed");
-                    Event_ECS_Message.REMOVE_ENTITY.Send(((object)obj.id).ToString(), stream, out response);
+                    Event_ECS_Message.REMOVE_ENTITY.Send(((object)obj.id).ToString(), socket, out response);
                     response = response.Replace(Event_ECS_MessageResponse.REMOVED_ENTITIES.ToString(), string.Empty);
                     Console.WriteLine("Removed {0} entities", response);
-                    
+
                     // Get system data
                     Console.WriteLine("Requesting system data");
-                    Event_ECS_Message.GET_DATA.Send(stream, out response);
+                    Event_ECS_Message.GET_DATA.Send(socket, out response);
                     Console.WriteLine("Received: {0}", response);
 
                     // Close
-                    Event_ECS_Message.CLOSE.Send(stream);
+                    Event_ECS_Message.CLOSE.Send(socket);
                     Console.WriteLine("Requested socket to be closed");
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+                finally
+                {
+                    socket.Shutdown(SocketShutdown.Both);
                 }
             }
             Console.Write("Press any key to continue...");

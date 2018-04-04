@@ -40,6 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AsyncHandler.cs" />
     <Compile Include="Event_ECS_Message.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="NotifyPropertyChanged.cs" />

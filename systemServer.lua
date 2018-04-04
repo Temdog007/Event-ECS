@@ -1,5 +1,3 @@
-local args = {...}
-
 local System = require("system")
 local logger = require("logging")
 
@@ -9,9 +7,9 @@ local log = logging.new(function(self, level, message)
 end)
 
 local system = System({
-  host = args[1] or "*",
-  port = args[2] or 9999,
-  timeout = args[3] or 1,
+  host = arg[1] or "*",
+  port = arg[2] or 9999,
+  timeout = arg[3] or 1,
   log = log
 })
 
@@ -19,10 +17,14 @@ local start = os.clock()
 
 while os.clock() - start < 5 do
   local status, result = system.updateServer()
-  if not status and result ~= nil then
-    log:error("Update Server coroutine failed: '%s'", result)
-    break
+  if status and type(result) == "number" then
+    start = result
   else
-    result = status
+    if result ~= nil then
+      log:error("Update Server coroutine failed: '%s'", result)
+      break
+    end
+    start = os.clock()
   end
+  log:info("Last message sent: %d", start)
 end

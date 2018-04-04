@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -14,9 +16,9 @@ namespace Event_ECS_Client_Common
 
         public static T GetProperty<T>(this object obj)
         {
-            foreach(var prop in obj.GetType().GetProperties())
+            foreach (var prop in obj.GetType().GetProperties())
             {
-                if(prop.PropertyType == typeof(T))
+                if (prop.PropertyType == typeof(T))
                 {
                     return (T)prop.GetValue(obj);
                 }
@@ -32,7 +34,7 @@ namespace Event_ECS_Client_Common
             return attributes.Length > 0 ? (T)attributes[0] : null;
         }
 
-        public static K GetAttribute<T,K>(this Enum obj) where T : Attribute
+        public static K GetAttribute<T, K>(this Enum obj) where T : Attribute
         {
             var attr = GetAttribute<T>(obj);
             return attr.GetProperty<K>();
@@ -46,7 +48,7 @@ namespace Event_ECS_Client_Common
                 t = obj.GetAttribute<T>();
                 success = true;
             }
-            catch(Exception)
+            catch (Exception)
             {
                 t = null;
             }
@@ -55,106 +57,80 @@ namespace Event_ECS_Client_Common
 
         #region Synchrounously
 
-        public static void Send<T>(this T stream, byte[] buffer) where T : Stream
-        {
-            stream.Write(buffer, 0, buffer.Length);
-        }
-
-        public static void Send<T>(this T stream, string message) where T : Stream
-        {
-            if(!message.EndsWith(Environment.NewLine))
-            {
-                message += Environment.NewLine;
-            }
-            byte[] data = Encoding.ASCII.GetBytes(message);
-            stream.Send(data);
-        }
-
-        public static void Send<T>(this T stream, string message, out string response) where T : Stream
-        {
-            stream.Send(message);
-            response = stream.Receive();
-        }
-
-        public static string Receive<T>(this T stream) where T: Stream
-        {
-            byte[] data = new byte[256];
-            Int32 bytes = stream.Read(data, 0, data.Length);
-            return Encoding.ASCII.GetString(data, 0, bytes);
-        }
-
-        public static void Send<T>(this Event_ECS_Message message, T stream) where T : Stream
-        {
-            stream.Send(message.GetAttribute<Event_ECS_MessageAttribute, byte[]>());
-        }
-
-        public static void Send<T>(this Event_ECS_Message message, string arguments, T stream) where T : Stream
-        {
-            stream.Send(message.GetAttribute<Event_ECS_MessageAttribute, string>() + arguments);
-        }
-
-        public static void Send<T>(this Event_ECS_Message message, T stream, out string response) where T : Stream
-        {
-            message.Send(stream);
-            response = stream.Receive();
-        }
-
-        public static void Send<T>(this Event_ECS_Message message, string args, T stream, out string response) where T : Stream
-        {
-            message.Send(args, stream);
-            response = stream.Receive();
-        }
-        #endregion
-
-        #region async
-
-        public static async Task SendAsync<T>(this T stream, byte[] buffer) where T : Stream
-        {
-            await stream.WriteAsync(buffer, 0, buffer.Length);
-        }
-
-        public static async Task<string> SendAsync<T>(this T stream, string message, bool waitForResponse = false) where T : Stream
+        public static void Send(this Socket socket, string message)
         {
             if (!message.EndsWith(Environment.NewLine))
             {
                 message += Environment.NewLine;
             }
-            byte[] data = Encoding.ASCII.GetBytes(message);
-            await stream.SendAsync(data);
-            if(waitForResponse)
-            {
-                return await stream.ReceiveAsync();
-            }
-            return string.Empty;
+            socket.Send(Encoding.ASCII.GetBytes(message));
         }
 
-        public static async Task<string> ReceiveAsync<T>(this T stream) where T : Stream
+        public static void Send(this Event_ECS_Message message, Socket socket)
         {
-            byte[] data = new byte[256];
-            Int32 bytes = await stream.ReadAsync(data, 0, data.Length);
-            return Encoding.ASCII.GetString(data, 0, bytes);
+            socket.Send(message.GetAttribute<Event_ECS_MessageAttribute, string>());
         }
 
-        public static async Task<string> SendAsync<T>(this Event_ECS_Message message, T stream, bool waitForResponse) where T : Stream
+        public static void Send(this Event_ECS_Message message, string arguments, Socket socket)
         {
-            await stream.SendAsync(message.GetAttribute<Event_ECS_MessageAttribute, byte[]>());
-            if(waitForResponse)
-            {
-                return await stream.ReceiveAsync();
-            }
-            return string.Empty;
+            socket.Send(message.GetAttribute<Event_ECS_MessageAttribute, string>() + arguments);
         }
 
-        public static async Task<string> SendAsync<T>(this Event_ECS_Message message, string arguments, T stream, bool waitForResponse) where T : Stream
+        public static void Send(this Event_ECS_Message message, Socket socket, out string response)
         {
-            await stream.SendAsync(message.GetAttribute<Event_ECS_MessageAttribute, string>() + arguments);
-            if (waitForResponse)
-            {
-                return await stream.ReceiveAsync();
-            }
-            return string.Empty;
+            message.Send(socket);
+            response = socket.Receive();
+        }
+
+        public static void Send(this Event_ECS_Message message, string args, Socket socket, out string response)
+        {
+            message.Send(args, socket);
+            response = socket.Receive();
+        }
+
+        public static string Receive(this Socket socket, int size = 1024)
+        {
+            byte[] buffer = new byte[size];
+            int bytesRead = socket.Receive(buffer);
+            return Encoding.ASCII.GetString(buffer, 0, bytesRead);
         }
 
         #endregion
+
+        #region Asynchrounously
+
+        public static IAsyncResult BeginSend(this Socket socket, string message)
+        {
+            return AsyncHandler.StartAsyncSend(message, socket);
+        }
+
+        public static IAsyncResult BeginSend(this Event_ECS_Message message, Socket socket)
+        {
+            return AsyncHandler.StartAsyncSend(message.GetAttribute<Event_ECS_MessageAttribute, string>(), socket);
+        }
+
+        public static IAsyncResult BeginSend(this Event_ECS_Message message, string arguments, Socket socket)
+        {
+            return AsyncHandler.StartAsyncSend(message.GetAttribute<Event_ECS_MessageAttribute, string>() + arguments, socket);
+        }
+
+        public static IAsyncResult BeginReceive(this Socket socket, Func<string, bool> callback = null)
+        {
+            return AsyncHandler.StartAsyncReceive(socket, callback);
+        }
+
+        #endregion
+
+        public static bool IsValid(this Socket socket)
+        {
+            try
+            {
+                return socket.Connected && (!socket.Poll(1, SelectMode.SelectRead) || socket.Available != 0);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
     }
 }
