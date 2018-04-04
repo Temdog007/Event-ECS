@@ -79,14 +79,37 @@ namespace Event_ECS_Client_WPF
         {
             lock (m_logLock)
             {
-                Application.Current.Dispatcher.Invoke(new Action(() =>
+                try
                 {
-                    Logs.Add(new Log()
+                    Application.Current.Dispatcher.Invoke(new Action(() =>
                     {
-                        DateTime = DateTime.Now,
-                        Message = message
-                    });
-                }));
+                        if (Settings.Default.MultilineLog)
+                        {
+                            bool addDate = true;
+                            foreach (string str in message.Split(Settings.Default.MaxLogLength))
+                            {
+                                Logs.Add(new Log()
+                                {
+                                    DateTime = addDate ? DateTime.Now : default(DateTime?),
+                                    Message = str
+                                });
+                                addDate = false;
+                            }
+                        }
+                        else
+                        {
+                            Logs.Add(new Log()
+                            {
+                                DateTime =DateTime.Now,
+                                Message = message
+                            });
+                        }
+                    }));
+                }
+                catch(Exception e)
+                {
+                    Console.WriteLine(e);
+                }
             }
         }
 
@@ -99,10 +122,17 @@ namespace Event_ECS_Client_WPF
         {
             lock(m_logLock)
             {
-                Application.Current.Dispatcher.Invoke(new Action(() =>
+                try
                 {
-                    Logs.Clear();
-                }));
+                    Application.Current.Dispatcher.Invoke(new Action(() =>
+                    {
+                        Logs.Clear();
+                    }));
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
             }
         }
 
@@ -129,12 +159,19 @@ namespace Event_ECS_Client_WPF
         {
             await Task.Delay(delay).ContinueWith(task =>
             {
-                m_socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                m_socket.ReceiveTimeout = 1000;
-                m_socket.SendTimeout = 1000;
+                try
+                {
+                    m_socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                    m_socket.ReceiveTimeout = 1000;
+                    m_socket.SendTimeout = 1000;
 
-                m_socket.BeginConnect(IPEndpoint, HandleConnect, null);
-                addLog("Attempting to connect to Entity Component System Server");
+                    m_socket.BeginConnect(IPEndpoint, HandleConnect, null);
+                    addLog("Attempting to connect to Entity Component System Server");
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
             }, TaskContinuationOptions.OnlyOnRanToCompletion);
         }
 

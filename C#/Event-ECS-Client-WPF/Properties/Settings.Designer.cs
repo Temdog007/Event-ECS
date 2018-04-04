@@ -58,5 +58,29 @@ namespace Event_ECS_Client_WPF.Properties {
                 this["ConnectInterval"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("200")]
+        public int MaxLogLength {
+            get {
+                return ((int)(this["MaxLogLength"]));
+            }
+            set {
+                this["MaxLogLength"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool MultilineLog {
+            get {
+                return ((bool)(this["MultilineLog"]));
+            }
+            set {
+                this["MultilineLog"] = value;
+            }
+        }
     }
 }

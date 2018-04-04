@@ -19,34 +19,27 @@
             <RowDefinition Height="3*"/>
             <RowDefinition Height="1*"/>
         </Grid.RowDefinitions>
-        
-        <GroupBox Header="Game State">
-            <TreeView ItemsSource="{Binding System, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
-        </GroupBox>
 
-        <Expander Header="Logs" Grid.Row="1" ExpandDirection="Up" IsExpanded="True">
-            <Grid>
+        <Grid Grid.Row="0">
+            
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="auto"/>
+            </Grid.ColumnDefinitions>
+            
+            <GroupBox Header="Game State" Grid.Column="0">
+                <TreeView ItemsSource="{Binding System, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
+            </GroupBox>
 
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="5*"/>
-                    <ColumnDefinition Width="1*"/>
-                    <ColumnDefinition Width="1*"/>
-                </Grid.ColumnDefinitions>
+            <Grid Grid.Column="1" VerticalAlignment="Bottom">
 
-                <GroupBox Header="Logs" Grid.Column="0" Grid.ColumnSpan="2">
-                    <DataGrid ItemsSource="{Binding Logs, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" Background='LightGray' 
-                          AutoGenerateColumns="False" CanUserAddRows="False" ScrollViewer.HorizontalScrollBarVisibility="Visible"
-                              misc:DataGridBehaviour.ScrollOnNewItem="True">
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Header="Time" Binding="{Binding DateTime}" Width="auto" IsReadOnly="True"/>
-                            <DataGridTextColumn Header="Message" Binding="{Binding Message}" Width="*" IsReadOnly="True"/>
-                        </DataGrid.Columns>
-                        </DataGrid>
-                </GroupBox>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                </Grid.RowDefinitions>
 
-                <GroupBox Header="Send Messages" Background="Beige" Grid.Column="1" >
+                <GroupBox Header="Send Messages" Background="Beige" Grid.Row="0" >
                     <StackPanel>
-
                         <GroupBox Header="Message To Send">
                             <ComboBox HorizontalAlignment="Stretch" VerticalAlignment="Stretch" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"
                             ItemsSource="{Binding Source={misc:EnumBindingSourceExtension {x:Type common:Event_ECS_Message}}}" SelectedItem="{Binding Message, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
@@ -55,13 +48,13 @@
                         <GroupBox Header="Arguments">
                             <TextBox Text="{Binding Arguments, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
                         </GroupBox>
-                        
+
                         <Button HorizontalAlignment="Center" VerticalAlignment="Center" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
                             Command="{Binding SendMessage}" Content="Send Message"/>
                     </StackPanel>
                 </GroupBox>
 
-                <GroupBox Header="Extra" Grid.Column="2">
+                <GroupBox Header="Other" Grid.Row="1">
                     <StackPanel>
                         <Button Content="Run System Server" Margin="5"/>
                         <Button Content="Clear Logs" Command="{Binding ClearLogCommand}" Margin="5"/>
@@ -69,6 +62,17 @@
                 </GroupBox>
 
             </Grid>
+        </Grid>
+
+        <Expander Header="Logs" Grid.Row="1" ExpandDirection="Up" IsExpanded="True">
+            <DataGrid ItemsSource="{Binding Logs, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" Background='LightGray' AlternatingRowBackground="LightGray"
+                          AutoGenerateColumns="False" CanUserAddRows="False"
+                              misc:DataGridBehaviour.ScrollOnNewItem="True">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Time" Binding="{Binding DateTime}" Width="auto" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="Message" Binding="{Binding Message}" Width="*" IsReadOnly="True"/>
+                </DataGrid.Columns>
+            </DataGrid>
         </Expander>
     </Grid>
 </Window>

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -130,6 +131,24 @@ namespace Event_ECS_Client_Common
             catch (Exception)
             {
                 return false;
+            }
+        }
+
+        public static IEnumerable<string> Split(this string s, int parts)
+        {
+            if (!string.IsNullOrEmpty(s) && parts > 0)
+            {
+                for (int i = 0, n = s.Length; i < n; i += parts)
+                {
+                    if (i + parts > n)
+                    {
+                        yield return s.Substring(i);
+                    }
+                    else
+                    {
+                        yield return s.Substring(i, Math.Min(parts, n - 1));
+                    }
+                }
             }
         }
     }
