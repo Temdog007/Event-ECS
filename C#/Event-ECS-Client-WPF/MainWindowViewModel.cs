@@ -236,15 +236,18 @@ namespace Event_ECS_Client_WPF
                 case Event_ECS_MessageResponse.SYSTEM_DATA:
                     using (JsonTextReader reader = new JsonTextReader(new StringReader(args)))
                     {
-                        while (reader.Read())
+                        while(reader.Read())
                         {
-                            if (reader.Value != null)
+                            switch(reader.TokenType)
                             {
-                                addLog("Token: {0}, Value: {1}", reader.TokenType, reader.Value);
-                            }
-                            else
-                            {
-                                addLog("Token: {0}", reader.TokenType);
+                                case JsonToken.PropertyName:
+                                    if(reader.ValueEquals("system"))
+                                    {
+                                        System.ReadJson(reader);
+                                    }
+                                    break;
+                                default:
+                                    break;
                             }
                         }
                     }

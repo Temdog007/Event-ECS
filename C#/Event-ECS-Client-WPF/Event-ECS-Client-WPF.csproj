@@ -76,6 +76,7 @@
     <Compile Include="Misc\AsyncActionCommand.cs" />
     <Compile Include="Misc\EnumBindingSourceExtension.cs" />
     <Compile Include="Misc\DataGridBehaviour.cs" />
+    <Compile Include="Misc\JsonExtension.cs" />
     <Compile Include="Misc\Log.cs" />
     <Compile Include="SystemObjects\Entity.cs" />
     <Compile Include="SystemObjects\System.cs" />

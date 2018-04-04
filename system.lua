@@ -126,7 +126,7 @@ return ClassFactory(function(system, serverArgs)
     for _, comp in pairs(registeredComponents) do
       table.insert(classes, classname(comp))
     end
-    data.system.components = classes
+    data.system.registeredComponents = classes
 
     local enData = {}
     for _, en in pairs(entities) do

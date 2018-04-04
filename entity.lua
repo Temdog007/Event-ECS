@@ -163,16 +163,22 @@ local Entity = ClassFactory(function(entity, system)
 
   function entity:getData(data)
     data = data or {}
+
+    local components = {}
     for _, component in pairs(components) do
-      table.insert(data, component:getData())
+      table.insert(components, component:getData())
     end
+    data.components = components
+
     data.id = self:getID()
     data.name = self:getName()
+
     local events = {}
     for k in pairs(eventTablesTable) do
       table.insert(events, k)
     end
     data.events = events
+    
     return data
   end
 

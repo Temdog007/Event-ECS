@@ -28,7 +28,7 @@
             </Grid.ColumnDefinitions>
             
             <GroupBox Header="Game State" Grid.Column="0">
-                <TreeView ItemsSource="{Binding System, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
+                <ListView ItemsSource="{Binding System, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
             </GroupBox>
 
             <Grid Grid.Column="1" VerticalAlignment="Bottom">

@@ -1,5 +1,5 @@
 ﻿using Event_ECS_Client_Common;
-using System.Collections.ObjectModel;
+using System.Collections.Generic;
 
 namespace Event_ECS_Client_WPF.SystemObjects
 {
@@ -26,7 +26,7 @@ namespace Event_ECS_Client_WPF.SystemObjects
         }
         private string m_name = string.Empty;
 
-        public ObservableCollection<string> Events
+        public HashSet<string> Events
         {
             get => m_events;
             set
@@ -35,9 +35,9 @@ namespace Event_ECS_Client_WPF.SystemObjects
                 OnPropertyChanged("Events");
             }
         }
-        private ObservableCollection<string> m_events = new ObservableCollection<string>();
+        private HashSet<string> m_events = new HashSet<string>();
 
-        public ObservableCollection<dynamic> Components
+        public HashSet<dynamic> Components
         {
             get => m_components;
             set
@@ -46,6 +46,6 @@ namespace Event_ECS_Client_WPF.SystemObjects
                 OnPropertyChanged("Components");
             }
         }
-        private ObservableCollection<dynamic> m_components = new ObservableCollection<dynamic>();
+        private HashSet<dynamic> m_components = new HashSet<dynamic>();
     }
 }
