@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Input;
 
-namespace Event_ECS_Client_WPF.Misc
+namespace Event_ECS_Client_WPF
 {
     public class ActionCommand<T> : ICommand
     {

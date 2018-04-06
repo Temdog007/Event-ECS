@@ -1,11 +1,8 @@
-﻿using Event_ECS_Client_Common;
-using Event_ECS_Client_WPF.Misc;
-using Event_ECS_Client_WPF.Properties;
-using Newtonsoft.Json;
+﻿using Event_ECS_Client_WPF.Properties;
+using EventECSWrapper;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.IO;
 using System.Windows;
 using ECSSystem = Event_ECS_Client_WPF.SystemObjects.System;
 
@@ -13,6 +10,13 @@ namespace Event_ECS_Client_WPF
 {
     public class MainWindowViewModel : INotifyPropertyChanged, IDisposable
     {
+        private ECSWrapper m_wrapper;
+
+        public MainWindowViewModel()
+        {
+            m_wrapper = new ECSWrapper();
+        }
+
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
 
@@ -22,7 +26,7 @@ namespace Event_ECS_Client_WPF
             {
                 if (disposing)
                 {
-
+                    m_wrapper.Dispose();
                 }
 
                 disposedValue = true;
@@ -124,71 +128,19 @@ namespace Event_ECS_Client_WPF
         public ActionCommand<object> ClearLogCommand => m_clearLogCommand ?? (m_clearLogCommand = new ActionCommand<object>(clearLogs));
         private ActionCommand<object> m_clearLogCommand;
 
-        public AsyncActionCommand<object> SendMessage => m_sendMessage ?? (m_sendMessage = new AsyncActionCommand<object>(DoSendMessage));
-        private AsyncActionCommand<object> m_sendMessage;
+        public AsyncActionCommand<object> UpdateStateCommand => m_updateState ?? (m_updateState = new AsyncActionCommand<object>(UpdateState));
+        private AsyncActionCommand<object> m_updateState;
 
-        private void DoSendMessage(object obj)
+        private void UpdateState()
         {
             try
             {
-                //Message.BeginSend(Arguments, m_socket);
-                addLog("Sent Message: {0}", Message);
+                m_wrapper.Init();
+                addLog(m_wrapper.GetState());
             }
             catch (Exception e)
             {
                 addLog(e.Message);
-            }
-        }
-
-        private void HandleResponse(string response)
-        {
-            if (!string.IsNullOrWhiteSpace(response))
-            {
-                addLog("Received for system: {0}", response);
-                foreach (Event_ECS_MessageResponse ev in Enum.GetValues(typeof(Event_ECS_MessageResponse)))
-                {
-                    string eStr = ev.ToString();
-                    if (response.Contains(eStr))
-                    {
-                        try
-                        {
-                            HandleMessage(ev, response.Replace(eStr, string.Empty));
-                        }
-                        catch (Exception e)
-                        {
-                            Console.WriteLine(e);
-                        }
-                        break;
-                    }
-                }
-            }
-        }
-
-        private void HandleMessage(Event_ECS_MessageResponse response, string args)
-        {
-            switch(response)
-            {
-                case Event_ECS_MessageResponse.SYSTEM_DATA:
-                    using (JsonTextReader reader = new JsonTextReader(new StringReader(args)))
-                    {
-                        while(reader.Read())
-                        {
-                            switch(reader.TokenType)
-                            {
-                                case JsonToken.PropertyName:
-                                    if(reader.ValueEquals("system"))
-                                    {
-                                        System.ReadJson(reader);
-                                    }
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }
-                    }
-                    break;
-                default:
-                    break;
             }
         }
 
@@ -201,17 +153,6 @@ namespace Event_ECS_Client_WPF
                 OnPropertyChanged("Arguments");
             }
         } private string m_arguments = string.Empty;
-
-        public Event_ECS_Message Message
-        {
-            get => m_message;
-            set
-            {
-                m_message = value;
-                OnPropertyChanged("Message");
-            }
-        }
-        private Event_ECS_Message m_message;
 
         public event PropertyChangedEventHandler PropertyChanged;
 

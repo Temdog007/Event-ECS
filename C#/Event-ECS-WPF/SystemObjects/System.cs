@@ -1,6 +1,4 @@
-﻿using Event_ECS_Client_Common;
-using Event_ECS_Client_WPF.Misc;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System.Collections.ObjectModel;
 
 namespace Event_ECS_Client_WPF.SystemObjects

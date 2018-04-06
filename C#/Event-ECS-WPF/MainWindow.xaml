@@ -3,8 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:misc="clr-namespace:Event_ECS_Client_WPF.Misc"
-        xmlns:common="clr-namespace:Event_ECS_Client_Common;assembly=Event-ECS-Client-Common"
+        xmlns:misc="clr-namespace:Event_ECS_Client_WPF"
         xmlns:local="clr-namespace:Event_ECS_Client_WPF"
         mc:Ignorable="d"
         Title="Entity Component System Viewer" 
@@ -40,17 +39,8 @@
 
                 <GroupBox Header="Send Messages" Background="Beige" Grid.Row="0" >
                     <StackPanel>
-                        <GroupBox Header="Message To Send">
-                            <ComboBox HorizontalAlignment="Stretch" VerticalAlignment="Stretch" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"
-                            ItemsSource="{Binding Source={misc:EnumBindingSourceExtension {x:Type common:Event_ECS_Message}}}" SelectedItem="{Binding Message, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
-                        </GroupBox>
-
-                        <GroupBox Header="Arguments">
-                            <TextBox Text="{Binding Arguments, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
-                        </GroupBox>
-
                         <Button HorizontalAlignment="Center" VerticalAlignment="Center" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
-                            Command="{Binding SendMessage}" Content="Send Message"/>
+                            Command="{Binding UpdateStateCommand}" Content="Update State"/>
                     </StackPanel>
                 </GroupBox>
 

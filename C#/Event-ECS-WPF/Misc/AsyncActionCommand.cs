@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows;
 
-namespace Event_ECS_Client_WPF.Misc
+namespace Event_ECS_Client_WPF
 {
     public class AsyncActionCommand<T> : ActionCommand<T>
     {

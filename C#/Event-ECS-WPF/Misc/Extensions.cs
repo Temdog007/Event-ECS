@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Event_ECS_Client_WPF.Misc
+namespace Event_ECS_Client_WPF
 {
     public static class Extensions
     {

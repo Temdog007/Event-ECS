@@ -1,5 +1,4 @@
-﻿using Event_ECS_Client_Common;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 

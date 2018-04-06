@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Event_ECS_Client_Common
+namespace Event_ECS_Client_WPF
 {
     public abstract class NotifyPropertyChanged : INotifyPropertyChanged
     {

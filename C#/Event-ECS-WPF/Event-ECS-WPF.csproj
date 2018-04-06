@@ -33,6 +33,27 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>..\..\bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>..\..\bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -83,6 +104,7 @@
     <Compile Include="Misc\Extensions.cs" />
     <Compile Include="Misc\JsonExtension.cs" />
     <Compile Include="Misc\Log.cs" />
+    <Compile Include="Misc\NotifyPropertyChanged.cs" />
     <Compile Include="SystemObjects\Component.cs" />
     <Compile Include="SystemObjects\Entity.cs" />
     <Compile Include="SystemObjects\System.cs" />
@@ -113,9 +135,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Event-ECS-Common\Event-ECS-Common.csproj">
-      <Project>{bca24c62-6d54-45ee-a6fc-6fc0d402a744}</Project>
-      <Name>Event-ECS-Client-Common</Name>
+    <ProjectReference Include="..\..\C++_Cli\Event-ECS-Wrapper\Event-ECS-Wrapper.vcxproj">
+      <Project>{726ea1c1-283b-45fd-ab48-5762f22089ad}</Project>
+      <Name>Event-ECS-Wrapper</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
