@@ -1,5 +1,7 @@
 ﻿using Event_ECS_Client_Common;
-using System.Collections.Generic;
+using Newtonsoft.Json;
+using System.Collections.Concurrent;
+using System.Collections.ObjectModel;
 
 namespace Event_ECS_Client_WPF.SystemObjects
 {
@@ -13,7 +15,8 @@ namespace Event_ECS_Client_WPF.SystemObjects
                 m_id = value;
                 OnPropertyChanged("ID");
             }
-        } private int m_id;
+        }
+        private int m_id;
 
         public string Name
         {
@@ -26,7 +29,7 @@ namespace Event_ECS_Client_WPF.SystemObjects
         }
         private string m_name = string.Empty;
 
-        public HashSet<string> Events
+        public ObservableCollection<string> Events
         {
             get => m_events;
             set
@@ -35,9 +38,9 @@ namespace Event_ECS_Client_WPF.SystemObjects
                 OnPropertyChanged("Events");
             }
         }
-        private HashSet<string> m_events = new HashSet<string>();
+        private ObservableCollection<string> m_events = new ObservableCollection<string>();
 
-        public HashSet<dynamic> Components
+        public ObservableConcurrentDictionary<string, Component> Components
         {
             get => m_components;
             set
@@ -46,6 +49,12 @@ namespace Event_ECS_Client_WPF.SystemObjects
                 OnPropertyChanged("Components");
             }
         }
-        private HashSet<dynamic> m_components = new HashSet<dynamic>();
+        private ObservableConcurrentDictionary<string, Component> m_components = new ObservableConcurrentDictionary<string, Component>();
+
+        public override string ToString()
+        {
+            return JsonConvert.SerializeObject(this);
+        }
+
     }
 }

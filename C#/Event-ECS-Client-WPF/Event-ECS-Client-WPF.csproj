@@ -37,6 +37,9 @@
     <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="ParallelExtensionsExtras, Version=1.2.3.0, Culture=neutral, PublicKeyToken=665f4d61f853b5a9, processorArchitecture=MSIL">
+      <HintPath>..\packages\ParallelExtensionsExtras.1.2.0.0\lib\net40\ParallelExtensionsExtras.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
@@ -76,8 +79,10 @@
     <Compile Include="Misc\AsyncActionCommand.cs" />
     <Compile Include="Misc\EnumBindingSourceExtension.cs" />
     <Compile Include="Misc\DataGridBehaviour.cs" />
+    <Compile Include="Misc\Extensions.cs" />
     <Compile Include="Misc\JsonExtension.cs" />
     <Compile Include="Misc\Log.cs" />
+    <Compile Include="SystemObjects\Component.cs" />
     <Compile Include="SystemObjects\Entity.cs" />
     <Compile Include="SystemObjects\System.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">

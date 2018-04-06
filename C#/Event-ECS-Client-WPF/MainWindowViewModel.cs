@@ -6,10 +6,6 @@ using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
-using System.Net;
-using System.Net.Sockets;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using ECSSystem = Event_ECS_Client_WPF.SystemObjects.System;
 
@@ -17,16 +13,6 @@ namespace Event_ECS_Client_WPF
 {
     public class MainWindowViewModel : INotifyPropertyChanged, IDisposable
     {
-        private static EndPoint IPEndpoint => new IPEndPoint(IPAddress.Parse(Settings.Default.Server), Settings.Default.Port);
-
-        private Socket m_socket;
-
-        public MainWindowViewModel()
-        {
-            StartConnection(TimeSpan.FromSeconds(Settings.Default.ConnectInterval));
-            addLog("Will connect to Entity Component System server in {0} seconds", Settings.Default.ConnectInterval);
-        }
-
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
 
@@ -36,8 +22,7 @@ namespace Event_ECS_Client_WPF
             {
                 if (disposing)
                 {
-                    m_socket.Shutdown(SocketShutdown.Both);
-                    m_socket.Close();
+
                 }
 
                 disposedValue = true;
@@ -146,7 +131,7 @@ namespace Event_ECS_Client_WPF
         {
             try
             {
-                Message.BeginSend(Arguments, m_socket);
+                //Message.BeginSend(Arguments, m_socket);
                 addLog("Sent Message: {0}", Message);
             }
             catch (Exception e)
@@ -155,56 +140,7 @@ namespace Event_ECS_Client_WPF
             }
         }
 
-        private async void StartConnection(TimeSpan delay)
-        {
-            await Task.Delay(delay).ContinueWith(task =>
-            {
-                try
-                {
-                    m_socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                    m_socket.ReceiveTimeout = 1000;
-                    m_socket.SendTimeout = 1000;
-
-                    m_socket.BeginConnect(IPEndpoint, HandleConnect, null);
-                    addLog("Attempting to connect to Entity Component System Server");
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                }
-            }, TaskContinuationOptions.OnlyOnRanToCompletion);
-        }
-
-        private void HandleConnect(IAsyncResult ar)
-        {
-            try
-            {
-                m_socket.EndConnect(ar);
-                addLog("Connected to Entity Component System Server");
-                m_socket.BeginReceive(HandleResponse);
-            }
-            catch(SocketException se)
-            {
-                if(se.SocketErrorCode == SocketError.ConnectionRefused)
-                {
-                    // Create new socket and try again
-                    StartConnection(TimeSpan.FromSeconds(Settings.Default.ConnectInterval));
-                    addLog("Failed to connect to Entity Component System Server. Re-attempting in {0} seconds", Settings.Default.ConnectInterval);
-                }
-                else
-                {
-                    Console.WriteLine(se);
-                    addLog(se.Message);
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                addLog(e.Message);
-            }
-        }
-
-        private bool HandleResponse(string response)
+        private void HandleResponse(string response)
         {
             if (!string.IsNullOrWhiteSpace(response))
             {
@@ -226,7 +162,6 @@ namespace Event_ECS_Client_WPF
                     }
                 }
             }
-            return m_socket.IsValid();
         }
 
         private void HandleMessage(Event_ECS_MessageResponse response, string args)

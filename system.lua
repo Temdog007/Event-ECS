@@ -32,7 +32,7 @@ local function systostring(sys)
   end
 end
 
-return ClassFactory(function(system, serverArgs)
+return ClassFactory(function(system)
   local entities = setmetatable({},
   {
     __newindex = function(tab, key, value)
@@ -158,11 +158,5 @@ return ClassFactory(function(system, serverArgs)
   function system:getComponent(compName)
     assert(type(compName) == "string", "Must find components by classname")
     return registeredComponents[compName]
-  end
-
-  if serverArgs then
-    local Server = require("server")
-    local server = Server(system, serverArgs)
-    system.updateServer = server.run
   end
 end)
