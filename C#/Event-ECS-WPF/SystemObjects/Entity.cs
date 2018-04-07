@@ -1,41 +1,25 @@
-﻿using Event_ECS_WPF.Misc;
+﻿using System;
+using Event_ECS_WPF.Misc;
 
 namespace Event_ECS_WPF.SystemObjects
 {
     public class Entity : NotifyPropertyChanged
     {
-        public int ID
-        {
-            get => m_id;
-            set
-            {
-                m_id = value;
-                OnPropertyChanged("ID");
-            }
-        }
+        private readonly EntityComponentSystem m_system;
+
+        private ObservableSet<Component> m_components = new ObservableSet<Component>();
+
+        private ObservableSet<string> m_events = new ObservableSet<string>();
+
         private int m_id;
 
-        public string Name
-        {
-            get => m_name;
-            set
-            {
-                m_name = value;
-                OnPropertyChanged("Name");
-            }
-        }
         private string m_name = string.Empty;
 
-        public ObservableSet<string> Events
+        public Entity(EntityComponentSystem m_system)
         {
-            get => m_events;
-            set
-            {
-                m_events = value;
-                OnPropertyChanged("Events");
-            }
+            this.m_system = m_system ?? throw new ArgumentNullException(nameof(m_system));
+            this.m_system.Entities.Add(this);
         }
-        private ObservableSet<string> m_events = new ObservableSet<string>();
 
         public ObservableSet<Component> Components
         {
@@ -46,6 +30,34 @@ namespace Event_ECS_WPF.SystemObjects
                 OnPropertyChanged("Components");
             }
         }
-        private ObservableSet<Component> m_components = new ObservableSet<Component>();
+
+        public ObservableSet<string> Events
+        {
+            get => m_events;
+            set
+            {
+                m_events = value;
+                OnPropertyChanged("Events");
+            }
+        }
+
+        public int ID
+        {
+            get => m_id;
+            set
+            {
+                m_id = value;
+                OnPropertyChanged("ID");
+            }
+        }
+        public string Name
+        {
+            get => m_name;
+            set
+            {
+                m_name = value;
+                OnPropertyChanged("Name");
+            }
+        }
     }
 }

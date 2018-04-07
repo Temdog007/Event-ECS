@@ -12,6 +12,12 @@ namespace Event_ECS_WPF
     {
         private ECSWrapper ecs;
 
+        public MainWindowViewModel()
+        {
+            System.Name = "Entity Component System";
+            System.RegisteredComponents.Add("Components");
+        }
+
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
 
@@ -151,20 +157,12 @@ namespace Event_ECS_WPF
         {
             try
             {
-                System.Name = "Test System";
-                System.RegisteredComponents.Add("Components");
-                System.RegisteredComponents.Add("TestComponents");
-                
-                var en = new SystemObjects.Entity();
-                System.Entities.Add(en);
-
+                var en = new SystemObjects.Entity(System);
                 en.Name = string.Format("Enttiy #{0}", System.Entities.Count);
                 en.Events.TryAdd("Test Event #1");
                 en.Events.TryAdd("Test Event #2");
 
-                var comp = new SystemObjects.Component();
-                en.Components.TryAdd(comp);
-
+                var comp = new SystemObjects.Component(en, "Test Component");
                 comp.Variables.TryAdd(new SystemObjects.ComponentVariable("Test Var #1", 3));
                 comp.Variables.TryAdd(new SystemObjects.ComponentVariable("Test Var #2", "dsaklfjasd"));
             }

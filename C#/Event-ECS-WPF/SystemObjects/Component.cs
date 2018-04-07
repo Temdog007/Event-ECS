@@ -12,6 +12,18 @@ namespace Event_ECS_WPF.SystemObjects
     {
         private ObservableSet<ComponentVariable> m_variables = new ObservableSet<ComponentVariable>();
 
+        private readonly Entity m_entity;
+
+        private readonly string m_name;
+
+        public Component(Entity m_entity, string m_name)
+        {
+            this.m_entity = m_entity ?? throw new ArgumentNullException(nameof(m_entity));
+            this.m_entity.Components.Add(this);
+
+            this.m_name = m_name ?? throw new ArgumentNullException(nameof(m_name));
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         protected void OnPropertyChanged(string propName)
@@ -57,6 +69,8 @@ namespace Event_ECS_WPF.SystemObjects
 
         public bool IsReadOnly => ((ICollection<ComponentVariable>)Variables).IsReadOnly;
 
+        public string Name => m_name;
+
         public static bool operator !=(Component component1, Component component2)
         {
             return !(component1 == component2);
@@ -78,7 +92,9 @@ namespace Event_ECS_WPF.SystemObjects
             {
                 return false;
             }
+#pragma warning disable CS0253 // Possible unintended reference comparison; right hand side needs cast
             if (this == obj)
+#pragma warning restore CS0253 // Possible unintended reference comparison; right hand side needs cast
             {
                 return true;
             }
@@ -155,7 +171,9 @@ namespace Event_ECS_WPF.SystemObjects
             {
                 return false;
             }
+#pragma warning disable CS0253 // Possible unintended reference comparison; right hand side needs cast
             if (this == obj)
+#pragma warning restore CS0253 // Possible unintended reference comparison; right hand side needs cast
             {
                 return true;
             }

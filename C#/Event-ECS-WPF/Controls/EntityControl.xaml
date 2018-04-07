@@ -7,31 +7,44 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
              x:Name="m_entityControl">
-    <Expander Header="{Binding ElementName=m_entityControl, Path=Entity.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
 
-            <GroupBox Grid.Row="0" Header="ID">
-                <TextBlock Text="{Binding ElementName=m_entityControl, Path=Entity.ID, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-            </GroupBox>
+    <UserControl.Resources>
+        <Style TargetType="TextBox">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+        </Style>
+    </UserControl.Resources>
+    
+    <Expander>
 
-            <Expander Grid.Row="1" Header="Events">
+        <Expander.Header>
+            <StackPanel Orientation="Horizontal">
+                <TextBox Text="{Binding ElementName=m_entityControl, Path=Entity.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                <TextBlock Margin="10">
+                    <TextBlock.Text>
+                        <MultiBinding StringFormat="{}ID #{0}">
+                            <Binding Path="Entity.ID" ElementName="m_entityControl" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged"/>
+                        </MultiBinding>
+                    </TextBlock.Text>
+                </TextBlock>
+            </StackPanel>
+        </Expander.Header>
+
+        <TreeView>
+
+            <Expander Grid.Row="0" Header="Events">
                 <ListBox ItemsSource="{Binding ElementName=m_entityControl, Path=Entity.Events, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
             </Expander>
 
-            <Expander Grid.Row="2" Header="Components">
-                <ListBox ItemsSource="{Binding ElementName=m_entityControl, Path=Entity.Components, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
-                    <ListBox.ItemTemplate>
+            <Expander Grid.Row="1" Header="Components">
+                <TreeView ItemsSource="{Binding ElementName=m_entityControl, Path=Entity.Components, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                    <TreeView.ItemTemplate>
                         <DataTemplate>
                             <controls:ComponentControl Component="{Binding}"/>
                         </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
+                    </TreeView.ItemTemplate>
+                </TreeView>
             </Expander>
-        </Grid>
+        </TreeView>
     </Expander>
 </UserControl>
