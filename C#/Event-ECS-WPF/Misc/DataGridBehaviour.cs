@@ -5,7 +5,7 @@ using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace Event_ECS_Client_WPF
+namespace Event_ECS_WPF
 {
     public class DataGridBehaviour
     {

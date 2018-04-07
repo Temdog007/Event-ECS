@@ -161,27 +161,6 @@ local Entity = ClassFactory(function(entity, system)
     return self.system:removeEntity(self)
   end
 
-  function entity:getData(data)
-    data = data or {}
-
-    local components = {}
-    for _, component in pairs(components) do
-      table.insert(components, component:getData())
-    end
-    data.components = components
-
-    data.id = self:getID()
-    data.name = self:getName()
-
-    local events = {}
-    for k in pairs(eventTablesTable) do
-      table.insert(events, k)
-    end
-    data.events = events
-    
-    return data
-  end
-
   function entity:encode()
     return json.encode(self:getData())
   end

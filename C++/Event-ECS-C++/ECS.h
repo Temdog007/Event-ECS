@@ -6,11 +6,6 @@ class ECS
 {
 private:
 	lua_State * L;
-	bool initialized;
-
-	void loadModule(const char*,int);
-
-	void safeCall(int nargs, int rvalue);
 
 public:
 	ECS();
@@ -19,9 +14,7 @@ public:
 	ECS(const ECS&) = delete;
 	ECS& operator=(const ECS&) = delete;
 
-	void Initialize();
+	void Require(const char* moduleName, const char* globalName);
 
-	void dispatchEvent(const char* eventName, int& handled);
-
-	void getState(const char*& jsonCode);
+	bool DoString(const char* code);
 };

@@ -1,7 +1,6 @@
-﻿using Newtonsoft.Json;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 
-namespace Event_ECS_Client_WPF.SystemObjects
+namespace Event_ECS_WPF.SystemObjects
 {
     public class System : NotifyPropertyChanged
     {
@@ -37,41 +36,5 @@ namespace Event_ECS_Client_WPF.SystemObjects
             }
         }
         private ObservableCollection<Entity> m_entities = new ObservableCollection<Entity>();
-
-        public void ReadJson(JsonTextReader reader)
-        {
-            bool done = false;
-            while (!done && reader.Read())
-            {
-                switch (reader.TokenType)
-                {
-                    case JsonToken.PropertyName:
-                        if (reader.ValueEquals("name"))
-                        {
-                            reader.Read();
-                            Name = (string)reader.Value;
-                        }
-                        //else if (reader.ValueEquals("entities"))
-                        //{
-                        //    reader.Read();
-                        //    ReadEntitesFromJson(reader);
-                        //}
-                        else if (reader.ValueEquals("registeredComponents"))
-                        {
-                            reader.Read();
-                            reader.ReadArray<string>(item => RegisteredComponents.Add(item));
-                        }
-                        break;
-                    case JsonToken.EndObject:
-                        done = true;
-                        break;
-                }
-            }
-        }
-
-        public override string ToString()
-        {
-            return JsonConvert.SerializeObject(this);
-        }
     }
 }

@@ -1,4 +1,4 @@
-require("classlib")
+local class = require("classlib")
 
 local component = class("Component")
 
@@ -26,22 +26,6 @@ end
 
 function component:getID()
   return self.id
-end
-
-function component:getData(data)
-  data = data or {}
-  for k, compValue in pairs(self) do
-    if k ~= "__type" and (type(compValue) == "number" or type(compValue) == "string") then
-      data[k] = compValue
-    end
-  end
-  data.id = self:getID()
-  local topClass = getmetatable(component)
-  if #self.__bases > 0 then
-    topClass = self.__bases[#self.__bases]
-  end
-  data.name = classname(topClass)
-  return data
 end
 
 function component:remove()

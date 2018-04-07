@@ -1,9 +1,8 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Linq;
 
-namespace Event_ECS_Client_WPF.SystemObjects
+namespace Event_ECS_WPF.SystemObjects
 {
     public class Component : ObservableConcurrentDictionary<string, object>, IEquatable<Component>
     {
@@ -32,11 +31,6 @@ namespace Event_ECS_Client_WPF.SystemObjects
         public override int GetHashCode()
         {
             return base.GetHashCode();
-        }
-
-        public override string ToString()
-        {
-            return JsonConvert.SerializeObject(this);
         }
     }
 }

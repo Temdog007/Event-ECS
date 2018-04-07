@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Event_ECS_Client_WPF
+namespace Event_ECS_WPF
 {
     public class Log
     {

@@ -21,7 +21,7 @@
 local LuaUnit = require("luaunit")
 local System = require("system")
 local Component = require("component")
-require("classlib")
+local class = require("classlib")
 
 local TestComponent = class("TestComponent", Component)
 
@@ -208,15 +208,6 @@ function ecsTests:testEntityFunctions()
   local entity = system:createEntity()
   assertError(entity.addComponent, entity)
   assertError(entity.addComponent, entity, 6)
-end
-
-function ecsTests:testEncoding()
-  local system = System()
-  system:registerComponent(TestComponent)
-  local entity = system:createEntity()
-  local comp1, comp2, comp3 = entity:addComponents("TestComponent", "TestComponent", "TestComponent")
-
-  print(system:encode())
 end
 
 LuaUnit:run('ecsTests')

@@ -113,34 +113,6 @@ return ClassFactory(function(system)
     return eventsHandled
   end
 
-  function system:getData(data)
-    data = data or
-    {
-      system =
-      {
-        name = self:getName()
-      },
-    }
-
-    local classes = {}
-    for _, comp in pairs(registeredComponents) do
-      table.insert(classes, classname(comp))
-    end
-    data.system.registeredComponents = classes
-
-    local enData = {}
-    for _, en in pairs(entities) do
-      table.insert(enData, en:getData())
-    end
-
-    data.system.entities = enData
-    return data
-  end
-
-  function system:encode()
-    return json.encode(self:getData())
-  end
-
   function system:registerComponent(NewComponent)
     local name = classname(NewComponent)
     assert(not registeredComponents[name], "Component has already been registered")

@@ -1,21 +1,16 @@
-﻿using Event_ECS_Client_WPF.Properties;
+﻿using Event_ECS_WPF.Properties;
 using EventECSWrapper;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows;
-using ECSSystem = Event_ECS_Client_WPF.SystemObjects.System;
+using ECSSystem = Event_ECS_WPF.SystemObjects.System;
 
-namespace Event_ECS_Client_WPF
+namespace Event_ECS_WPF
 {
     public class MainWindowViewModel : INotifyPropertyChanged, IDisposable
     {
-        private ECSWrapper m_wrapper;
-
-        public MainWindowViewModel()
-        {
-            m_wrapper = new ECSWrapper();
-        }
+        private ECSWrapper ecs;
 
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
@@ -26,7 +21,7 @@ namespace Event_ECS_Client_WPF
             {
                 if (disposing)
                 {
-                    m_wrapper.Dispose();
+                    ecs?.Dispose();
                 }
 
                 disposedValue = true;
@@ -131,12 +126,31 @@ namespace Event_ECS_Client_WPF
         public AsyncActionCommand<object> UpdateStateCommand => m_updateState ?? (m_updateState = new AsyncActionCommand<object>(UpdateState));
         private AsyncActionCommand<object> m_updateState;
 
+        public AsyncActionCommand<object> InitECSCommand => m_initECSCommand ?? (m_initECSCommand = new AsyncActionCommand<object>(InitECS));
+        private AsyncActionCommand<object> m_initECSCommand;
+
+        private void InitECS()
+        {
+            try
+            {
+                ecs = new ECSWrapper();
+                ecs.Require("eventecs");
+                addLog("Start ECS");
+            }
+            catch(Exception e)
+            {
+                addLog(e.Message);
+                ecs?.Dispose();
+                ecs = null;
+            }
+        }
+
         private void UpdateState()
         {
             try
             {
-                m_wrapper.Initialize();
-                addLog(m_wrapper.GetState());
+                ecs?.DoString("System = require 'system'");
+                addLog("Not set yet");
             }
             catch (Exception e)
             {

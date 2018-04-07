@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace Event_ECS_Client_WPF
+namespace Event_ECS_WPF
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml

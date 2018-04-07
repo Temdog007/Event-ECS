@@ -1,8 +1,7 @@
-﻿using Newtonsoft.Json;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 
-namespace Event_ECS_Client_WPF.SystemObjects
+namespace Event_ECS_WPF.SystemObjects
 {
     public class Entity : NotifyPropertyChanged
     {
@@ -49,11 +48,5 @@ namespace Event_ECS_Client_WPF.SystemObjects
             }
         }
         private ObservableConcurrentDictionary<string, Component> m_components = new ObservableConcurrentDictionary<string, Component>();
-
-        public override string ToString()
-        {
-            return JsonConvert.SerializeObject(this);
-        }
-
     }
 }

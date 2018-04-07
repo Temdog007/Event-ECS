@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{1BCA8183-DA76-4609-96D3-365BC7FE71CB}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>Event_ECS_Client_WPF</RootNamespace>
-    <AssemblyName>Event-ECS-Client-WPF</AssemblyName>
+    <RootNamespace>Event_ECS_WPF</RootNamespace>
+    <AssemblyName>Event-ECS-WPF</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -55,9 +55,6 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
     <Reference Include="ParallelExtensionsExtras, Version=1.2.3.0, Culture=neutral, PublicKeyToken=665f4d61f853b5a9, processorArchitecture=MSIL">
       <HintPath>..\..\packages\ParallelExtensionsExtras.1.2.0.0\lib\net40\ParallelExtensionsExtras.dll</HintPath>
     </Reference>
@@ -102,7 +99,6 @@
     <Compile Include="Misc\EnumBindingSourceExtension.cs" />
     <Compile Include="Misc\DataGridBehaviour.cs" />
     <Compile Include="Misc\Extensions.cs" />
-    <Compile Include="Misc\JsonExtension.cs" />
     <Compile Include="Misc\Log.cs" />
     <Compile Include="Misc\NotifyPropertyChanged.cs" />
     <Compile Include="SystemObjects\Component.cs" />
@@ -135,10 +131,14 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\C++_Cli\Event-ECS-Wrapper\Event-ECS-Wrapper.vcxproj">
-      <Project>{726ea1c1-283b-45fd-ab48-5762f22089ad}</Project>
+    <ProjectReference Include="..\..\CLI\Event-ECS-Wrapper\Event-ECS-Wrapper.vcxproj">
+      <Project>{85b1aed7-d0cf-4e7c-9557-c9be1cece62f}</Project>
       <Name>Event-ECS-Wrapper</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
 </Project>
