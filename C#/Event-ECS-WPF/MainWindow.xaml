@@ -6,6 +6,7 @@
         xmlns:misc="clr-namespace:Event_ECS_WPF"
         xmlns:local="clr-namespace:Event_ECS_WPF"
         mc:Ignorable="d"
+        xmlns:controls="clr-namespace:Event_ECS_WPF.Controls"
         Title="Entity Component System Viewer" 
         Height="768" Width="1366">
 
@@ -34,10 +35,8 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="auto"/>
             </Grid.ColumnDefinitions>
-            
-            <GroupBox Header="Game State" Grid.Column="0">
-                <ListView ItemsSource="{Binding System, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
-            </GroupBox>
+
+            <controls:EntityComponentSystemControl EntityComponentSystem="{Binding System}" Grid.Row="0"/>
 
             <Grid Grid.Column="1" VerticalAlignment="Bottom">
 

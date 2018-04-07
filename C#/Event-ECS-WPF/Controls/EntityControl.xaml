@@ -1,0 +1,37 @@
+﻿<UserControl x:Class="Event_ECS_WPF.Controls.EntityControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:controls="clr-namespace:Event_ECS_WPF.Controls"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800"
+             x:Name="m_entityControl">
+    <Expander Header="{Binding ElementName=m_entityControl, Path=Entity.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <GroupBox Grid.Row="0" Header="ID">
+                <TextBlock Text="{Binding ElementName=m_entityControl, Path=Entity.ID, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+            </GroupBox>
+
+            <Expander Grid.Row="1" Header="Events">
+                <ListBox ItemsSource="{Binding ElementName=m_entityControl, Path=Entity.Events, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+            </Expander>
+
+            <Expander Grid.Row="2" Header="Components">
+                <ListBox ItemsSource="{Binding ElementName=m_entityControl, Path=Entity.Components, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <controls:ComponentControl Component="{Binding}"/>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Expander>
+        </Grid>
+    </Expander>
+</UserControl>

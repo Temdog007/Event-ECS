@@ -4,7 +4,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows;
-using ECSSystem = Event_ECS_WPF.SystemObjects.System;
+using ECSSystem = Event_ECS_WPF.SystemObjects.EntityComponentSystem;
 
 namespace Event_ECS_WPF
 {
@@ -131,11 +131,13 @@ namespace Event_ECS_WPF
 
         private void InitECS()
         {
+            ecs?.Dispose();
             try
             {
                 ecs = new ECSWrapper();
                 ecs.Require("eventecs");
-                addLog("Start ECS");
+                ecs?.DoString("System = require 'system'");
+                addLog("Initialized Entity Component System");
             }
             catch(Exception e)
             {
@@ -149,8 +151,22 @@ namespace Event_ECS_WPF
         {
             try
             {
-                ecs?.DoString("System = require 'system'");
-                addLog("Not set yet");
+                System.Name = "Test System";
+                System.RegisteredComponents.Add("Components");
+                System.RegisteredComponents.Add("TestComponents");
+                
+                var en = new SystemObjects.Entity();
+                System.Entities.Add(en);
+
+                en.Name = string.Format("Enttiy #{0}", System.Entities.Count);
+                en.Events.TryAdd("Test Event #1");
+                en.Events.TryAdd("Test Event #2");
+
+                var comp = new SystemObjects.Component();
+                en.Components.TryAdd(comp);
+
+                comp.Variables.TryAdd(new SystemObjects.ComponentVariable("Test Var #1", 3));
+                comp.Variables.TryAdd(new SystemObjects.ComponentVariable("Test Var #2", "dsaklfjasd"));
             }
             catch (Exception e)
             {

@@ -1,5 +1,4 @@
-﻿using System.Collections.Concurrent;
-using System.Collections.ObjectModel;
+﻿using Event_ECS_WPF.Misc;
 
 namespace Event_ECS_WPF.SystemObjects
 {
@@ -27,7 +26,7 @@ namespace Event_ECS_WPF.SystemObjects
         }
         private string m_name = string.Empty;
 
-        public ObservableCollection<string> Events
+        public ObservableSet<string> Events
         {
             get => m_events;
             set
@@ -36,9 +35,9 @@ namespace Event_ECS_WPF.SystemObjects
                 OnPropertyChanged("Events");
             }
         }
-        private ObservableCollection<string> m_events = new ObservableCollection<string>();
+        private ObservableSet<string> m_events = new ObservableSet<string>();
 
-        public ObservableConcurrentDictionary<string, Component> Components
+        public ObservableSet<Component> Components
         {
             get => m_components;
             set
@@ -47,6 +46,6 @@ namespace Event_ECS_WPF.SystemObjects
                 OnPropertyChanged("Components");
             }
         }
-        private ObservableConcurrentDictionary<string, Component> m_components = new ObservableConcurrentDictionary<string, Component>();
+        private ObservableSet<Component> m_components = new ObservableSet<Component>();
     }
 }

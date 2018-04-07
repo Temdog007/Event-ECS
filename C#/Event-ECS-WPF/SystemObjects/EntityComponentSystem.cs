@@ -2,7 +2,7 @@
 
 namespace Event_ECS_WPF.SystemObjects
 {
-    public class System : NotifyPropertyChanged
+    public class EntityComponentSystem : NotifyPropertyChanged
     {
         public string Name
         {

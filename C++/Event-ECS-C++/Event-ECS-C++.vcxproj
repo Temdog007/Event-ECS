@@ -171,7 +171,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\C++\eventecs\eventecs.vcxproj">
+    <ProjectReference Include="..\eventecs\eventecs.vcxproj">
       <Project>{e3df66fc-e85b-4976-981e-60ec78325f9e}</Project>
     </ProjectReference>
   </ItemGroup>

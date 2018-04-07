@@ -55,9 +55,6 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ParallelExtensionsExtras, Version=1.2.3.0, Culture=neutral, PublicKeyToken=665f4d61f853b5a9, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\ParallelExtensionsExtras.1.2.0.0\lib\net40\ParallelExtensionsExtras.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Data" />
@@ -79,10 +76,31 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="Controls\ComponentControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\EntityControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\EntityComponentSystemControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Compile Include="Controls\ComponentControl.xaml.cs">
+      <DependentUpon>ComponentControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\EntityControl.xaml.cs">
+      <DependentUpon>EntityControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\EntityComponentSystemControl.xaml.cs">
+      <DependentUpon>EntityComponentSystemControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Misc\ActionCommand.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
@@ -101,9 +119,10 @@
     <Compile Include="Misc\Extensions.cs" />
     <Compile Include="Misc\Log.cs" />
     <Compile Include="Misc\NotifyPropertyChanged.cs" />
+    <Compile Include="Misc\ObservableSet.cs" />
     <Compile Include="SystemObjects\Component.cs" />
     <Compile Include="SystemObjects\Entity.cs" />
-    <Compile Include="SystemObjects\System.cs" />
+    <Compile Include="SystemObjects\EntityComponentSystem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -121,7 +140,6 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
