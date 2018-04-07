@@ -8,7 +8,7 @@ private:
 	lua_State * L;
 	bool initialized;
 
-	void loadModule(const char*);
+	void loadModule(const char*,int);
 
 	void safeCall(int nargs, int rvalue);
 
@@ -19,7 +19,7 @@ public:
 	ECS(const ECS&) = delete;
 	ECS& operator=(const ECS&) = delete;
 
-	void Init();
+	void Initialize();
 
 	void dispatchEvent(const char* eventName, int& handled);
 

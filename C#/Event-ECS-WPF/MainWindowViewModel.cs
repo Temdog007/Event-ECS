@@ -135,7 +135,7 @@ namespace Event_ECS_Client_WPF
         {
             try
             {
-                m_wrapper.Init();
+                m_wrapper.Initialize();
                 addLog(m_wrapper.GetState());
             }
             catch (Exception e)

@@ -1,7 +1,9 @@
 #include "stdafx.h"
 
-ECS::ECS() : L(luaL_newstate()), initialized(false)
+ECS::ECS() : L(nullptr), initialized(false)
 {
+	L = luaL_newstate();
+	luaL_openlibs(L);
 }
 
 ECS::~ECS()
@@ -9,29 +11,30 @@ ECS::~ECS()
 	lua_close(L);
 }
 
-void ECS::Init()
+void ECS::Initialize()
 {
 	if (initialized)
 	{
 		return;
 	}
 
-	luaL_openlibs(L);
+	loadModule("love", 1); // Loading  love automatically creates a global called 'love'
+	lua_pop(L, 1); //Pop 'love' from stack
 
-	loadModule("love");
-	lua_pop(L, 1);
+	loadModule("eventecs", 0); // Load all of the ECS modules
 
-	loadModule("eventecs");
-	lua_setglobal(L, "System");
+	loadModule("system", 1); // Get System class table
+	safeCall(0, 1); // Call System class table to create an instance
+	lua_setglobal(L, "System"); // Set System instance as a global
 
 	initialized = true;
 }
 
-void ECS::loadModule(const char* name)
+void ECS::loadModule(const char* name, int rvals)
 {
 	lua_getglobal(L, "require");
 	lua_pushstring(L, name);
-	safeCall(1,1);
+	safeCall(1, rvals);
 }
 
 void ECS::safeCall(int nargs, int rvals)
