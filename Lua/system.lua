@@ -32,13 +32,8 @@ local function systostring(sys)
 end
 
 return ClassFactory(function(system)
-  local entities = setmetatable({},
-  {
-    __newindex = function(tab, key, value)
-      value.getID = function() return key end
-      rawset(tab, key, value)
-    end
-  })
+  local entities = {}
+  local id = 1
 
   local registeredComponents = {}
 
@@ -48,6 +43,9 @@ return ClassFactory(function(system)
 
   function system:createEntity()
     local entity = Entity(self)
+    local thisID = id
+    entity.getID = function() return thisID end
+    id = id + 1
     entities[#entities + 1] = entity
     self:dispatchEvent("eventCreatedEntity", {entity = entity, system = self})
     return entity
@@ -107,7 +105,9 @@ return ClassFactory(function(system)
   function system:dispatchEvent(event, args)
     local eventsHandled = 0
     for _, entity in pairs(entities) do
-      eventsHandled = eventsHandled + entity:dispatchEvent(event, args)
+      if entity:isEnabled() then
+        eventsHandled = eventsHandled + entity:dispatchEvent(event, args)
+      end
     end
     return eventsHandled
   end

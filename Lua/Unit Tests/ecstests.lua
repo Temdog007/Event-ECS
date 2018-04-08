@@ -26,7 +26,7 @@ local class = require("classlib")
 local TestComponent = class("TestComponent", Component)
 
 function TestComponent:__init(entity)
-  self.Component:__init(entity)
+  self.Component:__init(entity, self)
   self.addedComponentCalled = 0
   self.removingComponentCalled = 0
 end
@@ -34,7 +34,6 @@ end
 function TestComponent:eventAddedComponent(args)
   if args.component == self then
     self.added = true
-    self.entity = args.entity
   end
   self.addedComponentCalled = self.addedComponentCalled + 1
 end
@@ -52,9 +51,9 @@ function TestComponent:removingComponent(args)
 end
 
 function TestComponent:eventRemovingComponent(args)
+  self.Component:eventRemovingComponent(args)
   if args.component == self then
     self.added = false
-    self.entity = nil
   end
   self.removingComponentCalled = self.removingComponentCalled + 1
 end
@@ -65,6 +64,14 @@ end
 
 function assertNotIsTrue(actual)
   assertError(assertEquals, actual, true)
+end
+
+function assertIsFalse(actual)
+  assertEquals(actual, false)
+end
+
+function assertNotIsFalsee(actual)
+  assertError(assertEquals, actual, false)
 end
 
 function assertIsNil(actual)
@@ -156,7 +163,8 @@ function ecsTests:testEntityComponents1()
   local comp1 = entity:addComponent('TestComponent')
   assertEquals(classname(TestComponent), classname(comp1))
   assertEquals(entity:componentCount(), 1)
-  assertEquals(comp1.entity, entity)
+  assertIsNil(comp1.entity)
+  assertEquals(comp1.getID(), 1)
   assertEquals(comp1.addedComponentCalled, 1)
   assertIsTrue(entity:removeComponent(comp1))
   assertEquals(comp1.removingComponentCalled, 1)
@@ -165,7 +173,8 @@ function ecsTests:testEntityComponents1()
 
   local comp2 = entity:addComponent('TestComponent')
   assertEquals(entity:componentCount(), 1)
-  assertEquals(comp2.entity, entity)
+  assertIsNil(comp2.entity)
+  assertEquals(comp2.getID(), 2)
   assertEquals(comp2.addedComponentCalled, 1)
   assertIsTrue(entity:remove())
   assertEquals(comp2.removingComponentCalled, 1)
@@ -173,9 +182,21 @@ function ecsTests:testEntityComponents1()
   assertIsNil(system:findEntity(function(en) return en == entity end))
 
   assertIsNil(comp1.entity)
-  assertEquals(comp1.addedComponentCalled, 2)
+  assertEquals(comp1.addedComponentCalled, 1)
   assertNotIsTrue(entity:removeComponent(comp1))
-  assertEquals(comp1.removingComponentCalled, 2)
+  assertEquals(comp1.removingComponentCalled, 1)
+
+  assertError(entity:addComponent('TestComponent'))
+
+  entity = system:createEntity()
+  assertIsTrue(entity:isEnabled())
+  assertEquals(entity:componentCount(), 0)
+  local comp3 = entity:addComponent('TestComponent')
+  assertEquals(comp3.getID(), 1)
+  assertEquals(comp3.addedComponentCalled, 1)
+  assertIsTrue(comp3:remove())
+  assertEquals(comp3.removingComponentCalled, 1)
+  assertEquals(entity:componentCount(), 0)
 end
 
 function ecsTests:testEntityComponents2()
@@ -215,6 +236,21 @@ function ecsTests:testSystemSerialization()
   assertEquals(system:serialize(), "Entity Component System,Component")
   system:registerComponent(TestComponent)
   assertEquals(system:serialize(), "Entity Component System,Component,TestComponent")
+end
+
+function ecsTests:testEntitySerialization()
+  local system = System()
+  system:registerComponent(TestComponent)
+  local entity = system:createEntity()
+
+  assertEquals(entity:serialize(), "Entity#1")
+  local comp = entity:addComponent("Component")
+  assertEquals(entity:serialize(), "Entity#1,removingentity,removingcomponent\nenabled,boolean,true")
+  comp = entity:addComponent("TestComponent")
+  assertEquals(entity:serialize(), "Entity#1,removingcomponent,removingentity,addedcomponent\nenabled,boolean,true\nenabled,boolean,true,removingComponentCalled,number,0,addedComponentCalled,number,1,added,boolean,true")
+
+  local entity2 = system:createEntity()
+  assertEquals(entity2:serialize(), "Entity#2")
 end
 
 LuaUnit:run('ecsTests')

@@ -40,11 +40,23 @@ end
 local Entity = ClassFactory(function(entity, system)
   assert(system, "Entity must have a system")
 
+  local id = 1
+
   function entity:getName()
     return entostring(self)
   end
 
   entity.system = system
+  local enabled = true
+
+  function entity:isEnabled() return enabled end
+  function entity:setEnabled(pEnabled)
+    assert(type(pEnabled) == "boolean", "Must set enabled to a boolean value")
+    if enabled ~= pEnabled then
+      enabled = pEnabled
+      self.entity.system:dispatchEvent("eventEnabledChanged", self, pEnabled)
+    end
+  end
 
   local components = {}
   local eventTablesTable = {}
@@ -53,8 +65,12 @@ local Entity = ClassFactory(function(entity, system)
     local compClass = assert(self.system:getComponent(compName), "Component not found in system")
     local component = assert(compClass(self, args), "Class instance couldn't be created")
 
+    local thisID = id
+    component.getID = function() return thisID end
+    id = id + 1
+
     -- Insert component into list of components
-    table.insert(components, component)
+    table.insert(components, component:getBase())
 
     -- Grab all of the components functions and put them into the event tables
     for k,v in pairs(compClass) do
@@ -95,6 +111,7 @@ local Entity = ClassFactory(function(entity, system)
   end
 
   function entity:removeComponent(component)
+    component = component:getBase()
     for k,v in pairs(components) do
       if v == component then
         removeComponentFunction(k, component)
@@ -157,7 +174,34 @@ local Entity = ClassFactory(function(entity, system)
 
   function entity:remove()
     self:removeComponents(removeAll)
-    return self.system:removeEntity(self)
+    local value = self.system:removeEntity(self)
+    self.system = nil
+    self.addComponent = nil
+    return value
+  end
+
+  function entity:getEventList()
+    local tab = {}
+    for k in pairs(eventTablesTable) do
+      local str = string.gsub(k, "event", "")
+      table.insert(tab, str)
+    end
+    return table.concat(tab, ",")
+  end
+
+  function entity:serialize()
+    local events = self:getEventList()
+    local tab = {}
+    if string.len(events) > 0 then
+      table.insert(tab, self:getName()..","..self:getEventList())
+    else
+      table.insert(tab, self:getName())
+    end
+
+    for k,v in pairs(components) do
+      table.insert(tab, v:serialize())
+    end
+    return table.concat(tab, "\n")
   end
 end)
 return Entity
