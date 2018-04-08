@@ -112,6 +112,12 @@ return ClassFactory(function(system)
     return eventsHandled
   end
 
+  function system:replaceComponent(NewComponent)
+    assert(is_a(NewComponent, Component), 'Object is not an Component')
+    local name = classname(NewComponent)
+    registeredComponents[name] = NewComponent
+  end
+
   function system:registerComponent(NewComponent)
     local name = classname(NewComponent)
     assert(not registeredComponents[name], "Component has already been registered")
