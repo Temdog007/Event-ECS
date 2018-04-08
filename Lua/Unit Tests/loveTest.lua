@@ -59,7 +59,8 @@ loveSystem:registerComponent(DrawComponent)
 local entity = loveSystem:createEntity()
 entity:addComponent("DrawComponent")
 
-local co = coroutine.create(loveSystem.run, loveSystem)
-repeat coroutine.resume(co) until coroutine.status(co) == "dead"
+local result
+repeat result = loveSystem:run() until result
 
+print(result)
 print("Corutine ended")

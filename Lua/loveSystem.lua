@@ -388,32 +388,45 @@ return function(identity)
   -- The root of all calls.
   -----------------------------------------------------------
 
-  function loveSystem:run()
-  	local func
+  local function runCoroutine()
+    local func
 
-  	local function deferErrhand(...)
-  		func = errorHandler(...)
-  	end
+    local function deferErrhand(...)
+      func = errorHandler(...)
+    end
 
-  	local function earlyinit()
-  		-- NOTE: We can't assign to func directly, as we'd
-  		-- overwrite the result of deferErrhand with nil on error
-  		local main
-  		result, main = xpcall(run, deferErrhand)
-  		if result then
-  			func = main
-  		end
-  	end
+    local function earlyinit()
+      -- NOTE: We can't assign to func directly, as we'd
+      -- overwrite the result of deferErrhand with nil on error
+      local main
+      result, main = xpcall(run, deferErrhand)
+      if result then
+        func = main
+      end
+    end
 
-  	func = earlyinit
+    func = earlyinit
 
-  	while func do
-  		local _, retval = xpcall(func, deferErrhand)
-  		if retval then return retval end
-  		coroutine.yield()
-  	end
-
-  	return 1
+    while func do
+      local _, retval = xpcall(func, deferErrhand)
+      if retval then return retval end
+      coroutine.yield()
+    end
+    return 1
   end
+
+  local co
+  function loveSystem:run()
+    if not co then
+      co = coroutine.create(runCoroutine)
+    end
+
+  	local rval, result = coroutine.resume(co)
+    if not rval then
+      co = nil
+    end
+    return result
+  end
+
   return loveSystem
 end
