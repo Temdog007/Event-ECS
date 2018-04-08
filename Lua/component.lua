@@ -16,20 +16,12 @@ function component:isEnabled()
   return self.enabled
 end
 
-function component:setEnabled()
+function component:setEnabled(enabled)
   assert(type(enabled) == "boolean", "Must set enabled to a boolean value")
   if self.enabled ~= enabled then
     self.enabled = enabled
     self.entity.system:dispatchEvent("eventEnabledChanged", self, enabled)
   end
-end
-
-function component:getID()
-  return self.id
-end
-
-function component:remove()
-  self.entity:removeComponent(self)
 end
 
 return component

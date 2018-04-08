@@ -18,7 +18,6 @@
 -- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 -- SOFTWARE.
 
-local json = require("json")
 local ClassFactory = require("classFactory")
 local ClassName = "Entity"
 
@@ -160,10 +159,5 @@ local Entity = ClassFactory(function(entity, system)
     self:removeComponents(removeAll)
     return self.system:removeEntity(self)
   end
-
-  function entity:encode()
-    return json.encode(self:getData())
-  end
-
 end)
 return Entity

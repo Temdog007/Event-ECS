@@ -20,7 +20,6 @@
 
 local ClassFactory = require("classFactory")
 local Entity = require("entity")
-local json = require("json")
 local Component = require("component")
 local ClassName = "Entity Component System"
 
