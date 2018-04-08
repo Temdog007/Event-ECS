@@ -130,4 +130,16 @@ return ClassFactory(function(system)
     assert(type(compName) == "string", "Must find components by classname")
     return registeredComponents[compName]
   end
+
+  function system:getComponentList()
+    local comps = {}
+    for k in pairs(registeredComponents) do
+      table.insert(comps, k)
+    end
+    return table.concat(comps, ",")
+  end
+
+  function system:serialize()
+    return self:getName()..","..self:getComponentList()
+  end
 end)

@@ -210,4 +210,11 @@ function ecsTests:testEntityFunctions()
   assertError(entity.addComponent, entity, 6)
 end
 
+function ecsTests:testSystemSerialization()
+  local system = System()
+  assertEquals(system:serialize(), "Entity Component System,Component")
+  system:registerComponent(TestComponent)
+  assertEquals(system:serialize(), "Entity Component System,Component,TestComponent")
+end
+
 LuaUnit:run('ecsTests')
