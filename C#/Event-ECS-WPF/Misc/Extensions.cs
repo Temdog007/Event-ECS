@@ -1,24 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Event_ECS_WPF
 {
     public static class Extensions
     {
-        public static IEnumerable<string> Split(this string str, int length)
+        public static IEnumerable<string> Split(this string str, uint length)
         {
-            for(int i = 0, n = str.Length; i < n; i += length )
+            for(uint i = 0, n = (uint)str.Length; i < n; i += length )
             {
                 if(i + length >= n)
                 {
-                    yield return str.Substring(i);
+                    yield return str.Substring((int)i);
                 }
                 else
                 {
-                    yield return str.Substring(i, Math.Min(length, n - 1));
+                    yield return str.Substring((int)i, (int)Math.Min(length, n - 1));
                 }
             }
         }

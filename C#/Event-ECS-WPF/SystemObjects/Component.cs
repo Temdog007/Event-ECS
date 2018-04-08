@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace Event_ECS_WPF.SystemObjects
 {
-    public class Component : Collection<ComponentVariable>, INotifyCollectionChanged, INotifyPropertyChanged
+    public class Component : Collection<ComponentVariable>, INotifyCollectionChanged, INotifyPropertyChanged, IDisposable
     {
         private ObservableSet<ComponentVariable> m_variables = new ObservableSet<ComponentVariable>();
 
@@ -112,7 +112,12 @@ namespace Event_ECS_WPF.SystemObjects
 
         public override string ToString()
         {
-            return string.Join(Environment.NewLine, Variables.Select(v => v.ToString()));
+            return string.Format("Name: {0}\nComponents:\n{1}", Name, string.Join(Environment.NewLine, Variables.Select(v => v.ToString())));
+        }
+
+        public void Dispose()
+        {
+            m_entity.Components.Remove(this);
         }
     }
 
@@ -122,12 +127,17 @@ namespace Event_ECS_WPF.SystemObjects
 
         private object m_value;
 
-        public ComponentVariable() : this(string.Empty, null) { }
+        public ComponentVariable() : this(Guid.NewGuid().ToString().Substring(0, 3), 0) { }
 
         public ComponentVariable(string m_name, object m_value)
         {
-            this.m_name = m_name ?? throw new ArgumentNullException(nameof(m_name));
-            this.m_value = m_value ?? throw new ArgumentNullException(nameof(m_value));
+            if(string.IsNullOrWhiteSpace(m_name))
+            {
+                throw new ArgumentNullException(nameof(m_name));
+            }
+
+            this.m_name = m_name;
+            this.m_value = m_value;
         }
 
         public string Name

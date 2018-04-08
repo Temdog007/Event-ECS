@@ -7,10 +7,22 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
              x:Name="m_componentControl">
-    <Expander Header="{Binding ElementName=m_componentControl, Path=Component.Name}">
-        <DataGrid ItemsSource="{Binding ElementName=m_componentControl, Path=Component.Variables, Mode=TwoWay}"
-                  CanUserAddRows="False"
-                  CanUserDeleteRows="False"
-                  CanUserReorderColumns="False"/>
-    </Expander>
+    <GroupBox Header="{Binding ElementName=m_componentControl, Path=Component.Name}" MouseEnter="GroupBox_MouseEnter" MouseLeave="GroupBox_MouseLeave"
+              Tag="{Binding ElementName=m_componentControl}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+
+        <GroupBox.ContextMenu>
+            <ContextMenu DataContext="{Binding Path=PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
+                <MenuItem Header="Remove Component" Command="{Binding Path=RemoveComponentCommand}"/>
+            </ContextMenu>
+        </GroupBox.ContextMenu>
+
+        <DataGrid ItemsSource="{Binding ElementName=m_componentControl, Path=Component.Variables, Mode=TwoWay}" AutoGenerateColumns="False" RowBackground="LightCoral"
+                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" CanUserResizeRows="False" AlternatingRowBackground="LightSalmon" Visibility="Collapsed">
+            
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Key" Binding="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Delay=2000}" Width="*"/>
+                <DataGridTextColumn Header="Value" Binding="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Delay=2000}" Width="auto"/>
+            </DataGrid.Columns>
+        </DataGrid>
+    </GroupBox>
 </UserControl>

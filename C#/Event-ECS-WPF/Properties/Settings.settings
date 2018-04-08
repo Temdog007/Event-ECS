@@ -2,10 +2,13 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Event_ECS_WPF.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
-    <Setting Name="MaxLogLength" Type="System.Int32" Scope="User">
+    <Setting Name="MaxLogLength" Type="System.UInt32" Scope="User">
       <Value Profile="(Default)">200</Value>
     </Setting>
     <Setting Name="MultilineLog" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="OnlyShowComponentWhenMouse" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
   </Settings>

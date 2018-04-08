@@ -14,8 +14,14 @@
             <Setter Property="HorizontalAlignment" Value="Center"/>
         </Style>
     </UserControl.Resources>
-    
-    <Expander>
+
+    <Expander Tag="{Binding ElementName=m_entityControl}" ExpandDirection="Right">
+
+        <Expander.ContextMenu>
+            <ContextMenu DataContext="{Binding Path=PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
+                <MenuItem Header="Remove Entity" Command="{Binding Path=RemoveEntityCommand}"/>
+            </ContextMenu>
+        </Expander.ContextMenu>
 
         <Expander.Header>
             <StackPanel Orientation="Horizontal">
@@ -30,17 +36,23 @@
             </StackPanel>
         </Expander.Header>
 
-        <TreeView>
+        <TreeView Tag="{Binding ElementName=m_entityControl}">
 
-            <Expander Grid.Row="0" Header="Events">
+            <TreeView.ContextMenu>
+                <ContextMenu DataContext="{Binding Path=PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
+                    <MenuItem Header="Add Component" Command="{Binding Path=AddComponentCommand}"/>
+                </ContextMenu>
+            </TreeView.ContextMenu>
+            
+            <Expander Grid.Row="0" Header="Events" Background="LightYellow">
                 <ListBox ItemsSource="{Binding ElementName=m_entityControl, Path=Entity.Events, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
             </Expander>
 
-            <Expander Grid.Row="1" Header="Components">
+            <Expander Grid.Row="1" Header="Components" Background="Snow">
                 <TreeView ItemsSource="{Binding ElementName=m_entityControl, Path=Entity.Components, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
                     <TreeView.ItemTemplate>
                         <DataTemplate>
-                            <controls:ComponentControl Component="{Binding}"/>
+                            <controls:ComponentControl Component="{Binding}" Background="AliceBlue"/>
                         </DataTemplate>
                     </TreeView.ItemTemplate>
                 </TreeView>

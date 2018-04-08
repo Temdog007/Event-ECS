@@ -5,65 +5,68 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:misc="clr-namespace:Event_ECS_WPF"
         xmlns:local="clr-namespace:Event_ECS_WPF"
+        xmlns:converter="clr-namespace:Event_ECS_WPF.Converters"
         mc:Ignorable="d"
         xmlns:controls="clr-namespace:Event_ECS_WPF.Controls"
+        xmlns:properties="clr-namespace:Event_ECS_WPF.Properties"
         Title="Entity Component System Viewer" 
-        Height="768" Width="1366">
-
+        Height="768" Width="1366"
+        x:Name="m_window">
+    
     <Window.DataContext>
         <local:MainWindowViewModel/>
     </Window.DataContext>
 
     <Window.Resources>
-        <Style TargetType="{x:Type Button}">
-            <Setter Property="HorizontalAlignment" Value="Center"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-        </Style>
+        <converter:BoolToVisibilityConverter x:Key="boolConv"/>
     </Window.Resources>
 
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="3*"/>
-            <RowDefinition Height="1*"/>
-        </Grid.RowDefinitions>
-
-        <Grid Grid.Row="0">
-            
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="auto"/>
-            </Grid.ColumnDefinitions>
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="File">
+                <MenuItem Header="New Project"/>
+                <MenuItem Header="Open Project"/>
+                <MenuItem Header="Save Project"/>
+                <Separator/>
+                <MenuItem Header="Exit" Command="{Binding CloseCommand}" CommandParameter="{Binding ElementName=m_window}"/>
+            </MenuItem>
+            <MenuItem Header="Settings">
+                <MenuItem Header="Multi-Line Log" IsCheckable="True" IsChecked="{Binding Source={x:Static properties:Settings.Default}, Mode=TwoWay, Path=MultilineLog}"/>
+                <MenuItem Visibility="{Binding Source={x:Static properties:Settings.Default}, Converter={StaticResource boolConv}, Path=MultilineLog}">
+                    <MenuItem.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Max Log Line Length" Margin="0,0,5,0"/>
+                            <TextBox Text="{Binding Source={x:Static properties:Settings.Default}, Path=MaxLogLength, Mode=TwoWay}"/>
+                        </StackPanel>
+                    </MenuItem.Header>
+                </MenuItem>
+                <MenuItem Header="Hide Component" IsCheckable="True" IsChecked="{Binding Source={x:Static properties:Settings.Default}, Mode=TwoWay, Path=OnlyShowComponentWhenMouse}"/>
+            </MenuItem>
+        </Menu>
+        
+        <Grid Margin="0,10,0,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="3*"/>
+                <RowDefinition Height="1*"/>
+            </Grid.RowDefinitions>
 
             <controls:EntityComponentSystemControl EntityComponentSystem="{Binding System}" Grid.Row="0"/>
 
-            <Grid Grid.Column="1" VerticalAlignment="Bottom">
-
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
-                </Grid.RowDefinitions>
-
-                <Expander Header="Actions" Background="Beige" Grid.Row="0" ExpandDirection="Up">
-                    <StackPanel>
-                        <Button Command="{Binding InitECSCommand}" Content="Initialize" Margin="5"/>
-                        <Button Command="{Binding UpdateStateCommand}" Content="Update State" Margin="5"/>
-                        <Button Command="{Binding ClearLogCommand}" Content="Clear Logs"  Margin="5"/>
-                    </StackPanel>
-                </Expander>
-            </Grid>
-        </Grid>
-
-        <Expander Header="Logs" Grid.Row="1" ExpandDirection="Up" IsExpanded="True">
-            <DataGrid ItemsSource="{Binding Logs, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" Background='LightGray' AlternatingRowBackground="LightGray"
+            <Expander Header="Logs" Grid.Row="1" ExpandDirection="Up" IsExpanded="True">
+                <Expander.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Clear Logs" Command="{Binding ClearLogCommand}"/>
+                    </ContextMenu>
+                </Expander.ContextMenu>
+                <DataGrid ItemsSource="{Binding Logs, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" Background='LightGray' AlternatingRowBackground="LightGray"
                           AutoGenerateColumns="False" CanUserAddRows="False"
                               misc:DataGridBehaviour.ScrollOnNewItem="True">
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="Time" Binding="{Binding DateTime}" Width="auto" IsReadOnly="True"/>
-                    <DataGridTextColumn Header="Message" Binding="{Binding Message}" Width="*" IsReadOnly="True"/>
-                </DataGrid.Columns>
-            </DataGrid>
-        </Expander>
-    </Grid>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Time" Binding="{Binding DateTime}" Width="auto" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="Message" Binding="{Binding Message}" Width="*" IsReadOnly="True"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Expander>
+        </Grid>
+    </DockPanel>
 </Window>

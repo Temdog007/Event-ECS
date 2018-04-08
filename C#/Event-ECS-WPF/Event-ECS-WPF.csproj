@@ -101,6 +101,7 @@
     <Compile Include="Controls\EntityComponentSystemControl.xaml.cs">
       <DependentUpon>EntityComponentSystemControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Converters\BoolToVisibilityConverter.cs" />
     <Compile Include="Misc\ActionCommand.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>

@@ -129,11 +129,16 @@ namespace Event_ECS_WPF
         public ActionCommand<object> ClearLogCommand => m_clearLogCommand ?? (m_clearLogCommand = new ActionCommand<object>(clearLogs));
         private ActionCommand<object> m_clearLogCommand;
 
-        public AsyncActionCommand<object> UpdateStateCommand => m_updateState ?? (m_updateState = new AsyncActionCommand<object>(UpdateState));
-        private AsyncActionCommand<object> m_updateState;
-
         public AsyncActionCommand<object> InitECSCommand => m_initECSCommand ?? (m_initECSCommand = new AsyncActionCommand<object>(InitECS));
         private AsyncActionCommand<object> m_initECSCommand;
+
+        public ActionCommand<Window> CloseCommand => m_closeCommand ?? (m_closeCommand = new ActionCommand<Window>(CloseWindow));
+        public ActionCommand<Window> m_closeCommand;
+
+        private void CloseWindow(Window window)
+        {
+            window.Close();
+        }
 
         private void InitECS()
         {
@@ -150,25 +155,6 @@ namespace Event_ECS_WPF
                 addLog(e.Message);
                 ecs?.Dispose();
                 ecs = null;
-            }
-        }
-
-        private void UpdateState()
-        {
-            try
-            {
-                var en = new SystemObjects.Entity(System);
-                en.Name = string.Format("Enttiy #{0}", System.Entities.Count);
-                en.Events.TryAdd("Test Event #1");
-                en.Events.TryAdd("Test Event #2");
-
-                var comp = new SystemObjects.Component(en, "Test Component");
-                comp.Variables.TryAdd(new SystemObjects.ComponentVariable("Test Var #1", 3));
-                comp.Variables.TryAdd(new SystemObjects.ComponentVariable("Test Var #2", "dsaklfjasd"));
-            }
-            catch (Exception e)
-            {
-                addLog(e.Message);
             }
         }
 

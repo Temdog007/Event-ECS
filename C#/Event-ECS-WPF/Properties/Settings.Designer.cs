@@ -26,9 +26,9 @@ namespace Event_ECS_WPF.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("200")]
-        public int MaxLogLength {
+        public uint MaxLogLength {
             get {
-                return ((int)(this["MaxLogLength"]));
+                return ((uint)(this["MaxLogLength"]));
             }
             set {
                 this["MaxLogLength"] = value;
@@ -44,6 +44,18 @@ namespace Event_ECS_WPF.Properties {
             }
             set {
                 this["MultilineLog"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool OnlyShowComponentWhenMouse {
+            get {
+                return ((bool)(this["OnlyShowComponentWhenMouse"]));
+            }
+            set {
+                this["OnlyShowComponentWhenMouse"] = value;
             }
         }
     }
