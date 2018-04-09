@@ -23,6 +23,7 @@ namespace Event_ECS_WPF.Projects
 
         public Project()
         {
+            Name = "New Project";
             ComponentPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             UpdateType = UpdateType.MANUAL;
         }

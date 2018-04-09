@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using Event_ECS_WPF.Properties;
+using System.Windows;
 
 namespace Event_ECS_WPF
 {
@@ -10,6 +11,11 @@ namespace Event_ECS_WPF
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        private void m_window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            Settings.Default.Save();
         }
     }
 }

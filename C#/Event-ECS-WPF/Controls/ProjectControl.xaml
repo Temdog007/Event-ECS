@@ -15,8 +15,13 @@
         </Style>
     </UserControl.Resources>
     
-    <GroupBox Header="{Binding ElementName=m_project, Path=Project.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
-        <Grid>
+    <GroupBox Margin="5">
+
+        <GroupBox.Header>
+            <TextBox Text="{Binding ElementName=m_project, Path=Project.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+        </GroupBox.Header>
+        
+        <Grid Margin="5">
 
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto"/>
