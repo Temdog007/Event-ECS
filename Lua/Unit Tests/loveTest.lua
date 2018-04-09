@@ -67,8 +67,7 @@ loveSystem:registerComponent(DrawComponent)
 local entity = loveSystem:createEntity()
 entity:addComponent("DrawComponent")
 
-local result
-repeat result = loveSystem:run() until result
+repeat until not loveSystem:run()
 
 print(result)
 print("Corutine ended")

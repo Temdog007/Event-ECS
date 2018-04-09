@@ -419,11 +419,11 @@ return function(identity)
       co = coroutine.create(runCoroutine)
     end
 
-  	local rval, result = coroutine.resume(co)
+  	local rval = coroutine.resume(co)
     if not rval then
       co = nil
     end
-    return result
+    return rval
   end
 
   return loveSystem
