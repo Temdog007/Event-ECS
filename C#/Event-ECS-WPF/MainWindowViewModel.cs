@@ -15,6 +15,11 @@ namespace Event_ECS_WPF
     {
         private ECSWrapper ecs;
 
+        public MainWindowViewModel ()
+        {
+            Project = new Project();
+        }
+
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
 
@@ -153,7 +158,7 @@ namespace Event_ECS_WPF
             get => m_project;
             set
             {
-                if(m_project != null)
+                if(m_project != value)
                 {
                     m_project = value;
                     OnPropertyChanged("Project");

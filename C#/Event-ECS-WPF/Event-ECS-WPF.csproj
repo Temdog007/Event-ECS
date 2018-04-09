@@ -58,6 +58,7 @@
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -88,6 +89,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Controls\ProjectControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -101,20 +106,20 @@
     <Compile Include="Controls\EntityComponentSystemControl.xaml.cs">
       <DependentUpon>EntityComponentSystemControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\ProjectControl.xaml.cs">
+      <DependentUpon>ProjectControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Converters\BoolToVisibilityConverter.cs" />
     <Compile Include="Commands\ActionCommand.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Converters\EnumToBoolConverter.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="ProjectWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MainWindowViewModel.cs" />
@@ -128,9 +133,6 @@
     <Compile Include="Projects\ProjectType.cs" />
     <Compile Include="Projects\LoveProject.cs" />
     <Compile Include="Projects\Project.cs" />
-    <Compile Include="ProjectWindow.xaml.cs">
-      <DependentUpon>ProjectWindow.xaml</DependentUpon>
-    </Compile>
     <Compile Include="SystemObjects\Component.cs" />
     <Compile Include="SystemObjects\Entity.cs" />
     <Compile Include="SystemObjects\EntityComponentSystem.cs" />

@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -9,7 +10,7 @@ namespace Event_ECS_WPF.Projects
     public enum UpdateType
     {
         MANUAL,
-        AUTMATIC
+        AUTOMATIC
     }
 
     [XmlRoot("Project")]
@@ -22,7 +23,8 @@ namespace Event_ECS_WPF.Projects
 
         public Project()
         {
-            ComponentPath = string.Empty;
+            ComponentPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            UpdateType = UpdateType.MANUAL;
         }
 
         /// <summary>

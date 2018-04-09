@@ -62,6 +62,7 @@
                     <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
                 <controls:EntityComponentSystemControl EntityComponentSystem="{Binding System, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Column="0"/>
+                <controls:ProjectControl Project="{Binding Project, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" Visibility="{Binding ShowProject, Converter={StaticResource boolConv}}"/>
             </Grid>
             
             <Expander Header="Logs" Grid.Row="1" ExpandDirection="Up" IsExpanded="True">

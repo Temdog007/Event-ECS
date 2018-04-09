@@ -1,0 +1,46 @@
+﻿<UserControl x:Class="Event_ECS_WPF.Controls.ProjectControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:converter="clr-namespace:Event_ECS_WPF.Converters"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800"
+             x:Name="m_project">
+
+    <UserControl.Resources>
+        <converter:EnumToBoolConverter x:Key="enumConv"/>
+        <Style TargetType="RadioButton">
+            <Setter Property="GroupName" Value="EnumGroup"/>
+        </Style>
+    </UserControl.Resources>
+    
+    <GroupBox Header="{Binding ElementName=m_project, Path=Project.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+        <Grid>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Button Grid.Row="0" Click="Button_Click">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Path to Components" Grid.Column="0" Margin="5"/>
+                    <TextBlock Text="{Binding ElementName=m_project, Path=Project.ComponentPath, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" Margin="5"/>
+                </Grid>
+            </Button>
+
+            <GroupBox Header="Update Type" Grid.Row="1">
+                <StackPanel>
+                    <RadioButton Content="Manual" IsChecked="{Binding ElementName=m_project, Path=Project.UpdateType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource enumConv}, ConverterParameter=MANUAL}"/>
+                    <RadioButton Content="Automatic" IsChecked="{Binding ElementName=m_project, Path=Project.UpdateType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource enumConv}, ConverterParameter=AUTOMATIC}"/>
+                </StackPanel>
+            </GroupBox>
+            
+        </Grid>
+    </GroupBox>
+</UserControl>
