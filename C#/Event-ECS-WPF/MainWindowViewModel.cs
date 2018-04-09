@@ -1,16 +1,16 @@
 ﻿using Event_ECS_WPF.Commands;
 using Event_ECS_WPF.Extensions;
+using Event_ECS_WPF.Logger;
 using Event_ECS_WPF.Projects;
 using Event_ECS_WPF.Properties;
-using EventECSWrapper;
+using Event_ECS_WPF.SystemObjects;
 using System;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Windows;
-using Forms = System.Windows.Forms;
-using ECSSystem = Event_ECS_WPF.SystemObjects.EntityComponentSystem;
-using System.Xml.Serialization;
 using System.IO;
+using System.Windows;
+using System.Xml.Serialization;
+using ECSSystem = Event_ECS_WPF.SystemObjects.EntityComponentSystem;
+using Forms = System.Windows.Forms;
 
 namespace Event_ECS_WPF
 {
@@ -19,12 +19,11 @@ namespace Event_ECS_WPF
         public const string FileFilter = "xml files (*.xml)|*.xml|All files (*.*)|*.*";
 
         public ActionCommand<Window> m_closeCommand;
-        public ActionCommand<Window> m_newProjectCommand;
+        public ActionCommand<ProjectType> m_newProjectCommand;
         public ActionCommand<Window> m_openProjectCommand;
         public ActionCommand<Window> m_saveProjectCommand;
         public ActionCommand<Window> m_startProjectCommand;
         public ActionCommand<Window> m_stopProjectCommand;
-        private ECSWrapper ecs;
 
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
@@ -42,7 +41,7 @@ namespace Event_ECS_WPF
             {
                 if (disposing)
                 {
-                    ecs?.Dispose();
+                    ECS.Instance.Dispose();
                 }
 
                 disposedValue = true;
@@ -54,15 +53,7 @@ namespace Event_ECS_WPF
 
         private ActionCommand<object> m_clearLogCommand;
 
-        private object m_logLock = new object();
-
-        private ObservableCollection<Log> m_logs = new ObservableCollection<Log>();
-
         private Project m_project;
-
-        private ProjectType m_projectType = ProjectType.NORMAL;
-
-        private bool m_showProject = false;
 
         private ECSSystem m_system = new ECSSystem();
 
@@ -82,17 +73,8 @@ namespace Event_ECS_WPF
 
         public ActionCommand<Window> CloseCommand => m_closeCommand ?? (m_closeCommand = new ActionCommand<Window>(CloseWindow));
         public bool HasProject => Project != null;
-        public ObservableCollection<Log> Logs
-        {
-            get => m_logs;
-            set
-            {
-                m_logs = value;
-                OnPropertyChanged("Logs");
-            }
-        }
 
-        public ActionCommand<Window> NewProjectCommand => m_newProjectCommand ?? (m_newProjectCommand = new ActionCommand<Window>(NewProject));
+        public ActionCommand<ProjectType> NewProjectCommand => m_newProjectCommand ?? (m_newProjectCommand = new ActionCommand<ProjectType>(NewProject));
         public ActionCommand<Window> OpenProjectCommand => m_openProjectCommand ?? (m_openProjectCommand = new ActionCommand<Window>(OpenProject));
         public Project Project
         {
@@ -102,38 +84,13 @@ namespace Event_ECS_WPF
                 if (m_project != value)
                 {
                     m_project = value;
-                    ShowProject = true;
                     OnPropertyChanged("Project");
                     OnPropertyChanged("HasProject");
                 }
             }
         }
 
-        public bool ProjectStarted => ecs != null;
-        public ProjectType ProjectType
-        {
-            get => m_projectType;
-            set
-            {
-                if (m_projectType != value)
-                {
-                    m_projectType = value;
-                    Project = m_projectType.CreateProject();
-                    OnPropertyChanged("ProjectType");
-                }
-            }
-        }
-
         public ActionCommand<Window> SaveProjectCommand => m_saveProjectCommand ?? (m_saveProjectCommand = new ActionCommand<Window>(SaveProject));
-        public bool ShowProject
-        {
-            get => m_showProject;
-            set
-            {
-                m_showProject = value;
-                OnPropertyChanged("ShowProject");
-            }
-        }
 
         public ActionCommand<Window> StartProjectCommand => m_startProjectCommand ?? (m_startProjectCommand = new ActionCommand<Window>(StartProject));
         public ActionCommand<Window> StopProjectCommand => m_stopProjectCommand ?? (m_stopProjectCommand = new ActionCommand<Window>(StopProject));
@@ -154,44 +111,42 @@ namespace Event_ECS_WPF
 
         private void addLog(string message)
         {
-            lock (m_logLock)
+            try
             {
-                try
+                Application.Current.Dispatcher.Invoke(new Action(() =>
                 {
-                    Application.Current.Dispatcher.Invoke(new Action(() =>
+                    if (Settings.Default.MultilineLog)
                     {
-                        if (Settings.Default.MultilineLog)
+                        bool addDate = true;
+                        foreach (var line in message.Split('\n'))
                         {
-                            bool addDate = true;
-                            foreach (var line in message.Split('\n'))
+                            foreach (string str in line.Split(Settings.Default.MaxLogLength))
                             {
-                                foreach (string str in line.Split(Settings.Default.MaxLogLength))
+                                LogManager.Instance.Add(new Log()
                                 {
-                                    Logs.Add(new Log()
-                                    {
-                                        DateTime = addDate ? DateTime.Now : default(DateTime?),
-                                        Message = str
-                                    });
-                                    addDate = false;
-                                }
+                                    DateTime = addDate ? DateTime.Now : default(DateTime?),
+                                    Message = str
+                                });
+                                addDate = false;
                             }
                         }
-                        else
+                    }
+                    else
+                    {
+                        LogManager.Instance.Add(new Log()
                         {
-                            Logs.Add(new Log()
-                            {
-                                DateTime = DateTime.Now,
-                                Message = message
-                            });
-                        }
-                    }));
-                }
-                catch(Exception e)
-                {
-                    Console.WriteLine(e);
-                }
+                            DateTime = DateTime.Now,
+                            Message = message
+                        });
+                    }
+                }));
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
             }
         }
+        
 
         private void addLog(string message, params object[] args)
         {
@@ -200,29 +155,27 @@ namespace Event_ECS_WPF
 
         private void clearLogs()
         {
-            lock(m_logLock)
+            try
             {
-                try
+                Application.Current.Dispatcher.Invoke(new Action(() =>
                 {
-                    Application.Current.Dispatcher.Invoke(new Action(() =>
-                    {
-                        Logs.Clear();
-                    }));
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                }
+                    LogManager.Instance.Clear();
+                }));
             }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+
         }
         private void CloseWindow(Window window)
         {
             window.Close();
         }
 
-        private void NewProject()
+        private void NewProject(ProjectType type)
         {
-            Project = ProjectType.CreateProject();
+            Project = type.CreateProject();
         }
 
         private void OpenProject()
@@ -274,15 +227,12 @@ namespace Event_ECS_WPF
             try
             {
                 Project.Start();
-                ecs = new ECSWrapper();
-                ecs.Initialize(Project.Name, Convert.ToInt32(Project.Type));
-                addLog("Project Started");
+                ECS.Instance.Create(Project);
             }
             catch(Exception e)
             {
-                addLog(e.Message);
-                ecs?.Dispose();
-                ecs = null;
+                StopProject();
+                LogManager.Instance.Add(e.Message);
             }
 
             OnPropertyChanged("ProjectStarted");
@@ -290,13 +240,7 @@ namespace Event_ECS_WPF
 
         private void StopProject()
         {
-            if (ecs != null)
-            {
-                ecs.Dispose();
-                ecs = null;
-                addLog("Project Stop");
-                OnPropertyChanged("ProjectStarted");
-            }
+            ECS.Instance.Dispose();
         }
     }
 }

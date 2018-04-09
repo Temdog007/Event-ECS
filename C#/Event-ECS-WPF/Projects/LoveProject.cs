@@ -67,13 +67,16 @@ end";
 
         public override void Start()
         {
-            File.WriteAllText(Path.Combine(Assembly.GetExecutingAssembly().Location, "conf.lua"), string.Format(confFormat,
-                Settings.AccelerometerJoystick, Settings.ExternalStorage, Settings.GammaCorrect, Settings.MixWithSystem, Settings.Width, Settings.Height,
-                Settings.Borderless, Settings.Resizable, Settings.MinWidth, Settings.MinHeight, Settings.Fullscreen, Settings.FullscreenType.ToString().ToLower(),
-                Settings.VSync, Settings.Msaa, Settings.Display, Settings.HighDPI, Settings.Modules.Audio, Settings.Modules.Data, Settings.Modules.Event,
-                Settings.Modules.Font, Settings.Modules.Graphics, Settings.Modules.Image, Settings.Modules.Joystick, Settings.Modules.Keyboard, Settings.Modules.Math,
-                Settings.Modules.Mouse, Settings.Modules.Physics, Settings.Modules.Sound, Settings.Modules.System, Settings.Modules.Thread, Settings.Modules.Timer,
-                Settings.Modules.Touch, Settings.Modules.Video, Settings.Modules.Window));
+            string text = string.Format(confFormat,
+            Settings.AccelerometerJoystick, Settings.ExternalStorage, Settings.GammaCorrect, Settings.MixWithSystem, Settings.Width, Settings.Height,
+            Settings.Borderless, Settings.Resizable, Settings.MinWidth, Settings.MinHeight, Settings.Fullscreen, Settings.FullscreenType.ToString().ToLower(),
+            Settings.VSync, Settings.Msaa, Settings.Display, Settings.HighDPI, Settings.Modules.Audio, Settings.Modules.Data, Settings.Modules.Event,
+            Settings.Modules.Font, Settings.Modules.Graphics, Settings.Modules.Image, Settings.Modules.Joystick, Settings.Modules.Keyboard, Settings.Modules.Math,
+            Settings.Modules.Mouse, Settings.Modules.Physics, Settings.Modules.Sound, Settings.Modules.System, Settings.Modules.Thread, Settings.Modules.Timer,
+            Settings.Modules.Touch, Settings.Modules.Video, Settings.Modules.Window);
+
+            text = text.Replace("True", "true").Replace("False", "false");
+            File.WriteAllText(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "conf.lua"), text);
             base.Start();
         }
     }

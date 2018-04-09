@@ -10,7 +10,7 @@ ECS::~ECS()
 	lua_close(L);
 }
 
-bool ECS::Initialize(const char* identity, ECSType type)
+bool ECS::Initialize(const char* executablePath, const char* identity, ECSType type)
 {
 	if (!initialized)
 	{
@@ -20,6 +20,13 @@ bool ECS::Initialize(const char* identity, ECSType type)
 		switch (type)
 		{
 		case ECSType::LOVE:
+			lua_newtable(L);
+			lua_pushnumber(L, 0);
+			lua_pushstring(L, executablePath);
+			lua_settable(L, -3);
+			lua_setglobal(L, "arg");
+
+			Require("love", "love");
 			Require("loveSystem", "System");
 			break;
 		default:
@@ -95,6 +102,21 @@ int ECS::RemoveEntity(int entityID)
 		int entitesRemoved = static_cast<int>(lua_tonumber(L, -1));
 		lua_pop(L, 1);
 		return entitesRemoved;
+	}
+	throw new std::exception(lua_tostring(L, -1));
+}
+
+int ECS::DispatchEvent(const char* eventName)
+{
+	lua_getglobal(L, "mySystem");
+	lua_getfield(L, -1, "dispatchEvent");
+	lua_pushvalue(L, -2);
+	lua_pushstring(L, eventName);
+	if (lua_pcall(L, 2, 1, 0) == 0)
+	{
+		int handles = static_cast<int>(lua_tonumber(L, -1));
+		lua_pop(L, 1);
+		return handles;
 	}
 	throw new std::exception(lua_tostring(L, -1));
 }

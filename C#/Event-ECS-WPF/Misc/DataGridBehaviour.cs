@@ -5,11 +5,11 @@ using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace Event_ECS_WPF
+namespace Event_ECS_WPF.Misc
 {
     public class DataGridBehaviour
     {
-        static readonly Dictionary<DataGrid, Capture> Associations =
+        private static readonly Dictionary<DataGrid, Capture> Associations =
                new Dictionary<DataGrid, Capture>();
 
         public static bool GetScrollOnNewItem(DependencyObject obj)
@@ -63,7 +63,7 @@ namespace Event_ECS_WPF
             Associations[dataGrid] = new Capture(dataGrid);
         }
 
-        static void DataGrid_Unloaded(object sender, RoutedEventArgs e)
+        private static void DataGrid_Unloaded(object sender, RoutedEventArgs e)
         {
             var dataGrid = (DataGrid)sender;
             if (Associations.ContainsKey(dataGrid))
@@ -71,7 +71,7 @@ namespace Event_ECS_WPF
             dataGrid.Unloaded -= DataGrid_Unloaded;
         }
 
-        static void DataGrid_Loaded(object sender, RoutedEventArgs e)
+        private static void DataGrid_Loaded(object sender, RoutedEventArgs e)
         {
             var dataGrid = (DataGrid)sender;
             var incc = dataGrid.Items as INotifyCollectionChanged;
@@ -80,7 +80,7 @@ namespace Event_ECS_WPF
             Associations[dataGrid] = new Capture(dataGrid);
         }
 
-        class Capture : IDisposable
+        private class Capture : IDisposable
         {
             private readonly DataGrid dataGrid;
             private readonly INotifyCollectionChanged incc;
@@ -95,7 +95,7 @@ namespace Event_ECS_WPF
                 }
             }
 
-            void incc_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+            private void incc_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
             {
                 if (e.Action == NotifyCollectionChangedAction.Add)
                 {

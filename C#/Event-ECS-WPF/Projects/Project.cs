@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Event_ECS_WPF.Logger;
+using System;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -7,18 +8,13 @@ using System.Xml.Serialization;
 
 namespace Event_ECS_WPF.Projects
 {
-    public enum UpdateType
-    {
-        MANUAL,
-        AUTOMATIC
-    }
-
+    [XmlInclude(typeof(LoveProject))]
     [XmlRoot("Project")]
     public class Project : NotifyPropertyChanged
     {
         private string _componentPath;
         private string _name;
-        private UpdateType _updateType;
+        
         private ObservableCollection<string> m_extensions = new ObservableCollection<string>();
 
         public Project()
@@ -26,7 +22,7 @@ namespace Event_ECS_WPF.Projects
             Name = "New Project";
             ComponentPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             LibraryPath = string.Empty;
-            UpdateType = UpdateType.MANUAL;
+            
         }
 
         /// <summary>
@@ -70,17 +66,6 @@ namespace Event_ECS_WPF.Projects
             get => ProjectType.NORMAL;
         }
 
-        [XmlElement]
-        public UpdateType UpdateType
-        {
-            get => _updateType;
-            set
-            {
-                _updateType = value;
-                OnPropertyChanged("UpdateType");
-            }
-        }
-
         private static bool isHidden(string path)
         {
             FileAttributes attr = File.GetAttributes(path);
@@ -89,14 +74,16 @@ namespace Event_ECS_WPF.Projects
 
         public virtual void Start()
         {
-            string location = Assembly.GetExecutingAssembly().Location;
+            string location = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             if (!isHidden(ComponentPath) && Directory.Exists(ComponentPath))
             {
                 foreach (var file in Directory.GetFiles(ComponentPath).Where(f => !isHidden(f) && Path.GetExtension(f) == ".lua"))
                 {
-                    if (!File.Exists(Path.Combine(location, file)))
+                    string dest = Path.Combine(location, Path.GetFileName(file));
+                    if (!File.Exists(dest))
                     {
-                        File.Copy(file, location);
+                        File.Copy(file, dest);
+                        LogManager.Instance.Add("Copied {0} to {1}", file, dest);
                     }
                 }
             }
@@ -105,9 +92,11 @@ namespace Event_ECS_WPF.Projects
             {
                 foreach (var file in Directory.GetFiles(LibraryPath).Where(f => !isHidden(f) && Path.GetExtension(f) == ".dll"))
                 {
-                    if (!File.Exists(Path.Combine(location, file)))
+                    string dest = Path.Combine(location, Path.GetFileName(file));
+                    if (!File.Exists(dest))
                     {
-                        File.Copy(file, location);
+                        File.Copy(file, dest);
+                        LogManager.Instance.Add("Copied {0} to {1}", file, dest);
                     }
                 }
             }

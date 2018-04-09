@@ -24,11 +24,12 @@ public:
 	ECS(const ECS&) = delete;
 	ECS& operator=(const ECS&) = delete;
 
-	bool Initialize(const char* identity, ECSType type = ECSType::NORMAL);
+	bool Initialize(const char* executablePath, const char* identity, ECSType type = ECSType::NORMAL);
 
 	const char* AddEntity();
 	int RemoveEntity(int entityID);
 
+	int DispatchEvent(const char* eventName);
 	void RegisterComponent(const char* moduleName);
 
 	//void AddComponent(int entityID, const char* componentName);

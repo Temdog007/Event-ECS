@@ -11,37 +11,37 @@ using System.Windows.Input;
 namespace Event_ECS_WPF.Controls
 {
     /// <summary>
-    /// Interaction logic for ProjectControl.xaml
+    /// Interaction logic for LoveProjectControl.xaml
     /// </summary>
-    public partial class ProjectControl : UserControl
+    public partial class LoveProjectControl : UserControl
     {
-        public ProjectControl()
+        public LoveProjectControl()
         {
             InitializeComponent();
         }
 
-        public Project Project
+        public LoveProject LoveProject
         {
-            get { return (Project)GetValue(ProjectProperty); }
-            set { SetValue(ProjectProperty, value); }
+            get { return (LoveProject)GetValue(LoveProjectProperty); }
+            set { SetValue(LoveProjectProperty, value); }
         }
 
-        public static readonly DependencyProperty ProjectProperty =
-            DependencyProperty.Register("Project", typeof(Project), typeof(ProjectControl));
+        public static readonly DependencyProperty LoveProjectProperty =
+            DependencyProperty.Register("LoveProject", typeof(LoveProject), typeof(LoveProjectControl));
 
         public ICommand ButtonClickCommand => m_buttonClickCommand ?? (m_buttonClickCommand = new ActionCommand<string>(Button_Click));
         private ActionCommand<string> m_buttonClickCommand;
 
         private void Button_Click(string propertyName)
         {
-            using(var dialog = new System.Windows.Forms.FolderBrowserDialog())
+            using (var dialog = new System.Windows.Forms.FolderBrowserDialog())
             {
-                switch(dialog.ShowDialog())
+                switch (dialog.ShowDialog())
                 {
                     case System.Windows.Forms.DialogResult.OK:
-                        if(!string.IsNullOrWhiteSpace(dialog.SelectedPath))
+                        if (!string.IsNullOrWhiteSpace(dialog.SelectedPath))
                         {
-                            Project.SetProperty(propertyName, dialog.SelectedPath);
+                            LoveProject.SetProperty(propertyName, dialog.SelectedPath);
                         }
                         break;
                     default:

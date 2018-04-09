@@ -18,6 +18,12 @@
 -- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 -- SOFTWARE.
 
+for k,v in pairs(arg) do
+  print(k,v)
+end
+
+
+
 package.preload['conf'] = function()
   return function(t)
   end
@@ -25,6 +31,8 @@ end
 
 local LoveSystem = require("loveSystem")
 local loveSystem = LoveSystem("Unit Test")
+
+print(love.filesystem.getExecutablePath())
 
 local Component = require("component")
 local class = require("classlib")
