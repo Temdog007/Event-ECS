@@ -197,6 +197,11 @@ function ecsTests:testEntityComponents1()
   assertIsTrue(comp3:remove())
   assertEquals(comp3.removingComponentCalled, 1)
   assertEquals(entity:componentCount(), 0)
+
+  local comp4 = entity:addComponent('TestComponent')
+  assertEquals(comp4.getID(), 2)
+  assertEquals(comp3.addedComponentCalled, 1)
+  assertIsTrue(system:removeEntity(2))
 end
 
 function ecsTests:testEntityComponents2()
@@ -248,6 +253,7 @@ function ecsTests:testEntitySerialization()
   assertEquals(entity:serialize(), "Entity#1,removingentity,removingcomponent\nenabled,boolean,true")
   comp = entity:addComponent("TestComponent")
   assertEquals(entity:serialize(), "Entity#1,removingcomponent,removingentity,addedcomponent\nenabled,boolean,true\nenabled,boolean,true,removingComponentCalled,number,0,addedComponentCalled,number,1,added,boolean,true")
+  assertEquals(system:serialize(), "Entity Component System,Component,TestComponent\nEntity#1,removingcomponent,removingentity,addedcomponent\nenabled,boolean,true\nenabled,boolean,true,removingComponentCalled,number,0,addedComponentCalled,number,1,added,boolean,true")
 
   local entity2 = system:createEntity()
   assertEquals(entity2:serialize(), "Entity#2")

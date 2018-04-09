@@ -1,4 +1,5 @@
-﻿using Event_ECS_WPF.SystemObjects;
+﻿using Event_ECS_WPF.Commands;
+using Event_ECS_WPF.SystemObjects;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;

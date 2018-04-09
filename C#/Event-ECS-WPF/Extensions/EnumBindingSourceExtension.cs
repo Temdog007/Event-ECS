@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Markup;
 
-namespace Event_ECS_WPF
+namespace Event_ECS_WPF.Extensions
 {
     public class EnumBindingSourceExtension : MarkupExtension
     {

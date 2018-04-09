@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Event_ECS_WPF
+namespace Event_ECS_WPF.Extensions
 {
     public static class Extensions
     {

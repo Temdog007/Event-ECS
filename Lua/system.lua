@@ -52,12 +52,22 @@ return ClassFactory(function(system)
   end
 
   function system:removeEntity(entity)
-    assert(entity and string.match(entity:getName(), "Entity"), "Must enter a entity to remove")
-    for k, en in pairs(entities) do
-      if en == entity then
-        self:dispatchEvent("eventRemovingEntity", {entity = entity, system = self})
-        entities[k] = nil
-        return true
+    if type(entity) == "number" then
+      for k, en in pairs(entities) do
+        if en:getID() == entity then
+          self:dispatchEvent("eventRemovingEntity", {entity = entity, system = self})
+          entities[k] = nil
+          return true
+        end
+      end
+    else
+      assert(entity and string.match(entity:getName(), "Entity"), "Must enter a entity to remove")
+      for k, en in pairs(entities) do
+        if en == entity then
+          self:dispatchEvent("eventRemovingEntity", {entity = entity, system = self})
+          entities[k] = nil
+          return true
+        end
       end
     end
   end
@@ -146,6 +156,10 @@ return ClassFactory(function(system)
   end
 
   function system:serialize()
-    return self:getName()..","..self:getComponentList()
+    local tab = { self:getName()..","..self:getComponentList()}
+    for _, en in pairs(entities) do
+      table.insert(tab, en:serialize())
+    end
+    return table.concat(tab, "\n");
   end
 end)

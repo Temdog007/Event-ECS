@@ -102,7 +102,7 @@
       <DependentUpon>EntityComponentSystemControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Converters\BoolToVisibilityConverter.cs" />
-    <Compile Include="Misc\ActionCommand.cs" />
+    <Compile Include="Commands\ActionCommand.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -111,16 +111,26 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="ProjectWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MainWindowViewModel.cs" />
-    <Compile Include="Misc\AsyncActionCommand.cs" />
-    <Compile Include="Misc\EnumBindingSourceExtension.cs" />
+    <Compile Include="Commands\AsyncActionCommand.cs" />
+    <Compile Include="Extensions\EnumBindingSourceExtension.cs" />
     <Compile Include="Misc\DataGridBehaviour.cs" />
-    <Compile Include="Misc\Extensions.cs" />
+    <Compile Include="Extensions\Extensions.cs" />
     <Compile Include="Misc\Log.cs" />
     <Compile Include="Misc\NotifyPropertyChanged.cs" />
     <Compile Include="Misc\ObservableSet.cs" />
+    <Compile Include="Projects\ProjectType.cs" />
+    <Compile Include="Projects\LoveProject.cs" />
+    <Compile Include="Projects\Project.cs" />
+    <Compile Include="ProjectWindow.xaml.cs">
+      <DependentUpon>ProjectWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="SystemObjects\Component.cs" />
     <Compile Include="SystemObjects\Entity.cs" />
     <Compile Include="SystemObjects\EntityComponentSystem.cs" />

@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace Event_ECS_WPF
 {
@@ -11,7 +7,7 @@ namespace Event_ECS_WPF
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
-        protected void OnPropertyChanged(string propName)
+        protected void OnPropertyChanged([CallerMemberName]string propName = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
         }

@@ -1,4 +1,7 @@
-﻿using Event_ECS_WPF.Properties;
+﻿using Event_ECS_WPF.Commands;
+using Event_ECS_WPF.Extensions;
+using Event_ECS_WPF.Projects;
+using Event_ECS_WPF.Properties;
 using EventECSWrapper;
 using System;
 using System.Collections.ObjectModel;
@@ -11,12 +14,6 @@ namespace Event_ECS_WPF
     public class MainWindowViewModel : INotifyPropertyChanged, IDisposable
     {
         private ECSWrapper ecs;
-
-        public MainWindowViewModel()
-        {
-            System.Name = "Entity Component System";
-            System.RegisteredComponents.Add("Components");
-        }
 
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
@@ -129,26 +126,64 @@ namespace Event_ECS_WPF
         public ActionCommand<object> ClearLogCommand => m_clearLogCommand ?? (m_clearLogCommand = new ActionCommand<object>(clearLogs));
         private ActionCommand<object> m_clearLogCommand;
 
-        public AsyncActionCommand<object> InitECSCommand => m_initECSCommand ?? (m_initECSCommand = new AsyncActionCommand<object>(InitECS));
-        private AsyncActionCommand<object> m_initECSCommand;
-
         public ActionCommand<Window> CloseCommand => m_closeCommand ?? (m_closeCommand = new ActionCommand<Window>(CloseWindow));
         public ActionCommand<Window> m_closeCommand;
 
-        private void CloseWindow(Window window)
-        {
-            window.Close();
-        }
+        public bool ProjectedStarted => ecs != null;
 
-        private void InitECS()
+        public ActionCommand<Window> StartProjectCommand => m_startProjectCommand ?? (m_startProjectCommand = new ActionCommand<Window>(StartProject));
+        public ActionCommand<Window> m_startProjectCommand;
+
+        public ProjectType ProjectType
+        {
+            get => m_projectType;
+            set
+            {
+                if (m_projectType != value)
+                {
+                    m_projectType = value;
+                    Project = m_projectType.CreateProject();
+                    OnPropertyChanged("ProjectType");
+                }
+            }
+        } private ProjectType m_projectType = ProjectType.NORMAL;
+
+        public Project Project
+        {
+            get => m_project;
+            set
+            {
+                if(m_project != null)
+                {
+                    m_project = value;
+                    OnPropertyChanged("Project");
+                }
+            }
+        } private Project m_project;
+
+        public bool ShowProject
+        {
+            get => m_showProject;
+            set
+            {
+                m_showProject = value;
+                OnPropertyChanged("ShowProject");
+            }
+        } private bool m_showProject = false;
+
+        private void StartProject()
         {
             ecs?.Dispose();
+
             try
             {
+                if(Project == null)
+                {
+                    Project = ProjectType.CreateProject();
+                }
+
                 ecs = new ECSWrapper();
-                ecs.Require("eventecs");
-                ecs?.DoString("System = require 'system'");
-                addLog("Initialized Entity Component System");
+                ecs.Initialize(Project.Name, Convert.ToInt32(Project.Type));
             }
             catch(Exception e)
             {
@@ -156,6 +191,13 @@ namespace Event_ECS_WPF
                 ecs?.Dispose();
                 ecs = null;
             }
+
+            OnPropertyChanged("ProjectStarted");
+        }
+
+        private void CloseWindow(Window window)
+        {
+            window.Close();
         }
 
         public string Arguments

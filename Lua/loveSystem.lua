@@ -94,8 +94,6 @@ return function(identity)
   		mixwithsystem = true, -- Only relevant for Android / iOS.
   	},
   	console = false, -- Only relevant for windows.
-  	identity = false,
-  	appendidentity = false,
   	externalstorage = false, -- Only relevant for Android.
   	accelerometerjoystick = true, -- Only relevant for Android / iOS.
   	gammacorrect = false,

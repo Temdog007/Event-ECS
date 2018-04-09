@@ -42,6 +42,12 @@
                 </MenuItem>
                 <MenuItem Header="Hide Component" IsCheckable="True" IsChecked="{Binding Source={x:Static properties:Settings.Default}, Mode=TwoWay, Path=OnlyShowComponentWhenMouse}"/>
             </MenuItem>
+            <MenuItem Header="Project">
+                <MenuItem Header="Start" Command="{Binding StartProjectCommand}"/>
+                <MenuItem Header="Show" IsCheckable="True" IsChecked="{Binding ShowProject, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                <Separator/>
+                <MenuItem Header="Start" Command="{Binding CloseProjectCommand}"/>
+            </MenuItem>
         </Menu>
         
         <Grid Margin="0,10,0,0">
@@ -50,8 +56,14 @@
                 <RowDefinition Height="1*"/>
             </Grid.RowDefinitions>
 
-            <controls:EntityComponentSystemControl EntityComponentSystem="{Binding System}" Grid.Row="0"/>
-
+            <Grid Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="auto"/>
+                </Grid.ColumnDefinitions>
+                <controls:EntityComponentSystemControl EntityComponentSystem="{Binding System, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Column="0"/>
+            </Grid>
+            
             <Expander Header="Logs" Grid.Row="1" ExpandDirection="Up" IsExpanded="True">
                 <Expander.ContextMenu>
                     <ContextMenu>
