@@ -15,6 +15,8 @@ bool ECS::Initialize(const char* identity, ECSType type)
 	if (!initialized)
 	{
 		luaL_openlibs(L);
+		Require("eventecs", nullptr);
+
 		switch (type)
 		{
 		case ECSType::LOVE:

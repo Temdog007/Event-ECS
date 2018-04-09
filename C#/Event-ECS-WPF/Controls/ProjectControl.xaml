@@ -25,21 +25,33 @@
 
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <Button Grid.Row="0" Click="Button_Click">
+            <Button Grid.Row="0" Command="{Binding ElementName=m_project, Path=ButtonClickCommand}" CommandParameter="ComponentPath" Margin="5">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="auto"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Text="Path to Components" Grid.Column="0" Margin="5"/>
+                    <TextBlock Text="Path to Component Files:" Grid.Column="0" Margin="5"/>
                     <TextBlock Text="{Binding ElementName=m_project, Path=Project.ComponentPath, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" Margin="5"/>
                 </Grid>
             </Button>
 
-            <GroupBox Header="Update Type" Grid.Row="1">
+            <Button Grid.Row="1" Command="{Binding ElementName=m_project, Path=ButtonClickCommand}" CommandParameter="LibraryPath" Margin="5">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Path to Library Files:" Grid.Column="0" Margin="5"/>
+                    <TextBlock Text="{Binding ElementName=m_project, Path=Project.LibraryPath, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" Margin="5"/>
+                </Grid>
+            </Button>
+
+            <GroupBox Header="Update Type" Grid.Row="2">
                 <StackPanel>
                     <RadioButton Content="Manual" IsChecked="{Binding ElementName=m_project, Path=Project.UpdateType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource enumConv}, ConverterParameter=MANUAL}"/>
                     <RadioButton Content="Automatic" IsChecked="{Binding ElementName=m_project, Path=Project.UpdateType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource enumConv}, ConverterParameter=AUTOMATIC}"/>

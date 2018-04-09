@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace Event_ECS_WPF.Extensions
 {
@@ -18,6 +19,21 @@ namespace Event_ECS_WPF.Extensions
                     yield return str.Substring((int)i, (int)Math.Min(length, n - 1));
                 }
             }
+        }
+
+        public static PropertyInfo GetProperty(this object obj, string propertyName)
+        {
+            return obj.GetType().GetProperty(propertyName);
+        }
+
+        public static T GetProperty<T>(this object obj, string propertyName, T value)
+        {
+            return (T)obj.GetProperty(propertyName).GetValue(obj);
+        }
+
+        public static void SetProperty<T>(this object obj, string propertyName, T value)
+        {
+            obj.GetProperty(propertyName).SetValue(obj, value);
         }
     }
 }

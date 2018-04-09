@@ -25,6 +25,7 @@ namespace Event_ECS_WPF.Projects
         {
             Name = "New Project";
             ComponentPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            LibraryPath = string.Empty;
             UpdateType = UpdateType.MANUAL;
         }
 
@@ -41,6 +42,17 @@ namespace Event_ECS_WPF.Projects
                 OnPropertyChanged("ComponentPath");
             }
         }
+
+        [XmlElement]
+        public string LibraryPath
+        {
+            get => m_libraryPath;
+            set
+            {
+                m_libraryPath = value;
+                OnPropertyChanged("LibraryPath");
+            }
+        } private string m_libraryPath;
 
         [XmlAttribute]
         public string Name
@@ -69,13 +81,34 @@ namespace Event_ECS_WPF.Projects
             }
         }
 
+        private static bool isHidden(string path)
+        {
+            FileAttributes attr = File.GetAttributes(path);
+            return ((attr & FileAttributes.Hidden) == FileAttributes.Hidden);
+        }
+
         public virtual void Start()
         {
-            if (Directory.Exists(ComponentPath))
+            string location = Assembly.GetExecutingAssembly().Location;
+            if (!isHidden(ComponentPath) && Directory.Exists(ComponentPath))
             {
-                foreach (var file in Directory.GetFiles(ComponentPath).Where(f => Path.GetExtension(f) == ".lua"))
+                foreach (var file in Directory.GetFiles(ComponentPath).Where(f => !isHidden(f) && Path.GetExtension(f) == ".lua"))
                 {
-                    File.Copy(file, Assembly.GetExecutingAssembly().Location);
+                    if (!File.Exists(Path.Combine(location, file)))
+                    {
+                        File.Copy(file, location);
+                    }
+                }
+            }
+
+            if (!isHidden(LibraryPath) && Directory.Exists(LibraryPath))
+            {
+                foreach (var file in Directory.GetFiles(LibraryPath).Where(f => !isHidden(f) && Path.GetExtension(f) == ".dll"))
+                {
+                    if (!File.Exists(Path.Combine(location, file)))
+                    {
+                        File.Copy(file, location);
+                    }
                 }
             }
         }

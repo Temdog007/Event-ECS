@@ -1,6 +1,9 @@
-﻿using Event_ECS_WPF.Projects;
+﻿using Event_ECS_WPF.Commands;
+using Event_ECS_WPF.Extensions;
+using Event_ECS_WPF.Projects;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace Event_ECS_WPF.Controls
 {
@@ -23,7 +26,10 @@ namespace Event_ECS_WPF.Controls
         public static readonly DependencyProperty ProjectProperty =
             DependencyProperty.Register("Project", typeof(Project), typeof(ProjectControl));
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        public ICommand ButtonClickCommand => m_buttonClickCommand ?? (m_buttonClickCommand = new ActionCommand<string>(Button_Click));
+        private ActionCommand<string> m_buttonClickCommand;
+
+        private void Button_Click(string propertyName)
         {
             using(var dialog = new System.Windows.Forms.FolderBrowserDialog())
             {
@@ -32,7 +38,7 @@ namespace Event_ECS_WPF.Controls
                     case System.Windows.Forms.DialogResult.OK:
                         if(!string.IsNullOrWhiteSpace(dialog.SelectedPath))
                         {
-                            Project.ComponentPath = dialog.SelectedPath;
+                            Project.SetProperty(propertyName, dialog.SelectedPath);
                         }
                         break;
                     default:

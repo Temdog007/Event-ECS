@@ -46,10 +46,10 @@
                 <MenuItem Header="Clear Logs" Command="{Binding ClearLogCommand}"/>
             </MenuItem>
             <MenuItem Header="Project" IsEnabled="{Binding HasProject, UpdateSourceTrigger=PropertyChanged}">
-                <MenuItem Header="Start" Command="{Binding StartProjectCommand}" IsEnabled="{Binding ProjectedStarted, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource notConv}}" />
+                <MenuItem Header="Start" Command="{Binding StartProjectCommand}" IsEnabled="{Binding ProjectStarted, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource notConv}}" />
                 <MenuItem Header="Show" IsCheckable="True" IsChecked="{Binding ShowProject, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                 <Separator/>
-                <MenuItem Header="Stop" Command="{Binding CloseProjectCommand}" IsEnabled="{Binding ProjectedStarted, UpdateSourceTrigger=PropertyChanged}"/>
+                <MenuItem Header="Stop" Command="{Binding StopProjectCommand}" IsEnabled="{Binding ProjectStarted, UpdateSourceTrigger=PropertyChanged}"/>
             </MenuItem>
         </Menu>
         

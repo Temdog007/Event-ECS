@@ -23,6 +23,7 @@ namespace Event_ECS_WPF
         public ActionCommand<Window> m_openProjectCommand;
         public ActionCommand<Window> m_saveProjectCommand;
         public ActionCommand<Window> m_startProjectCommand;
+        public ActionCommand<Window> m_stopProjectCommand;
         private ECSWrapper ecs;
 
         #region IDisposable Support
@@ -80,7 +81,7 @@ namespace Event_ECS_WPF
         public ActionCommand<object> ClearLogCommand => m_clearLogCommand ?? (m_clearLogCommand = new ActionCommand<object>(clearLogs));
 
         public ActionCommand<Window> CloseCommand => m_closeCommand ?? (m_closeCommand = new ActionCommand<Window>(CloseWindow));
-
+        public bool HasProject => Project != null;
         public ObservableCollection<Log> Logs
         {
             get => m_logs;
@@ -92,9 +93,7 @@ namespace Event_ECS_WPF
         }
 
         public ActionCommand<Window> NewProjectCommand => m_newProjectCommand ?? (m_newProjectCommand = new ActionCommand<Window>(NewProject));
-
         public ActionCommand<Window> OpenProjectCommand => m_openProjectCommand ?? (m_openProjectCommand = new ActionCommand<Window>(OpenProject));
-
         public Project Project
         {
             get => m_project;
@@ -110,10 +109,7 @@ namespace Event_ECS_WPF
             }
         }
 
-        public bool ProjectedStarted => ecs != null;
-
-        public bool HasProject => Project != null;
-
+        public bool ProjectStarted => ecs != null;
         public ProjectType ProjectType
         {
             get => m_projectType;
@@ -129,7 +125,6 @@ namespace Event_ECS_WPF
         }
 
         public ActionCommand<Window> SaveProjectCommand => m_saveProjectCommand ?? (m_saveProjectCommand = new ActionCommand<Window>(SaveProject));
-
         public bool ShowProject
         {
             get => m_showProject;
@@ -141,6 +136,7 @@ namespace Event_ECS_WPF
         }
 
         public ActionCommand<Window> StartProjectCommand => m_startProjectCommand ?? (m_startProjectCommand = new ActionCommand<Window>(StartProject));
+        public ActionCommand<Window> StopProjectCommand => m_stopProjectCommand ?? (m_stopProjectCommand = new ActionCommand<Window>(StopProject));
 
         public ECSSystem System
         {
@@ -273,12 +269,14 @@ namespace Event_ECS_WPF
 
         private void StartProject()
         {
-            ecs?.Dispose();
+            StopProject();
 
             try
             {
+                Project.Start();
                 ecs = new ECSWrapper();
                 ecs.Initialize(Project.Name, Convert.ToInt32(Project.Type));
+                addLog("Project Started");
             }
             catch(Exception e)
             {
@@ -288,6 +286,17 @@ namespace Event_ECS_WPF
             }
 
             OnPropertyChanged("ProjectStarted");
+        }
+
+        private void StopProject()
+        {
+            if (ecs != null)
+            {
+                ecs.Dispose();
+                ecs = null;
+                addLog("Project Stop");
+                OnPropertyChanged("ProjectStarted");
+            }
         }
     }
 }
