@@ -14,6 +14,8 @@ bool ECS::Initialize(const char* executablePath, const char* identity, ECSType t
 {
 	if (!initialized)
 	{
+		this->type = type;
+		
 		luaL_openlibs(L);
 		Require("eventecs", nullptr);
 
@@ -87,7 +89,7 @@ const char* ECS::AddEntity()
 			return rval;
 		}
 	}
-	throw new std::exception(lua_tostring(L, -1));
+	throw std::exception(lua_tostring(L, -1));
 	
 }
 
@@ -103,7 +105,7 @@ int ECS::RemoveEntity(int entityID)
 		lua_pop(L, 1);
 		return entitesRemoved;
 	}
-	throw new std::exception(lua_tostring(L, -1));
+	throw std::exception(lua_tostring(L, -1));
 }
 
 int ECS::DispatchEvent(const char* eventName)
@@ -118,7 +120,7 @@ int ECS::DispatchEvent(const char* eventName)
 		lua_pop(L, 1);
 		return handles;
 	}
-	throw new std::exception(lua_tostring(L, -1));
+	throw std::exception(lua_tostring(L, -1));
 }
 
 void ECS::RegisterComponent(const char* modName)
@@ -140,7 +142,7 @@ void ECS::RegisterComponent(const char* modName)
 			return;
 		}
 	}
-	throw new std::exception(lua_tostring(L, -1));
+	throw std::exception(lua_tostring(L, -1));
 }
 
 const char* ECS::Serialize() const
@@ -154,5 +156,24 @@ const char* ECS::Serialize() const
 		lua_pop(L, 1);
 		return rval;
 	}
-	throw new std::exception(lua_tostring(L, -1));
+	throw std::exception(lua_tostring(L, -1));
+}
+
+bool ECS::LoveUpdate()
+{
+	if (type != ECSType::LOVE)
+	{
+		throw std::exception("Not Love System. Can't call update");
+	}
+
+	lua_getglobal(L, "mySystem");
+	lua_getfield(L, -1, "run");
+	lua_pushvalue(L, -2);
+	if (lua_pcall(L, 1, 1, 0) == 0)
+	{
+		bool rval = static_cast<bool>(lua_toboolean(L, -1));
+		lua_pop(L, 1);
+		return rval;
+	}
+	throw std::exception(lua_tostring(L, -1));
 }

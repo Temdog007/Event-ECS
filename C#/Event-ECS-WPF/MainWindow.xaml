@@ -22,16 +22,21 @@
     </Window.DataContext>
 
     <Window.Resources>
+        
         <converter:BoolToVisibilityConverter x:Key="boolConv"/>
         <converter:NotConverter x:Key="notConv"/>
+        <converter:EnumToBoolConverter x:Key="enumConv"/>
+        
         <DataTemplate x:Key="projectTemplate">
             <controls:ProjectControl Project="{Binding}"/>
         </DataTemplate>
+        
         <DataTemplate x:Key="loveProjectTemplate">
             <ScrollViewer>
                 <controls:LoveProjectControl LoveProject="{Binding}"/>
             </ScrollViewer>
         </DataTemplate>
+        
         <misc:ProjectDataTemplateSelector x:Key="projectSelector"/>
     </Window.Resources>
 
@@ -62,6 +67,10 @@
             </MenuItem>
             <MenuItem Header="Project" IsEnabled="{Binding HasProject, UpdateSourceTrigger=PropertyChanged}">
                 <MenuItem Header="Start" Command="{Binding StartProjectCommand}" IsEnabled="{Binding Source={x:Static obj:ECS.Instance}, Path=ProjectStarted, Converter={StaticResource notConv}, UpdateSourceTrigger=PropertyChanged}" />
+                <MenuItem Header="Update Type" Visibility="{Binding IsLoveProject, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource boolConv}}">
+                    <MenuItem Header="Manual" IsCheckable="True" IsChecked="{Binding Source={x:Static misc:Updater.Instance}, Path=UpdateType, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, Converter={StaticResource enumConv}, ConverterParameter=Manual}"/>
+                    <MenuItem Header="Automatic" IsCheckable="True" IsChecked="{Binding Source={x:Static misc:Updater.Instance}, Path=UpdateType, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, Converter={StaticResource enumConv}, ConverterParameter=Automatic}"/>
+                </MenuItem>
                 <Separator/>
                 <MenuItem Header="Stop" Command="{Binding StopProjectCommand}" IsEnabled="{Binding Source={x:Static obj:ECS.Instance}, Path=ProjectStarted, UpdateSourceTrigger=PropertyChanged}"/>
             </MenuItem>

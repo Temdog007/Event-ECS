@@ -1,6 +1,7 @@
 ﻿using Event_ECS_WPF.Commands;
 using Event_ECS_WPF.Extensions;
 using Event_ECS_WPF.Logger;
+using Event_ECS_WPF.Misc;
 using Event_ECS_WPF.Projects;
 using Event_ECS_WPF.Properties;
 using Event_ECS_WPF.SystemObjects;
@@ -14,7 +15,7 @@ using Forms = System.Windows.Forms;
 
 namespace Event_ECS_WPF
 {
-    public class MainWindowViewModel : INotifyPropertyChanged, IDisposable
+    public class MainWindowViewModel : INotifyPropertyChanged
     {
         public const string FileFilter = "xml files (*.xml)|*.xml|All files (*.*)|*.*";
 
@@ -24,30 +25,6 @@ namespace Event_ECS_WPF
         public ActionCommand<Window> m_saveProjectCommand;
         public ActionCommand<Window> m_startProjectCommand;
         public ActionCommand<Window> m_stopProjectCommand;
-
-        #region IDisposable Support
-        private bool disposedValue = false; // To detect redundant calls
-
-        // This code added to correctly implement the disposable pattern.
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposedValue)
-            {
-                if (disposing)
-                {
-                    ECS.Instance.Dispose();
-                }
-
-                disposedValue = true;
-            }
-        }
-        #endregion
 
         private string m_arguments = string.Empty;
 
@@ -73,6 +50,7 @@ namespace Event_ECS_WPF
 
         public ActionCommand<Window> CloseCommand => m_closeCommand ?? (m_closeCommand = new ActionCommand<Window>(CloseWindow));
         public bool HasProject => Project != null;
+        public bool IsLoveProject => Project is LoveProject;
 
         public ActionCommand<ProjectType> NewProjectCommand => m_newProjectCommand ?? (m_newProjectCommand = new ActionCommand<ProjectType>(NewProject));
         public ActionCommand<Window> OpenProjectCommand => m_openProjectCommand ?? (m_openProjectCommand = new ActionCommand<Window>(OpenProject));
@@ -86,6 +64,7 @@ namespace Event_ECS_WPF
                     m_project = value;
                     OnPropertyChanged("Project");
                     OnPropertyChanged("HasProject");
+                    OnPropertyChanged("IsLoveProject");
                 }
             }
         }

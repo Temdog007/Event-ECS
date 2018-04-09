@@ -10,40 +10,11 @@
              x:Name="m_project">
 
     <GroupBox Margin="5">
-
-        <GroupBox.Header>
-            <TextBox Text="{Binding ElementName=m_project, Path=LoveProject.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-        </GroupBox.Header>
-
-        <StackPanel Margin="5">
-
-            <GroupBox Margin="5" Header="Path to Component Files">
-                <Button Command="{Binding ElementName=m_project, Path=ButtonClickCommand}" CommandParameter="ComponentPath" Margin="5"
-                    Content="{Binding ElementName=m_project, Path=LoveProject.ComponentPath, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
-            </GroupBox>
-
-            <GroupBox Margin="5" Header="Path to Library Files">
-                <Button Command="{Binding ElementName=m_project, Path=ButtonClickCommand}" CommandParameter="LibraryPath" Margin="5"
-                        Content="{Binding ElementName=m_project, Path=LoveProject.LibraryPath, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
-            </GroupBox>
-
-            <Grid IsEnabled="{Binding Source={x:Static obj:ECS.Instance}, UpdateSourceTrigger=PropertyChanged, Path=ProjectStarted}">
-
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="auto"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-
-                <Button Grid.Column="0" Content="Dispatch&#xA;Event" Command="{Binding ElementName=m_project, Path=DispatchEventCommand}" CommandParameter="{Binding ElementName=eventText, Path=Text}" 
-                        Margin="5"
-                        HorizontalContentAlignment="Center" VerticalContentAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                <TextBox Grid.Column="1" x:Name="eventText" Margin="5"/>
-            </Grid>
-
+        <StackPanel>
+            <controls:ProjectControl Project="{Binding ElementName=m_project, Path=LoveProject, UpdateSourceTrigger=PropertyChanged}"/>
             <GroupBox Header="Settings">
                 <controls:LoveProjectSettingsControl Settings="{Binding ElementName=m_project, Path=LoveProject.Settings, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
             </GroupBox>
-
             <controls:ModulesControl Modules="{Binding ElementName=m_project, Path=LoveProject.Settings.Modules, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
         </StackPanel>
     </GroupBox>

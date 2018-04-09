@@ -8,6 +8,16 @@
              d:DesignHeight="200" d:DesignWidth="400"
              x:Name="m_project">
 
+    <UserControl.Resources>
+        <Style TargetType="Button">
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="5"/>
+        </Style>
+    </UserControl.Resources>
+
     <GroupBox Margin="5">
 
         <GroupBox.Header>
@@ -35,14 +45,15 @@
             <Grid Grid.Row="2" IsEnabled="{Binding Source={x:Static obj:ECS.Instance}, UpdateSourceTrigger=PropertyChanged, Path=ProjectStarted}">
                 
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
 
-                <Button Grid.Column="0" Content="Dispatch&#xA;Event" Command="{Binding ElementName=m_project, Path=DispatchEventCommand}" CommandParameter="{Binding ElementName=eventText, Path=Text}" 
-                        Margin="5"
-                        HorizontalContentAlignment="Center" VerticalContentAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                <TextBox Grid.Column="1" x:Name="eventText" Margin="5"/>
+                <TextBox Grid.Column="0" x:Name="eventText" Margin="5" PreviewKeyDown="eventText_PreviewKeyDown"/>
+                <Button Grid.Column="1" Content="Dispatch&#xA;Event" 
+                        Command="{Binding ElementName=m_project, Path=DispatchEventCommand}" CommandParameter="{Binding ElementName=eventText, Path=Text}"/>
+                <Button Grid.Column="2" Content="Serialize&#xA;System" Command="{Binding ElementName=m_project, Path=SerializeCommand}"/>
             </Grid>
         </Grid>
     </GroupBox>

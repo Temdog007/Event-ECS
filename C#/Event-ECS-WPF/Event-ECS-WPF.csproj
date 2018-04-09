@@ -153,6 +153,7 @@
     <Compile Include="Misc\NotifyPropertyChanged.cs" />
     <Compile Include="Misc\ObservableSet.cs" />
     <Compile Include="Misc\ProjectDataTemplateSelector.cs" />
+    <Compile Include="Misc\Updater.cs" />
     <Compile Include="Projects\ProjectType.cs" />
     <Compile Include="Projects\LoveProject.cs" />
     <Compile Include="Projects\Project.cs" />

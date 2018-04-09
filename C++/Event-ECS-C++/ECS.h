@@ -15,6 +15,8 @@ private:
 
 	bool initialized;
 
+	ECSType type;
+
 	void Require(const char* moduleName, const char* globalName);
 
 public:
@@ -31,6 +33,8 @@ public:
 
 	int DispatchEvent(const char* eventName);
 	void RegisterComponent(const char* moduleName);
+
+	bool LoveUpdate();
 
 	//void AddComponent(int entityID, const char* componentName);
 	//void RemoveComponent(int entityID, int componentID);

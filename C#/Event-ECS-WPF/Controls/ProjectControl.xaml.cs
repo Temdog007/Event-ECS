@@ -57,12 +57,43 @@ namespace Event_ECS_WPF.Controls
         {
             if (ECS.Instance.ProjectStarted)
             {
-                int handles = ECS.Instance.Wrapper.DispatchEvent(ev);
+                int handles = ECS.Instance.UseWrapper(ecs => ecs.DispatchEvent(ev));
                 LogManager.Instance.Add(new Log()
                 {
                     DateTime = DateTime.Now,
                     Message = string.Format("Event '{0}' was handled '{1}' time(s)", ev, handles)
                 });
+            }
+        }
+
+        public ICommand SerializeCommand => m_serializeCommand ?? (m_serializeCommand = new ActionCommand<object>(Serialize));
+        private ActionCommand<object> m_serializeCommand;
+
+        private void Serialize()
+        {
+            if (ECS.Instance.ProjectStarted)
+            {
+                string data = ECS.Instance.UseWrapper(ecs => ecs.Serialize());
+                LogManager.Instance.Add(new Log()
+                {
+                    DateTime = DateTime.Now,
+                    Message = data
+                });
+            }
+        }
+
+        private void eventText_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if(e.Key != Key.Enter)
+            {
+                return;
+            }
+
+            TextBox box = sender as TextBox;
+            if (box != null)
+            {
+                DispatchEvent(box.Text);
+                e.Handled = true;
             }
         }
     }
