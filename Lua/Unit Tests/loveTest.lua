@@ -18,12 +18,6 @@
 -- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 -- SOFTWARE.
 
-for k,v in pairs(arg) do
-  print(k,v)
-end
-
-
-
 package.preload['conf'] = function()
   return function(t)
   end
@@ -32,25 +26,23 @@ end
 local LoveSystem = require("loveSystem")
 local loveSystem = LoveSystem("Unit Test")
 
-print(love.filesystem.getExecutablePath())
-
 local Component = require("component")
 local class = require("classlib")
 
-local DrawComponent = class("DrawComponent", Component)
+local TestComponent = class("TestComponent", Component)
 
-function DrawComponent:__init(entity)
+function TestComponent:__init(entity)
   self.Component:__init(entity, self)
   self.text = ""
 end
 
-function DrawComponent:eventDraw(args)
+function TestComponent:eventDraw(args)
   love.graphics.print(love.timer.getFPS())
   love.graphics.print(love.timer.getDelta(), 0, 10)
   love.graphics.print(self.text, 0, 20)
 end
 
-function DrawComponent:eventKeyPressed(args)
+function TestComponent:eventKeyPressed(args)
   -- local tab = {}
   -- for k,v in pairs(args) do
   --   table.insert(tab, tostring(k))
@@ -63,11 +55,20 @@ function DrawComponent:eventKeyPressed(args)
   self.text = args[1]
 end
 
-loveSystem:registerComponent(DrawComponent)
+loveSystem:registerComponent(TestComponent)
 local entity = loveSystem:createEntity()
-entity:addComponent("DrawComponent")
+entity:addComponent("TestComponent")
+
+-- for i = 1, 300 do
+--   loveSystem:run()
+-- end
+-- loveSystem:quit()
 
 repeat until not loveSystem:run()
 
-print(result)
+repeat until not loveSystem:run()
+
+loveSystem = LoveSystem("Unit Test")
+repeat until not loveSystem:run()
+
 print("Corutine ended")

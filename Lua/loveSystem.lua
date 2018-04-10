@@ -18,29 +18,24 @@
 -- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 -- SOFTWARE.
 
+local System = require("system")
+local loveSystem
 return function(identity)
-  local System = require("system")
 
+  executablePath = executablePath or os.execute('cd')
   assert(type(identity) == "string", "Must enter a name for the game")
 
-  local loveSystem = System()
+  if loveSystem then
+    return loveSystem
+  end
+
+  loveSystem = System()
 
   -- Make sure love exists.
   local love = require("love")
   require("love.filesystem")
 
-  local function getLow(a)
-  	local m = math.huge
-  	for k,v in pairs(a) do
-  		if k < m then
-  			m = k
-  		end
-  	end
-  	return a[m], m
-  end
-
-  local arg0 = getLow(arg)
-  love.filesystem.init(arg0)
+  love.filesystem.init(executablePath)
 
   local exepath = love.filesystem.getExecutablePath()
   love.filesystem.setFused(false)
@@ -213,7 +208,6 @@ return function(identity)
   		if love.event then
   			love.event.pump()
   			for name, a,b,c,d,e,f in love.event.poll() do
-          print(name)
   				if name == "quit" then
             quitArgs.handled = false
   					loveSystem:dispatchEvent("eventquit", quitArgs)
@@ -413,16 +407,24 @@ return function(identity)
     return 1
   end
 
-  local co
+  local co = coroutine.create(runCoroutine)
   function loveSystem:run()
+
     if not co then
-      co = coroutine.create(runCoroutine)
+      return false
     end
 
   	local rval = coroutine.resume(co)
     if not rval then
       co = nil
     end
+
+    return rval
+  end
+
+  function loveSystem:quit(canRestart)
+    local rval = love.event.quit(canRestart)
+    repeat until not self:run()
     return rval
   end
 
