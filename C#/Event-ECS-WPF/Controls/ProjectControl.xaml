@@ -42,7 +42,7 @@
                         Content="{Binding ElementName=m_project, Path=Project.LibraryPath, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
             </GroupBox>
 
-            <Grid Grid.Row="2" IsEnabled="{Binding Source={x:Static obj:ECS.Instance}, UpdateSourceTrigger=PropertyChanged, Path=ProjectStarted}">
+            <Grid Grid.Row="2">
                 
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>

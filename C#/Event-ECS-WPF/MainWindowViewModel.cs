@@ -29,7 +29,7 @@ namespace Event_ECS_WPF
         private string m_arguments = string.Empty;
 
         private ActionCommand<object> m_clearLogCommand;
-
+        
         private Project m_project;
 
         private ECSSystem m_system = new ECSSystem();
@@ -45,12 +45,10 @@ namespace Event_ECS_WPF
                 OnPropertyChanged("Arguments");
             }
         }
-
+        public bool HasProject => Project != null;
         public ActionCommand<object> ClearLogCommand => m_clearLogCommand ?? (m_clearLogCommand = new ActionCommand<object>(clearLogs));
 
         public ActionCommand<Window> CloseCommand => m_closeCommand ?? (m_closeCommand = new ActionCommand<Window>(CloseWindow));
-        public bool HasProject => Project != null;
-        public bool IsLoveProject => Project is LoveProject;
 
         public ActionCommand<ProjectType> NewProjectCommand => m_newProjectCommand ?? (m_newProjectCommand = new ActionCommand<ProjectType>(NewProject));
         public ActionCommand<Window> OpenProjectCommand => m_openProjectCommand ?? (m_openProjectCommand = new ActionCommand<Window>(OpenProject));
@@ -64,7 +62,6 @@ namespace Event_ECS_WPF
                     m_project = value;
                     OnPropertyChanged("Project");
                     OnPropertyChanged("HasProject");
-                    OnPropertyChanged("IsLoveProject");
                 }
             }
         }
@@ -83,6 +80,7 @@ namespace Event_ECS_WPF
                 OnPropertyChanged("System");
             }
         }
+
         protected void OnPropertyChanged(string propName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
@@ -198,7 +196,6 @@ namespace Event_ECS_WPF
                 }
             }
         }
-
         private void StartProject()
         {
             StopProject();
@@ -206,20 +203,17 @@ namespace Event_ECS_WPF
             try
             {
                 Project.Start();
-                ECS.Instance.Create(Project);
             }
             catch(Exception e)
             {
                 StopProject();
                 LogManager.Instance.Add(e.Message);
             }
-
-            OnPropertyChanged("ProjectStarted");
         }
 
         private void StopProject()
         {
-            ECS.Instance.Dispose();
+            Project.Stop();
         }
     }
 }

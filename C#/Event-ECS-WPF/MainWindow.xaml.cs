@@ -16,7 +16,7 @@ namespace Event_ECS_WPF
 
         private void m_window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            ECS.Instance.Dispose();
+            ECS.Instance?.Dispose();
             Settings.Default.Save();
         }
     }

@@ -22,12 +22,6 @@ bool ECS::Initialize(const char* executablePath, const char* identity, ECSType t
 		switch (type)
 		{
 		case ECSType::LOVE:
-			lua_newtable(L);
-			lua_pushnumber(L, 0);
-			lua_pushstring(L, executablePath);
-			lua_settable(L, -3);
-			lua_setglobal(L, "arg");
-
 			Require("love", "love");
 			Require("loveSystem", "System");
 			break;
@@ -38,7 +32,8 @@ bool ECS::Initialize(const char* executablePath, const char* identity, ECSType t
 
 		lua_getglobal(L, "System");
 		lua_pushstring(L, identity);
-		if (lua_pcall(L, 1, 1, 0) == 0)
+		lua_pushstring(L, executablePath);
+		if (lua_pcall(L, 2, 1, 0) == 0)
 		{
 			lua_setglobal(L, "mySystem");
 			lua_pop(L, 1);

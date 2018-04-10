@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace Event_ECS_WPF.Misc
+namespace Event_ECS_WPF.TemplateSelectors
 {
     public class ProjectDataTemplateSelector : DataTemplateSelector
     {

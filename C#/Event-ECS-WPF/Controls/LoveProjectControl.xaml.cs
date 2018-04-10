@@ -55,9 +55,9 @@ namespace Event_ECS_WPF.Controls
 
         private void DispatchEvent(string ev)
         {
-            if (ECS.Instance.ProjectStarted)
+            if (ECS.Instance != null)
             {
-                int handles = ECS.Instance.UseWrapper(ecs => ecs.DispatchEvent(ev));
+                ECS.Instance.UseWrapper(ecs => ecs.DispatchEvent(ev), out int handles);
                 LogManager.Instance.Add(new Log()
                 {
                     DateTime = DateTime.Now,

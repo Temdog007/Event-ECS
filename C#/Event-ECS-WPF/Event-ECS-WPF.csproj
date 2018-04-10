@@ -77,6 +77,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Controls\LoveProjectMenuControl.xaml.cs">
+      <DependentUpon>LoveProjectMenuControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Projects\UpdateType.cs" />
+    <Compile Include="TemplateSelectors\ProjectMenuDataTemplateSelctor.cs" />
     <Page Include="Controls\ComponentControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -93,6 +98,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Controls\LoveProjectMenuControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Controls\LoveProjectSettingsControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -102,6 +111,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\ProjectControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\ProjectMenuControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -130,6 +143,9 @@
     <Compile Include="Controls\ProjectControl.xaml.cs">
       <DependentUpon>ProjectControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\ProjectMenuControl.xaml.cs">
+      <DependentUpon>ProjectMenuControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Converters\BoolToVisibilityConverter.cs" />
     <Compile Include="Commands\ActionCommand.cs" />
     <Compile Include="App.xaml.cs">
@@ -138,6 +154,8 @@
     </Compile>
     <Compile Include="Converters\EnumToBoolConverter.cs" />
     <Compile Include="Converters\NotConverter.cs" />
+    <Compile Include="Converters\NullCheckVisibilityConverter.cs" />
+    <Compile Include="Converters\NullCheckConverter.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -152,8 +170,8 @@
     <Compile Include="Logger\Log.cs" />
     <Compile Include="Misc\NotifyPropertyChanged.cs" />
     <Compile Include="Misc\ObservableSet.cs" />
-    <Compile Include="Misc\ProjectDataTemplateSelector.cs" />
-    <Compile Include="Misc\Updater.cs" />
+    <Compile Include="TemplateSelectors\ProjectDataTemplateSelector.cs" />
+    <Compile Include="SystemObjects\ECSUpdater.cs" />
     <Compile Include="Projects\ProjectType.cs" />
     <Compile Include="Projects\LoveProject.cs" />
     <Compile Include="Projects\Project.cs" />

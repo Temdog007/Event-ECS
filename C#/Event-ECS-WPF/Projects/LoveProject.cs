@@ -1,16 +1,19 @@
-﻿using Event_ECS_WPF.Misc;
+﻿using Event_ECS_WPF.SystemObjects;
+using System;
 using System.IO;
 using System.Reflection;
+using System.Threading;
 using System.Xml.Serialization;
 
 namespace Event_ECS_WPF.Projects
 {
+    public delegate void ProjectStateChangeEvent(object sender, ProjectStateChangeArgs args);
+
     public enum FullscreenType
     {
         DESKTOP,
         EXCLUSIVE
     }
-
     [XmlRoot("LoveProject")]
     public class LoveProject : Project
     {
@@ -56,10 +59,14 @@ namespace Event_ECS_WPF.Projects
 end";
         private LoveProjectSettings _settings;
 
+        private CancellationTokenSource _source;
+
         public LoveProject()
         {
             Settings = new LoveProjectSettings();
         }
+
+        public static event ProjectStateChangeEvent ProjectStateChange;
 
         [XmlElement("Settings")]
         public LoveProjectSettings Settings { get => _settings; set { _settings = value; OnPropertyChanged(); } }
@@ -78,9 +85,28 @@ end";
 
             text = text.Replace("True", "true").Replace("False", "false");
             File.WriteAllText(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "conf.lua"), text);
+
             base.Start();
 
-            Updater.StartUpdating();
+            ProjectStateChange?.Invoke(this, ProjectStateChangeArgs.Started);
+        }
+        public void StartThread()
+        {
+            StopThread();
+            _source = new CancellationTokenSource();
+            ECS.Instance?.StartAutoThread(_source.Token);
+        }
+
+        public override void Stop()
+        {
+            StopThread();
+            base.Stop();
+            ProjectStateChange?.Invoke(this, ProjectStateChangeArgs.Stopped);
+        }
+        public void StopThread()
+        {
+            _source?.Cancel();
+            _source = null;
         }
     }
 
@@ -207,5 +233,19 @@ end";
         public bool Touch { get => _touch; set { _touch = value; OnPropertyChanged(); } }
         public bool Video { get => _video; set { _video = value; OnPropertyChanged(); } }
         public bool Window { get => _window; set { _window = value; OnPropertyChanged(); } }
+    }
+
+    public class ProjectStateChangeArgs : EventArgs
+    {
+        private static readonly ProjectStateChangeArgs m_started = new ProjectStateChangeArgs(true);
+        private static readonly ProjectStateChangeArgs m_stopped = new ProjectStateChangeArgs(false);
+        private readonly bool _isStarted;
+        public ProjectStateChangeArgs(bool started)
+        {
+            _isStarted = started;
+        }
+        public static ProjectStateChangeArgs Started => m_started;
+        public static ProjectStateChangeArgs Stopped => m_stopped;
+        public bool IsStarted => _isStarted;
     }
 }

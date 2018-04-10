@@ -1,4 +1,5 @@
 ﻿using Event_ECS_WPF.Logger;
+using Event_ECS_WPF.SystemObjects;
 using System;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -100,6 +101,13 @@ namespace Event_ECS_WPF.Projects
                     }
                 }
             }
+
+            ECSUpdater.CreateInstance(this);
+        }
+
+        public virtual void Stop()
+        {
+            ECS.Instance?.Dispose();
         }
     }
 }

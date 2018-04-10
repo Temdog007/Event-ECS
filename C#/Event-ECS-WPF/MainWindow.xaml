@@ -9,6 +9,7 @@
         xmlns:converter="clr-namespace:Event_ECS_WPF.Converters"
         xmlns:logger="clr-namespace:Event_ECS_WPF.Logger"
         xmlns:obj="clr-namespace:Event_ECS_WPF.SystemObjects"
+        xmlns:selector="clr-namespace:Event_ECS_WPF.TemplateSelectors"
         mc:Ignorable="d"
         xmlns:controls="clr-namespace:Event_ECS_WPF.Controls"
         xmlns:properties="clr-namespace:Event_ECS_WPF.Properties"
@@ -26,7 +27,8 @@
         <converter:BoolToVisibilityConverter x:Key="boolConv"/>
         <converter:NotConverter x:Key="notConv"/>
         <converter:EnumToBoolConverter x:Key="enumConv"/>
-        
+        <converter:NullCheckVisibilityConverter x:Key="nullCheck"/>
+
         <DataTemplate x:Key="projectTemplate">
             <controls:ProjectControl Project="{Binding}"/>
         </DataTemplate>
@@ -36,8 +38,19 @@
                 <controls:LoveProjectControl LoveProject="{Binding}"/>
             </ScrollViewer>
         </DataTemplate>
-        
-        <misc:ProjectDataTemplateSelector x:Key="projectSelector"/>
+
+        <DataTemplate x:Key="projectMenuTemplate">
+            <controls:ProjectMenuControl Project="{Binding}"/>
+        </DataTemplate>
+
+        <DataTemplate x:Key="loveProjectMenuTemplate">
+            <ScrollViewer>
+                <controls:LoveProjectMenuControl LoveProject="{Binding}"/>
+            </ScrollViewer>
+        </DataTemplate>
+
+        <selector:ProjectDataTemplateSelector x:Key="projectSelector"/>
+        <selector:ProjectMenuDataTemplateSelector x:Key="projectMenuSelector"/>
     </Window.Resources>
 
     <DockPanel>
@@ -65,17 +78,12 @@
                 <MenuItem Header="Hide Component" IsCheckable="True" IsChecked="{Binding Source={x:Static properties:Settings.Default}, Mode=TwoWay, Path=OnlyShowComponentWhenMouse}"/>
                 <MenuItem Header="Clear Logs" Command="{Binding ClearLogCommand}"/>
             </MenuItem>
-            <MenuItem Header="Project" IsEnabled="{Binding HasProject, UpdateSourceTrigger=PropertyChanged}">
-                <MenuItem Header="Start" Command="{Binding StartProjectCommand}" IsEnabled="{Binding Source={x:Static obj:ECS.Instance}, Path=ProjectStarted, Converter={StaticResource notConv}, UpdateSourceTrigger=PropertyChanged}" />
-                <MenuItem Header="Update Type" Visibility="{Binding IsLoveProject, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource boolConv}}">
-                    <MenuItem Header="Manual" IsCheckable="True" IsChecked="{Binding Source={x:Static misc:Updater.Instance}, Path=UpdateType, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, Converter={StaticResource enumConv}, ConverterParameter=Manual}"/>
-                    <MenuItem Header="Automatic" IsCheckable="True" IsChecked="{Binding Source={x:Static misc:Updater.Instance}, Path=UpdateType, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, Converter={StaticResource enumConv}, ConverterParameter=Automatic}"/>
-                </MenuItem>
-                <Separator/>
-                <MenuItem Header="Stop" Command="{Binding StopProjectCommand}" IsEnabled="{Binding Source={x:Static obj:ECS.Instance}, Path=ProjectStarted, UpdateSourceTrigger=PropertyChanged}"/>
-            </MenuItem>
+
+            <ContentPresenter Visibility="{Binding HasProject, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource boolConv}}" 
+                            Content="{Binding Project, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                            ContentTemplateSelector="{StaticResource projectMenuSelector}"/>
         </Menu>
-        
+
         <Grid Margin="0,10,0,0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="3*"/>
@@ -87,8 +95,11 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
+                
                 <controls:EntityComponentSystemControl EntityComponentSystem="{Binding System, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Column="0"/>
-                <Expander Header="Project Settings" ExpandDirection="Left" Visibility="{Binding HasProject, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource boolConv}}" Grid.Column="1"
+                
+                <Expander Grid.Column="1"
+                          Header="Project Settings" ExpandDirection="Left" Visibility="{Binding HasProject, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource boolConv}}" 
                           Content="{Binding Project, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ContentTemplateSelector="{StaticResource projectSelector}"/>
 
             </Grid>
