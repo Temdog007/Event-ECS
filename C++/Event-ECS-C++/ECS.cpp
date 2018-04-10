@@ -7,6 +7,16 @@ ECS::ECS() : L(luaL_newstate()), initialized(false)
 
 ECS::~ECS()
 {
+	if (type == ECSType::LOVE)
+	{
+		lua_getglobal(L, "love");
+		lua_getfield(L, -1, "event");
+		lua_getfield(L, -1, "quit");
+		if (lua_pcall(L, 0, 0, 0) != 0)
+		{
+			while (this->LoveUpdate());
+		}
+	}
 	lua_close(L);
 }
 

@@ -7,7 +7,6 @@ namespace Event_ECS_WPF.SystemObjects
     {
         private static ECSUpdater m_instance;
         private static object m_lock = new object();
-        private bool m_disposed = false;
         private ECS m_ecs;
 
         private ECSUpdater(Project project)
@@ -15,7 +14,7 @@ namespace Event_ECS_WPF.SystemObjects
             m_ecs = new ECS(project ?? throw new ArgumentException(nameof(Project)));
             Instance = this;
         }
-        public bool Disposed { get => m_disposed; private set => m_disposed = value; }
+        public bool Disposed => m_ecs != null;
 
         private static ECSUpdater Instance { get; set; }
 

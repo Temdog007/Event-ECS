@@ -79,7 +79,7 @@
                 <MenuItem Header="Clear Logs" Command="{Binding ClearLogCommand}"/>
             </MenuItem>
 
-            <ContentPresenter Visibility="{Binding HasProject, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource boolConv}}" 
+            <ContentPresenter
                             Content="{Binding Project, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                             ContentTemplateSelector="{StaticResource projectMenuSelector}"/>
         </Menu>

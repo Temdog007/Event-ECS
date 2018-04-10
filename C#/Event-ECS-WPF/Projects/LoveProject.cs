@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Xml.Serialization;
 
 namespace Event_ECS_WPF.Projects
@@ -59,7 +60,8 @@ namespace Event_ECS_WPF.Projects
 end";
         private LoveProjectSettings _settings;
 
-        private CancellationTokenSource _source;
+        private static CancellationTokenSource _source;
+        private static Task _task;
 
         public LoveProject()
         {
@@ -73,7 +75,7 @@ end";
 
         public override ProjectType Type => ProjectType.LOVE;
 
-        public override void Start()
+        public override bool Start()
         {
             string text = string.Format(confFormat,
             Settings.AccelerometerJoystick, Settings.ExternalStorage, Settings.GammaCorrect, Settings.MixWithSystem, Settings.Width, Settings.Height,
@@ -86,15 +88,17 @@ end";
             text = text.Replace("True", "true").Replace("False", "false");
             File.WriteAllText(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "conf.lua"), text);
 
-            base.Start();
+            bool result = base.Start();
 
             ProjectStateChange?.Invoke(this, ProjectStateChangeArgs.Started);
+
+            return result;
         }
         public void StartThread()
         {
             StopThread();
             _source = new CancellationTokenSource();
-            ECS.Instance?.StartAutoThread(_source.Token);
+            _task = ECS.Instance?.StartAutoThread(_source.Token);
         }
 
         public override void Stop()
@@ -106,6 +110,8 @@ end";
         public void StopThread()
         {
             _source?.Cancel();
+            _task?.Wait();
+            _task = null;
             _source = null;
         }
     }

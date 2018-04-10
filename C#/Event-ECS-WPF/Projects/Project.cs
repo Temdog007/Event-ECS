@@ -73,36 +73,45 @@ namespace Event_ECS_WPF.Projects
             return ((attr & FileAttributes.Hidden) == FileAttributes.Hidden);
         }
 
-        public virtual void Start()
+        public virtual bool Start()
         {
-            string location = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            if (!isHidden(ComponentPath) && Directory.Exists(ComponentPath))
+            try
             {
-                foreach (var file in Directory.GetFiles(ComponentPath).Where(f => !isHidden(f) && Path.GetExtension(f) == ".lua"))
+                string location = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                if (!isHidden(ComponentPath) && Directory.Exists(ComponentPath))
                 {
-                    string dest = Path.Combine(location, Path.GetFileName(file));
-                    if (!File.Exists(dest))
+                    foreach (var file in Directory.GetFiles(ComponentPath).Where(f => !isHidden(f) && Path.GetExtension(f) == ".lua"))
                     {
-                        File.Copy(file, dest);
-                        LogManager.Instance.Add("Copied {0} to {1}", file, dest);
+                        string dest = Path.Combine(location, Path.GetFileName(file));
+                        if (!File.Exists(dest))
+                        {
+                            File.Copy(file, dest);
+                            LogManager.Instance.Add("Copied {0} to {1}", file, dest);
+                        }
                     }
                 }
-            }
 
-            if (!isHidden(LibraryPath) && Directory.Exists(LibraryPath))
-            {
-                foreach (var file in Directory.GetFiles(LibraryPath).Where(f => !isHidden(f) && Path.GetExtension(f) == ".dll"))
+                if (!isHidden(LibraryPath) && Directory.Exists(LibraryPath))
                 {
-                    string dest = Path.Combine(location, Path.GetFileName(file));
-                    if (!File.Exists(dest))
+                    foreach (var file in Directory.GetFiles(LibraryPath).Where(f => !isHidden(f) && Path.GetExtension(f) == ".dll"))
                     {
-                        File.Copy(file, dest);
-                        LogManager.Instance.Add("Copied {0} to {1}", file, dest);
+                        string dest = Path.Combine(location, Path.GetFileName(file));
+                        if (!File.Exists(dest))
+                        {
+                            File.Copy(file, dest);
+                            LogManager.Instance.Add("Copied {0} to {1}", file, dest);
+                        }
                     }
                 }
-            }
 
-            ECSUpdater.CreateInstance(this);
+                ECSUpdater.CreateInstance(this);
+                return true;
+            }
+            catch(Exception e)
+            {
+                LogManager.Instance.Add(e.Message);
+                return false;
+            }
         }
 
         public virtual void Stop()

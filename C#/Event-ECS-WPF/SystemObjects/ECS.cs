@@ -36,36 +36,16 @@ namespace Event_ECS_WPF.SystemObjects
 
                 if (m_ecs != null)
                 {
-                    m_ecs.Dispose();
+                    Application.Current.Dispatcher.Invoke(() => m_ecs.Dispose());
                     LogManager.Instance.Add("Project Stopped");
                 }
             }
         }
-        internal void StartAutoThread(CancellationToken token)
-        {
-            Task.Run(() => UpdateThread(token), token);
-        }
-
         public bool Update()
         {
             return Update(false);
         }
 
-        private async Task<bool> Update(CancellationToken token)
-        {
-            return await Task.Run(() => UseWrapperAsync(UpdateAction));
-        }
-
-        private bool Update(bool automatic)
-        {
-            UseWrapper(UpdateAction, out bool rval);
-            if (!automatic)
-            {
-                LogManager.Instance.Add("Manual Update");
-            }
-            return rval;
-        }
-        
         public bool UseWrapper<T>(Func<ECSWrapper, T> action, out T t)
         {
             lock (m_lock)
@@ -84,27 +64,6 @@ namespace Event_ECS_WPF.SystemObjects
             }
         }
 
-        public async Task<bool> UseWrapperAsync<T>(Func<ECSWrapper, T> action)
-        {
-
-            if (m_ecs == null)
-            {
-                LogManager.Instance.Add("Project has not been started. Cannot run function");
-                return false;
-            }
-            else
-            {
-                await Application.Current.Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    lock (m_lock)
-                    {
-                        action(m_ecs);
-                    }
-                }));
-                return true;
-            }
-        }
-
         public void UseWrapper(Action<ECSWrapper> action)
         {
             lock (m_lock)
@@ -115,24 +74,85 @@ namespace Event_ECS_WPF.SystemObjects
                 }
                 else
                 {
-                    action(m_ecs);
+                    Application.Current.Dispatcher.Invoke(() => action(m_ecs));
                 }
             }
         }
 
+        public async Task<bool> UseWrapperAsync<T>(Func<ECSWrapper, T> action)
+        {
+            bool canRun;
+            lock(m_lock)
+            {
+                canRun = m_ecs != null;
+            }
+
+            if (!canRun)
+            {
+                LogManager.Instance.Add("Project has not been started. Cannot run function");
+                return false;
+            }
+            else
+            {
+                await Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    lock (m_lock)
+                    {
+                        if (m_ecs != null)
+                        {
+                            action(m_ecs);
+                        }
+                    }
+                }));
+                return true;
+            }
+        }
+
+        internal Task StartAutoThread(CancellationToken token)
+        {
+            return Task.Run(() => UpdateThread(token), token);
+        }
         private static bool UpdateAction(ECSWrapper ecs)
         {
             return ecs.LoveUpdate();
         }
-        private async Task UpdateThread(CancellationToken token)
+
+        private Task<bool> Update(CancellationToken token)
         {
-            while (m_ecs != null)
+            return Task.Run(() => UseWrapperAsync(UpdateAction), token);
+        }
+
+        private bool Update(bool automatic)
+        {
+            UseWrapper(UpdateAction, out bool rval);
+            if (!automatic)
             {
-                if(!await Update(token))
+                LogManager.Instance.Add("Manual Update");
+            }
+            return rval;
+        }
+        private async void UpdateThread(CancellationToken token)
+        {
+            bool canRun = true;
+            while (canRun)
+            {
+                try
                 {
-                    break;
+                    if (!await Update(token))
+                    {
+                        break;
+                    }
+                    token.ThrowIfCancellationRequested();
+                    lock (m_lock)
+                    {
+                        canRun = m_ecs != null;
+                    }
                 }
-                token.ThrowIfCancellationRequested();
+                catch (Exception e)
+                {
+                    canRun = false;
+                    LogManager.Instance.Add(e.Message);
+                }
             }
         }
     }
