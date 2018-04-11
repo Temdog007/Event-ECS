@@ -40,8 +40,6 @@ end
 local Entity = ClassFactory(function(entity, system)
   assert(system, "Entity must have a system")
 
-  local id = 1
-
   function entity:getName()
     return entostring(self)
   end
@@ -64,10 +62,6 @@ local Entity = ClassFactory(function(entity, system)
   function entity:addComponent(compName, args)
     local compClass = assert(self.system:getComponent(compName), "Component not found in system")
     local component = assert(compClass(self, args), "Class instance couldn't be created")
-
-    local thisID = id
-    component.getID = function() return thisID end
-    id = id + 1
 
     -- Insert component into list of components
     table.insert(components, component:getBase())
@@ -111,6 +105,9 @@ local Entity = ClassFactory(function(entity, system)
   end
 
   function entity:removeComponent(component)
+    if type(component) == "number" then
+      component = self:findComponent(component)
+    end
     component = component:getBase()
     for k,v in pairs(components) do
       if v == component then
@@ -137,6 +134,11 @@ local Entity = ClassFactory(function(entity, system)
   end
 
   function entity:findComponent(matchFunction)
+    if type(matchFunction) == "number" then
+      local id = matchFunction
+      matchFunction = function(en) return en:getID() == id end
+    end
+
     for _, component in pairs(components) do
       if matchFunction(component) then
         return component

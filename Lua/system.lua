@@ -95,11 +95,18 @@ return ClassFactory(function(system)
   end
 
   function system:findEntity(findFunc)
+
+    if type(findFunc) == "number" then
+      local id = findFunc
+      findFunc = function(en) return en:getID() == id end
+    end
+
     for _, en in pairs(entities) do
       if findFunc(en) then
         return en
       end
     end
+    
   end
 
   function system:findEntities(findFunc)

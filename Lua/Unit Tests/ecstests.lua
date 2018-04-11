@@ -58,6 +58,10 @@ function TestComponent:eventRemovingComponent(args)
   self.removingComponentCalled = self.removingComponentCalled + 1
 end
 
+function assertIs(actual, expected)
+  assertEquals(type(actual), expected)
+end
+
 function assertIsTrue(actual)
   assertEquals(actual, true)
 end
@@ -164,7 +168,7 @@ function ecsTests:testEntityComponents1()
   assertEquals(classname(TestComponent), classname(comp1))
   assertEquals(entity:componentCount(), 1)
   assertIsNil(comp1.entity)
-  assertEquals(comp1.getID(), 1)
+  assertIs(comp1:getID(), "number")
   assertEquals(comp1.addedComponentCalled, 1)
   assertIsTrue(entity:removeComponent(comp1))
   assertEquals(comp1.removingComponentCalled, 1)
@@ -174,7 +178,7 @@ function ecsTests:testEntityComponents1()
   local comp2 = entity:addComponent('TestComponent')
   assertEquals(entity:componentCount(), 1)
   assertIsNil(comp2.entity)
-  assertEquals(comp2.getID(), 2)
+  assertIs(comp2:getID(), "number")
   assertEquals(comp2.addedComponentCalled, 1)
   assertIsTrue(entity:remove())
   assertEquals(comp2.removingComponentCalled, 1)
@@ -192,14 +196,14 @@ function ecsTests:testEntityComponents1()
   assertIsTrue(entity:isEnabled())
   assertEquals(entity:componentCount(), 0)
   local comp3 = entity:addComponent('TestComponent')
-  assertEquals(comp3.getID(), 1)
+  assertIs(comp3:getID(), "number")
   assertEquals(comp3.addedComponentCalled, 1)
   assertIsTrue(comp3:remove())
   assertEquals(comp3.removingComponentCalled, 1)
   assertEquals(entity:componentCount(), 0)
 
   local comp4 = entity:addComponent('TestComponent')
-  assertEquals(comp4.getID(), 2)
+  assertIs(comp4:getID(), "number")
   assertEquals(comp3.addedComponentCalled, 1)
   assertIsTrue(system:removeEntity(2))
 end
@@ -215,6 +219,9 @@ function ecsTests:testEntityComponents2()
 
   assertEquals(comp1.addedComponentCalled, 2)
   assertEquals(comp2.addedComponentCalled, 1)
+
+  assertNotIsNil(entity:findComponent(comp1:getID()))
+  assertNotIsNil(entity:findComponent(comp2:getID()))
 end
 
 function ecsTests:testEntityComponents3()
@@ -227,6 +234,10 @@ function ecsTests:testEntityComponents3()
   assertNotEquals(entity1:getID(), entity2:getID())
   assertNotEquals(entity1:getID(), entity3:getID())
   assertNotEquals(entity2:getID(), entity3:getID())
+
+  assertNotIsNil(system:findEntity(entity1:getID()))
+  assertNotIsNil(system:findEntity(entity2:getID()))
+  assertNotIsNil(system:findEntity(entity3:getID()))
 end
 
 function ecsTests:testEntityFunctions()

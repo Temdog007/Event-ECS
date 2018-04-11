@@ -22,11 +22,18 @@ local class = require("classlib")
 
 local component = class("Component")
 
+local id = 0
 function component:__init(entity, parent)
   assert(entity and string.match(entity:getName(), "Entity"), "Component must have an entity")
   self.entity = entity
   self.enabled = true
   self.parent = parent
+  self.id = id
+  id = id + 1
+end
+
+function component:getID()
+  return self.id
 end
 
 function component:isEnabled()
