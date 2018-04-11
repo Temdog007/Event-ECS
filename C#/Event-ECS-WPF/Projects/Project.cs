@@ -9,23 +9,29 @@ using System.Xml.Serialization;
 
 namespace Event_ECS_WPF.Projects
 {
+    public delegate void ProjectStateChangeEvent(object sender, ProjectStateChangeArgs args);
+
     [XmlInclude(typeof(LoveProject))]
     [XmlRoot("Project")]
     public class Project : NotifyPropertyChanged
     {
         private string _componentPath;
+
         private string _name;
-        
+
         private ObservableCollection<string> m_extensions = new ObservableCollection<string>();
+
+        private string m_libraryPath;
 
         public Project()
         {
             Name = "New Project";
             ComponentPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             LibraryPath = string.Empty;
-            
+
         }
 
+        public static event ProjectStateChangeEvent ProjectStateChange;
         /// <summary>
         /// Directory containing all of the lua component files
         /// </summary>
@@ -49,7 +55,7 @@ namespace Event_ECS_WPF.Projects
                 m_libraryPath = value;
                 OnPropertyChanged("LibraryPath");
             }
-        } private string m_libraryPath;
+        } 
 
         [XmlAttribute]
         public string Name
@@ -65,12 +71,6 @@ namespace Event_ECS_WPF.Projects
         public virtual ProjectType Type
         {
             get => ProjectType.NORMAL;
-        }
-
-        private static bool isHidden(string path)
-        {
-            FileAttributes attr = File.GetAttributes(path);
-            return ((attr & FileAttributes.Hidden) == FileAttributes.Hidden);
         }
 
         public virtual bool Start()
@@ -104,10 +104,11 @@ namespace Event_ECS_WPF.Projects
                     }
                 }
 
-                ECSUpdater.CreateInstance(this);
+                ECS.CreateInstance(this);
+                ProjectStateChange?.Invoke(this, ProjectStateChangeArgs.Started);
                 return true;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 LogManager.Instance.Add(e.Message);
                 return false;
@@ -117,6 +118,13 @@ namespace Event_ECS_WPF.Projects
         public virtual void Stop()
         {
             ECS.Instance?.Dispose();
+            ProjectStateChange?.Invoke(this, ProjectStateChangeArgs.Stopped);
+        }
+
+        private static bool isHidden(string path)
+        {
+            FileAttributes attr = File.GetAttributes(path);
+            return ((attr & FileAttributes.Hidden) == FileAttributes.Hidden);
         }
     }
 }

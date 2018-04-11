@@ -20,18 +20,15 @@
 
         <controls:ProjectMenuControl Project="{Binding ElementName=m_lovemenu, Path=LoveProject, UpdateSourceTrigger=PropertyChanged}"/>
 
-        <MenuItem>
-            <MenuItem.Header>
-                <GroupBox Header="UpdateType" Grid.Row="0">
-                    <StackPanel>
-                        <RadioButton Content="Manual" IsChecked="{Binding ElementName=m_lovemenu, Path=UpdateType, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, Converter={StaticResource enumConv}, ConverterParameter=Manual}"/>
-                        <RadioButton Content="Automatic" IsChecked="{Binding ElementName=m_lovemenu, Path=UpdateType, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, Converter={StaticResource enumConv}, ConverterParameter=Automatic}"/>
-                    </StackPanel>
-                </GroupBox>
-            </MenuItem.Header>
-        </MenuItem>
+        <GroupBox Header="UpdateType" Grid.Row="0">
+            <StackPanel>
+                <RadioButton Content="Manual" IsChecked="{Binding ElementName=m_lovemenu, Path=UpdateType, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, Converter={StaticResource enumConv}, ConverterParameter=Manual}"/>
+                <RadioButton Content="Automatic" IsChecked="{Binding ElementName=m_lovemenu, Path=UpdateType, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, Converter={StaticResource enumConv}, ConverterParameter=Automatic}"/>
+            </StackPanel>
+        </GroupBox>
+
         <Separator/>
-        
+
         <MenuItem Header="Do Manual Update" IsEnabled="{Binding ElementName=m_lovemenu, Path=CanUpdate, UpdateSourceTrigger=PropertyChanged}"
                         Command="{Binding ElementName=m_lovemenu, Path=UpdateCommand}"/>
     </StackPanel>

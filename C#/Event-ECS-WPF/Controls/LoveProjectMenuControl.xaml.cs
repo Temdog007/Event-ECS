@@ -41,7 +41,7 @@ namespace Event_ECS_WPF.Controls
         {
             if(args.IsStarted && UpdateType == UpdateType.Automatic)
             {
-                LoveProject.StartThread();
+                ECS.Instance.SetAutoUpdate(true);
             }
         }
 
@@ -58,14 +58,17 @@ namespace Event_ECS_WPF.Controls
                 }
 
                 m_type = value;
-                switch(value)
+                if (ECS.Instance != null)
                 {
-                    case UpdateType.Manual:
-                        LoveProject.StopThread();
-                        break;
-                    case UpdateType.Automatic:
-                        LoveProject.StartThread();
-                        break;
+                    switch (value)
+                    {
+                        case UpdateType.Manual:
+                            ECS.Instance.SetAutoUpdate(false);
+                            break;
+                        case UpdateType.Automatic:
+                            ECS.Instance.SetAutoUpdate(true);
+                            break;
+                    }
                 }
                 OnPropertyChanged("UpdateType");
                 OnPropertyChanged("CanUpdate");

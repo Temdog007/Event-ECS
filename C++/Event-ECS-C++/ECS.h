@@ -2,45 +2,66 @@
 
 #include "stdafx.h"
 
-enum ECSType
+namespace EventECS 
 {
-	NORMAL,
-	LOVE
-};
+	enum ECSType
+	{
+		NORMAL,
+		LOVE
+	};
 
-class ECS 
-{
-private:
-	lua_State * L;
+	class ECS
+	{
+	private:
+		lua_State * L;
 
-	bool initialized;
+		bool initialized;
 
-	ECSType type;
+		bool autoUpdate;
 
-	void Require(const char* moduleName, const char* globalName);
+		const ECSType type;
 
-public:
-	ECS();
-	virtual ~ECS();
+		void Require(const char* moduleName, const char* globalName);
 
-	ECS(const ECS&) = delete;
-	ECS& operator=(const ECS&) = delete;
+		void SetFunction(const char* funcName);
 
-	bool Initialize(const char* executablePath, const char* identity, ECSType type = ECSType::NORMAL);
+		void FindEntity(int entityID);
 
-	const char* AddEntity();
-	int RemoveEntity(int entityID);
+		void FindComponent(int entityID, int componentID);
 
-	int DispatchEvent(const char* eventName);
-	void RegisterComponent(const char* moduleName);
+		void CheckInitialized();
 
-	bool LoveUpdate();
+		bool DoLoveUpdate(bool throwException);
 
-	//void AddComponent(int entityID, const char* componentName);
-	//void RemoveComponent(int entityID, int componentID);
+		void Quit();
 
-	const char* Serialize() const;
-	/*void SerializeEntity(int entityID) const;
-	void SerializeComponent(int entityID, int componentID) const;*/
-};
+	public:
+		ECS(ECSType type = ECSType::NORMAL);
+		virtual ~ECS();
 
+		ECS() = delete;
+		ECS(const ECS&) = delete;
+		ECS& operator=(const ECS&) = delete;
+
+		bool Initialize(const char* executablePath, const char* identity);
+
+		std::string AddEntity();
+		int RemoveEntity(int entityID);
+
+		int DispatchEvent(const char* eventName);
+		void RegisterComponent(const char* moduleName, bool replace = false);
+
+		std::string AddComponent(int entityID, const char* componentName);
+		void AddComponents(int entityID, std::list<std::string> componentNames);
+
+		bool RemoveComponent(int entityID, int componentID);
+
+		std::string Serialize();
+		std::string SerializeEntity(int entityID);
+		std::string SerializeComponent(int entityID, int componentID);
+
+		bool LoveUpdate();
+
+		inline ECSType getType() const { return type; }
+	};
+}

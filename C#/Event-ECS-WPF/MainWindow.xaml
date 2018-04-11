@@ -16,7 +16,8 @@
         Title="Entity Component System Viewer" 
         Height="768" Width="1366"
         x:Name="m_window"
-        Closing="m_window_Closing">
+        Closing="m_window_Closing"
+        PreviewKeyDown="Window_PreviewKeyDown">
     
     <Window.DataContext>
         <local:MainWindowViewModel/>
@@ -79,9 +80,10 @@
                 <MenuItem Header="Clear Logs" Command="{Binding ClearLogCommand}"/>
             </MenuItem>
 
-            <ContentPresenter
-                            Content="{Binding Project, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+            <MenuItem Header="Project" Visibility="{Binding HasProject, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource boolConv}}">
+                <ContentPresenter Content="{Binding Project, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                             ContentTemplateSelector="{StaticResource projectMenuSelector}"/>
+            </MenuItem>
         </Menu>
 
         <Grid Margin="0,10,0,0">

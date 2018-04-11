@@ -1,15 +1,10 @@
-﻿using Event_ECS_WPF.SystemObjects;
-using System;
+﻿using System;
 using System.IO;
 using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Xml.Serialization;
 
 namespace Event_ECS_WPF.Projects
 {
-    public delegate void ProjectStateChangeEvent(object sender, ProjectStateChangeArgs args);
-
     public enum FullscreenType
     {
         DESKTOP,
@@ -60,15 +55,10 @@ namespace Event_ECS_WPF.Projects
 end";
         private LoveProjectSettings _settings;
 
-        private static CancellationTokenSource _source;
-        private static Task _task;
-
         public LoveProject()
         {
             Settings = new LoveProjectSettings();
         }
-
-        public static event ProjectStateChangeEvent ProjectStateChange;
 
         [XmlElement("Settings")]
         public LoveProjectSettings Settings { get => _settings; set { _settings = value; OnPropertyChanged(); } }
@@ -90,29 +80,7 @@ end";
 
             bool result = base.Start();
 
-            ProjectStateChange?.Invoke(this, ProjectStateChangeArgs.Started);
-
             return result;
-        }
-        public void StartThread()
-        {
-            StopThread();
-            _source = new CancellationTokenSource();
-            _task = ECS.Instance?.StartAutoThread(_source.Token);
-        }
-
-        public override void Stop()
-        {
-            StopThread();
-            base.Stop();
-            ProjectStateChange?.Invoke(this, ProjectStateChangeArgs.Stopped);
-        }
-        public void StopThread()
-        {
-            _source?.Cancel();
-            _task?.Wait();
-            _task = null;
-            _source = null;
         }
     }
 

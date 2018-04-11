@@ -8,6 +8,8 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
+using System.Windows.Input;
+
 namespace Event_ECS_WPF.Properties {
     
     
@@ -56,6 +58,18 @@ namespace Event_ECS_WPF.Properties {
             }
             set {
                 this["OnlyShowComponentWhenMouse"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("F5")]
+        public Key ManualUpdateShortcut {
+            get {
+                return ((Key)(this["ManualUpdateShortcut"]));
+            }
+            set {
+                this["ManualUpdateShortcut"] = value;
             }
         }
     }
