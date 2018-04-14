@@ -86,7 +86,7 @@ namespace Event_ECS_WPF.Projects
                         if (!File.Exists(dest))
                         {
                             File.Copy(file, dest);
-                            LogManager.Instance.Add("Copied {0} to {1}", file, dest);
+                            LogManager.Instance.Add(LogLevel.Medium, "Copied {0} to {1}", file, dest);
                         }
                     }
                 }
@@ -99,7 +99,7 @@ namespace Event_ECS_WPF.Projects
                         if (!File.Exists(dest))
                         {
                             File.Copy(file, dest);
-                            LogManager.Instance.Add("Copied {0} to {1}", file, dest);
+                            LogManager.Instance.Add(LogLevel.Medium, "Copied {0} to {1}", file, dest);
                         }
                     }
                 }
@@ -110,7 +110,7 @@ namespace Event_ECS_WPF.Projects
             }
             catch (Exception e)
             {
-                LogManager.Instance.Add(e.Message);
+                LogManager.Instance.Add(LogLevel.High, e.Message);
                 return false;
             }
         }

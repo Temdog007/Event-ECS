@@ -58,11 +58,7 @@ namespace Event_ECS_WPF.Controls
             if (ECS.Instance != null)
             {
                 ECS.Instance.UseWrapper(ecs => ecs.DispatchEvent(ev), out int handles);
-                LogManager.Instance.Add(new Log()
-                {
-                    DateTime = DateTime.Now,
-                    Message = string.Format("Event '{0}' was handled '{1}' time(s)", ev, handles)
-                });
+                LogManager.Instance.Add(LogLevel.Medium, "Event '{0}' was handled '{1}' time(s)", ev, handles);
             }
         }
     }

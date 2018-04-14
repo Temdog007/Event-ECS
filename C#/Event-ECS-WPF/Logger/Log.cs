@@ -10,10 +10,25 @@ using System.Windows;
 
 namespace Event_ECS_WPF.Logger
 {
+    public enum LogLevel
+    {
+        High,
+        Medium,
+        Low
+    }
+
     public class Log
     {
-        public DateTime? DateTime { get; set; }
-        public string Message { get; set; }
+        public DateTime DateTime { get; private set; }
+        public string Message { get; private set; }
+        public LogLevel Level { get; private set; }
+
+        internal Log(string message, LogLevel level)
+        {
+            Message = message;
+            Level = level;
+            DateTime = DateTime.Now;
+        }
     }
 
     public class LogManager : INotifyPropertyChanged, INotifyCollectionChanged, IEnumerable<Log>
@@ -55,7 +70,7 @@ namespace Event_ECS_WPF.Logger
         }
         public static LogManager Instance => m_instance ?? (m_instance = new LogManager());
 
-        public void Add(Log log)
+        private void Add(Log log)
         {
             lock (m_lock)
             {
@@ -63,37 +78,34 @@ namespace Event_ECS_WPF.Logger
             }
         }
 
-        public void Add(string message)
+        public void Add(string message, LogLevel level)
         {
             if (Settings.Default.MultilineLog)
             {
-                bool addDate = true;
+                List<string> strList = new List<string>();
                 foreach (var line in message.Split('\n'))
                 {
                     foreach (string str in line.Split(Settings.Default.MaxLogLength))
                     {
-                        LogManager.Instance.Add(new Log()
-                        {
-                            DateTime = addDate ? DateTime.Now : default(DateTime?),
-                            Message = str
-                        });
-                        addDate = false;
+                        strList.Add(str);
                     }
                 }
+                LogManager.Instance.Add(new Log(string.Join(Environment.NewLine, strList), level));
             }
             else
             {
-                LogManager.Instance.Add(new Log()
-                {
-                    DateTime = DateTime.Now,
-                    Message = message
-                });
+                LogManager.Instance.Add(new Log(message, level));
             }
         }
 
         public void Add(string message, params object[] args)
         {
-            Add(string.Format(message, args));
+            Add(LogLevel.Low, message, args);
+        }
+
+        public void Add(LogLevel level, string message, params object[] args)
+        {
+            Add(string.Format(message, args), level);
         }
 
         public void Clear()

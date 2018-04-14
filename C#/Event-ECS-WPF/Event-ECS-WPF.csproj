@@ -80,6 +80,7 @@
     <Compile Include="Controls\LoveProjectMenuControl.xaml.cs">
       <DependentUpon>LoveProjectMenuControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Converters\LogLevelToColor.cs" />
     <Compile Include="Projects\UpdateType.cs" />
     <Compile Include="TemplateSelectors\ProjectMenuDataTemplateSelctor.cs" />
     <Page Include="Controls\ComponentControl.xaml">

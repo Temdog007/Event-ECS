@@ -29,7 +29,8 @@
         <converter:NotConverter x:Key="notConv"/>
         <converter:EnumToBoolConverter x:Key="enumConv"/>
         <converter:NullCheckVisibilityConverter x:Key="nullCheck"/>
-
+        <converter:LogLevelToColor x:Key="logToColor"/>
+        
         <DataTemplate x:Key="projectTemplate">
             <controls:ProjectControl Project="{Binding}"/>
         </DataTemplate>
@@ -112,13 +113,28 @@
                         <MenuItem Header="Clear Logs" Command="{Binding ClearLogCommand}"/>
                     </ContextMenu>
                 </Expander.ContextMenu>
-                <DataGrid ItemsSource="{Binding Source={x:Static logger:LogManager.Instance}, UpdateSourceTrigger=PropertyChanged}" Background='LightGray' AlternatingRowBackground="LightGray"
-                          AutoGenerateColumns="False" CanUserAddRows="False"
-                              misc:DataGridBehaviour.ScrollOnNewItem="True">
+                
+                <DataGrid ItemsSource="{Binding Source={x:Static logger:LogManager.Instance}, UpdateSourceTrigger=PropertyChanged}"
+                          AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" CanUserDeleteRows="False"
+                          CanUserReorderColumns="False" CanUserResizeRows="False" CanUserSortColumns="False"
+                          misc:DataGridBehaviour.ScrollOnNewItem="True">
+                    
+                    <DataGrid.Resources>
+                        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Transparent"/>
+                        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="Black"/>
+                    </DataGrid.Resources>
+                    
+                    <DataGrid.RowStyle>
+                        <Style TargetType="DataGridRow">
+                            <Setter Property="Background" Value="{Binding Level, Converter={StaticResource logToColor}}"/>
+                        </Style>
+                    </DataGrid.RowStyle>
+                    
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Time" Binding="{Binding DateTime}" Width="auto" IsReadOnly="True"/>
                         <DataGridTextColumn Header="Message" Binding="{Binding Message}" Width="*" IsReadOnly="True"/>
                     </DataGrid.Columns>
+                    
                 </DataGrid>
             </Expander>
         </Grid>

@@ -46,7 +46,7 @@ namespace Event_ECS_WPF
             }
         }
         public bool HasProject => Project != null;
-        public ActionCommand<object> ClearLogCommand => m_clearLogCommand ?? (m_clearLogCommand = new ActionCommand<object>(clearLogs));
+        public ActionCommand<object> ClearLogCommand => m_clearLogCommand ?? (m_clearLogCommand = new ActionCommand<object>(ClearLogs));
 
         public ActionCommand<Window> CloseCommand => m_closeCommand ?? (m_closeCommand = new ActionCommand<Window>(CloseWindow));
 
@@ -86,51 +86,7 @@ namespace Event_ECS_WPF
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
         }
 
-        private void addLog(string message)
-        {
-            try
-            {
-                Application.Current.Dispatcher.Invoke(new Action(() =>
-                {
-                    if (Settings.Default.MultilineLog)
-                    {
-                        bool addDate = true;
-                        foreach (var line in message.Split('\n'))
-                        {
-                            foreach (string str in line.Split(Settings.Default.MaxLogLength))
-                            {
-                                LogManager.Instance.Add(new Log()
-                                {
-                                    DateTime = addDate ? DateTime.Now : default(DateTime?),
-                                    Message = str
-                                });
-                                addDate = false;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        LogManager.Instance.Add(new Log()
-                        {
-                            DateTime = DateTime.Now,
-                            Message = message
-                        });
-                    }
-                }));
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
-        }
-        
-
-        private void addLog(string message, params object[] args)
-        {
-            addLog(string.Format(message, args));
-        }
-
-        private void clearLogs()
+        private void ClearLogs()
         {
             try
             {
@@ -143,7 +99,6 @@ namespace Event_ECS_WPF
             {
                 Console.WriteLine(e);
             }
-
         }
         private void CloseWindow(Window window)
         {
@@ -207,7 +162,7 @@ namespace Event_ECS_WPF
             catch(Exception e)
             {
                 StopProject();
-                LogManager.Instance.Add(e.Message);
+                LogManager.Instance.Add(LogLevel.High, e.Message);
             }
         }
 

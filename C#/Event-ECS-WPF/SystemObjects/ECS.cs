@@ -19,7 +19,7 @@ namespace Event_ECS_WPF.SystemObjects
         {
             m_ecs = new ECSWrapper(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), 
                                     project.Name, Convert.ToInt32(project.Type), UpdateOnMainThread);
-            LogManager.Instance.Add("Project Started");
+            LogManager.Instance.Add(LogLevel.Medium, "Project Started");
             Instance = this;
         }
 
@@ -70,14 +70,14 @@ namespace Event_ECS_WPF.SystemObjects
             if (m_ecs != null)
             {
                 Application.Current.Dispatcher.Invoke(() => m_ecs.Dispose());
-                LogManager.Instance.Add("Project Stopped");
+                LogManager.Instance.Add(LogLevel.Medium, "Project Stopped");
             }
         }
 
         public bool Update()
         {
             UseWrapper(UpdateAction, out bool rval);
-            LogManager.Instance.Add("Manual Update");
+            LogManager.Instance.Add(LogLevel.Low, "Manual Update");
             return rval;
         }
 
@@ -90,7 +90,7 @@ namespace Event_ECS_WPF.SystemObjects
         {
             if (m_ecs == null)
             {
-                LogManager.Instance.Add("Project has not been started. Cannot run function");
+                LogManager.Instance.Add(LogLevel.High, "Project has not been started. Cannot run function");
                 t = default(T);
                 return false;
             }
@@ -106,7 +106,7 @@ namespace Event_ECS_WPF.SystemObjects
         {
             if (m_ecs == null)
             {
-                LogManager.Instance.Add("Project has not been started. Cannot run function");
+                LogManager.Instance.Add(LogLevel.High, "Project has not been started. Cannot run function");
             }
             else
             {
