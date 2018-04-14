@@ -111,6 +111,19 @@
                 <Expander.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="Clear Logs" Command="{Binding ClearLogCommand}"/>
+                        <MenuItem Header="Filter">
+                            <MenuItem.Resources>
+                                <Style TargetType="RadioButton">
+                                    <Setter Property="GroupName" Value="GR"/>
+                                </Style>
+                            </MenuItem.Resources>
+                            <RadioButton Content="High" IsChecked="{Binding Source={x:Static logger:LogManager.Instance}, Path=Filter, Mode=TwoWay, 
+                                UpdateSourceTrigger=PropertyChanged, Converter={StaticResource enumConv}, ConverterParameter=High}"/>
+                            <RadioButton Content="Medium" IsChecked="{Binding Source={x:Static logger:LogManager.Instance}, Path=Filter, Mode=TwoWay, 
+                                UpdateSourceTrigger=PropertyChanged, Converter={StaticResource enumConv}, ConverterParameter=Medium}"/>
+                            <RadioButton Content="Low" IsChecked="{Binding Source={x:Static logger:LogManager.Instance}, Path=Filter, Mode=TwoWay, 
+                                UpdateSourceTrigger=PropertyChanged, Converter={StaticResource enumConv}, ConverterParameter=Low}"/>
+                        </MenuItem>
                     </ContextMenu>
                 </Expander.ContextMenu>
                 

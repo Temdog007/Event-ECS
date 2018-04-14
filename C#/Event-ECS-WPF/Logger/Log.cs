@@ -6,15 +6,16 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Linq;
 using System.Windows;
 
 namespace Event_ECS_WPF.Logger
 {
     public enum LogLevel
     {
-        High,
+        Low,
         Medium,
-        Low
+        High
     }
 
     public class Log
@@ -38,37 +39,56 @@ namespace Event_ECS_WPF.Logger
 
         private ObservableCollection<Log> m_logs;
 
+        private LogLevel m_filter;
+
         private LogManager()
         {
             m_logs = new ObservableCollection<Log>();
         }
 
+        private NotifyCollectionChangedEventHandler m_collectionChanged;
         public event NotifyCollectionChangedEventHandler CollectionChanged
         {
             add
             {
+                m_collectionChanged += value;
                 ((INotifyCollectionChanged)m_logs).CollectionChanged += value;
             }
 
             remove
             {
+                m_collectionChanged -= value;
                 ((INotifyCollectionChanged)m_logs).CollectionChanged -= value;
             }
         }
 
+        private PropertyChangedEventHandler m_propertyChanged;
         public event PropertyChangedEventHandler PropertyChanged
         {
             add
             {
+                m_propertyChanged += value;
                 ((INotifyPropertyChanged)m_logs).PropertyChanged += value;
             }
 
             remove
             {
+                m_propertyChanged -= value;
                 ((INotifyPropertyChanged)m_logs).PropertyChanged -= value;
             }
         }
         public static LogManager Instance => m_instance ?? (m_instance = new LogManager());
+
+        public LogLevel Filter
+        {
+            get => m_filter;
+            set
+            {
+                m_filter = value;
+                m_propertyChanged?.Invoke(this, new PropertyChangedEventArgs("Filter"));
+                m_collectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            }
+        }
 
         private void Add(Log log)
         {
@@ -118,12 +138,12 @@ namespace Event_ECS_WPF.Logger
 
         public IEnumerator<Log> GetEnumerator()
         {
-            return ((IEnumerable<Log>)m_logs).GetEnumerator();
+            return m_logs.Where(log => log.Level >= this.Filter).GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return ((IEnumerable<Log>)m_logs).GetEnumerator();
+            return this.GetEnumerator();
         }
     }
 }
