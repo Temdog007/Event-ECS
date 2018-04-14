@@ -1,4 +1,5 @@
-﻿using Event_ECS_WPF.Properties;
+﻿using Event_ECS_WPF.Extensions;
+using Event_ECS_WPF.Properties;
 using Event_ECS_WPF.SystemObjects;
 using System.ComponentModel;
 using System.Windows;
@@ -24,7 +25,7 @@ namespace Event_ECS_WPF
 
         private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Settings.Default.ManualUpdateShortcut)
+            if (e.Key == Settings.Default.ManualUpdateKey.Convert())
             {
                 ECS.Instance?.Update();
             }

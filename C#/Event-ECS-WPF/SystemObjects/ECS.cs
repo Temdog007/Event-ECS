@@ -5,18 +5,48 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Windows;
+using System.Windows.Threading;
 
 namespace Event_ECS_WPF.SystemObjects
 {
     public class ECS : NotifyPropertyChanged, IDisposable
     {
+        private static readonly TimeSpan WaitTimeSpan = TimeSpan.FromMilliseconds(10);
+
         private readonly ECSWrapper m_ecs;
 
         internal ECS(Project project)
         {
-            m_ecs = new ECSWrapper(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), project.Name, Convert.ToInt32(project.Type));
+            m_ecs = new ECSWrapper(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), 
+                                    project.Name, Convert.ToInt32(project.Type), UpdateOnMainThread);
             LogManager.Instance.Add("Project Started");
             Instance = this;
+        }
+
+        private bool UpdateAction()
+        {
+            try
+            {
+                return m_ecs == null ? false : m_ecs.LoveUpdate();
+            }
+            catch(Exception)
+            {
+                return false;
+            }
+        }
+
+        private bool UpdateOnMainThread()
+        {
+            try
+            {
+                DispatcherOperation operation = Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Render, new Func<bool>(UpdateAction));
+                while (operation.Wait(WaitTimeSpan) != DispatcherOperationStatus.Completed && m_ecs.GetAutoUpdate()) ;
+                return (bool)operation.Result;
+            }
+            catch(Exception)
+            {
+                return false;
+            }
         }
 
         public static ECS CreateInstance(Project project)

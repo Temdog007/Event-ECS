@@ -35,5 +35,17 @@ namespace Event_ECS_WPF.Extensions
         {
             obj.GetProperty(propertyName).SetValue(obj, value);
         }
+
+        public static System.Windows.Input.Key Convert(this System.Windows.Forms.Keys key)
+        {
+            try
+            {
+                return (System.Windows.Input.Key)Enum.Parse(typeof(System.Windows.Input.Key), key.ToString());
+            }
+            catch(Exception)
+            {
+                return System.Windows.Input.Key.None;
+            }
+        }
     }
 }

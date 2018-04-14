@@ -8,8 +8,6 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-using System.Windows.Input;
-
 namespace Event_ECS_WPF.Properties {
     
     
@@ -64,12 +62,12 @@ namespace Event_ECS_WPF.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("F5")]
-        public Key ManualUpdateShortcut {
+        public global::System.Windows.Forms.Keys ManualUpdateKey {
             get {
-                return ((Key)(this["ManualUpdateShortcut"]));
+                return ((global::System.Windows.Forms.Keys)(this["ManualUpdateKey"]));
             }
             set {
-                this["ManualUpdateShortcut"] = value;
+                this["ManualUpdateKey"] = value;
             }
         }
     }
