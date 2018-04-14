@@ -259,15 +259,15 @@ function ecsTests:testEntitySerialization()
   system:registerComponent(TestComponent)
   local entity = system:createEntity()
 
-  assertEquals(entity:serialize(), "Entity#1")
+  assertEquals(entity:serialize(), "1,Entity")
   local comp = entity:addComponent("Component")
-  assertEquals(entity:serialize(), "Entity#1,removingentity,removingcomponent\nenabled,boolean,true")
+  assertEquals(entity:serialize(), "1,Entity,removingentity,removingcomponent\nenabled,boolean,true")
   comp = entity:addComponent("TestComponent")
-  assertEquals(entity:serialize(), "Entity#1,removingcomponent,removingentity,addedcomponent\nenabled,boolean,true\nenabled,boolean,true,removingComponentCalled,number,0,addedComponentCalled,number,1,added,boolean,true")
-  assertEquals(system:serialize(), "Entity Component System,Component,TestComponent\nEntity#1,removingcomponent,removingentity,addedcomponent\nenabled,boolean,true\nenabled,boolean,true,removingComponentCalled,number,0,addedComponentCalled,number,1,added,boolean,true")
+  assertEquals(entity:serialize(), "1,Entity,removingcomponent,removingentity,addedcomponent\nenabled,boolean,true\nenabled,boolean,true,removingComponentCalled,number,0,addedComponentCalled,number,1,added,boolean,true")
+  assertEquals(system:serialize(), "Entity Component System,Component,TestComponent\n1,Entity,removingcomponent,removingentity,addedcomponent\nenabled,boolean,true\nenabled,boolean,true,removingComponentCalled,number,0,addedComponentCalled,number,1,added,boolean,true")
 
   local entity2 = system:createEntity()
-  assertEquals(entity2:serialize(), "Entity#2")
+  assertEquals(entity2:serialize(), "2,Entity")
 end
 
 LuaUnit:run('ecsTests')

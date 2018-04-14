@@ -1,6 +1,7 @@
 ﻿using Event_ECS_WPF.Logger;
 using Event_ECS_WPF.SystemObjects;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -27,7 +28,7 @@ namespace Event_ECS_WPF.Projects
         {
             Name = "New Project";
             ComponentPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            LibraryPath = string.Empty;
+            LibraryPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
         }
 
@@ -78,16 +79,19 @@ namespace Event_ECS_WPF.Projects
             try
             {
                 string location = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                List<string> componentsToRegister = new List<string>();
                 if (!isHidden(ComponentPath) && Directory.Exists(ComponentPath))
                 {
                     foreach (var file in Directory.GetFiles(ComponentPath).Where(f => !isHidden(f) && Path.GetExtension(f) == ".lua"))
                     {
-                        string dest = Path.Combine(location, Path.GetFileName(file));
+                        string component = Path.GetFileName(file);
+                        string dest = Path.Combine(location, component);
                         if (!File.Exists(dest))
                         {
                             File.Copy(file, dest);
                             LogManager.Instance.Add(LogLevel.Medium, "Copied {0} to {1}", file, dest);
                         }
+                        componentsToRegister.Add(Path.GetFileNameWithoutExtension(component));
                     }
                 }
 
@@ -105,11 +109,19 @@ namespace Event_ECS_WPF.Projects
                 }
 
                 ECS.CreateInstance(this);
+                ECS.Instance.UseWrapper(ecs => 
+                {
+                    foreach(var file in componentsToRegister)
+                    {
+                        ecs.RegisterComponent(file, false);
+                    }
+                });
                 ProjectStateChange?.Invoke(this, ProjectStateChangeArgs.Started);
                 return true;
             }
             catch (Exception e)
             {
+                ECS.Instance?.Dispose();
                 LogManager.Instance.Add(LogLevel.High, e.Message);
                 return false;
             }

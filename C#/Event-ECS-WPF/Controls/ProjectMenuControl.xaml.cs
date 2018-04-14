@@ -56,8 +56,7 @@ namespace Event_ECS_WPF.Controls
             }
             else
             {
-                Project.Start();
-                ProjectStarted = true;
+                ProjectStarted = Project.Start();
             }
         }
     }

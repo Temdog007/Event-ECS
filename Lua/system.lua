@@ -66,6 +66,7 @@ return ClassFactory(function(system)
         if en == entity then
           self:dispatchEvent("eventRemovingEntity", {entity = entity, system = self})
           entities[k] = nil
+          self:dispatchEvent("eventRemovedEntity", {entity = entity, system = self})
           return true
         end
       end
@@ -80,6 +81,7 @@ return ClassFactory(function(system)
       if matchFunction(en) then
         self:dispatchEvent("eventRemovingEntity", {entity = en, system = self})
         entities[k] = nil
+        self:dispatchEvent("eventRemovedEntity", {entity = en, system = self})
         count = count + 1
       end
     end
@@ -106,7 +108,7 @@ return ClassFactory(function(system)
         return en
       end
     end
-    
+
   end
 
   function system:findEntities(findFunc)

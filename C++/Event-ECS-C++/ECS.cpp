@@ -6,6 +6,26 @@ const char love[] = "love";
 
 namespace EventECS
 {
+	std::queue<std::string> EventECS::ECS::logs;
+
+	int luaopen_logFunction(lua_State* L)
+	{
+		int index = -1;
+		while (lua_gettop(L))
+		{
+			const char* log = luaL_checkstring(L, index--);
+			if (log == nullptr)
+			{
+				break;
+			}
+			else 
+			{
+				ECS::logs.emplace(log);
+			}
+		}
+		return 0;
+	}
+
 	ECS::ECS(ECSType type) : L(luaL_newstate()), initialized(false), type(type)
 	{
 
@@ -39,6 +59,11 @@ namespace EventECS
 	{
 		if (!initialized)
 		{
+			while (!logs.empty())
+			{
+				logs.pop();
+			}
+
 			luaL_openlibs(L);
 			initialized = true;
 
@@ -63,6 +88,9 @@ namespace EventECS
 				lua_setglobal(L, mySystem);
 				lua_pop(L, 1);
 				initialized = true;
+
+				lua_pushcfunction(L, luaopen_logFunction);
+				lua_setglobal(L, "Log");
 			}
 			else
 			{
@@ -83,8 +111,6 @@ namespace EventECS
 
 	void ECS::Require(const char* modName, const char* globalName)
 	{
-		
-
 		CheckInitialized();
 
 		lua_getglobal(L, "require");
@@ -135,8 +161,6 @@ namespace EventECS
 
 	void ECS::RegisterComponent(const char* modName, bool replace)
 	{
-		
-
 		CheckInitialized();
 
 		lua_getglobal(L, "require");
@@ -161,8 +185,6 @@ namespace EventECS
 
 	std::string ECS::AddEntity()
 	{
-		
-
 		CheckInitialized();
 
 		lua_getglobal(L, mySystem);
@@ -184,8 +206,6 @@ namespace EventECS
 
 	int ECS::RemoveEntity(int entityID)
 	{
-		
-
 		CheckInitialized();
 
 		SetFunction("removeEntity");
@@ -201,8 +221,6 @@ namespace EventECS
 
 	int ECS::DispatchEvent(const char* eventName)
 	{
-		
-
 		CheckInitialized();
 
 		SetFunction("dispatchEvent");
@@ -218,8 +236,6 @@ namespace EventECS
 
 	std::string ECS::AddComponent(int entityID, const char* componentName)
 	{
-		
-
 		CheckInitialized();
 
 		FindEntity(entityID);
@@ -240,10 +256,8 @@ namespace EventECS
 		throw std::exception(lua_tostring(L, -1));
 	}
 
-	void ECS::AddComponents(int entityID, std::list<std::string> componentNames)
+	std::queue<std::string> ECS::AddComponents(int entityID, std::list<std::string> componentNames)
 	{
-		
-
 		CheckInitialized();
 
 		FindEntity(entityID);
@@ -256,11 +270,13 @@ namespace EventECS
 		const int size = componentNames.size();
 		if (lua_pcall(L, size + 1, size, 0) == 0)
 		{
+			std::queue<std::string> rval;
 			while(lua_gettop(L))
 			{
+				rval.emplace(lua_tostring(L, -1));
 				lua_pop(L, 1);
 			}
-			return;
+			return rval;
 		}
 
 		throw std::exception(lua_tostring(L, -1));
@@ -353,5 +369,16 @@ namespace EventECS
 			throw std::exception("Not Love System. Can't call update");
 		}
 		return DoLoveUpdate(true);
+	}
+
+	bool ECS::GetLog(std::string& log)
+	{
+		if (!logs.empty())
+		{
+			log.assign(logs.front());
+			logs.pop();
+			return true;
+		}
+		return false;
 	}
 }

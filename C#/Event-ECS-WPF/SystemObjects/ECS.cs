@@ -17,10 +17,11 @@ namespace Event_ECS_WPF.SystemObjects
 
         internal ECS(Project project)
         {
+            Instance = this;
             m_ecs = new ECSWrapper(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), 
                                     project.Name, Convert.ToInt32(project.Type), UpdateOnMainThread);
+            m_ecs.SetLogFunction(str => LogManager.Instance.Add(str));
             LogManager.Instance.Add(LogLevel.Medium, "Project Started");
-            Instance = this;
         }
 
         private bool UpdateAction()
@@ -110,7 +111,11 @@ namespace Event_ECS_WPF.SystemObjects
             }
             else
             {
-                Application.Current.Dispatcher.Invoke(() => action(m_ecs));
+                Application.Current.Dispatcher.Invoke(() => 
+                {
+                    try { action(m_ecs); }
+                    catch(Exception e) { LogManager.Instance.Add(e.Message, LogLevel.High); }
+                });
             }
 
         }

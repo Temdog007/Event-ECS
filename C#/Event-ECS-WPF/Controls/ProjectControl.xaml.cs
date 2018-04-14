@@ -29,10 +29,10 @@ namespace Event_ECS_WPF.Controls
         public static readonly DependencyProperty ProjectProperty =
             DependencyProperty.Register("Project", typeof(Project), typeof(ProjectControl));
 
-        public ICommand ButtonClickCommand => m_buttonClickCommand ?? (m_buttonClickCommand = new ActionCommand<string>(Button_Click));
-        private ActionCommand<string> m_buttonClickCommand;
+        public ICommand GetPathCommand => m_getPathCommand ?? (m_getPathCommand = new ActionCommand<string>(GetPath));
+        private ActionCommand<string> m_getPathCommand;
 
-        private void Button_Click(string propertyName)
+        private void GetPath(string propertyName)
         {
             using(var dialog = new System.Windows.Forms.FolderBrowserDialog())
             {
@@ -55,9 +55,8 @@ namespace Event_ECS_WPF.Controls
 
         private void DispatchEvent(string ev)
         {
-            if (ECS.Instance != null)
+            if (ECS.Instance != null && ECS.Instance.UseWrapper(ecs => ecs.DispatchEvent(ev), out int handles))
             {
-                ECS.Instance.UseWrapper(ecs => ecs.DispatchEvent(ev), out int handles);
                 LogManager.Instance.Add(LogLevel.Medium, "Event '{0}' was handled '{1}' time(s)", ev, handles);
             }
         }
@@ -67,9 +66,9 @@ namespace Event_ECS_WPF.Controls
 
         private void Serialize()
         {
-            if (ECS.Instance != null)
+            if (ECS.Instance != null && ECS.Instance.UseWrapper(ecs => ecs.Serialize(), out string data))
             {
-                ECS.Instance.UseWrapper(ecs => ecs.Serialize(), out string data);
+                
                 LogManager.Instance.Add(data, LogLevel.Low);
             }
         }

@@ -30,11 +30,7 @@ local function removeAll()
 end
 
 local function entostring(en)
-  if en.name then
-    return string.format("%s#%d: %s", ClassName, en:getID(), en.name)
-  else
-    return string.format("%s#%d", ClassName, en:getID())
-  end
+  return en.name or ClassName
 end
 
 local Entity = ClassFactory(function(entity, system)
@@ -102,6 +98,7 @@ local Entity = ClassFactory(function(entity, system)
         end
       end
     end
+    entity.system:dispatchEvent("eventRemovedComponent", {component = component, entity = entity})
   end
 
   function entity:removeComponent(component)
@@ -195,9 +192,9 @@ local Entity = ClassFactory(function(entity, system)
     local events = self:getEventList()
     local tab = {}
     if string.len(events) > 0 then
-      table.insert(tab, self:getName()..","..self:getEventList())
+      table.insert(tab, string.format("%d,%s,%s", self:getID(), self:getName(), self:getEventList()))
     else
-      table.insert(tab, self:getName())
+      table.insert(tab, string.format("%d,%s", self:getID(), self:getName()))
     end
 
     for k,v in pairs(components) do

@@ -4,7 +4,7 @@ using Event_ECS_WPF.Misc;
 
 namespace Event_ECS_WPF.SystemObjects
 {
-    public class Entity : NotifyPropertyChanged, IDisposable
+    public class Entity : NotifyPropertyChanged, IDisposable, IComparable<Entity>
     {
         private readonly EntityComponentSystem m_system;
 
@@ -75,6 +75,11 @@ namespace Event_ECS_WPF.SystemObjects
         public void Dispose()
         {
             m_system.Entities.Remove(this);
+        }
+
+        public int CompareTo(Entity other)
+        {
+            return ID.CompareTo(other.ID);
         }
     }
 }

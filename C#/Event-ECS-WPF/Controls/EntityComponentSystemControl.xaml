@@ -4,9 +4,19 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:controls="clr-namespace:Event_ECS_WPF.Controls"
+             xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
              x:Name="m_system">
+    
+    <UserControl.Resources>
+        <CollectionViewSource x:Key="entitiesSrc" Source="{Binding ElementName=m_system, Path=EntityComponentSystem.Entities, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+            <CollectionViewSource.SortDescriptions>
+                <scm:SortDescription PropertyName="ID"/>
+            </CollectionViewSource.SortDescriptions>
+        </CollectionViewSource>
+    </UserControl.Resources>
+    
     <GroupBox>
 
         <GroupBox.Header>
@@ -25,8 +35,7 @@
             </Expander>
 
             <Expander Header="Entities" Grid.Row="1">
-                <TreeView x:Name="m_tree" ItemsSource="{Binding ElementName=m_system, Path=EntityComponentSystem.Entities, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                           Tag="{Binding ElementName=m_system}">
+                <TreeView ItemsSource="{Binding Source={StaticResource entitiesSrc}}" Tag="{Binding ElementName=m_system}">
                     <TreeView.ContextMenu>
                         <ContextMenu DataContext="{Binding Path=PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
                             <MenuItem Header="Add Entity" Command="{Binding Path=AddEntityCommand}"/>
