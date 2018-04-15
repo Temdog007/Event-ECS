@@ -26,15 +26,20 @@
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
+
+            <GroupBox Header="Frame Rate">
+                <TextBox Text="{Binding ElementName=m_system, Path=EntityComponentSystem.FrameRate, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, Delay=2000}"/>
+            </GroupBox>
             
-            <Expander Header="Registered Components" Grid.Row="0" Background="LightBlue">
+            <Expander Header="Registered Components" Grid.Row="1" Background="LightBlue">
                 <ListBox ItemsSource="{Binding ElementName=m_system, Path=EntityComponentSystem.RegisteredComponents, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                          SelectedItem="{Binding ElementName=m_system, Path=EntityComponentSystem.SelectedComponent, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
             </Expander>
 
-            <Expander Header="Entities" Grid.Row="1">
+            <Expander Header="Entities" Grid.Row="2">
                 <TreeView ItemsSource="{Binding Source={StaticResource entitiesSrc}}" Tag="{Binding ElementName=m_system}">
                     <TreeView.ContextMenu>
                         <ContextMenu DataContext="{Binding Path=PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">

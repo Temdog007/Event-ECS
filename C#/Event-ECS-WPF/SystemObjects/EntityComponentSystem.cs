@@ -57,6 +57,31 @@ namespace Event_ECS_WPF.SystemObjects
             }
         }
 
+        private int GetFrameRateFunc(ECSWrapper ecs)
+        {
+            return ecs.GetFrameRate();
+        }
+
+        public int FrameRate
+        {
+            get
+            {
+                if(ECS.Instance != null && ECS.Instance.UseWrapper(GetFrameRateFunc, out int fps))
+                {
+                    return fps;
+                }
+                return 0;
+            }
+            set
+            {
+                if (ECS.Instance != null)
+                {
+                    ECS.Instance.UseWrapper(ecs => ecs.SetFrameRate(value));
+                    OnPropertyChanged("FrameRate");
+                }
+            }
+        }
+
         public string SelectedComponent
         {
             get => m_selectedComponent;
@@ -82,6 +107,8 @@ namespace Event_ECS_WPF.SystemObjects
 
         public void Deserialize(IList<string> list)
         {
+            OnPropertyChanged("FrameRate");
+
             string systemData = list[0];
             string[] systemDataList = systemData.Split(Delim);
             if (systemDataList.Length > 1)
@@ -101,12 +128,15 @@ namespace Event_ECS_WPF.SystemObjects
             }
 
             List<string> enList = new List<string>(list.SubArray(1));
+            List<int> handledIDs = new List<int>();
             Entity entity = null;
             foreach (string en in enList.AsReadOnly())
             {
                 string[] enData = en.Split(Delim);
                 if (int.TryParse(enData[0], out int entityID))
                 {
+                    handledIDs.Add(entityID);
+
                     entity = Entities.FirstOrDefault(e => e.ID == entityID);
                     if (entity != null)
                     {
@@ -160,6 +190,7 @@ namespace Event_ECS_WPF.SystemObjects
                     }
                 }
             }
+            Entities = new ObservableCollection<Entity>(Entities.Where(en => handledIDs.Contains(en.ID)));
         }
 
         internal void SetUniqueID(Entity entity)

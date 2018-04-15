@@ -20,16 +20,18 @@
 
 local System = require("system")
 local loveSystem
-return function(identity)
-
-  executablePath = executablePath or os.execute('cd')
-  assert(type(identity) == "string", "Must enter a name for the game")
+return function(identity, executablePath, frameRate)
 
   if loveSystem then
     return loveSystem
   end
 
+  executablePath = executablePath or os.execute('cd')
+  assert(type(identity) == "string", "Must enter a name for the game")
+
   loveSystem = System()
+
+  loveSystem.frameRate = frameRate or 60
 
   -- Make sure love exists.
   local love = require("love")
@@ -197,7 +199,13 @@ return function(identity)
 
   local function run()
 
-  	if love.timer then love.timer.step() end
+    loveSystem:dispatchEvent("eventload")
+
+    local nextTime
+  	if love.timer then
+      love.timer.step()
+      nextTime = love.timer.getTime()
+    end
 
   	local updateArgs = {dt = 0}
     local quitArgs = {handled = false}
@@ -222,13 +230,14 @@ return function(identity)
 
       -- Update dt, as we'll be passing it to update
       if love.timer then
+        nextTime = nextTime + (1 / loveSystem.frameRate)
         updateArgs.dt = love.timer.step()
       else
         updateArgs.dt = 0
       end
 
       -- Call update and draw
-      loveSystem:dispatchEvent("eventUpdate", updateArgs) -- will pass 0 if love.timer is disabled
+      loveSystem:dispatchEvent("eventupdate", updateArgs) -- will pass 0 if love.timer is disabled
 
       if love.graphics and love.graphics.isActive() then
       	love.graphics.origin()
@@ -239,7 +248,15 @@ return function(identity)
       	love.graphics.present()
       end
 
-      if love.timer then love.timer.sleep(0.001) end
+      if love.timer then
+        local curTime = love.timer.getTime()
+        if nextTime <= curTime then
+          nextTime = curTime
+        else
+          love.timer.sleep(nextTime - curTime)
+        end
+      end
+
     end
   end
 
@@ -278,13 +295,11 @@ return function(identity)
 
     func = earlyinit
 
-    loveSystem:dispatchEvent("start")
     while func do
       local _, retval = xpcall(func, deferErrhand)
       if retval then return retval end
       coroutine.yield()
     end
-    loveSystem:dispatchEvent("stop")
 
     return 1
   end

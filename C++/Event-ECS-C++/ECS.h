@@ -61,6 +61,9 @@ namespace EventECS
 
 		bool RemoveComponent(int entityID, int componentID);
 
+		void SetFrameRate(int fps);
+		int GetFrameRate() const;
+
 		std::string Serialize();
 		std::string SerializeEntity(int entityID);
 		std::string SerializeComponent(int entityID, int componentID);

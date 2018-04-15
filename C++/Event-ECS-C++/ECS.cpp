@@ -377,4 +377,21 @@ namespace EventECS
 		}
 		return false;
 	}
+
+	void ECS::SetFrameRate(int fps)
+	{
+		lua_getglobal(L, mySystem);
+		lua_pushstring(L, "frameRate");
+		lua_pushnumber(L, fps);
+		lua_settable(L, -3);
+	}
+
+	int ECS::GetFrameRate() const 
+	{
+		lua_getglobal(L, mySystem);
+		lua_getfield(L, -1, "frameRate");
+		auto value = luaL_optnumber(L, -1, 0);
+		lua_pop(L, 1);
+		return static_cast<int>(value);
+	}
 }
