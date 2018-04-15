@@ -51,6 +51,17 @@
             </ScrollViewer>
         </DataTemplate>
 
+        <DataTemplate x:Key="boolTemp">
+            <StackPanel>
+                <RadioButton Content="True" GroupName="TempGroup" IsChecked="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                <RadioButton Content="False" GroupName="TempGroup" IsChecked="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource notConv}}"/>
+            </StackPanel>
+        </DataTemplate>
+
+        <DataTemplate x:Key="valueTemp">
+            <TextBox Text="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+        </DataTemplate>
+
         <selector:ProjectDataTemplateSelector x:Key="projectSelector"/>
         <selector:ProjectMenuDataTemplateSelector x:Key="projectMenuSelector"/>
     </Window.Resources>

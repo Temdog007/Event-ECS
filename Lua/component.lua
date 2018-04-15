@@ -66,29 +66,34 @@ function component:eventRemovingEntity(args)
 end
 
 function component:remove()
-  return self.entity:removeComponent(self)
+  return self.entity:removeComponent(self.parent or self)
+end
+
+local function addValues(input, t)
+  for k,v in pairs(input) do
+    k = tostring(k)
+    if not string.starts(k, "__") then
+      local typ = type(v)
+      if typ == "string" or typ == "number" or typ == "boolean" then
+        local val = tostring(v)
+        table.insert(t, k)
+        table.insert(t, typ)
+        table.insert(t, val)
+      end
+    end
+  end
 end
 
 function component:serialize()
   local t =
   {
-    "enabled", "boolean", "true"
+    classname(self.parent or self),
   }
   if self.parent then
-    for k,v in pairs(self.parent) do
-      k = tostring(k)
-      if not string.starts(k, "__") then
-        local typ = type(v)
-        if typ == "string" or typ == "number" or typ == "boolean" then
-          local val = tostring(v)
-          table.insert(t, k)
-          table.insert(t, typ)
-          table.insert(t, val)
-        end
-      end
-    end
+    addValues(self.parent, t)
   end
-  return table.concat(t, ",")
+  addValues(self, t)
+  return table.concat(t, "|")
 end
 
 return component

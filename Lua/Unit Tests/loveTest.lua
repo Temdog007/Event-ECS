@@ -43,12 +43,6 @@ function TestComponent:eventDraw(args)
 end
 
 function TestComponent:eventKeyPressed(args)
-  -- local tab = {}
-  -- for k,v in pairs(args) do
-  --   table.insert(tab, tostring(k))
-  --   table.insert(tab, tostring(v))
-  -- end
-  -- self.text = table.concat(tab, ",")
   if args[1] == "escape" then
     love.event.quit()
   end
@@ -58,11 +52,6 @@ end
 loveSystem:registerComponent(TestComponent)
 local entity = loveSystem:createEntity()
 entity:addComponent("TestComponent")
-
--- for i = 1, 300 do
---   loveSystem:run()
--- end
--- loveSystem:quit()
 
 repeat until not loveSystem:run()
 

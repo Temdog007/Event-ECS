@@ -47,5 +47,18 @@ namespace Event_ECS_WPF.Extensions
                 return System.Windows.Input.Key.None;
             }
         }
+
+        public static IEnumerable<T> SubArray<T>(this IList<T> list, int start)
+        {
+            return SubArray(list, start, list.Count);
+        }
+
+        public static IEnumerable<T> SubArray<T>(this IList<T> list, int start, int end)
+        {
+            for(int i = start; i < end; ++i)
+            {
+                yield return list[i];
+            }
+        }
     }
 }

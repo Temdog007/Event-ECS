@@ -56,8 +56,8 @@ namespace EventECS
 		int DispatchEvent(const char* eventName);
 		void RegisterComponent(const char* moduleName, bool replace = false);
 
-		std::string AddComponent(int entityID, const char* componentName);
-		std::queue<std::string> AddComponents(int entityID, std::list<std::string> componentNames);
+		void AddComponent(int entityID, const char* componentName);
+		void AddComponents(int entityID, std::list<std::string> componentNames);
 
 		bool RemoveComponent(int entityID, int componentID);
 

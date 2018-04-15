@@ -1,5 +1,4 @@
 ﻿using Event_ECS_WPF.Commands;
-using Event_ECS_WPF.Logger;
 using Event_ECS_WPF.SystemObjects;
 using EventECSWrapper;
 using System.Windows;
@@ -40,10 +39,7 @@ namespace Event_ECS_WPF.Controls
             string str = null;
             if (ECS.Instance?.UseWrapper(AddEntityFunc, out str) ?? false)
             {
-                string[] data = str.Split(',');
-                Entity en = new Entity(EntityComponentSystem);
-                en.Name = data[1];
-                LogManager.Instance.Add(str);
+                EntityComponentSystem.Deserialize();
             }
         }
     }

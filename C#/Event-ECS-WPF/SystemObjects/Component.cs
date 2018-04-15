@@ -16,12 +16,12 @@ namespace Event_ECS_WPF.SystemObjects
 
         private readonly string m_name;
 
-        public Component(Entity m_entity, string m_name)
+        public Component(Entity entity, string name)
         {
-            this.m_entity = m_entity ?? throw new ArgumentNullException(nameof(m_entity));
+            this.m_entity = entity ?? throw new ArgumentNullException(nameof(entity));
             this.m_entity.Components.Add(this);
 
-            this.m_name = m_name ?? throw new ArgumentNullException(nameof(m_name));
+            this.m_name = name ?? throw new ArgumentNullException(nameof(name));
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -33,7 +33,7 @@ namespace Event_ECS_WPF.SystemObjects
 
         public object this[string key]
         {
-            get => m_variables.SingleOrDefault(v => v.Name == key);
+            get => m_variables.SingleOrDefault(v => v.Name == key)?.Value;
             set
             {
                 var val = m_variables.SingleOrDefault(v => v.Name == key);
@@ -43,6 +43,8 @@ namespace Event_ECS_WPF.SystemObjects
                 }
             }
         }
+
+        public Entity Entity => m_entity;
 
         public event NotifyCollectionChangedEventHandler CollectionChanged
         {
@@ -123,39 +125,36 @@ namespace Event_ECS_WPF.SystemObjects
 
     public class ComponentVariable : NotifyPropertyChanged, IEquatable<ComponentVariable>
     {
-        private string m_name = string.Empty;
-
+        private readonly string m_name;
+        private readonly Type m_type;
         private object m_value;
 
-        public ComponentVariable() : this(Guid.NewGuid().ToString().Substring(0, 3), 0) { }
-
-        public ComponentVariable(string m_name, object m_value)
+        public ComponentVariable(string name, Type type, object value)
         {
-            if(string.IsNullOrWhiteSpace(m_name))
+            if(string.IsNullOrWhiteSpace(name))
             {
-                throw new ArgumentNullException(nameof(m_name));
+                throw new ArgumentNullException(nameof(name));
             }
 
-            this.m_name = m_name;
-            this.m_value = m_value;
+            this.m_name = name;
+            if(!value.GetType().IsAssignableFrom(type))
+            {
+                throw new Exception("Type must match type of value");
+            }
+            this.m_type = type;
+            this.m_value = value;
         }
 
-        public string Name
-        {
-            get => m_name;
-            set
-            {
-                m_name = value;
-                OnPropertyChanged("Name");
-            }
-        }
+        public string Name => m_name;
+
+        public Type Type => m_type;
 
         public object Value
         {
             get => m_value;
             set
             {
-                m_value = value;
+                this.m_value = value;
                 OnPropertyChanged("Value");
             }
         }
@@ -172,7 +171,7 @@ namespace Event_ECS_WPF.SystemObjects
 
         public bool Equals(ComponentVariable other)
         {
-            return Name.Equals(other.Name) && Value.Equals(other.Value);
+            return Name.Equals(other.Name) && Type.Equals(other.Type) && Value.Equals(other.Value);
         }
 
         public override bool Equals(object obj)

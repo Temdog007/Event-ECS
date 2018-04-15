@@ -1,10 +1,6 @@
 ﻿using Event_ECS_WPF.Commands;
-using Event_ECS_WPF.Extensions;
 using Event_ECS_WPF.Logger;
-using Event_ECS_WPF.Misc;
 using Event_ECS_WPF.Projects;
-using Event_ECS_WPF.Properties;
-using Event_ECS_WPF.SystemObjects;
 using System;
 using System.ComponentModel;
 using System.IO;
@@ -45,11 +41,9 @@ namespace Event_ECS_WPF
                 OnPropertyChanged("Arguments");
             }
         }
-        public bool HasProject => Project != null;
         public ActionCommand<object> ClearLogCommand => m_clearLogCommand ?? (m_clearLogCommand = new ActionCommand<object>(ClearLogs));
-
         public ActionCommand<Window> CloseCommand => m_closeCommand ?? (m_closeCommand = new ActionCommand<Window>(CloseWindow));
-
+        public bool HasProject => Project != null;
         public ActionCommand<ProjectType> NewProjectCommand => m_newProjectCommand ?? (m_newProjectCommand = new ActionCommand<ProjectType>(NewProject));
         public ActionCommand<Window> OpenProjectCommand => m_openProjectCommand ?? (m_openProjectCommand = new ActionCommand<Window>(OpenProject));
         public Project Project
@@ -67,7 +61,6 @@ namespace Event_ECS_WPF
         }
 
         public ActionCommand<Window> SaveProjectCommand => m_saveProjectCommand ?? (m_saveProjectCommand = new ActionCommand<Window>(SaveProject));
-
         public ActionCommand<Window> StartProjectCommand => m_startProjectCommand ?? (m_startProjectCommand = new ActionCommand<Window>(StartProject));
         public ActionCommand<Window> StopProjectCommand => m_stopProjectCommand ?? (m_stopProjectCommand = new ActionCommand<Window>(StopProject));
 
@@ -158,6 +151,7 @@ namespace Event_ECS_WPF
             try
             {
                 Project.Start();
+                System.Deserialize();
             }
             catch(Exception e)
             {

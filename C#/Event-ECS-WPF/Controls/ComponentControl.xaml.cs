@@ -1,6 +1,8 @@
 ﻿using Event_ECS_WPF.Commands;
-using Event_ECS_WPF.Properties;
+using Event_ECS_WPF.Logger;
 using Event_ECS_WPF.SystemObjects;
+using EventECSWrapper;
+using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -29,31 +31,23 @@ namespace Event_ECS_WPF.Controls
         public ICommand RemoveComponentCommand => m_removeComponentCommand ?? (m_removeComponentCommand = new ActionCommand<object>(RemoveComponent));
         private ICommand m_removeComponentCommand;
 
+        private bool RemoveComponentFunc(ECSWrapper ecs)
+        {
+            object id = Component["id"];
+            if (id != null)
+            {
+                return ecs.RemoveComponent(Component.Entity.ID, Convert.ToInt32(id));
+            }
+            return false;
+        }
+
         private void RemoveComponent(object param)
         {
-            Component.Dispose();
-        }
-
-        private void SetVisibility(ContentControl ctrl, Visibility visibility)
-        {
-            if (ctrl != null)
+            if(ECS.Instance != null && ECS.Instance.UseWrapper(RemoveComponentFunc, out bool result))
             {
-                UIElement element = ctrl.Content as UIElement;
-                if (element != null)
-                {
-                    element.Visibility = visibility;
-                }
+                LogManager.Instance.Add("Component removed: {0}", result);
+                Component.Entity.System.Deserialize();
             }
-        }
-
-        private void GroupBox_MouseEnter(object sender, MouseEventArgs e)
-        {
-            SetVisibility(sender as ContentControl, Visibility.Visible);
-        }
-
-        private void GroupBox_MouseLeave(object sender, MouseEventArgs e)
-        {
-            SetVisibility(sender as ContentControl, Settings.Default.OnlyShowComponentWhenMouse ? Visibility.Collapsed : Visibility.Visible);
         }
     }
 }

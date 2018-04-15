@@ -86,9 +86,12 @@ namespace Event_ECS_WPF.Projects
                     {
                         string component = Path.GetFileName(file);
                         string dest = Path.Combine(location, component);
-                        if (!File.Exists(dest))
+                        if (!File.Exists(dest) || File.GetCreationTime(dest) != (File.GetCreationTime(file)))
                         {
-                            File.Copy(file, dest);
+                            File.Copy(file, dest, true);
+                            var now = DateTime.Now;
+                            File.SetCreationTime(file, now);
+                            File.SetCreationTime(dest, now);
                             LogManager.Instance.Add(LogLevel.Medium, "Copied {0} to {1}", file, dest);
                         }
                         componentsToRegister.Add(Path.GetFileNameWithoutExtension(component));

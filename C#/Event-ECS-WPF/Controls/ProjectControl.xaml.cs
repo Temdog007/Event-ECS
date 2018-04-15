@@ -15,22 +15,53 @@ namespace Event_ECS_WPF.Controls
     /// </summary>
     public partial class ProjectControl : UserControl
     {
+        public static readonly DependencyProperty ProjectProperty =
+            DependencyProperty.Register("Project", typeof(Project), typeof(ProjectControl));
+
+        private ActionCommand<string> m_dispatchEventCommand;
+
+        private ActionCommand<string> m_getPathCommand;
+
+        private ActionCommand<object> m_serializeCommand;
+
         public ProjectControl()
         {
             InitializeComponent();
         }
+
+        public ICommand DispatchEventCommand => m_dispatchEventCommand ?? (m_dispatchEventCommand = new ActionCommand<string>(DispatchEvent));
+
+        public ICommand GetPathCommand => m_getPathCommand ?? (m_getPathCommand = new ActionCommand<string>(GetPath));
 
         public Project Project
         {
             get { return (Project)GetValue(ProjectProperty); }
             set { SetValue(ProjectProperty, value); }
         }
+        public ICommand SerializeCommand => m_serializeCommand ?? (m_serializeCommand = new ActionCommand<object>(Serialize));
 
-        public static readonly DependencyProperty ProjectProperty =
-            DependencyProperty.Register("Project", typeof(Project), typeof(ProjectControl));
+        private void DispatchEvent(string ev)
+        {
+            if (ECS.Instance != null && ECS.Instance.UseWrapper(ecs => ecs.DispatchEvent(ev), out int handles))
+            {
+                LogManager.Instance.Add(LogLevel.Medium, "Event '{0}' was handled '{1}' time(s)", ev, handles);
+            }
+        }
 
-        public ICommand GetPathCommand => m_getPathCommand ?? (m_getPathCommand = new ActionCommand<string>(GetPath));
-        private ActionCommand<string> m_getPathCommand;
+        private void eventText_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key != Key.Enter)
+            {
+                return;
+            }
+
+            TextBox box = sender as TextBox;
+            if (box != null)
+            {
+                DispatchEvent(box.Text);
+                e.Handled = true;
+            }
+        }
 
         private void GetPath(string propertyName)
         {
@@ -49,42 +80,12 @@ namespace Event_ECS_WPF.Controls
                 }
             }
         }
-
-        public ICommand DispatchEventCommand => m_dispatchEventCommand ?? (m_dispatchEventCommand = new ActionCommand<string>(DispatchEvent));
-        private ActionCommand<string> m_dispatchEventCommand;
-
-        private void DispatchEvent(string ev)
-        {
-            if (ECS.Instance != null && ECS.Instance.UseWrapper(ecs => ecs.DispatchEvent(ev), out int handles))
-            {
-                LogManager.Instance.Add(LogLevel.Medium, "Event '{0}' was handled '{1}' time(s)", ev, handles);
-            }
-        }
-
-        public ICommand SerializeCommand => m_serializeCommand ?? (m_serializeCommand = new ActionCommand<object>(Serialize));
-        private ActionCommand<object> m_serializeCommand;
-
         private void Serialize()
         {
             if (ECS.Instance != null && ECS.Instance.UseWrapper(ecs => ecs.Serialize(), out string data))
             {
-                
+                EntityComponentSystem.Instance.Deserialize(data.Split('\n'));
                 LogManager.Instance.Add(data, LogLevel.Low);
-            }
-        }
-
-        private void eventText_PreviewKeyDown(object sender, KeyEventArgs e)
-        {
-            if(e.Key != Key.Enter)
-            {
-                return;
-            }
-
-            TextBox box = sender as TextBox;
-            if (box != null)
-            {
-                DispatchEvent(box.Text);
-                e.Handled = true;
             }
         }
     }

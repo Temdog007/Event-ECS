@@ -77,13 +77,21 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Controls\ComponentVariableControl.xaml.cs">
+      <DependentUpon>ComponentVariableControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\LoveProjectMenuControl.xaml.cs">
       <DependentUpon>LoveProjectMenuControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Converters\LogLevelToColor.cs" />
     <Compile Include="Projects\UpdateType.cs" />
+    <Compile Include="TemplateSelectors\ComponentVariableTemplateSelector.cs" />
     <Compile Include="TemplateSelectors\ProjectMenuDataTemplateSelctor.cs" />
     <Page Include="Controls\ComponentControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\ComponentVariableControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -91,10 +91,11 @@ local Entity = ClassFactory(function(entity, system)
   local function removeComponentFunction(index, component)
     entity.system:dispatchEvent("eventRemovingComponent", {component = component, entity = entity})
     components[index] = nil
+
     for eventName,eventTables in pairs(eventTablesTable) do
       for k, eventTable in pairs(eventTables) do
         if eventTable.component == component then
-          eventTable[k] = nil
+          eventTables[k] = nil
         end
       end
     end
@@ -105,9 +106,9 @@ local Entity = ClassFactory(function(entity, system)
     if type(component) == "number" then
       component = self:findComponent(component)
     end
-    component = component:getBase()
+    local base = component:getBase()
     for k,v in pairs(components) do
-      if v == component then
+      if v == base then
         removeComponentFunction(k, component)
         return true
       end
@@ -130,10 +131,13 @@ local Entity = ClassFactory(function(entity, system)
     return count
   end
 
-  function entity:findComponent(matchFunction)
-    if type(matchFunction) == "number" then
-      local id = matchFunction
-      matchFunction = function(en) return en:getID() == id end
+  function entity:findComponent(pArg)
+
+    local matchFunction
+    if type(pArg) == "number" then
+      matchFunction = function(en) return en:getID() == pArg end
+    else
+      matchFunction = pArg
     end
 
     for _, component in pairs(components) do
@@ -185,16 +189,16 @@ local Entity = ClassFactory(function(entity, system)
       local str = string.gsub(k, "event", "")
       table.insert(tab, str)
     end
-    return table.concat(tab, ",")
+    return table.concat(tab, "|")
   end
 
   function entity:serialize()
     local events = self:getEventList()
     local tab = {}
     if string.len(events) > 0 then
-      table.insert(tab, string.format("%d,%s,%s", self:getID(), self:getName(), self:getEventList()))
+      table.insert(tab, string.format("%d|%s|%s", self:getID(), self:getName(), self:getEventList()))
     else
-      table.insert(tab, string.format("%d,%s", self:getID(), self:getName()))
+      table.insert(tab, string.format("%d|%s", self:getID(), self:getName()))
     end
 
     for k,v in pairs(components) do

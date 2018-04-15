@@ -1,10 +1,21 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 namespace Event_ECS_WPF.Misc
 {
     public class ObservableSet<T> : ObservableCollection<T>
     {
+        public ObservableSet() : base()
+        {
+
+        }
+
+        public ObservableSet(IEnumerable<T> collection) : base(collection)
+        {
+
+        }
+
         protected override void InsertItem(int index, T item)
         {
             if (Contains(item))

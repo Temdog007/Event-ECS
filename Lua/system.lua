@@ -96,11 +96,13 @@ return ClassFactory(function(system)
     return count
   end
 
-  function system:findEntity(findFunc)
+  function system:findEntity(pArg)
 
-    if type(findFunc) == "number" then
-      local id = findFunc
-      findFunc = function(en) return en:getID() == id end
+    local findFunc
+    if type(pArg) == "number" then
+      findFunc = function(en) return en:getID() == pArg end
+    else
+      findFunc = pArg
     end
 
     for _, en in pairs(entities) do
@@ -161,11 +163,11 @@ return ClassFactory(function(system)
     for k in pairs(registeredComponents) do
       table.insert(comps, k)
     end
-    return table.concat(comps, ",")
+    return table.concat(comps, "|")
   end
 
   function system:serialize()
-    local tab = { self:getName()..","..self:getComponentList()}
+    local tab = { self:getName().."|"..self:getComponentList()}
     for _, en in pairs(entities) do
       table.insert(tab, en:serialize())
     end

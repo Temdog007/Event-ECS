@@ -278,14 +278,14 @@ return function(identity)
 
     func = earlyinit
 
-    self:dispatchEvent("start")
+    loveSystem:dispatchEvent("start")
     while func do
       local _, retval = xpcall(func, deferErrhand)
       if retval then return retval end
       coroutine.yield()
     end
-    self:dispatchEvent("stop")
-    
+    loveSystem:dispatchEvent("stop")
+
     return 1
   end
 
@@ -296,8 +296,9 @@ return function(identity)
       return false
     end
 
-  	local rval = coroutine.resume(co)
+  	local rval, result = coroutine.resume(co)
     if not rval then
+      print(result)
       co = nil
     end
 

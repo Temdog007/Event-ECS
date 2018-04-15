@@ -16,9 +16,9 @@ namespace Event_ECS_WPF.SystemObjects
 
         private string m_name = "Entity";
 
-        public Entity(EntityComponentSystem m_system)
+        public Entity(EntityComponentSystem system)
         {
-            this.m_system = m_system ?? throw new ArgumentNullException(nameof(m_system));
+            this.m_system = system ?? throw new ArgumentNullException(nameof(system));
             this.m_system.Entities.Add(this);
 
             this.m_system.SetUniqueID(this);
@@ -52,6 +52,8 @@ namespace Event_ECS_WPF.SystemObjects
                 OnPropertyChanged("Events");
             }
         }
+
+        internal EntityComponentSystem System => m_system;
 
         public int ID
         {

@@ -1,5 +1,7 @@
 ﻿using Event_ECS_WPF.Commands;
+using Event_ECS_WPF.Logger;
 using Event_ECS_WPF.SystemObjects;
+using EventECSWrapper;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -28,17 +30,35 @@ namespace Event_ECS_WPF.Controls
         public ICommand RemoveEntityCommand => m_removeEntityCommand ?? (m_removeEntityCommand = new ActionCommand<object>(RemoveEntity));
         private ICommand m_removeEntityCommand;
 
+        private int RemoveEntityFunc(ECSWrapper ecs)
+        {
+            return ecs.RemoveEntity(Entity.ID);
+        }
+
         private void RemoveEntity(object param)
         {
-            Entity.Dispose();
+            if(ECS.Instance != null)
+            {
+                ECS.Instance.UseWrapper(RemoveEntityFunc, out int removed);
+                LogManager.Instance.Add("{0} entities removed", removed);
+            }
         }
 
         public ICommand AddComponentCommand => m_addComponentCommand ?? (m_addComponentCommand = new ActionCommand<object>(AddComponent));
         private ICommand m_addComponentCommand;
 
+        private void AddComponentFunc(ECSWrapper ecs)
+        {
+            ecs.AddComponent(Entity.ID, Entity.System.SelectedComponent);
+        }
+
         private void AddComponent(object param)
         {
-            Entity.AddComponent();
+            if (!string.IsNullOrWhiteSpace(Entity.System.SelectedComponent) && ECS.Instance != null)
+            {
+                ECS.Instance.UseWrapper(AddComponentFunc);
+                Entity.System.Deserialize();
+            }
         }
     }
 }

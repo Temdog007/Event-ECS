@@ -10,19 +10,19 @@ namespace EventECS
 
 	int luaopen_logFunction(lua_State* L)
 	{
-		int index = -1;
-		while (lua_gettop(L))
+		for (int i = 1; i <= lua_gettop(L); ++i)
 		{
-			const char* log = luaL_checkstring(L, index--);
+			const char* log = luaL_checkstring(L, i);
 			if (log == nullptr)
 			{
-				break;
+				continue;
 			}
-			else 
+			else
 			{
 				ECS::logs.emplace(log);
 			}
 		}
+
 		return 0;
 	}
 
@@ -152,6 +152,8 @@ namespace EventECS
 	void ECS::FindComponent(int entityID, int componentID)
 	{
 		FindEntity(entityID);
+		lua_getfield(L, -1, "findComponent");
+		lua_pushvalue(L, -2);
 		lua_pushnumber(L, componentID);
 		if (lua_pcall(L, 2, 1, 0) != 0)
 		{
@@ -234,34 +236,28 @@ namespace EventECS
 		throw std::exception(lua_tostring(L, -1));
 	}
 
-	std::string ECS::AddComponent(int entityID, const char* componentName)
+	void ECS::AddComponent(int entityID, const char* componentName)
 	{
 		CheckInitialized();
 
 		FindEntity(entityID);
 		lua_getfield(L, -1, "addComponent");
+		lua_pushvalue(L, -2);
 		lua_pushstring(L, componentName);
-		if (lua_pcall(L, 2, 1, 0) == 0)
+		if (lua_pcall(L, 2, 1, 0) != 0)
 		{
-			lua_getfield(L, -1, "serialize");
-			lua_pushvalue(L, -2);
-			if (lua_pcall(L, 2, 1, 0) == 0)
-			{
-				std::string rval(lua_tostring(L, -1));
-				lua_pop(L, 1);
-				return rval;
-			}
+			throw std::exception(lua_tostring(L, -1));
 		}
-
-		throw std::exception(lua_tostring(L, -1));
+		lua_pop(L, 1);
 	}
 
-	std::queue<std::string> ECS::AddComponents(int entityID, std::list<std::string> componentNames)
+	void ECS::AddComponents(int entityID, std::list<std::string> componentNames)
 	{
 		CheckInitialized();
 
 		FindEntity(entityID);
-		lua_getfield(L, -1, "addComponent");
+		lua_getfield(L, -1, "addComponents");
+		lua_pushvalue(L, -2);
 		for (auto componentName : componentNames)
 		{
 			lua_pushstring(L, componentName.c_str());
@@ -270,13 +266,11 @@ namespace EventECS
 		const int size = componentNames.size();
 		if (lua_pcall(L, size + 1, size, 0) == 0)
 		{
-			std::queue<std::string> rval;
 			while(lua_gettop(L))
 			{
-				rval.emplace(lua_tostring(L, -1));
 				lua_pop(L, 1);
 			}
-			return rval;
+			return;
 		}
 
 		throw std::exception(lua_tostring(L, -1));
@@ -334,6 +328,8 @@ namespace EventECS
 		CheckInitialized();
 
 		FindComponent(entityID, componentID);
+		lua_getfield(L, -1, "serilize");
+		lua_pushvalue(L, -2);
 		if (lua_pcall(L, 2, 1, 0) == 0)
 		{
 			std::string rval(lua_tostring(L, -1));
@@ -375,7 +371,7 @@ namespace EventECS
 	{
 		if (!logs.empty())
 		{
-			log.assign(logs.front());
+			log = logs.front();
 			logs.pop();
 			return true;
 		}
