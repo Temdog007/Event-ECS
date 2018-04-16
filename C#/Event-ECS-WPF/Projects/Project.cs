@@ -74,6 +74,8 @@ namespace Event_ECS_WPF.Projects
             get => ProjectType.NORMAL;
         }
 
+        public bool IsStarted => ECS.Instance != null;
+
         public virtual bool Start()
         {
             try
@@ -128,12 +130,17 @@ namespace Event_ECS_WPF.Projects
                 LogManager.Instance.Add(LogLevel.High, e.Message);
                 return false;
             }
+            finally
+            {
+                OnPropertyChanged("IsStarted");
+            }
         }
 
         public virtual void Stop()
         {
             ECS.Instance?.Dispose();
             ProjectStateChange?.Invoke(this, ProjectStateChangeArgs.Stopped);
+            OnPropertyChanged("IsStarted");
         }
 
         private static bool isHidden(string path)

@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:controls="clr-namespace:Event_ECS_WPF.Controls"
              xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
+             xmlns:ex="clr-namespace:Event_ECS_WPF.Extensions"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
              x:Name="m_system">
@@ -15,6 +16,7 @@
                 <scm:SortDescription PropertyName="ID"/>
             </CollectionViewSource.SortDescriptions>
         </CollectionViewSource>
+        <ex:BindingProxy x:Key="SystemControl" Data="{Binding ElementName=m_system}"/>
     </UserControl.Resources>
     
     <GroupBox>
@@ -30,28 +32,35 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <GroupBox Header="Frame Rate">
-                <TextBox Text="{Binding ElementName=m_system, Path=EntityComponentSystem.FrameRate, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, Delay=2000}"/>
+            <GroupBox Header="Frame Rate" Grid.Row="0">
+                <TextBox Text="{Binding ElementName=m_system, Path=EntityComponentSystem.FrameRate, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, Delay=500}"/>
             </GroupBox>
             
-            <Expander Header="Registered Components" Grid.Row="1" Background="LightBlue">
+            <Expander Header="Registered Components" Grid.Row="1" Background="Snow">
                 <ListBox ItemsSource="{Binding ElementName=m_system, Path=EntityComponentSystem.RegisteredComponents, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                          SelectedItem="{Binding ElementName=m_system, Path=EntityComponentSystem.SelectedComponent, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
             </Expander>
 
-            <Expander Header="Entities" Grid.Row="2">
-                <TreeView ItemsSource="{Binding Source={StaticResource entitiesSrc}}" Tag="{Binding ElementName=m_system}">
-                    <TreeView.ContextMenu>
-                        <ContextMenu DataContext="{Binding Path=PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
-                            <MenuItem Header="Add Entity" Command="{Binding Path=AddEntityCommand}"/>
+            <Expander Header="Entities" Grid.Row="2" IsExpanded="True">
+                
+                <ListBox ItemsSource="{Binding Source={StaticResource entitiesSrc}}">
+
+                    <ListBox.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="Add Entity" Command="{Binding Source={StaticResource SystemControl}, Path=Data.AddEntityCommand}"/>
                         </ContextMenu>
-                    </TreeView.ContextMenu>
-                    <TreeView.ItemTemplate>
+                    </ListBox.ContextMenu>
+
+                    <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <controls:EntityControl Entity="{Binding}"/>
+                            <Expander Header="{Binding Name}">
+                                <controls:EntityControl Entity="{Binding}"/>
+                            </Expander>
                         </DataTemplate>
-                    </TreeView.ItemTemplate>
-                </TreeView>
+                    </ListBox.ItemTemplate>
+                    
+                </ListBox>
+                
             </Expander>
         </Grid>
     </GroupBox>

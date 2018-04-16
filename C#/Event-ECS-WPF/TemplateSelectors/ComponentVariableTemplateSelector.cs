@@ -17,6 +17,10 @@ namespace Event_ECS_WPF.TemplateSelectors
                 {
                     return window.FindResource("boolTemp") as DataTemplate;
                 }
+                else if(variable.Name == "id")
+                {
+                    return window.FindResource("readOnlyTemp") as DataTemplate;
+                }
                 return window.FindResource("valueTemp") as DataTemplate;
             }
             return null;

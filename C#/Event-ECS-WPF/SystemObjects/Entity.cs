@@ -4,7 +4,7 @@ using Event_ECS_WPF.Misc;
 
 namespace Event_ECS_WPF.SystemObjects
 {
-    public class Entity : NotifyPropertyChanged, IDisposable, IComparable<Entity>
+    public class Entity : NotifyPropertyChanged, IComparable<Entity>
     {
         private readonly EntityComponentSystem m_system;
 
@@ -24,14 +24,7 @@ namespace Event_ECS_WPF.SystemObjects
             this.m_system.SetUniqueID(this);
         }
 
-        public void AddComponent()
-        {
-            var comp = m_system.SelectedComponent;
-            if(!string.IsNullOrEmpty(comp))
-            {
-                new Component(this, comp);
-            }
-        }
+        public ObservableCollection<string> AvailableComponents => System.RegisteredComponents;
 
         public ObservableCollection<Component> Components
         {
@@ -72,11 +65,6 @@ namespace Event_ECS_WPF.SystemObjects
                 m_name = value;
                 OnPropertyChanged("Name");
             }
-        }
-
-        public void Dispose()
-        {
-            m_system.Entities.Remove(this);
         }
 
         public int CompareTo(Entity other)

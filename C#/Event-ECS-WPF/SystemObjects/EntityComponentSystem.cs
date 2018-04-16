@@ -82,16 +82,6 @@ namespace Event_ECS_WPF.SystemObjects
             }
         }
 
-        public string SelectedComponent
-        {
-            get => m_selectedComponent;
-            set
-            {
-                m_selectedComponent = value;
-                OnPropertyChanged("SelectedComponent");
-            }
-        }
-
         private string[] DeserializeFunc(ECSWrapper ecs)
         {
             return ecs.Serialize().Split('\n');
@@ -129,12 +119,27 @@ namespace Event_ECS_WPF.SystemObjects
 
             List<string> enList = new List<string>(list.SubArray(1));
             List<int> handledIDs = new List<int>();
+            List<int> handledComps = new List<int>();
             Entity entity = null;
             foreach (string en in enList.AsReadOnly())
             {
                 string[] enData = en.Split(Delim);
                 if (int.TryParse(enData[0], out int entityID))
                 {
+                    if (entity != null)
+                    {
+                        Component[] compTemp = new Component[entity.Components.Count];
+                        entity.Components.CopyTo(compTemp, 0);
+                        foreach (var c in compTemp)
+                        {
+                            if (!handledComps.Contains((int)c["id"]))
+                            {
+                                entity.Components.Remove(c);
+                            }
+                        }
+                        handledComps.Clear();
+                    }
+
                     handledIDs.Add(entityID);
 
                     entity = Entities.FirstOrDefault(e => e.ID == entityID);
@@ -155,14 +160,14 @@ namespace Event_ECS_WPF.SystemObjects
                         events.Add(enData[i]);
                     }
                     entity.Events = new ObservableSet<string>(events);
-                    entity.Components.Clear();
                 }
                 else
                 {
-                    Component comp = new Component(entity, enData[0]);
+                    string compName = enData[0];
                     LinkedList<string> data = new LinkedList<string>(enData);
                     data.RemoveFirst(); // Remove component name
 
+                    List<ComponentVariable> tempVars = new List<ComponentVariable>();
                     while (data.Count > 0)
                     {
                         string name = data.First.Value;
@@ -185,12 +190,44 @@ namespace Event_ECS_WPF.SystemObjects
                         }
                         data.RemoveFirst();
 
-                        comp.Variables.Add(new ComponentVariable(name, type, Convert.ChangeType(data.First.Value, type)));
+                        tempVars.Add(new ComponentVariable(name, type, Convert.ChangeType(data.First.Value, type)));
                         data.RemoveFirst();
                     }
+
+                    Component comp = entity.Components.FirstOrDefault(c => c.Name == compName && tempVars.Single(v => v.Name == "id").Value.Equals(c["id"]));
+                    if(comp == null)
+                    {
+                        comp = new Component(entity, compName);
+                    }
+                    comp.Variables = new ObservableSet<ComponentVariable>(tempVars);
+                    
+                    handledComps.Add((int)Convert.ChangeType(comp["id"], typeof(int)));
                 }
             }
-            Entities = new ObservableCollection<Entity>(Entities.Where(en => handledIDs.Contains(en.ID)));
+
+            if (entity != null)
+            {
+                Component[] compTemp = new Component[entity.Components.Count];
+                entity.Components.CopyTo(compTemp, 0);
+                foreach (var c in compTemp)
+                {
+                    if (!handledComps.Contains((int)Convert.ChangeType(c["id"], typeof(int))))
+                    {
+                        entity.Components.Remove(c);
+                    }
+                }
+                handledComps.Clear();
+            }
+
+            Entity[] temp = new Entity[Entities.Count];
+            Entities.CopyTo(temp, 0);
+            foreach(var en in temp)
+            {
+                if(!handledIDs.Contains(en.ID))
+                {
+                    Entities.Remove(en);
+                }
+            }
         }
 
         internal void SetUniqueID(Entity entity)

@@ -51,7 +51,7 @@ namespace EventECS
 		bool Initialize(const char* executablePath, const char* identity);
 
 		std::string AddEntity();
-		int RemoveEntity(int entityID);
+		bool RemoveEntity(int entityID);
 
 		int DispatchEvent(const char* eventName);
 		void RegisterComponent(const char* moduleName, bool replace = false);

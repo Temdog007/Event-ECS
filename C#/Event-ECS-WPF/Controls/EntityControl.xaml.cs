@@ -30,7 +30,7 @@ namespace Event_ECS_WPF.Controls
         public ICommand RemoveEntityCommand => m_removeEntityCommand ?? (m_removeEntityCommand = new ActionCommand<object>(RemoveEntity));
         private ICommand m_removeEntityCommand;
 
-        private int RemoveEntityFunc(ECSWrapper ecs)
+        private bool RemoveEntityFunc(ECSWrapper ecs)
         {
             return ecs.RemoveEntity(Entity.ID);
         }
@@ -39,24 +39,20 @@ namespace Event_ECS_WPF.Controls
         {
             if(ECS.Instance != null)
             {
-                ECS.Instance.UseWrapper(RemoveEntityFunc, out int removed);
-                LogManager.Instance.Add("{0} entities removed", removed);
+                ECS.Instance.UseWrapper(RemoveEntityFunc, out bool removed);
+                Entity.System.Deserialize();
+                LogManager.Instance.Add("Entities removed: {0}", removed);
             }
         }
 
-        public ICommand AddComponentCommand => m_addComponentCommand ?? (m_addComponentCommand = new ActionCommand<object>(AddComponent));
+        public ICommand AddComponentCommand => m_addComponentCommand ?? (m_addComponentCommand = new ActionCommand<string>(AddComponent));
         private ICommand m_addComponentCommand;
 
-        private void AddComponentFunc(ECSWrapper ecs)
+        private void AddComponent(string param)
         {
-            ecs.AddComponent(Entity.ID, Entity.System.SelectedComponent);
-        }
-
-        private void AddComponent(object param)
-        {
-            if (!string.IsNullOrWhiteSpace(Entity.System.SelectedComponent) && ECS.Instance != null)
+            if (ECS.Instance != null)
             {
-                ECS.Instance.UseWrapper(AddComponentFunc);
+                ECS.Instance.UseWrapper(ecs => ecs.AddComponent(Entity.ID, param));
                 Entity.System.Deserialize();
             }
         }

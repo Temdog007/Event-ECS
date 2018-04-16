@@ -206,7 +206,7 @@ namespace EventECS
 		throw std::exception(lua_tostring(L, -1));
 	}
 
-	int ECS::RemoveEntity(int entityID)
+	bool ECS::RemoveEntity(int entityID)
 	{
 		CheckInitialized();
 
@@ -214,7 +214,7 @@ namespace EventECS
 		lua_pushnumber(L, entityID);
 		if (lua_pcall(L, 2, 1, 0) == 0)
 		{
-			int entitesRemoved = static_cast<int>(lua_tonumber(L, -1));
+			int entitesRemoved = static_cast<bool>(lua_toboolean(L, -1));
 			lua_pop(L, 1);
 			return entitesRemoved;
 		}

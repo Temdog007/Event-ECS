@@ -30,7 +30,8 @@
         <converter:EnumToBoolConverter x:Key="enumConv"/>
         <converter:NullCheckVisibilityConverter x:Key="nullCheck"/>
         <converter:LogLevelToColor x:Key="logToColor"/>
-        
+        <converter:BoolToColor x:Key="boolColor"/>
+
         <DataTemplate x:Key="projectTemplate">
             <controls:ProjectControl Project="{Binding}"/>
         </DataTemplate>
@@ -53,13 +54,17 @@
 
         <DataTemplate x:Key="boolTemp">
             <StackPanel>
-                <RadioButton Content="True" GroupName="TempGroup" IsChecked="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                <RadioButton Content="False" GroupName="TempGroup" IsChecked="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource notConv}}"/>
+                <RadioButton Content="True" GroupName="TempGroup" IsChecked="{Binding Value}"/>
+                <RadioButton Content="False" GroupName="TempGroup" IsChecked="{Binding Value, Converter={StaticResource notConv}}"/>
             </StackPanel>
         </DataTemplate>
 
+        <DataTemplate x:Key="readOnlyTemp">
+            <TextBlock Text="{Binding Value}"/>
+        </DataTemplate>
+
         <DataTemplate x:Key="valueTemp">
-            <TextBox Text="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+            <TextBox Text="{Binding Value}"/>
         </DataTemplate>
 
         <selector:ProjectDataTemplateSelector x:Key="projectSelector"/>
@@ -68,6 +73,7 @@
 
     <DockPanel>
         <Menu DockPanel.Dock="Top">
+            
             <MenuItem Header="File">
                 <MenuItem Header="New Project">
                     <MenuItem Header="Normal" Command="{Binding NewProjectCommand}" CommandParameter="{x:Static proj:ProjectType.NORMAL}"/>
@@ -78,6 +84,7 @@
                 <Separator/>
                 <MenuItem Header="Exit" Command="{Binding CloseCommand}" CommandParameter="{Binding ElementName=m_window}"/>
             </MenuItem>
+            
             <MenuItem Header="View">
                 <MenuItem Header="Multi-Line Log" IsCheckable="True" IsChecked="{Binding Source={x:Static properties:Settings.Default}, Mode=TwoWay, Path=MultilineLog}"/>
                 <MenuItem Visibility="{Binding Source={x:Static properties:Settings.Default}, Converter={StaticResource boolConv}, Path=MultilineLog}">
@@ -92,7 +99,9 @@
                 <MenuItem Header="Clear Logs" Command="{Binding ClearLogCommand}"/>
             </MenuItem>
 
-            <MenuItem Header="Project" Visibility="{Binding HasProject, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource boolConv}}">
+            <MenuItem Header="Project" Visibility="{Binding HasProject, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource boolConv}}" 
+                      Background="{Binding Project.IsStarted, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource boolColor}}">
+
                 <ContentPresenter Content="{Binding Project, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                             ContentTemplateSelector="{StaticResource projectMenuSelector}"/>
             </MenuItem>

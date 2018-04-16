@@ -4,6 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:controls="clr-namespace:Event_ECS_WPF.Controls"
+             xmlns:converter="clr-namespace:Event_ECS_WPF.Converters"
+             xmlns:ex="clr-namespace:Event_ECS_WPF.Extensions"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
              x:Name="m_entityControl">
@@ -13,13 +15,29 @@
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="HorizontalAlignment" Value="Center"/>
         </Style>
+        <ex:BindingProxy x:Key="EntityControl" Data="{Binding ElementName=m_entityControl}"/>
     </UserControl.Resources>
 
-    <Expander Tag="{Binding ElementName=m_entityControl}" ExpandDirection="Right">
+    <Expander ExpandDirection="Right">
 
         <Expander.ContextMenu>
-            <ContextMenu DataContext="{Binding Path=PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
-                <MenuItem Header="Remove Entity" Command="{Binding Path=RemoveEntityCommand}"/>
+            <ContextMenu>
+
+                <ContextMenu.ItemsSource>
+                    <CompositeCollection>
+                        <MenuItem Header="Add Component" ItemsSource="{Binding Source={StaticResource EntityControl}, Path=Data.Entity.AvailableComponents}">
+                            <MenuItem.ItemTemplate>
+                                <DataTemplate>
+                                    <MenuItem Header="{Binding}" CommandParameter="{Binding}" Command="{Binding Source={StaticResource EntityControl}, Path=Data.AddComponentCommand}">
+                                    </MenuItem>
+                                </DataTemplate>
+                            </MenuItem.ItemTemplate>
+                        </MenuItem>
+                        <Separator/>
+                        <MenuItem Header="Remove Entity" Command="{Binding Source={StaticResource EntityControl}, Path=Data.RemoveEntityCommand}"/>
+                    </CompositeCollection>
+                </ContextMenu.ItemsSource>
+
             </ContextMenu>
         </Expander.ContextMenu>
 
@@ -36,27 +54,21 @@
             </StackPanel>
         </Expander.Header>
 
-        <TreeView Tag="{Binding ElementName=m_entityControl}">
+        <ListBox>
 
-            <TreeView.ContextMenu>
-                <ContextMenu DataContext="{Binding Path=PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
-                    <MenuItem Header="Add Component" Command="{Binding Path=AddComponentCommand}"/>
-                </ContextMenu>
-            </TreeView.ContextMenu>
-            
-            <Expander Grid.Row="0" Header="Events" Background="LightYellow">
+            <Expander Header="Events" Background="LightYellow">
                 <ListBox ItemsSource="{Binding ElementName=m_entityControl, Path=Entity.Events, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
             </Expander>
 
-            <Expander Grid.Row="1" Header="Components" Background="Snow">
-                <TreeView ItemsSource="{Binding ElementName=m_entityControl, Path=Entity.Components, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
-                    <TreeView.ItemTemplate>
+            <GroupBox Header="Components">
+                <ListBox ItemsSource="{Binding ElementName=m_entityControl, Path=Entity.Components, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                    <ListBox.ItemTemplate>
                         <DataTemplate>
                             <controls:ComponentControl Component="{Binding}" Background="AliceBlue"/>
                         </DataTemplate>
-                    </TreeView.ItemTemplate>
-                </TreeView>
-            </Expander>
-        </TreeView>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </GroupBox>
+        </ListBox>
     </Expander>
 </UserControl>
