@@ -16,8 +16,6 @@ namespace Event_ECS_WPF.Controls
         public static readonly DependencyProperty LoveProjectProperty =
             DependencyProperty.Register("LoveProject", typeof(LoveProject), typeof(LoveProjectMenuControl));
 
-        private UpdateType m_type = UpdateType.Manual;
-
         private ICommand m_updateCommand;
 
         public LoveProjectMenuControl()
@@ -25,6 +23,7 @@ namespace Event_ECS_WPF.Controls
             InitializeComponent();
 
             LoveProject.ProjectStateChange += Value_ProjectStateChange;
+            ECS.OnAutoUpdateChanged += OnAutoUpdateChanged;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -45,31 +44,39 @@ namespace Event_ECS_WPF.Controls
             }
         }
 
-        public ICommand UpdateCommand => m_updateCommand ?? (m_updateCommand = new ActionCommand<object>(Update));
+        private void OnAutoUpdateChanged(AutoUpdateChangedArgs e)
+        {
+            OnPropertyChanged("UpdateType");
+            OnPropertyChanged("CanUpdate");
+        }
+
+        public ICommand UpdateCommand => m_updateCommand ?? (m_updateCommand = new ActionCommand(Update));
 
         public UpdateType UpdateType
         {
-            get => m_type;
+            get => (ECS.Instance?.GetAutoUpdate() ?? false) ? UpdateType.Automatic : UpdateType.Manual;
             set
             {
-                if(m_type == value)
+                if (ECS.Instance == null)
                 {
                     return;
                 }
 
-                m_type = value;
-                if (ECS.Instance != null)
+                if ((value == UpdateType.Automatic && ECS.Instance.GetAutoUpdate()) || (value == UpdateType.Manual && !ECS.Instance.GetAutoUpdate()))
                 {
-                    switch (value)
-                    {
-                        case UpdateType.Manual:
-                            ECS.Instance.SetAutoUpdate(false);
-                            break;
-                        case UpdateType.Automatic:
-                            ECS.Instance.SetAutoUpdate(true);
-                            break;
-                    }
+                    return;
                 }
+                
+                switch (value)
+                {
+                    case UpdateType.Manual:
+                        ECS.Instance.SetAutoUpdate(false);
+                        break;
+                    case UpdateType.Automatic:
+                        ECS.Instance.SetAutoUpdate(true);
+                        break;
+                }
+
                 OnPropertyChanged("UpdateType");
                 OnPropertyChanged("CanUpdate");
             }
@@ -90,5 +97,7 @@ namespace Event_ECS_WPF.Controls
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
+
+        
     }
 }

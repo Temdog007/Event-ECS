@@ -3,16 +3,37 @@ using System.Windows.Input;
 
 namespace Event_ECS_WPF.Commands
 {
-    public class ActionCommand<T> : ICommand
+    public class ActionCommand : ICommand
     {
-        private Action<T> m_action;
-        private Func<T, bool> m_canExecute;
+        private Action m_action;
 
         public ActionCommand(Action action)
         {
-            m_action = obj => action();
-            m_canExecute = obj => true;
+            m_action = action;
         }
+
+        public event EventHandler CanExecuteChanged;
+
+        public void UpdateCanExecute(object sender, EventArgs e)
+        {
+            CanExecuteChanged?.Invoke(sender, e);
+        }
+        
+        public bool CanExecute(object parameter)
+        {
+            return true;
+        }
+
+        public virtual void Execute(object parameter)
+        {
+            m_action?.Invoke();
+        }
+    }
+
+    public class ActionCommand<T> : ICommand
+    {
+        private readonly Action<T> m_action;
+        private readonly Func<T, bool> m_canExecute;
 
         public ActionCommand(Action<T> action)
         {

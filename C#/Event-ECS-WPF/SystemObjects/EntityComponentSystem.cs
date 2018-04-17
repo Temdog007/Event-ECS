@@ -19,8 +19,6 @@ namespace Event_ECS_WPF.SystemObjects
 
         private ObservableCollection<string> m_registeredComponents = new ObservableCollection<string>();
 
-        private string m_selectedComponent = string.Empty;
-
         public EntityComponentSystem()
         {
             Instance = this;

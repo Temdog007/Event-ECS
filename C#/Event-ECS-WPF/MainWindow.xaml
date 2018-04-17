@@ -1,29 +1,38 @@
 ﻿<Window x:Class="Event_ECS_WPF.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:proj="clr-namespace:Event_ECS_WPF.Projects"
-        xmlns:misc="clr-namespace:Event_ECS_WPF.Misc"
         xmlns:local="clr-namespace:Event_ECS_WPF"
-        xmlns:converter="clr-namespace:Event_ECS_WPF.Converters"
-        xmlns:logger="clr-namespace:Event_ECS_WPF.Logger"
-        xmlns:obj="clr-namespace:Event_ECS_WPF.SystemObjects"
-        xmlns:forms="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
-        xmlns:ex="clr-namespace:Event_ECS_WPF.Extensions"
-        xmlns:selector="clr-namespace:Event_ECS_WPF.TemplateSelectors"
-        mc:Ignorable="d"
         xmlns:controls="clr-namespace:Event_ECS_WPF.Controls"
+        xmlns:converter="clr-namespace:Event_ECS_WPF.Converters"
+        xmlns:ex="clr-namespace:Event_ECS_WPF.Extensions"
+        xmlns:logger="clr-namespace:Event_ECS_WPF.Logger"
+        xmlns:misc="clr-namespace:Event_ECS_WPF.Misc"
+        xmlns:proj="clr-namespace:Event_ECS_WPF.Projects"
         xmlns:properties="clr-namespace:Event_ECS_WPF.Properties"
+        xmlns:selector="clr-namespace:Event_ECS_WPF.TemplateSelectors"
+        xmlns:forms="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
+        mc:Ignorable="d"
         Title="Entity Component System Viewer" 
         Height="768" Width="1366"
         x:Name="m_window"
-        Closing="m_window_Closing"
-        PreviewKeyDown="Window_PreviewKeyDown">
+        Closing="Window_Closing">
     
     <Window.DataContext>
         <local:MainWindowViewModel/>
     </Window.DataContext>
+
+    <Window.InputBindings>
+        <KeyBinding Key="N" Modifiers="Ctrl" Command="{Binding NewProjectCommand}" CommandParameter="{x:Static proj:ProjectType.NORMAL}"/>
+        <KeyBinding Key="L" Modifiers="Ctrl" Command="{Binding NewProjectCommand}" CommandParameter="{x:Static proj:ProjectType.LOVE}"/>
+        <KeyBinding Key="O" Modifiers="Ctrl" Command="{Binding OpenProjectCommand}"/>
+        <KeyBinding Key="S" Modifiers="Ctrl" Command="{Binding SaveProjectCommand}"/>
+        <KeyBinding Key="C" Modifiers="Ctrl" Command="{Binding ClearLogCommand}"/>
+        <KeyBinding Key="F1" Command="{Binding ManualUpdateCommand}"/>
+        <KeyBinding Key="F2" Command="{Binding ToggleProjectModeCommand}"/>
+        <KeyBinding Key="F5" Command="{Binding ToggleProjectCommand}"/>
+    </Window.InputBindings>
 
     <Window.Resources>
         
@@ -78,13 +87,13 @@
             
             <MenuItem Header="File">
                 <MenuItem Header="New Project">
-                    <MenuItem Header="Normal" Command="{Binding NewProjectCommand}" CommandParameter="{x:Static proj:ProjectType.NORMAL}"/>
-                    <MenuItem Header="Love2D" Command="{Binding NewProjectCommand}" CommandParameter="{x:Static proj:ProjectType.LOVE}"/>
+                    <MenuItem Header="Normal" InputGestureText="Ctrl+N" Command="{Binding NewProjectCommand}" CommandParameter="{x:Static proj:ProjectType.NORMAL}"/>
+                    <MenuItem Header="Love2D" InputGestureText="Ctrl+L" Command="{Binding NewProjectCommand}" CommandParameter="{x:Static proj:ProjectType.LOVE}"/>
                 </MenuItem>
-                <MenuItem Header="Open Project" Command="{Binding OpenProjectCommand}"/>
-                <MenuItem Header="Save Project" Command="{Binding SaveProjectCommand}" IsEnabled="{Binding HasProject, UpdateSourceTrigger=PropertyChanged}"/>
+                <MenuItem Header="Open Project" InputGestureText="Ctrl+O" Command="{Binding OpenProjectCommand}"/>
+                <MenuItem Header="Save Project" InputGestureText="Ctrl+S" Command="{Binding SaveProjectCommand}" IsEnabled="{Binding HasProject, UpdateSourceTrigger=PropertyChanged}"/>
                 <Separator/>
-                <MenuItem Header="Exit" Command="{Binding CloseCommand}" CommandParameter="{Binding ElementName=m_window}"/>
+                <MenuItem Header="Exit" InputGestureText="Alt+F4" Command="{Binding CloseCommand}" CommandParameter="{Binding ElementName=m_window}"/>
             </MenuItem>
             
             <MenuItem Header="View">

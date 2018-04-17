@@ -9,11 +9,25 @@ using System.Windows.Threading;
 
 namespace Event_ECS_WPF.SystemObjects
 {
+    public class AutoUpdateChangedArgs : EventArgs
+    {
+        public AutoUpdateChangedArgs(bool autoUpdate)
+        {
+            AutoUpdate = autoUpdate;
+        }
+
+        public bool AutoUpdate { get; private set; }
+    }
+
+    public delegate void AutoUpdateChanged(AutoUpdateChangedArgs e);
+
     public class ECS : NotifyPropertyChanged, IDisposable
     {
         private static readonly TimeSpan WaitTimeSpan = TimeSpan.FromMilliseconds(10);
 
         private readonly ECSWrapper m_ecs;
+
+        public static event AutoUpdateChanged OnAutoUpdateChanged;
 
         internal ECS(Project project)
         {
@@ -85,6 +99,12 @@ namespace Event_ECS_WPF.SystemObjects
         public void SetAutoUpdate(bool value)
         {
             m_ecs.SetAutoUpdate(value);
+            OnAutoUpdateChanged?.Invoke(new AutoUpdateChangedArgs(value));
+        }
+
+        public bool GetAutoUpdate()
+        {
+            return m_ecs.GetAutoUpdate();
         }
 
         public bool UseWrapper<T>(Func<ECSWrapper, T> action, out T t)

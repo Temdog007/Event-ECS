@@ -37,8 +37,7 @@
             </GroupBox>
             
             <Expander Header="Registered Components" Grid.Row="1" Background="Snow">
-                <ListBox ItemsSource="{Binding ElementName=m_system, Path=EntityComponentSystem.RegisteredComponents, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                         SelectedItem="{Binding ElementName=m_system, Path=EntityComponentSystem.SelectedComponent, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                <ListBox ItemsSource="{Binding ElementName=m_system, Path=EntityComponentSystem.RegisteredComponents, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
             </Expander>
 
             <Expander Header="Entities" Grid.Row="2" IsExpanded="True">

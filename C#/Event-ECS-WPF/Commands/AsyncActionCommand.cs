@@ -3,12 +3,20 @@ using System.Windows;
 
 namespace Event_ECS_WPF.Commands
 {
-    public class AsyncActionCommand<T> : ActionCommand<T>
+    public class AsyncActionCommand : ActionCommand
     {
         public AsyncActionCommand(Action action) : base(action)
         {
         }
 
+        public override void Execute(object parameter)
+        {
+            Application.Current.Dispatcher.BeginInvoke(new Action(() => base.Execute(parameter)));
+        }
+    }
+
+    public class AsyncActionCommand<T> : ActionCommand<T>
+    {
         public AsyncActionCommand(Action<T> action) : base(action)
         {
         }

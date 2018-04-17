@@ -22,7 +22,7 @@ namespace Event_ECS_WPF.Controls
 
         private ActionCommand<string> m_getPathCommand;
 
-        private ActionCommand<object> m_serializeCommand;
+        private ICommand m_serializeCommand;
 
         public ProjectControl()
         {
@@ -38,7 +38,7 @@ namespace Event_ECS_WPF.Controls
             get { return (Project)GetValue(ProjectProperty); }
             set { SetValue(ProjectProperty, value); }
         }
-        public ICommand SerializeCommand => m_serializeCommand ?? (m_serializeCommand = new ActionCommand<object>(Serialize));
+        public ICommand SerializeCommand => m_serializeCommand ?? (m_serializeCommand = new ActionCommand(Serialize));
 
         private void DispatchEvent(string ev)
         {

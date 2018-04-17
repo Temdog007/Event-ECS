@@ -1,9 +1,9 @@
-﻿using Event_ECS_WPF.Extensions;
+﻿using Event_ECS_WPF.Logger;
 using Event_ECS_WPF.Properties;
 using Event_ECS_WPF.SystemObjects;
 using System.ComponentModel;
 using System.Windows;
-using System.Windows.Input;
+using System.Windows.Threading;
 
 namespace Event_ECS_WPF
 {
@@ -18,25 +18,19 @@ namespace Event_ECS_WPF
         {
             InitializeComponent();
             m_viewmodel = (MainWindowViewModel)DataContext;
+            Application.Current.DispatcherUnhandledException += Current_DispatcherUnhandledException;
         }
 
-        private void m_window_Closing(object sender, CancelEventArgs e)
+        private void Current_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
+        {
+            LogManager.Instance.Add(e.Exception.Message);
+            e.Handled = true;
+        }
+
+        private void Window_Closing(object sender, CancelEventArgs e)
         {
             ECS.Instance?.Dispose();
             Settings.Default.Save();
-        }
-
-        private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Settings.Default.ManualUpdateKey.Convert())
-            {
-                ECS.Instance?.Update();
-            }
-            else if(e.Key == Settings.Default.ToggleStart.Convert() && m_viewmodel.Project != null)
-            {
-                ICommand command = m_viewmodel.Project.IsStarted ? m_viewmodel.StopProjectCommand : m_viewmodel.StartProjectCommand;
-                command.Execute(null);
-            }
         }
     }
 }

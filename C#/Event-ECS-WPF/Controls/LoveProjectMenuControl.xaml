@@ -8,7 +8,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
              x:Name="m_lovemenu">
-
+    
     <UserControl.Resources>
         <converter:EnumToBoolConverter x:Key="enumConv"/>
         <Style TargetType="RadioButton">
