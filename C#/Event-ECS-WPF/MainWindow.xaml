@@ -9,6 +9,8 @@
         xmlns:converter="clr-namespace:Event_ECS_WPF.Converters"
         xmlns:logger="clr-namespace:Event_ECS_WPF.Logger"
         xmlns:obj="clr-namespace:Event_ECS_WPF.SystemObjects"
+        xmlns:forms="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
+        xmlns:ex="clr-namespace:Event_ECS_WPF.Extensions"
         xmlns:selector="clr-namespace:Event_ECS_WPF.TemplateSelectors"
         mc:Ignorable="d"
         xmlns:controls="clr-namespace:Event_ECS_WPF.Controls"
@@ -97,6 +99,17 @@
                 </MenuItem>
                 <MenuItem Header="Hide Component" IsCheckable="True" IsChecked="{Binding Source={x:Static properties:Settings.Default}, Mode=TwoWay, Path=OnlyShowComponentWhenMouse}"/>
                 <MenuItem Header="Clear Logs" Command="{Binding ClearLogCommand}"/>
+            </MenuItem>
+
+            <MenuItem Header="Shortcuts">
+                <StackPanel Orientation="Horizontal">
+                    <Label Margin="5">Manual Update</Label>
+                    <ComboBox Margin="5" ItemsSource="{Binding Source={ex:EnumBindingSource {x:Type forms:Keys}}}" SelectedItem="{Binding Source={x:Static properties:Settings.Default}, Mode=TwoWay, Path=ManualUpdateKey}"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Label Margin="5">Start/Stop</Label>
+                    <ComboBox Margin="5" ItemsSource="{Binding Source={ex:EnumBindingSource {x:Type forms:Keys}}}" SelectedItem="{Binding Source={x:Static properties:Settings.Default}, Mode=TwoWay, Path=ToggleStart}"/>
+                </StackPanel>
             </MenuItem>
 
             <MenuItem Header="Project" Visibility="{Binding HasProject, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource boolConv}}" 

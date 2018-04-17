@@ -61,13 +61,25 @@ namespace Event_ECS_WPF.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("F5")]
+        [global::System.Configuration.DefaultSettingValueAttribute("F1")]
         public global::System.Windows.Forms.Keys ManualUpdateKey {
             get {
                 return ((global::System.Windows.Forms.Keys)(this["ManualUpdateKey"]));
             }
             set {
                 this["ManualUpdateKey"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("F5")]
+        public global::System.Windows.Forms.Keys ToggleStart {
+            get {
+                return ((global::System.Windows.Forms.Keys)(this["ToggleStart"]));
+            }
+            set {
+                this["ToggleStart"] = value;
             }
         }
     }

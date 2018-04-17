@@ -12,9 +12,12 @@ namespace Event_ECS_WPF
     /// </summary>
     public partial class MainWindow : Window
     {
+        private readonly MainWindowViewModel m_viewmodel;
+
         public MainWindow()
         {
             InitializeComponent();
+            m_viewmodel = (MainWindowViewModel)DataContext;
         }
 
         private void m_window_Closing(object sender, CancelEventArgs e)
@@ -28,6 +31,11 @@ namespace Event_ECS_WPF
             if (e.Key == Settings.Default.ManualUpdateKey.Convert())
             {
                 ECS.Instance?.Update();
+            }
+            else if(e.Key == Settings.Default.ToggleStart.Convert() && m_viewmodel.Project != null)
+            {
+                ICommand command = m_viewmodel.Project.IsStarted ? m_viewmodel.StopProjectCommand : m_viewmodel.StartProjectCommand;
+                command.Execute(null);
             }
         }
     }

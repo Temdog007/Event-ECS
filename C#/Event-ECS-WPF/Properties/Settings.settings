@@ -12,6 +12,9 @@
       <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="ManualUpdateKey" Type="System.Windows.Forms.Keys" Scope="User">
+      <Value Profile="(Default)">F1</Value>
+    </Setting>
+    <Setting Name="ToggleStart" Type="System.Windows.Forms.Keys" Scope="User">
       <Value Profile="(Default)">F5</Value>
     </Setting>
   </Settings>
