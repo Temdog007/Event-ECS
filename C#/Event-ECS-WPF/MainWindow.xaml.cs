@@ -1,6 +1,7 @@
 ﻿using Event_ECS_WPF.Logger;
 using Event_ECS_WPF.Properties;
 using Event_ECS_WPF.SystemObjects;
+using System;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Threading;
@@ -21,9 +22,18 @@ namespace Event_ECS_WPF
             Application.Current.DispatcherUnhandledException += Current_DispatcherUnhandledException;
         }
 
+        private static void LogException(Exception e)
+        {
+            LogManager.Instance.Add(e.Message);
+            if(e.InnerException != null)
+            {
+                LogException(e.InnerException);
+            }
+        }
+
         private void Current_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
         {
-            LogManager.Instance.Add(e.Exception.Message);
+            LogException(e.Exception);
             e.Handled = true;
         }
 

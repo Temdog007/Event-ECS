@@ -4,51 +4,38 @@
 
 namespace EventECS 
 {
-	enum ECSType
-	{
-		NORMAL,
-		LOVE
-	};
-
 	class ECS
 	{
 	private:
-		friend int luaopen_logFunction(lua_State* L);
-
 		lua_State * L;
 
-		bool initialized;
+		bool loveInitialized;
 
 		bool autoUpdate;
 
-		const ECSType type;
-
-		static bool canAddLog;
-		static std::queue<std::string> logs;
+		static void(*logHandler)(const char* log);
+		static int luaopen_logFunction(lua_State* L);
 
 		void Require(const char* moduleName, const char* globalName);
 
-		void SetFunction(const char* funcName);
+		void SetFunction(const char* funcName) const;
 
-		void FindEntity(int entityID);
+		void FindEntity(int entityID) const;
 
-		void FindComponent(int entityID, int componentID);
-
-		void CheckInitialized();
+		void FindComponent(int entityID, int componentID) const;
 
 		bool DoLoveUpdate(bool throwException);
 
 		void Quit();
 
 	public:
-		ECS(ECSType type = ECSType::NORMAL);
+		ECS();
 		virtual ~ECS();
 
-		ECS() = delete;
 		ECS(const ECS&) = delete;
 		ECS& operator=(const ECS&) = delete;
 
-		bool Initialize(const char* executablePath, const char* identity);
+		bool InitializeLove(const char* executablePath, const char* identity);
 
 		std::string AddEntity();
 		bool RemoveEntity(int entityID);
@@ -61,8 +48,29 @@ namespace EventECS
 
 		bool RemoveComponent(int entityID, int componentID);
 
-		void SetFrameRate(int fps);
-		int GetFrameRate() const;
+		void SetSystemBool(const char* key, bool value);
+		void SetSystemNumber(const char* key, lua_Number value);
+		void SetSystemString(const char* key, const char* value);
+
+		void SetEntityBool(int entityID, const char* key, bool value);
+		void SetEntityNumber(int entityID, const char* key, lua_Number value);
+		void SetEntityString(int entityID, const char* key, const char* value);
+
+		void SetComponentBool(int entityID, int componentID, const char* key, bool value);
+		void SetComponentNumber(int entityID, int componentID, const char* key, lua_Number value);
+		void SetComponentString(int entityID, int componentID, const char* key, const char* value);
+
+		bool GetSystemBool(const char* key) const;
+		lua_Number GetSystemNumber(const char* key) const;
+		const char* GetSystemString(const char* key) const;
+
+		bool GetEntityBool(int entityID, const char* key) const;
+		lua_Number GetEntityNumber(int entityID, const char* key) const;
+		const char* GetEntityString(int entityID, const char* key) const;
+
+		bool GetComponentBool(int entityID, int componentID, const char* key) const;
+		lua_Number GetComponentNumber(int entityID, int componentID, const char* key) const;
+		const char* GetComponentString(int entityID, int componentID, const char* key) const;
 
 		std::string Serialize();
 		std::string SerializeEntity(int entityID);
@@ -70,8 +78,6 @@ namespace EventECS
 
 		bool LoveUpdate();
 
-		static bool GetLog(std::string& log);
-
-		inline ECSType getType() const { return type; }
+		static void SetLogHandler(void(*) (const char*));
 	};
 }

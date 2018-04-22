@@ -1,5 +1,6 @@
 ﻿using Event_ECS_WPF.Logger;
 using Event_ECS_WPF.SystemObjects;
+using EventECSWrapper;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -69,6 +70,17 @@ namespace Event_ECS_WPF.Projects
             }
         }
 
+        [XmlElement]
+        public string IntializerComponent
+        {
+            get => _initializer;
+            set
+            {
+                _initializer = value;
+                OnPropertyChanged("IntializerComponent");
+            }
+        }private string _initializer;
+
         public virtual ProjectType Type
         {
             get => ProjectType.NORMAL;
@@ -76,7 +88,30 @@ namespace Event_ECS_WPF.Projects
 
         public bool IsStarted => ECS.Instance != null;
 
+        protected void DispatchProjectStateChange(ProjectStateChangeArgs args)
+        {
+            ProjectStateChange?.Invoke(this, args);
+        }
+
         public virtual bool Start()
+        {
+            if(Start(out IEnumerable<string> componentsToRegsiter))
+            {
+                ECS.Instance.UseWrapper(ecs =>
+                {
+                    foreach (var file in componentsToRegsiter)
+                    {
+                        ecs.RegisterComponent(file, false);
+                    }
+                    InitializeECS(ecs);
+                });
+                DispatchProjectStateChange(ProjectStateChangeArgs.Started);
+                return true;
+            }
+            return false;
+        }
+
+        protected bool Start(out IEnumerable<string> pComponentsToRegister)
         {
             try
             {
@@ -114,20 +149,14 @@ namespace Event_ECS_WPF.Projects
                 }
 
                 ECS.CreateInstance(this);
-                ECS.Instance.UseWrapper(ecs => 
-                {
-                    foreach(var file in componentsToRegister)
-                    {
-                        ecs.RegisterComponent(file, false);
-                    }
-                });
-                ProjectStateChange?.Invoke(this, ProjectStateChangeArgs.Started);
+                pComponentsToRegister = componentsToRegister;
                 return true;
             }
             catch (Exception e)
             {
                 ECS.Instance?.Dispose();
                 LogManager.Instance.Add(LogLevel.High, e.Message);
+                pComponentsToRegister = Enumerable.Empty<string>();
                 return false;
             }
             finally
@@ -141,6 +170,17 @@ namespace Event_ECS_WPF.Projects
             ECS.Instance?.Dispose();
             ProjectStateChange?.Invoke(this, ProjectStateChangeArgs.Stopped);
             OnPropertyChanged("IsStarted");
+        }
+
+        public void InitializeECS(ECSWrapper ecs)
+        {
+            if (!string.IsNullOrWhiteSpace(IntializerComponent))
+            {
+                string[] enData = ecs.AddEntity().Split(EntityComponentSystem.Delim);
+                int entityID = int.Parse(enData[0]);
+                ecs.SetEntityString(entityID, "name", "MainEntity");
+                ecs.AddComponent(entityID, IntializerComponent);
+            }
         }
 
         private static bool isHidden(string path)

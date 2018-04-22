@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Event_ECS_WPF.SystemObjects;
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Xml.Serialization;
@@ -78,9 +81,25 @@ end";
             text = text.Replace("True", "true").Replace("False", "false");
             File.WriteAllText(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "conf.lua"), text);
 
-            bool result = base.Start();
+            if (Start(out IEnumerable<string> componentsToRegsiter))
+            {
+                if (!ECS.Instance.InitializeLove(Name))
+                {
+                    throw new Exception("Failed to initialize LOVE");
+                }
 
-            return result;
+                ECS.Instance.UseWrapper(ecs =>
+                {
+                    foreach (var file in componentsToRegsiter)
+                    {
+                        ecs.RegisterComponent(file, false);
+                    }
+                    InitializeECS(ecs);
+                });
+                DispatchProjectStateChange(ProjectStateChangeArgs.Started);
+                return true;
+            }
+            return false;
         }
     }
 

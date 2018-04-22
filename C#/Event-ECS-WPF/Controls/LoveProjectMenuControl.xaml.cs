@@ -97,7 +97,6 @@ namespace Event_ECS_WPF.Controls
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
-
         
     }
 }

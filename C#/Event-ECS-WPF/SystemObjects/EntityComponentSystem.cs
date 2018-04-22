@@ -10,7 +10,7 @@ namespace Event_ECS_WPF.SystemObjects
 {
     public class EntityComponentSystem : NotifyPropertyChanged
     {
-        public readonly char Delim = '|';
+        public const char Delim = '|';
 
         private ObservableCollection<Entity> m_entities = new ObservableCollection<Entity>();
         private int m_entityID = 0;
@@ -57,7 +57,7 @@ namespace Event_ECS_WPF.SystemObjects
 
         private int GetFrameRateFunc(ECSWrapper ecs)
         {
-            return ecs.GetFrameRate();
+            return (int)Convert.ChangeType(ecs.GetSystemNumber("frameRate"), typeof(int));
         }
 
         public int FrameRate
@@ -74,7 +74,7 @@ namespace Event_ECS_WPF.SystemObjects
             {
                 if (ECS.Instance != null)
                 {
-                    ECS.Instance.UseWrapper(ecs => ecs.SetFrameRate(value));
+                    ECS.Instance.UseWrapper(ecs => ecs.SetSystemNumber("frameRate", value));
                     OnPropertyChanged("FrameRate");
                 }
             }

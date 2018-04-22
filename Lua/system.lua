@@ -134,7 +134,7 @@ return ClassFactory(function(system)
   end
 
   function system:replaceComponent(NewComponent)
-    assert(is_a(NewComponent, Component), 'Object is not an Component')
+    assert(is_a(NewComponent, Component), string.format("Object '%s' is not an Component", name))
     local name = classname(NewComponent)
     registeredComponents[name] = NewComponent
   end
@@ -142,7 +142,7 @@ return ClassFactory(function(system)
   function system:registerComponent(NewComponent)
     local name = classname(NewComponent)
     assert(not registeredComponents[name], "Component has already been registered")
-    assert(is_a(NewComponent, Component), 'Object is not an Component')
+    assert(is_a(NewComponent, Component), string.format("Object '%s' is not an Component", name))
     registeredComponents[name] = NewComponent
   end
   system:registerComponent(Component)

@@ -1,49 +1,46 @@
 #include "stdafx.h"
 
 const char System[] = "System";
+const char LoveSystem[] = "LoveSystem";
 const char mySystem[] = "mySystem";
 const char love[] = "love";
 
 namespace EventECS
 {
-	std::queue<std::string> EventECS::ECS::logs;
+	void(*ECS::logHandler)(const char* log);
 
-	int luaopen_logFunction(lua_State* L)
+	ECS::ECS() : L(luaL_newstate()), loveInitialized(false)
 	{
-		for (int i = 1; i <= lua_gettop(L); ++i)
+		luaL_openlibs(L);
+
+		Require("eventecs", nullptr);
+		Require("system", System);
+
+		lua_getglobal(L, System);
+		lua_call(L, 0, 1);
+		lua_setglobal(L, mySystem);
+
+		lua_getglobal(L, mySystem);
+		if (lua_isnil(L, -1))
 		{
-			const char* log = luaL_checkstring(L, i);
-			if (log == nullptr)
-			{
-				continue;
-			}
-			else
-			{
-				ECS::logs.emplace(log);
-			}
+			throw std::exception("Failed to create global Entity Component System");
 		}
+		lua_pop(L, 1);
 
-		return 0;
-	}
-
-	ECS::ECS(ECSType type) : L(luaL_newstate()), initialized(false), type(type)
-	{
-
+		lua_pushcfunction(L, luaopen_logFunction);
+		lua_setglobal(L, "Log");
 	}
 
 	ECS::~ECS()
 	{
 		Quit();
-		initialized = false;
 
 		lua_close(L);
 	}
 
 	void ECS::Quit()
 	{
-		CheckInitialized();
-
-		if (type == ECSType::LOVE)
+		if (loveInitialized)
 		{
 			lua_getglobal(L, love);
 			lua_getfield(L, -1, "event");
@@ -52,67 +49,33 @@ namespace EventECS
 			{
 				while (this->LoveUpdate());
 			}
+			loveInitialized = false;
 		}
 	}
 
-	bool ECS::Initialize(const char* executablePath, const char* identity)
+	bool ECS::InitializeLove(const char* executablePath, const char* identity)
 	{
-		if (!initialized)
+		Require(love, love);
+		Require("loveSystem", LoveSystem);
+
+		lua_getglobal(L, LoveSystem);
+		lua_pushstring(L, identity);
+		lua_pushstring(L, executablePath);
+		if (lua_pcall(L, 2, 1, 0) == 0)
 		{
-			while (!logs.empty())
-			{
-				logs.pop();
-			}
-
-			luaL_openlibs(L);
-			initialized = true;
-
-			Require("eventecs", nullptr);
-
-			switch (type)
-			{
-			case ECSType::LOVE:
-				Require(love, love);
-				Require("loveSystem", System);
-				break;
-			default:
-				Require("system", System);
-				break;
-			}
-
-			lua_getglobal(L, System);
-			lua_pushstring(L, identity);
-			lua_pushstring(L, executablePath);
-			if (lua_pcall(L, 2, 1, 0) == 0)
-			{
-				lua_setglobal(L, mySystem);
-				lua_pop(L, 1);
-				initialized = true;
-
-				lua_pushcfunction(L, luaopen_logFunction);
-				lua_setglobal(L, "Log");
-			}
-			else
-			{
-				initialized = false;
-				throw std::exception(lua_tostring(L, -1));
-			}
+			lua_setglobal(L, mySystem);
 		}
-		return initialized;
-	}
-
-	void ECS::CheckInitialized()
-	{
-		if (!initialized)
+		else
 		{
-			throw std::exception("Called function when ECS was not intialized.");
+			throw std::exception(lua_tostring(L, -1));
 		}
+		loveInitialized = true;
+
+		return loveInitialized;
 	}
 
 	void ECS::Require(const char* modName, const char* globalName)
 	{
-		CheckInitialized();
-
 		lua_getglobal(L, "require");
 		lua_pushstring(L, modName);
 		if (lua_pcall(L, 1, 1, 0) == 0)
@@ -132,14 +95,14 @@ namespace EventECS
 		}
 	}
 
-	void ECS::SetFunction(const char* funcName)
+	void ECS::SetFunction(const char* funcName) const
 	{
 		lua_getglobal(L, mySystem);
 		lua_getfield(L, -1, funcName);
 		lua_pushvalue(L, -2);
 	}
 
-	void ECS::FindEntity(int entityID)
+	void ECS::FindEntity(int entityID) const
 	{
 		SetFunction("findEntity");
 		lua_pushnumber(L, entityID);
@@ -149,7 +112,7 @@ namespace EventECS
 		}
 	}
 
-	void ECS::FindComponent(int entityID, int componentID)
+	void ECS::FindComponent(int entityID, int componentID) const
 	{
 		FindEntity(entityID);
 		lua_getfield(L, -1, "findComponent");
@@ -163,8 +126,6 @@ namespace EventECS
 
 	void ECS::RegisterComponent(const char* modName, bool replace)
 	{
-		CheckInitialized();
-
 		lua_getglobal(L, "require");
 		lua_pushstring(L, modName);
 		if (lua_pcall(L, 1, 1, 0) == 0)
@@ -187,8 +148,6 @@ namespace EventECS
 
 	std::string ECS::AddEntity()
 	{
-		CheckInitialized();
-
 		lua_getglobal(L, mySystem);
 		lua_getfield(L, -1, "createEntity");
 		lua_pushvalue(L, -2);
@@ -208,8 +167,6 @@ namespace EventECS
 
 	bool ECS::RemoveEntity(int entityID)
 	{
-		CheckInitialized();
-
 		SetFunction("removeEntity");
 		lua_pushnumber(L, entityID);
 		if (lua_pcall(L, 2, 1, 0) == 0)
@@ -223,8 +180,6 @@ namespace EventECS
 
 	int ECS::DispatchEvent(const char* eventName)
 	{
-		CheckInitialized();
-
 		SetFunction("dispatchEvent");
 		lua_pushstring(L, eventName);
 		if (lua_pcall(L, 2, 1, 0) == 0)
@@ -238,8 +193,6 @@ namespace EventECS
 
 	void ECS::AddComponent(int entityID, const char* componentName)
 	{
-		CheckInitialized();
-
 		FindEntity(entityID);
 		lua_getfield(L, -1, "addComponent");
 		lua_pushvalue(L, -2);
@@ -253,8 +206,6 @@ namespace EventECS
 
 	void ECS::AddComponents(int entityID, std::list<std::string> componentNames)
 	{
-		CheckInitialized();
-
 		FindEntity(entityID);
 		lua_getfield(L, -1, "addComponents");
 		lua_pushvalue(L, -2);
@@ -278,8 +229,6 @@ namespace EventECS
 
 	bool ECS::RemoveComponent(int entityID, int componentID)
 	{
-		CheckInitialized();
-
 		FindComponent(entityID, componentID);
 		lua_getfield(L, -1, "remove");
 		lua_pushvalue(L, -2);
@@ -292,10 +241,156 @@ namespace EventECS
 		throw std::exception(lua_tostring(L, -1));
 	}
 
+	#pragma region Getter/Setters
+
+	#pragma region System
+	void ECS::SetSystemBool(const char* key, bool value)
+	{
+		lua_getglobal(L, mySystem);
+		lua_pushstring(L, key);
+		lua_pushboolean(L, value);
+		lua_settable(L, -3);
+	}
+
+	void ECS::SetSystemNumber(const char* key, lua_Number value)
+	{
+		lua_getglobal(L, mySystem);
+		lua_pushstring(L, key);
+		lua_pushnumber(L, value);
+		lua_settable(L, -3);
+	}
+
+	void ECS::SetSystemString(const char* key, const char* value)
+	{
+		lua_getglobal(L, mySystem);
+		lua_pushstring(L, key);
+		lua_pushstring(L, value);
+		lua_settable(L, -3);
+	}
+
+	bool ECS::GetSystemBool(const char* key) const
+	{
+		lua_getglobal(L, mySystem);
+		lua_getfield(L, -1, key);
+		return static_cast<bool>(lua_toboolean(L, -1));
+	}
+
+	lua_Number ECS::GetSystemNumber(const char* key) const
+	{
+		lua_getglobal(L, mySystem);
+		lua_getfield(L, -1, key);
+		return lua_tonumber(L, -1);
+	}
+
+	const char* ECS::GetSystemString(const char* key) const
+	{
+		lua_getglobal(L, mySystem);
+		lua_getfield(L, -1, key);
+		return lua_tostring(L, -1);
+	}
+	#pragma endregion
+
+	#pragma region Entity
+	void ECS::SetEntityBool(int entityID, const char* key, bool value)
+	{
+		FindEntity(entityID);
+		lua_pushstring(L, key);
+		lua_pushboolean(L, value);
+		lua_settable(L, -3);
+	}
+
+	void ECS::SetEntityNumber(int entityID, const char* key, lua_Number value)
+	{
+		FindEntity(entityID);
+		lua_pushstring(L, key);
+		lua_pushnumber(L, value);
+		lua_settable(L, -3);
+	}
+
+	void ECS::SetEntityString(int entityID, const char* key, const char* value)
+	{
+		FindEntity(entityID);
+		lua_pushstring(L, key);
+		lua_pushstring(L, value);
+		lua_settable(L, -3);
+	}
+
+	bool ECS::GetEntityBool(int entityID, const char* key) const
+	{
+		FindEntity(entityID);
+		lua_getfield(L, -1, key);
+		return static_cast<bool>(lua_toboolean(L, -1));
+	}
+
+	lua_Number ECS::GetEntityNumber(int entityID, const char* key) const
+	{
+		FindEntity(entityID);
+		lua_getfield(L, -1, key);
+		return lua_tonumber(L, -1);
+	}
+
+	const char* ECS::GetEntityString(int entityID, const char* key) const
+	{
+		FindEntity(entityID);
+		lua_getfield(L, -1, key);
+		return lua_tostring(L, -1);
+	}
+	
+	#pragma endregion
+
+	#pragma region Component
+
+	void ECS::SetComponentBool(int entityID, int componentID, const char* key, bool value)
+	{
+		FindComponent(entityID, componentID);
+		lua_pushstring(L, key);
+		lua_pushboolean(L, value);
+		lua_settable(L, -3);
+	}
+
+	void ECS::SetComponentNumber(int entityID, int componentID, const char* key, lua_Number value)
+	{
+		FindComponent(entityID, componentID);
+		lua_pushstring(L, key);
+		lua_pushnumber(L, value);
+		lua_settable(L, -3);
+	}
+
+	void ECS::SetComponentString(int entityID, int componentID, const char* key, const char* value)
+	{
+		FindComponent(entityID, componentID);
+		lua_pushstring(L, key);
+		lua_pushstring(L, value);
+		lua_settable(L, -3);
+	}
+
+	bool ECS::GetComponentBool(int entityID, int componentID, const char* key) const
+	{
+		FindComponent(entityID, componentID);
+		lua_getfield(L, -1, key);
+		return static_cast<bool>(lua_toboolean(L, -1));
+	}
+
+	lua_Number ECS::GetComponentNumber(int entityID, int componentID, const char* key) const
+	{
+		FindComponent(entityID, componentID);
+		lua_getfield(L, -1, key);
+		return lua_tonumber(L, -1);
+	}
+
+	const char* ECS::GetComponentString(int entityID, int componentID, const char* key) const
+	{
+		FindComponent(entityID, componentID);
+		lua_getfield(L, -1, key);
+		return lua_tostring(L, -1);
+	}
+	#pragma endregion
+
+	#pragma endregion
+
+	#pragma region Serialization
 	std::string ECS::Serialize()
 	{
-		CheckInitialized();
-
 		SetFunction("serialize");
 		if (lua_pcall(L, 1, 1, 0) == 0)
 		{
@@ -308,8 +403,6 @@ namespace EventECS
 
 	std::string ECS::SerializeEntity(int entityID)
 	{
-		CheckInitialized();
-
 		FindEntity(entityID);
 		lua_getfield(L, -1, "serialize");
 		lua_pushvalue(L, -2);
@@ -325,8 +418,6 @@ namespace EventECS
 
 	std::string ECS::SerializeComponent(int entityID, int componentID)
 	{
-		CheckInitialized();
-
 		FindComponent(entityID, componentID);
 		lua_getfield(L, -1, "serilize");
 		lua_pushvalue(L, -2);
@@ -339,7 +430,9 @@ namespace EventECS
 
 		throw std::exception(lua_tostring(L, -1));
 	}
+	#pragma endregion
 
+	#pragma region LOVE
 	bool ECS::DoLoveUpdate(bool throwException)
 	{
 		SetFunction("run");
@@ -358,40 +451,38 @@ namespace EventECS
 
 	bool ECS::LoveUpdate()
 	{
-		CheckInitialized();
-
-		if (type != ECSType::LOVE)
+		if (!loveInitialized)
 		{
-			throw std::exception("Not Love System. Can't call update");
+			throw std::exception("LOVE not initialized. Can't call LOVE update");
 		}
 		return DoLoveUpdate(true);
 	}
 
-	bool ECS::GetLog(std::string& log)
+	void ECS::SetLogHandler(void(*func)(const char*))
 	{
-		if (!logs.empty())
+		ECS::logHandler = func;
+	}
+
+	int ECS::luaopen_logFunction(lua_State* L)
+	{
+		auto logHandler = ECS::logHandler;
+		if (logHandler != nullptr)
 		{
-			log = logs.front();
-			logs.pop();
-			return true;
+			for (int i = 1; i <= lua_gettop(L); ++i)
+			{
+				const char* log = luaL_checkstring(L, i);
+				if (log == nullptr)
+				{
+					continue;
+				}
+				else
+				{
+					logHandler(log);
+				}
+			}
 		}
-		return false;
-	}
 
-	void ECS::SetFrameRate(int fps)
-	{
-		lua_getglobal(L, mySystem);
-		lua_pushstring(L, "frameRate");
-		lua_pushnumber(L, fps);
-		lua_settable(L, -3);
+		return 0;
 	}
-
-	int ECS::GetFrameRate() const 
-	{
-		lua_getglobal(L, mySystem);
-		lua_getfield(L, -1, "frameRate");
-		auto value = luaL_optnumber(L, -1, 0);
-		lua_pop(L, 1);
-		return static_cast<int>(value);
-	}
+	#pragma endregion
 }

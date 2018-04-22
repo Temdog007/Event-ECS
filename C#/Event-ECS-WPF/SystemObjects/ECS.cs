@@ -29,12 +29,15 @@ namespace Event_ECS_WPF.SystemObjects
 
         public static event AutoUpdateChanged OnAutoUpdateChanged;
 
+        static ECS()
+        {
+            ECSWrapper.LogEvent = str => LogManager.Instance.Add(str);
+        }
+
         internal ECS(Project project)
         {
             Instance = this;
-            m_ecs = new ECSWrapper(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), 
-                                    project.Name, Convert.ToInt32(project.Type), UpdateOnMainThread);
-            m_ecs.SetLogFunction(str => LogManager.Instance.Add(str));
+            m_ecs = new ECSWrapper();
             LogManager.Instance.Add(LogLevel.Medium, "Project Started");
         }
 
@@ -48,6 +51,14 @@ namespace Event_ECS_WPF.SystemObjects
             {
                 return false;
             }
+        }
+
+        public bool InitializeLove(string name)
+        {
+            UseWrapper(ecs => 
+                ecs.InitializeLove(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), name, UpdateOnMainThread), 
+                out bool rval);
+            return rval;
         }
 
         private bool UpdateOnMainThread()
