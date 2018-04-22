@@ -65,6 +65,10 @@ namespace Event_ECS_WPF.SystemObjects
             set
             {
                 m_variables = value;
+                foreach(var v in m_variables)
+                {
+                    v.Component = this;
+                }
                 OnPropertyChanged("Variables");
             }
         }

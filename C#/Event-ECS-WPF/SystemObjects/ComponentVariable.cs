@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EventECSWrapper;
+using System;
 using System.Collections.Generic;
 
 namespace Event_ECS_WPF.SystemObjects
@@ -8,7 +9,7 @@ namespace Event_ECS_WPF.SystemObjects
         private readonly string m_name;
         private readonly Type m_type;
         private object m_value;
-
+        
         public ComponentVariable(string name, Type type, object value)
         {
             if (string.IsNullOrWhiteSpace(name))
@@ -29,12 +30,43 @@ namespace Event_ECS_WPF.SystemObjects
 
         public Type Type => m_type;
 
+        public Component Component
+        {
+            get; internal set;
+        }
+
+        private void UpdateValue(ECSWrapper ecs)
+        {
+            int entityID = Component.Entity.ID;
+            int compID = (int)Convert.ChangeType(Component["id"], typeof(int));
+            if (Type == typeof(float))
+            {
+                ecs.SetComponentNumber(entityID, compID, Name, (float)Convert.ChangeType(Value, Type));
+            }
+            else if (Type == typeof(string))
+            {
+                ecs.SetComponentString(entityID, compID, Name, (string)Convert.ChangeType(Value, typeof(string)));
+            }
+            else if (Type == typeof(bool))
+            {
+                ecs.SetComponentBool(entityID, compID, Name, (bool)Convert.ChangeType(Value, typeof(bool)));
+            }
+            else
+            {
+                throw new Exception(string.Format("Unknown type: {0}", Type.FullName));
+            }
+        }
+
         public object Value
         {
             get => m_value;
             set
             {
                 this.m_value = value;
+                if(Component != null)
+                {
+                    ECS.Instance.UseWrapper(UpdateValue);
+                }
                 OnPropertyChanged("Value");
             }
         }
