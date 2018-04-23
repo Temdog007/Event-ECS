@@ -8,7 +8,7 @@ namespace Event_ECS_WPF.SystemObjects
     {
         private readonly EntityComponentSystem m_system;
 
-        private ObservableCollection<Component> m_components = new ObservableSet<Component>();
+        private ObservableCollection<Component> m_components = new ObservableCollection<Component>();
 
         private ObservableSet<string> m_events = new ObservableSet<string>();
 

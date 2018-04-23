@@ -61,10 +61,11 @@
             </Expander>
 
             <GroupBox Header="Components">
-                <ListBox ItemsSource="{Binding ElementName=m_entityControl, Path=Entity.Components, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                <ListBox x:Name="ComponentsGroupBox" ItemsSource="{Binding ElementName=m_entityControl, Path=Entity.Components, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <controls:ComponentControl Component="{Binding}" Background="AliceBlue"/>
+                            <controls:ComponentControl Component="{Binding}" Background="AliceBlue" 
+                                                       IsExpanded="{Binding Mode=TwoWay, Path=IsSelected, RelativeSource={RelativeSource AncestorType=ListBoxItem, Mode=FindAncestor}}"/>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>

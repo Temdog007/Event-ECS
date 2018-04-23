@@ -86,7 +86,7 @@ namespace Event_ECS_WPF.Projects
             get => ProjectType.NORMAL;
         }
 
-        public bool IsStarted => ECS.Instance != null;
+        public bool IsStarted => ECS.Instance.ProjectStarted;
 
         protected void DispatchProjectStateChange(ProjectStateChangeArgs args)
         {
@@ -101,7 +101,14 @@ namespace Event_ECS_WPF.Projects
                 {
                     foreach (var file in componentsToRegsiter)
                     {
-                        ecs.RegisterComponent(file, false);
+                        try
+                        {
+                            ecs.RegisterComponent(file, false);
+                        }
+                        catch (Exception e)
+                        {
+                            LogManager.Instance.Add(string.Format("Failed to register component {0}\n{1}", file, e.Message));
+                        }
                     }
                     InitializeECS(ecs);
                 });
@@ -123,12 +130,12 @@ namespace Event_ECS_WPF.Projects
                     {
                         string component = Path.GetFileName(file);
                         string dest = Path.Combine(location, component);
-                        if (!File.Exists(dest) || File.GetCreationTime(dest) != (File.GetCreationTime(file)))
+                        if (!File.Exists(dest) || File.GetLastWriteTimeUtc(dest) != (File.GetLastWriteTimeUtc(file)))
                         {
                             File.Copy(file, dest, true);
                             var now = DateTime.Now;
-                            File.SetCreationTime(file, now);
-                            File.SetCreationTime(dest, now);
+                            File.SetLastWriteTimeUtc(file, now);
+                            File.SetLastWriteTimeUtc(dest, now);
                             LogManager.Instance.Add(LogLevel.Medium, "Copied {0} to {1}", file, dest);
                         }
                         componentsToRegister.Add(Path.GetFileNameWithoutExtension(component));
@@ -148,13 +155,13 @@ namespace Event_ECS_WPF.Projects
                     }
                 }
 
-                ECS.CreateInstance(this);
+                ECS.Instance.CreateInstance();
                 pComponentsToRegister = componentsToRegister;
                 return true;
             }
             catch (Exception e)
             {
-                ECS.Instance?.Dispose();
+                ECS.Instance.Dispose();
                 LogManager.Instance.Add(LogLevel.High, e.Message);
                 pComponentsToRegister = Enumerable.Empty<string>();
                 return false;
@@ -167,7 +174,7 @@ namespace Event_ECS_WPF.Projects
 
         public virtual void Stop()
         {
-            ECS.Instance?.Dispose();
+            ECS.Instance.Dispose();
             ProjectStateChange?.Invoke(this, ProjectStateChangeArgs.Stopped);
             OnPropertyChanged("IsStarted");
         }

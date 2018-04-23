@@ -1,4 +1,5 @@
 ﻿using Event_ECS_WPF.Misc;
+using EventECSWrapper;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -10,41 +11,20 @@ namespace Event_ECS_WPF.SystemObjects
 {
     public class Component : Collection<ComponentVariable>, INotifyCollectionChanged, INotifyPropertyChanged
     {
-        private ObservableSet<ComponentVariable> m_variables = new ObservableSet<ComponentVariable>();
-
         private readonly Entity m_entity;
-
+        private readonly int m_id;
         private readonly string m_name;
-
-        public Component(Entity entity, string name)
+        private bool m_isEnabled;
+        private ObservableSet<ComponentVariable> m_variables = new ObservableSet<ComponentVariable>();
+        public Component(Entity m_entity, string m_name, int m_id, bool m_isEnabled = true)
         {
-            this.m_entity = entity ?? throw new ArgumentNullException(nameof(entity));
+            this.m_entity = m_entity ?? throw new ArgumentNullException(nameof(m_entity));
             this.m_entity.Components.Add(this);
 
-            this.m_name = name ?? throw new ArgumentNullException(nameof(name));
+            this.m_name = m_name ?? throw new ArgumentNullException(nameof(m_name));
+            this.m_id = m_id;
+            this.m_isEnabled = m_isEnabled;
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected void OnPropertyChanged(string propName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
-        }
-
-        public object this[string key]
-        {
-            get => m_variables.SingleOrDefault(v => v.Name == key)?.Value;
-            set
-            {
-                var val = m_variables.SingleOrDefault(v => v.Name == key);
-                if(val != null)
-                {
-                    val.Value = value;
-                }
-            }
-        }
-
-        public Entity Entity => m_entity;
 
         public event NotifyCollectionChangedEventHandler CollectionChanged
         {
@@ -59,13 +39,39 @@ namespace Event_ECS_WPF.SystemObjects
             }
         }
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public Entity Entity => m_entity;
+
+        public int ID => m_id;
+
+        private void SetEnabled(ECSWrapper ecs)
+        {
+            ecs.SetEnabled(Entity.ID, ID, IsEnabled);
+        }
+
+        public bool IsEnabled
+        {
+            get => m_isEnabled;
+            set
+            {
+                m_isEnabled = value;
+                ECS.Instance.UseWrapper(SetEnabled);
+                OnPropertyChanged("IsEnabled");
+            }
+        }
+
+        public bool IsReadOnly => ((ICollection<ComponentVariable>)Variables).IsReadOnly;
+
+        public string Name => m_name;
+
         public ObservableSet<ComponentVariable> Variables
         {
             get => m_variables;
             set
             {
                 m_variables = value;
-                foreach(var v in m_variables)
+                foreach (var v in m_variables)
                 {
                     v.Component = this;
                 }
@@ -73,9 +79,18 @@ namespace Event_ECS_WPF.SystemObjects
             }
         }
 
-        public bool IsReadOnly => ((ICollection<ComponentVariable>)Variables).IsReadOnly;
-
-        public string Name => m_name;
+        public object this[string key]
+        {
+            get => m_variables.SingleOrDefault(v => v.Name == key)?.Value;
+            set
+            {
+                var val = m_variables.SingleOrDefault(v => v.Name == key);
+                if (val != null)
+                {
+                    val.Value = value;
+                }
+            }
+        }
 
         public static bool operator !=(Component component1, Component component2)
         {
@@ -98,12 +113,6 @@ namespace Event_ECS_WPF.SystemObjects
             {
                 return false;
             }
-#pragma warning disable CS0253 // Possible unintended reference comparison; right hand side needs cast
-            if (this == obj)
-#pragma warning restore CS0253 // Possible unintended reference comparison; right hand side needs cast
-            {
-                return true;
-            }
             if (obj is Component)
             {
                 return Equals((Component)obj);
@@ -119,6 +128,11 @@ namespace Event_ECS_WPF.SystemObjects
         public override string ToString()
         {
             return string.Format("Name: {0}\nComponents:\n{1}", Name, string.Join(Environment.NewLine, Variables.Select(v => v.ToString())));
+        }
+
+        protected void OnPropertyChanged(string propName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
         }
     }
 }

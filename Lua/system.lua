@@ -57,6 +57,7 @@ return ClassFactory(function(system)
         if en:getID() == entity then
           self:dispatchEvent("eventRemovingEntity", {entity = entity, system = self})
           entities[k] = nil
+          self:dispatchEvent("eventRemovedEntity", {entity = entity, system = self})
           return true
         end
       end

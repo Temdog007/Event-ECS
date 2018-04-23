@@ -5,13 +5,13 @@ using System.Windows.Media;
 
 namespace Event_ECS_WPF.Converters
 {
-    public class BoolToColor : IValueConverter
+    public class EnabledToColor : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is bool)
+            if(value is bool)
             {
-                return ((bool)value) ? Brushes.Lime : Brushes.LightPink;
+                return (bool)value ? Brushes.Lime : Brushes.LightPink;
             }
             return null;
         }

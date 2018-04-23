@@ -41,8 +41,7 @@
         <converter:EnumToBoolConverter x:Key="enumConv"/>
         <converter:NullCheckVisibilityConverter x:Key="nullCheck"/>
         <converter:LogLevelToColor x:Key="logToColor"/>
-        <converter:BoolToColor x:Key="boolColor"/>
-
+        
         <DataTemplate x:Key="projectTemplate">
             <controls:ProjectControl Project="{Binding}"/>
         </DataTemplate>
@@ -65,17 +64,28 @@
 
         <DataTemplate x:Key="boolTemp">
             <StackPanel>
-                <RadioButton Content="True" GroupName="TempGroup" IsChecked="{Binding Value}"/>
-                <RadioButton Content="False" GroupName="TempGroup" IsChecked="{Binding Value, Converter={StaticResource notConv}}"/>
+                <RadioButton Content="True" IsChecked="{Binding Value, Delay=100, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}">
+                    <RadioButton.GroupName>
+                        <MultiBinding StringFormat="{}{0}{1}">
+                            <Binding Path="Name"/>
+                            <Binding Path="Component.ID"/>
+                        </MultiBinding>
+                    </RadioButton.GroupName>
+                </RadioButton>
+                
+                <RadioButton Content="False" IsChecked="{Binding Value, Converter={StaticResource notConv}, Delay=100, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}">
+                    <RadioButton.GroupName>
+                        <MultiBinding StringFormat="{}{0}{1}">
+                            <Binding Path="Name"/>
+                            <Binding Path="Component.ID"/>
+                        </MultiBinding>
+                    </RadioButton.GroupName>
+                </RadioButton>
             </StackPanel>
         </DataTemplate>
-
-        <DataTemplate x:Key="readOnlyTemp">
-            <TextBlock Text="{Binding Value}"/>
-        </DataTemplate>
-
+        
         <DataTemplate x:Key="valueTemp">
-            <TextBox Text="{Binding Value}"/>
+            <TextBox Text="{Binding Value, Delay=100, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
         </DataTemplate>
 
         <selector:ProjectDataTemplateSelector x:Key="projectSelector"/>
@@ -122,7 +132,7 @@
             </MenuItem>
 
             <MenuItem Header="Project" Visibility="{Binding HasProject, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource boolConv}}" 
-                      Background="{Binding Project.IsStarted, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource boolColor}}">
+                      Background="{Binding ProjectBackground, UpdateSourceTrigger=PropertyChanged}">
 
                 <ContentPresenter Content="{Binding Project, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                             ContentTemplateSelector="{StaticResource projectMenuSelector}"/>

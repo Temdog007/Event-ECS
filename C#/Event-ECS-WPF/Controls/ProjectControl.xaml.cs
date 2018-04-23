@@ -42,7 +42,7 @@ namespace Event_ECS_WPF.Controls
 
         private void DispatchEvent(string ev)
         {
-            if (ECS.Instance != null && ECS.Instance.UseWrapper(ecs => ecs.DispatchEvent(ev), out int handles))
+            if (ECS.Instance.UseWrapper(ecs => ecs.DispatchEvent(ev), out int handles))
             {
                 LogManager.Instance.Add(LogLevel.Medium, "Event '{0}' was handled '{1}' time(s)", ev, handles);
             }
@@ -82,7 +82,7 @@ namespace Event_ECS_WPF.Controls
         }
         private void Serialize()
         {
-            if (ECS.Instance != null && ECS.Instance.UseWrapper(ecs => ecs.Serialize(), out string data))
+            if (ECS.Instance.UseWrapper(ecs => ecs.Serialize(), out string data))
             {
                 EntityComponentSystem.Instance.Deserialize(data.Split('\n'));
                 LogManager.Instance.Add(data, LogLevel.Low);

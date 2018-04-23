@@ -1,6 +1,6 @@
-﻿using Event_ECS_WPF.SystemObjects;
+﻿using Event_ECS_WPF.Logger;
+using Event_ECS_WPF.SystemObjects;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -90,9 +90,16 @@ end";
 
                 ECS.Instance.UseWrapper(ecs =>
                 {
-                    foreach (var file in componentsToRegsiter)
+                    foreach (string file in componentsToRegsiter)
                     {
-                        ecs.RegisterComponent(file, false);
+                        try
+                        {
+                            ecs.RegisterComponent(file, false);
+                        }
+                        catch(Exception e)
+                        {
+                            LogManager.Instance.Add(string.Format("Failed to register component {0}\n{1}", file, e.Message));
+                        }
                     }
                     InitializeECS(ecs);
                 });

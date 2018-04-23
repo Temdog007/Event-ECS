@@ -22,13 +22,13 @@ namespace Event_ECS_WPF.Controls
         {
             InitializeComponent();
 
-            LoveProject.ProjectStateChange += Value_ProjectStateChange;
+            Project.ProjectStateChange += Value_ProjectStateChange;
             ECS.OnAutoUpdateChanged += OnAutoUpdateChanged;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public bool CanUpdate => UpdateType == UpdateType.Manual;
+        public bool CanUpdate => UpdateType == UpdateType.Automatic;
 
         public LoveProject LoveProject
         {
@@ -44,7 +44,7 @@ namespace Event_ECS_WPF.Controls
             }
         }
 
-        private void OnAutoUpdateChanged(AutoUpdateChangedArgs e)
+        private void OnAutoUpdateChanged(object sender, AutoUpdateChangedArgs e)
         {
             OnPropertyChanged("UpdateType");
             OnPropertyChanged("CanUpdate");
@@ -54,7 +54,7 @@ namespace Event_ECS_WPF.Controls
 
         public UpdateType UpdateType
         {
-            get => (ECS.Instance?.GetAutoUpdate() ?? false) ? UpdateType.Automatic : UpdateType.Manual;
+            get => ECS.Instance.GetAutoUpdate() ? UpdateType.Automatic : UpdateType.Manual;
             set
             {
                 if (ECS.Instance == null)
@@ -86,7 +86,7 @@ namespace Event_ECS_WPF.Controls
             switch (UpdateType)
             {
                 case UpdateType.Manual:
-                    ECS.Instance?.Update();
+                    ECS.Instance.Update();
                     break;
                 default:
                     break;

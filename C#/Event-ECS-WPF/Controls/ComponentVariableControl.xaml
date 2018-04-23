@@ -23,9 +23,9 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <TextBlock Margin="5" Grid.Column="0" Text="{Binding ElementName=m_control, Path=ComponentVariable.Name, UpdateSourceTrigger=PropertyChanged}"/>
+        <TextBlock Margin="5" Grid.Column="0" Text="{Binding ElementName=m_control, Path=ComponentVariable.Name}"/>
         <ContentPresenter Grid.Column="1" Margin="5"
-                          Content="{Binding ElementName=m_control, Path=ComponentVariable, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                          Content="{Binding ElementName=m_control, Path=ComponentVariable}"
                           ContentTemplateSelector="{StaticResource selector}"/>
     </Grid>
 </UserControl>

@@ -5,7 +5,7 @@ namespace Event_ECS_WPF.Commands
 {
     public class ActionCommand : ICommand
     {
-        private Action m_action;
+        private readonly Action m_action;
 
         public ActionCommand(Action action)
         {

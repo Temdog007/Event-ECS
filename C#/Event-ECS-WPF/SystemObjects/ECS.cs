@@ -1,5 +1,4 @@
 ﻿using Event_ECS_WPF.Logger;
-using Event_ECS_WPF.Projects;
 using EventECSWrapper;
 using System;
 using System.IO;
@@ -9,6 +8,8 @@ using System.Windows.Threading;
 
 namespace Event_ECS_WPF.SystemObjects
 {
+    public delegate void AutoUpdateChanged(object sender, AutoUpdateChangedArgs e);
+
     public class AutoUpdateChangedArgs : EventArgs
     {
         public AutoUpdateChangedArgs(bool autoUpdate)
@@ -18,142 +19,171 @@ namespace Event_ECS_WPF.SystemObjects
 
         public bool AutoUpdate { get; private set; }
     }
-
-    public delegate void AutoUpdateChanged(AutoUpdateChangedArgs e);
-
     public class ECS : NotifyPropertyChanged, IDisposable
     {
         private static readonly TimeSpan WaitTimeSpan = TimeSpan.FromMilliseconds(10);
 
-        private readonly ECSWrapper m_ecs;
-
-        public static event AutoUpdateChanged OnAutoUpdateChanged;
-
+        private static ECS s_instance;
+        private readonly object m_lock = new object();
+        private readonly Func<bool> UpdateFunc;
+        private ECSWrapper m_ecs;
         static ECS()
         {
             ECSWrapper.LogEvent = str => LogManager.Instance.Add(str);
         }
 
-        internal ECS(Project project)
+        internal ECS()
         {
-            Instance = this;
-            m_ecs = new ECSWrapper();
-            LogManager.Instance.Add(LogLevel.Medium, "Project Started");
+            UpdateFunc = UpdateAction;
         }
 
-        private bool UpdateAction()
+        public static event AutoUpdateChanged OnAutoUpdateChanged;
+        public static ECS Instance => s_instance ?? (s_instance = new ECS());
+        public bool ProjectStarted => m_ecs != null;
+
+        public void CreateInstance()
         {
-            try
+            lock (m_lock)
             {
-                return m_ecs == null ? false : m_ecs.LoveUpdate();
+                Dispose();
+                m_ecs = new ECSWrapper();
+                LogManager.Instance.Add(LogLevel.Medium, "Project Started");
             }
-            catch(Exception)
+        }
+
+        public void Dispose()
+        {
+            lock (m_lock)
             {
-                return false;
+                if (m_ecs != null)
+                {
+                    Application.Current.Dispatcher.Invoke(() => m_ecs.Dispose());
+                    m_ecs = null;
+                    LogManager.Instance.Add(LogLevel.Medium, "Project Stopped");
+                }
+            }
+        }
+
+        public bool GetAutoUpdate()
+        {
+            lock (m_lock)
+            {
+                return m_ecs.GetAutoUpdate();
             }
         }
 
         public bool InitializeLove(string name)
         {
-            UseWrapper(ecs => 
-                ecs.InitializeLove(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), name, UpdateOnMainThread), 
-                out bool rval);
-            return rval;
-        }
-
-        private bool UpdateOnMainThread()
-        {
-            try
+            lock (m_lock)
             {
-                DispatcherOperation operation = Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Render, new Func<bool>(UpdateAction));
-                while (operation.Wait(WaitTimeSpan) != DispatcherOperationStatus.Completed && m_ecs.GetAutoUpdate()) ;
-                return (bool)operation.Result;
-            }
-            catch(Exception)
-            {
-                return false;
+                if (m_ecs == null)
+                {
+                    return false;
+                }
+                UseWrapper(ecs =>
+                    ecs.InitializeLove(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), name, UpdateOnMainThread),
+                    out bool rval);
+                return rval;
             }
         }
 
-        public static ECS CreateInstance(Project project)
+        public void SetAutoUpdate(bool value)
         {
-            if (Instance == null)
+            lock (m_lock)
             {
-                return (Instance = new ECS(project));
-            }
-            throw new Exception("Previous instance wasn't disposed");
-        }
-
-        public static ECS Instance { get; private set; }
-
-        public void Dispose()
-        {
-            if (Instance == this)
-            {
-                Instance = null;
-            }
-
-            if (m_ecs != null)
-            {
-                Application.Current.Dispatcher.Invoke(() => m_ecs.Dispose());
-                LogManager.Instance.Add(LogLevel.Medium, "Project Stopped");
+                m_ecs.SetAutoUpdate(value);
+                OnAutoUpdateChanged?.Invoke(this, new AutoUpdateChangedArgs(value));
             }
         }
 
         public bool Update()
         {
-            UseWrapper(UpdateAction, out bool rval);
-            LogManager.Instance.Add(LogLevel.Low, "Manual Update");
-            return rval;
-        }
-
-        public void SetAutoUpdate(bool value)
-        {
-            m_ecs.SetAutoUpdate(value);
-            OnAutoUpdateChanged?.Invoke(new AutoUpdateChangedArgs(value));
-        }
-
-        public bool GetAutoUpdate()
-        {
-            return m_ecs.GetAutoUpdate();
+            lock (m_lock)
+            {
+                if (m_ecs == null)
+                {
+                    return false;
+                }
+                UseWrapper(UpdateAction, out bool rval);
+                LogManager.Instance.Add(LogLevel.Low, "Manual Update");
+                return rval;
+            }
         }
 
         public bool UseWrapper<T>(Func<ECSWrapper, T> action, out T t)
         {
-            if (m_ecs == null)
+            lock (m_lock)
             {
-                LogManager.Instance.Add(LogLevel.High, "Project has not been started. Cannot run function");
-                t = default(T);
-                return false;
+                if (m_ecs == null)
+                {
+                    LogManager.Instance.Add(LogLevel.High, "Project has not been started. Cannot run function");
+                    t = default(T);
+                    return false;
+                }
+                else
+                {
+                    t = Application.Current.Dispatcher.Invoke(() => action(m_ecs));
+                    return true;
+                }
             }
-            else
-            {
-                t = Application.Current.Dispatcher.Invoke(() => action(m_ecs));
-                return true;
-            }
-
         }
 
         public void UseWrapper(Action<ECSWrapper> action)
         {
-            if (m_ecs == null)
+            lock (m_lock)
             {
-                LogManager.Instance.Add(LogLevel.High, "Project has not been started. Cannot run function");
-            }
-            else
-            {
-                Application.Current.Dispatcher.Invoke(() => 
+                if (m_ecs == null)
                 {
-                    try { action(m_ecs); }
-                    catch(Exception e) { LogManager.Instance.Add(e.Message, LogLevel.High); }
-                });
+                    LogManager.Instance.Add(LogLevel.High, "Project has not been started. Cannot run function");
+                }
+                else
+                {
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        try { action(m_ecs); }
+                        catch (Exception e) { LogManager.Instance.Add(e.Message, LogLevel.High); }
+                    });
+                }
             }
-
         }
 
         private static bool UpdateAction(ECSWrapper ecs)
         {
             return ecs.LoveUpdate();
+        }
+
+        private bool UpdateAction()
+        {
+            lock (m_lock)
+            {
+                try
+                {
+                    return m_ecs == null ? false : m_ecs.LoveUpdate();
+                }
+                catch (Exception)
+                {
+                    return false;
+                }
+            }
+        }
+        private bool UpdateOnMainThread()
+        {
+            try
+            {
+                DispatcherOperation operation = Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Render, UpdateFunc);
+                while (operation.Wait(WaitTimeSpan) != DispatcherOperationStatus.Completed)
+                {
+                    if ((m_ecs?.GetAutoUpdate() ?? false) == false)
+                    {
+                        return true;
+                    }
+                }
+                return (operation.Result as bool?) ?? false;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
     }
 }

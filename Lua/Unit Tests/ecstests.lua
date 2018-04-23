@@ -24,6 +24,17 @@ local Component = require("component")
 local class = require("classlib")
 
 local TestComponent = class("TestComponent", Component)
+local FinalComponent = class("FinalComponent", Component)
+
+function FinalComponent:__init(entity)
+  self.Component:__init(entity, self)
+end
+
+function FinalComponent:eventRemovingEntity(args)
+  if self.entity == args.entity then
+    error("Cannot remove this entity")
+  end
+end
 
 function TestComponent:__init(entity)
   self.Component:__init(entity, self)
@@ -184,6 +195,7 @@ function ecsTests:testEntityComponents1()
   assertIsNil(comp2.entity)
   assertIs(comp2:getID(), "number")
   assertEquals(comp2.addedComponentCalled, 1)
+  assertEquals(comp2.removingComponentCalled, 0)
   assertIsTrue(entity:remove())
   assertEquals(comp2.removingComponentCalled, 1)
   assertEquals(entity:componentCount(), 0)
@@ -209,7 +221,7 @@ function ecsTests:testEntityComponents1()
   local comp4 = entity:addComponent('TestComponent')
   assertIs(comp4:getID(), "number")
   assertEquals(comp3.addedComponentCalled, 1)
-  assertIsTrue(system:removeEntity(2))
+  assertIsTrue(system:removeEntity(entity:getID()))
 end
 
 function ecsTests:testEntityComponents2()
@@ -242,6 +254,15 @@ function ecsTests:testEntityComponents3()
   assertNotIsNil(system:findEntity(entity1:getID()))
   assertNotIsNil(system:findEntity(entity2:getID()))
   assertNotIsNil(system:findEntity(entity3:getID()))
+end
+
+function ecsTests:testEntityComponents4()
+  local system = System()
+  system:registerComponent(FinalComponent)
+  local entity = system:createEntity()
+  local comp = entity:addComponent("FinalComponent")
+  assertError(comp:remove())
+  assertError(entity:remove())
 end
 
 function ecsTests:testEntityFunctions()

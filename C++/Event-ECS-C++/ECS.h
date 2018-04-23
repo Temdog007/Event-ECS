@@ -9,6 +9,8 @@ namespace EventECS
 	private:
 		lua_State * L;
 
+		bool disposed;
+
 		bool loveInitialized;
 
 		bool autoUpdate;
@@ -44,7 +46,7 @@ namespace EventECS
 		void RegisterComponent(const char* moduleName, bool replace = false);
 
 		void AddComponent(int entityID, const char* componentName);
-		void AddComponents(int entityID, std::list<std::string> componentNames);
+		void AddComponents(int entityID, const std::list<std::string>& componentNames);
 
 		bool RemoveComponent(int entityID, int componentID);
 
@@ -56,10 +58,12 @@ namespace EventECS
 		void SetEntityNumber(int entityID, const char* key, lua_Number value);
 		void SetEntityString(int entityID, const char* key, const char* value);
 
+		void SetEnabled(int entityID, int componentID, bool value);
 		void SetComponentBool(int entityID, int componentID, const char* key, bool value);
 		void SetComponentNumber(int entityID, int componentID, const char* key, lua_Number value);
 		void SetComponentString(int entityID, int componentID, const char* key, const char* value);
 
+		bool IsEnabled(int entityID, int componentID) const;
 		bool GetSystemBool(const char* key) const;
 		lua_Number GetSystemNumber(const char* key) const;
 		const char* GetSystemString(const char* key) const;
@@ -76,7 +80,7 @@ namespace EventECS
 		std::string SerializeEntity(int entityID);
 		std::string SerializeComponent(int entityID, int componentID);
 
-		bool LoveUpdate();
+		bool LoveUpdate(bool throwException = true);
 
 		static void SetLogHandler(void(*) (const char*));
 	};

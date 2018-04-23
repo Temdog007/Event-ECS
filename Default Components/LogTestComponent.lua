@@ -5,7 +5,7 @@ local LogTest = class("LogTestComponent", Component)
 
 function LogTest:__init(entity)
   self.Component:__init(entity, self)
-  self.unused = "This is unused. Only set for testing"
+  self.text = "This string is unused. Only set for testing"
 end
 
 function LogTest:eventAddedComponent(args)
@@ -16,10 +16,11 @@ end
 
 function LogTest:eventDraw(args)
 love.graphics.print(love.timer.getFPS())
+love.graphics.print(self.text, 0, 10)
 end
 
 function LogTest:eventRemovingComponent(args)
-	self.Component:eventRemovingComponent(args)
+  self.Component:eventRemovingComponent(args)
   if args.component == self then
     Log("Log Test Removing component")
   end

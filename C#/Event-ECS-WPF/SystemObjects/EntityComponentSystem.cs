@@ -36,6 +36,23 @@ namespace Event_ECS_WPF.SystemObjects
             }
         }
 
+        public int FrameRate
+        {
+            get
+            {
+                if (ECS.Instance.UseWrapper(GetFrameRateFunc, out int fps))
+                {
+                    return fps;
+                }
+                return 0;
+            }
+            set
+            {
+                ECS.Instance.UseWrapper(ecs => ecs.SetSystemNumber("frameRate", value));
+                OnPropertyChanged("FrameRate");
+            }
+        }
+
         public string Name
         {
             get => m_name;
@@ -53,36 +70,6 @@ namespace Event_ECS_WPF.SystemObjects
                 m_registeredComponents = value;
                 OnPropertyChanged("RegisteredComponents");
             }
-        }
-
-        private int GetFrameRateFunc(ECSWrapper ecs)
-        {
-            return (int)Convert.ChangeType(ecs.GetSystemNumber("frameRate"), typeof(int));
-        }
-
-        public int FrameRate
-        {
-            get
-            {
-                if(ECS.Instance != null && ECS.Instance.UseWrapper(GetFrameRateFunc, out int fps))
-                {
-                    return fps;
-                }
-                return 0;
-            }
-            set
-            {
-                if (ECS.Instance != null)
-                {
-                    ECS.Instance.UseWrapper(ecs => ecs.SetSystemNumber("frameRate", value));
-                    OnPropertyChanged("FrameRate");
-                }
-            }
-        }
-
-        private string[] DeserializeFunc(ECSWrapper ecs)
-        {
-            return ecs.Serialize().Split('\n');
         }
 
         public void Deserialize()
@@ -103,7 +90,7 @@ namespace Event_ECS_WPF.SystemObjects
             {
                 Name = systemDataList[0];
                 List<string> newList = new List<string>();
-                foreach(var comp in systemDataList.SubArray(1))
+                foreach (var comp in systemDataList.SubArray(1))
                 {
                     newList.Add(comp);
                 }
@@ -117,33 +104,19 @@ namespace Event_ECS_WPF.SystemObjects
 
             List<string> enList = new List<string>(list.SubArray(1));
             List<int> handledIDs = new List<int>();
-            List<int> handledComps = new List<int>();
             Entity entity = null;
             foreach (string en in enList.AsReadOnly())
             {
                 string[] enData = en.Split(Delim);
-                if (int.TryParse(enData[0], out int entityID))
+                if (int.TryParse(enData[0], out int entityID)) // Is Entity
                 {
-                    if (entity != null)
-                    {
-                        Component[] compTemp = new Component[entity.Components.Count];
-                        entity.Components.CopyTo(compTemp, 0);
-                        foreach (var c in compTemp)
-                        {
-                            if (!handledComps.Contains((int)c["id"]))
-                            {
-                                entity.Components.Remove(c);
-                            }
-                        }
-                        handledComps.Clear();
-                    }
-
                     handledIDs.Add(entityID);
 
                     entity = Entities.FirstOrDefault(e => e.ID == entityID);
                     if (entity != null)
                     {
                         entity.Name = enData[1];
+                        entity.Components.Clear();
                     }
                     else
                     {
@@ -159,69 +132,63 @@ namespace Event_ECS_WPF.SystemObjects
                     }
                     entity.Events = new ObservableSet<string>(events);
                 }
-                else
+                else // Is Component
                 {
                     string compName = enData[0];
                     LinkedList<string> data = new LinkedList<string>(enData);
                     data.RemoveFirst(); // Remove component name
 
+                    int id = 0;
+                    bool enabled = true;
                     List<ComponentVariable> tempVars = new List<ComponentVariable>();
                     while (data.Count > 0)
                     {
                         string name = data.First.Value;
                         data.RemoveFirst();
-
-                        Type type;
-                        switch (data.First.Value)
+                        if (name == "enabled")
                         {
-                            case "number":
-                                type = typeof(float);
-                                break;
-                            case "string":
-                                type = typeof(string);
-                                break;
-                            case "boolean":
-                                type = typeof(bool);
-                                break;
-                            default:
-                                throw new ArgumentException(string.Format("Couldn't deserialize entity with type {0}", data.First.Value));
+                            data.RemoveFirst(); // Type must be a boolean
+                            enabled = (bool)Convert.ChangeType(data.First.Value, typeof(bool));
+                        }
+                        else if (name == "id")
+                        {
+                            data.RemoveFirst(); // Type must be a number
+                            id = (int)Convert.ChangeType(data.First.Value, typeof(int));
+                        }
+                        else
+                        {
+                            Type type;
+                            switch (data.First.Value)
+                            {
+                                case "number":
+                                    type = typeof(float);
+                                    break;
+                                case "string":
+                                    type = typeof(string);
+                                    break;
+                                case "boolean":
+                                    type = typeof(bool);
+                                    break;
+                                default:
+                                    throw new ArgumentException(string.Format("Couldn't deserialize entity with type {0}", data.First.Value));
+                            }
+                            data.RemoveFirst();
+
+                            tempVars.Add(new ComponentVariable(name, type, Convert.ChangeType(data.First.Value, type)));
                         }
                         data.RemoveFirst();
-
-                        tempVars.Add(new ComponentVariable(name, type, Convert.ChangeType(data.First.Value, type)));
-                        data.RemoveFirst();
                     }
 
-                    Component comp = entity.Components.FirstOrDefault(c => c.Name == compName && tempVars.Single(v => v.Name == "id").Value.Equals(c["id"]));
-                    if(comp == null)
-                    {
-                        comp = new Component(entity, compName);
-                    }
+                    Component comp = new Component(entity, compName, id, enabled);
                     comp.Variables = new ObservableSet<ComponentVariable>(tempVars);
-                    
-                    handledComps.Add((int)Convert.ChangeType(comp["id"], typeof(int)));
                 }
-            }
-
-            if (entity != null)
-            {
-                Component[] compTemp = new Component[entity.Components.Count];
-                entity.Components.CopyTo(compTemp, 0);
-                foreach (var c in compTemp)
-                {
-                    if (!handledComps.Contains((int)Convert.ChangeType(c["id"], typeof(int))))
-                    {
-                        entity.Components.Remove(c);
-                    }
-                }
-                handledComps.Clear();
             }
 
             Entity[] temp = new Entity[Entities.Count];
             Entities.CopyTo(temp, 0);
-            foreach(var en in temp)
+            foreach (var en in temp)
             {
-                if(!handledIDs.Contains(en.ID))
+                if (!handledIDs.Contains(en.ID))
                 {
                     Entities.Remove(en);
                 }
@@ -231,6 +198,16 @@ namespace Event_ECS_WPF.SystemObjects
         internal void SetUniqueID(Entity entity)
         {
             entity.ID = m_entityID++;
+        }
+
+        private string[] DeserializeFunc(ECSWrapper ecs)
+        {
+            return ecs.Serialize().Split('\n');
+        }
+
+        private int GetFrameRateFunc(ECSWrapper ecs)
+        {
+            return (int)Convert.ChangeType(ecs.GetSystemNumber("frameRate"), typeof(int));
         }
     }
 }

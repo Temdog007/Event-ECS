@@ -83,7 +83,7 @@
     <Compile Include="Controls\LoveProjectMenuControl.xaml.cs">
       <DependentUpon>LoveProjectMenuControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Converters\BoolToColor.cs" />
+    <Compile Include="Converters\EnabledToColor.cs" />
     <Compile Include="Converters\LogLevelToColor.cs" />
     <Compile Include="Extensions\BindingProxy.cs" />
     <Compile Include="Projects\UpdateType.cs" />

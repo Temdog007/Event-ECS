@@ -6,20 +6,31 @@
              xmlns:controls="clr-namespace:Event_ECS_WPF.Controls"
              xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
              xmlns:ex="clr-namespace:Event_ECS_WPF.Extensions"
+             xmlns:conv="clr-namespace:Event_ECS_WPF.Converters"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
              x:Name="m_componentControl">
 
     <UserControl.Resources>
-        <CollectionViewSource x:Key="compSrc" Source="{Binding ElementName=m_componentControl, Path=Component.Variables, Mode=TwoWay}">
+        <CollectionViewSource x:Key="compSrc" Source="{Binding ElementName=m_componentControl, Path=Component.Variables, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
             <CollectionViewSource.SortDescriptions>
                 <scm:SortDescription PropertyName="Name"/>
             </CollectionViewSource.SortDescriptions>
         </CollectionViewSource>
+        
+        <conv:EnabledToColor x:Key="enToCol"/>
+        <conv:NotConverter x:Key="notCol"/>
+
         <ex:BindingProxy x:Key="ComponentControl" Data="{Binding ElementName=m_componentControl}"/>
+
+        <sys:Boolean x:Key="True">True</sys:Boolean>
+        <sys:Boolean x:Key="False">False</sys:Boolean>
     </UserControl.Resources>
     
-    <Expander Header="{Binding ElementName=m_componentControl, Path=Component.Name}"
+    <Expander Header="{Binding ElementName=m_componentControl, Path=Component.Name}" 
+              IsExpanded="{Binding Path=IsExpanded, Mode=TwoWay, ElementName=m_componentControl}"
+              Background="{Binding ElementName=m_componentControl, Path=Component.IsEnabled, Converter={StaticResource enToCol}}"
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" MinWidth="100">
 
         <Expander.ContextMenu>
@@ -28,13 +39,50 @@
             </ContextMenu>
         </Expander.ContextMenu>
 
-        <ListBox ItemsSource="{Binding Source={StaticResource compSrc}}"
+        <Grid>
+            
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <StackPanel Orientation="Horizontal" Grid.Row="0">
+                <TextBlock Text="ID" Margin="5"/>
+                <TextBlock Text="{Binding ElementName=m_componentControl, Path=Component.ID}" Margin="5"/>
+            </StackPanel>
+
+            <StackPanel Orientation="Vertical" Grid.Row="1">
+                
+                <RadioButton IsChecked="{Binding ElementName=m_componentControl, Path=Component.IsEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Delay=100}" 
+                             Content="Enabled" Command="{Binding ElementName=m_componentControl, Path=SetComponentEnabledCommand}" CommandParameter="{StaticResource True}">
+                    <RadioButton.GroupName>
+                        <MultiBinding StringFormat="{}{0}{1}">
+                            <Binding ElementName="m_componentControl" Path="Component.Name"/>
+                            <Binding ElementName="m_componentControl" Path="Component.ID"/>
+                        </MultiBinding>
+                    </RadioButton.GroupName>
+                </RadioButton>
+
+                <RadioButton IsChecked="{Binding ElementName=m_componentControl, Path=Component.IsEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource notCol}, Delay=100}" 
+                             Content="Disabled" Command="{Binding ElementName=m_componentControl, Path=SetComponentEnabledCommand}" CommandParameter="{StaticResource False}">
+                    <RadioButton.GroupName>
+                        <MultiBinding StringFormat="{}{0}{1}">
+                            <Binding ElementName="m_componentControl" Path="Component.Name"/>
+                            <Binding ElementName="m_componentControl" Path="Component.ID"/>
+                        </MultiBinding>
+                    </RadioButton.GroupName>
+                </RadioButton>
+            </StackPanel>
+
+            <ListBox ItemsSource="{Binding Source={StaticResource compSrc}}" Grid.Row="2"
                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <controls:ComponentVariableControl ComponentVariable="{Binding}"/>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <controls:ComponentVariableControl ComponentVariable="{Binding}"/>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Grid>
     </Expander>
 </UserControl>

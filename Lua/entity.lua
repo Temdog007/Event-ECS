@@ -142,7 +142,7 @@ local Entity = ClassFactory(function(entity, system)
 
     for _, component in pairs(components) do
       if matchFunction(component) then
-        return component
+        return component.parent or component
       end
     end
   end

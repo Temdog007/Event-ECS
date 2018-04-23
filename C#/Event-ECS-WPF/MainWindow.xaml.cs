@@ -39,7 +39,7 @@ namespace Event_ECS_WPF
 
         private void Window_Closing(object sender, CancelEventArgs e)
         {
-            ECS.Instance?.Dispose();
+            ECS.Instance.Dispose();
             Settings.Default.Save();
         }
     }

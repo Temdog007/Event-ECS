@@ -30,15 +30,17 @@ namespace Event_ECS_WPF.SystemObjects
 
         public Type Type => m_type;
 
-        public Component Component
-        {
-            get; internal set;
-        }
+        public Component Component { get; internal set; }
 
         private void UpdateValue(ECSWrapper ecs)
         {
+            if(Component == null)
+            {
+                return;
+            }
+
             int entityID = Component.Entity.ID;
-            int compID = (int)Convert.ChangeType(Component["id"], typeof(int));
+            int compID = (int)Convert.ChangeType(Component.ID, typeof(int));
             if (Type == typeof(float))
             {
                 ecs.SetComponentNumber(entityID, compID, Name, (float)Convert.ChangeType(Value, Type));
@@ -63,10 +65,7 @@ namespace Event_ECS_WPF.SystemObjects
             set
             {
                 this.m_value = value;
-                if(Component != null)
-                {
-                    ECS.Instance.UseWrapper(UpdateValue);
-                }
+                ECS.Instance.UseWrapper(UpdateValue);
                 OnPropertyChanged("Value");
             }
         }
@@ -91,12 +90,6 @@ namespace Event_ECS_WPF.SystemObjects
             if (obj == null)
             {
                 return false;
-            }
-#pragma warning disable CS0253 // Possible unintended reference comparison; right hand side needs cast
-            if (this == obj)
-#pragma warning restore CS0253 // Possible unintended reference comparison; right hand side needs cast
-            {
-                return true;
             }
             if (obj is ComponentVariable)
             {

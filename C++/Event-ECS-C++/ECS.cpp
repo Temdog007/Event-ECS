@@ -9,7 +9,7 @@ namespace EventECS
 {
 	void(*ECS::logHandler)(const char* log);
 
-	ECS::ECS() : L(luaL_newstate()), loveInitialized(false)
+	ECS::ECS() : L(luaL_newstate()), loveInitialized(false), disposed(false)
 	{
 		luaL_openlibs(L);
 
@@ -33,9 +33,14 @@ namespace EventECS
 
 	ECS::~ECS()
 	{
-		Quit();
+		if (!disposed) 
+		{
+			Quit();
 
-		lua_close(L);
+			lua_close(L);
+
+			disposed = true;
+		}
 	}
 
 	void ECS::Quit()
@@ -47,7 +52,7 @@ namespace EventECS
 			lua_getfield(L, -1, "quit");
 			if (lua_pcall(L, 0, 0, 0) != 0)
 			{
-				while (this->LoveUpdate());
+				while (this->LoveUpdate(false));
 			}
 			loveInitialized = false;
 		}
@@ -76,6 +81,7 @@ namespace EventECS
 
 	void ECS::Require(const char* modName, const char* globalName)
 	{
+		lua_settop(L, 0);
 		lua_getglobal(L, "require");
 		lua_pushstring(L, modName);
 		if (lua_pcall(L, 1, 1, 0) == 0)
@@ -97,6 +103,12 @@ namespace EventECS
 
 	void ECS::SetFunction(const char* funcName) const
 	{
+		if (disposed)
+		{
+			throw std::exception("Lua state has been disposed");
+		}
+
+		lua_settop(L, 0);
 		lua_getglobal(L, mySystem);
 		lua_getfield(L, -1, funcName);
 		lua_pushvalue(L, -2);
@@ -126,6 +138,7 @@ namespace EventECS
 
 	void ECS::RegisterComponent(const char* modName, bool replace)
 	{
+		lua_settop(L, 0);
 		lua_getglobal(L, "require");
 		lua_pushstring(L, modName);
 		if (lua_pcall(L, 1, 1, 0) == 0)
@@ -148,9 +161,7 @@ namespace EventECS
 
 	std::string ECS::AddEntity()
 	{
-		lua_getglobal(L, mySystem);
-		lua_getfield(L, -1, "createEntity");
-		lua_pushvalue(L, -2);
+		SetFunction("createEntity");
 		if (lua_pcall(L, 1, 1, 0) == 0)
 		{
 			lua_getfield(L, -1, "serialize");
@@ -167,11 +178,12 @@ namespace EventECS
 
 	bool ECS::RemoveEntity(int entityID)
 	{
-		SetFunction("removeEntity");
-		lua_pushnumber(L, entityID);
-		if (lua_pcall(L, 2, 1, 0) == 0)
+		FindEntity(entityID);
+		lua_getfield(L, -1, "remove");
+		lua_pushvalue(L, -2);
+		if (lua_pcall(L, 1, 1, 0) == 0)
 		{
-			int entitesRemoved = static_cast<bool>(lua_toboolean(L, -1));
+			bool entitesRemoved = static_cast<bool>(lua_toboolean(L, -1));
 			lua_pop(L, 1);
 			return entitesRemoved;
 		}
@@ -204,7 +216,7 @@ namespace EventECS
 		lua_pop(L, 1);
 	}
 
-	void ECS::AddComponents(int entityID, std::list<std::string> componentNames)
+	void ECS::AddComponents(int entityID, const std::list<std::string>& componentNames)
 	{
 		FindEntity(entityID);
 		lua_getfield(L, -1, "addComponents");
@@ -340,6 +352,18 @@ namespace EventECS
 
 	#pragma region Component
 
+	void ECS::SetEnabled(int entityID, int componentID, bool enabled)
+	{
+		FindComponent(entityID, componentID);
+		lua_getfield(L, -1, "setEnabled");
+		lua_pushvalue(L, -2);
+		lua_pushboolean(L, static_cast<int>(enabled));
+		if (lua_pcall(L, 2, 0, 0) != 0)
+		{
+			throw std::exception(lua_tostring(L, -1));
+		}
+	}
+
 	void ECS::SetComponentBool(int entityID, int componentID, const char* key, bool value)
 	{
 		FindComponent(entityID, componentID);
@@ -362,6 +386,18 @@ namespace EventECS
 		lua_pushstring(L, key);
 		lua_pushstring(L, value);
 		lua_settable(L, -3);
+	}
+
+	bool ECS::IsEnabled(int entityID, int componentID) const
+	{
+		FindComponent(entityID, componentID);
+		lua_getfield(L, -1, "isEnabled");
+		lua_pushvalue(L, -2);
+		if (lua_pcall(L, 2, 1, 0) != 0)
+		{
+			throw std::exception(lua_tostring(L, -1));
+		}
+		return static_cast<bool>(lua_toboolean(L, -1));
 	}
 
 	bool ECS::GetComponentBool(int entityID, int componentID, const char* key) const
@@ -449,13 +485,13 @@ namespace EventECS
 		return false;
 	}
 
-	bool ECS::LoveUpdate()
+	bool ECS::LoveUpdate(bool throwException)
 	{
 		if (!loveInitialized)
 		{
 			throw std::exception("LOVE not initialized. Can't call LOVE update");
 		}
-		return DoLoveUpdate(true);
+		return DoLoveUpdate(throwException);
 	}
 
 	void ECS::SetLogHandler(void(*func)(const char*))
