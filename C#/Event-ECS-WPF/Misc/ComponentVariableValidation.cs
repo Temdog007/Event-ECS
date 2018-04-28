@@ -1,12 +1,14 @@
 ﻿using Event_ECS_WPF.SystemObjects;
+using System;
 using System.Globalization;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace Event_ECS_WPF.Misc
 {
     public class ComponentVariableValidation : ValidationRule
     {
-        public IComponentVariable Variable { get; set; }
+        public ComponentVariableChecker Variable { get; set; }
 
         public override ValidationResult Validate(object value, CultureInfo cultureInfo)
         {
@@ -29,5 +31,19 @@ namespace Event_ECS_WPF.Misc
             }
             return ValidationResult.ValidResult;
         }
+    }
+
+    public class ComponentVariableChecker : DependencyObject
+    {
+        public IComponentVariable ComponentVariable
+        {
+            get { return (IComponentVariable)GetValue(ComponentProperty); }
+            set { SetValue(ComponentProperty, value); }
+        }
+
+        public static readonly DependencyProperty ComponentProperty =
+            DependencyProperty.Register("ComponentVariable", typeof(IComponentVariable), typeof(ComponentVariableChecker));
+
+        public Type Type => ComponentVariable.Type;
     }
 }

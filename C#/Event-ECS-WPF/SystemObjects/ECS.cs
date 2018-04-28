@@ -1,4 +1,5 @@
 ﻿using Event_ECS_WPF.Logger;
+using Event_ECS_WPF.Properties;
 using EventECSWrapper;
 using System;
 using System.IO;
@@ -8,6 +9,9 @@ using System.Windows.Threading;
 
 namespace Event_ECS_WPF.SystemObjects
 {
+    public delegate bool UpdateDelegate();
+    public delegate void DisposeDelegate();
+
     public delegate void AutoUpdateChanged(object sender, AutoUpdateChangedArgs e);
 
     public class AutoUpdateChangedArgs : EventArgs
@@ -25,17 +29,13 @@ namespace Event_ECS_WPF.SystemObjects
 
         private static ECS s_instance;
         private readonly object m_lock = new object();
-        private readonly Func<bool> UpdateFunc;
         private ECSWrapper m_ecs;
         static ECS()
         {
             ECSWrapper.LogEvent = str => LogManager.Instance.Add(str);
         }
 
-        internal ECS()
-        {
-            UpdateFunc = UpdateAction;
-        }
+        internal ECS(){}
 
         public static event AutoUpdateChanged OnAutoUpdateChanged;
         public static ECS Instance => s_instance ?? (s_instance = new ECS());
@@ -57,9 +57,13 @@ namespace Event_ECS_WPF.SystemObjects
             {
                 if (m_ecs != null)
                 {
-                    Application.Current.Dispatcher.Invoke(() => m_ecs.Dispose());
-                    m_ecs = null;
-                    LogManager.Instance.Add(LogLevel.Medium, "Project Stopped");
+                    DisposeDelegate d = () =>
+                    {
+                        m_ecs.Dispose();
+                        m_ecs = null;
+                        LogManager.Instance.Add(LogLevel.Medium, "Project Stopped");
+                    };
+                    Application.Current.Dispatcher.BeginInvoke(d);
                 }
             }
         }
@@ -158,7 +162,7 @@ namespace Event_ECS_WPF.SystemObjects
             {
                 try
                 {
-                    return m_ecs == null ? false : m_ecs.LoveUpdate();
+                    return m_ecs == null || m_ecs.IsDisposing() ? false : m_ecs.LoveUpdate();
                 }
                 catch (Exception)
                 {
@@ -166,16 +170,29 @@ namespace Event_ECS_WPF.SystemObjects
                 }
             }
         }
+        
         private bool UpdateOnMainThread()
         {
             try
             {
-                DispatcherOperation operation = Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Render, UpdateFunc);
-                while (operation.Wait(WaitTimeSpan) != DispatcherOperationStatus.Completed)
+                UpdateDelegate d = UpdateAction;
+                DispatcherOperation operation = Application.Current.Dispatcher.BeginInvoke(Settings.Default.LoveUpdatePriority, d);
+                while (operation.Wait(WaitTimeSpan) != DispatcherOperationStatus.Completed && operation.Status != DispatcherOperationStatus.Aborted)
                 {
-                    if ((m_ecs?.GetAutoUpdate() ?? false) == false)
+                    if (m_ecs == null || m_ecs.GetAutoUpdate() == false || m_ecs.IsDisposing())
                     {
-                        return true;
+                        int tries = 0;
+                        while (!operation.Abort())
+                        {
+                            if (++tries < 3)
+                            {
+                                operation.Priority = DispatcherPriority.Normal;
+                            }
+                            else
+                            {
+                                throw new Exception("Must exit this thread!");
+                            }
+                        }
                     }
                 }
                 return (operation.Result as bool?) ?? false;

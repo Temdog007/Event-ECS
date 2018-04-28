@@ -14,8 +14,8 @@ function FinalizerComponent:eventRemovingComponent(args)
 end
 
 function FinalizerComponent:eventRemovingEntity(args)
-	if args.entity == self.entity then
-		error("Cannot remove finalizer component")
+	if args.entity == self:getEntity() then
+		error("Cannot remove entity with finalizer component")
 	end
 end
 

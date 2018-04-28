@@ -5,6 +5,9 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:controls="clr-namespace:Event_ECS_WPF.Controls"
              xmlns:converter="clr-namespace:Event_ECS_WPF.Converters"
+             xmlns:ex="clr-namespace:Event_ECS_WPF.Extensions"
+             xmlns:sys="clr-namespace:System.Windows.Threading;assembly=WindowsBase"
+             xmlns:properties="clr-namespace:Event_ECS_WPF.Properties"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
              x:Name="m_lovemenu">
@@ -27,6 +30,17 @@
             </StackPanel>
         </GroupBox>
 
+        <Separator/>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="Update Thread Priority" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" MaxWidth="100"/>
+            <ComboBox Margin="5" ItemsSource="{Binding Source={ex:EnumBindingSource {x:Type sys:DispatcherPriority}}}"  Grid.Column="1"
+                  SelectedItem="{Binding Source={x:Static properties:Settings.Default}, Mode=TwoWay, Path=LoveUpdatePriority}"/>
+        </Grid>
         <Separator/>
 
         <MenuItem Header="Do Manual Update" IsEnabled="{Binding ElementName=m_lovemenu, Path=CanUpdate, UpdateSourceTrigger=PropertyChanged}"

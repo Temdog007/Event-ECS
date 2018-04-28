@@ -4,6 +4,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:misc="clr-namespace:Event_ECS_WPF.Misc"
+             xmlns:ex="clr-namespace:Event_ECS_WPF.Extensions"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
              x:Name="m_control">
@@ -13,7 +14,7 @@
             <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
-        <misc:ComponentVariableValidation x:Key="validator"/>
+        <ex:BindingProxy x:Key="CompVarControl" Data="{Binding ElementName=m_control}"/>
     </UserControl.Resources>
     
     <Grid>
@@ -23,7 +24,18 @@
         </Grid.ColumnDefinitions>
 
         <TextBlock Margin="5" Grid.Column="0" Text="{Binding ElementName=m_control, Path=ComponentVariable.Name}"/>
-        <TextBox Grid.Column="1" Text="{Binding ElementName=m_control, Path=ComponentVariable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+        <TextBox Grid.Column="1">
+            <TextBox.Text>
+                <Binding Path="ComponentVariable.Value" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged" ElementName="m_control">
+                    <Binding.ValidationRules>
+                        <misc:ComponentVariableValidation>
+                            <misc:ComponentVariableValidation.Variable>
+                                <misc:ComponentVariableChecker ComponentVariable="{Binding Source={StaticResource CompVarControl}, Path=Data.ComponentVariable}"/>
+                            </misc:ComponentVariableValidation.Variable>
+                        </misc:ComponentVariableValidation>
+                    </Binding.ValidationRules>
+                </Binding>
+            </TextBox.Text>
             <TextBox.Style>
                 <Style TargetType="TextBox">
                     <Style.Triggers>

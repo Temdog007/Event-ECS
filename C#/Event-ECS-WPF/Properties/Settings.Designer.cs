@@ -82,5 +82,17 @@ namespace Event_ECS_WPF.Properties {
                 this["ToggleStart"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Normal")]
+        public global::System.Windows.Threading.DispatcherPriority LoveUpdatePriority {
+            get {
+                return ((global::System.Windows.Threading.DispatcherPriority)(this["LoveUpdatePriority"]));
+            }
+            set {
+                this["LoveUpdatePriority"] = value;
+            }
+        }
     }
 }

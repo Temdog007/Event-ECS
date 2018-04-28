@@ -44,6 +44,10 @@ function component:getBase()
   return self
 end
 
+function component:getEntity()
+  return self.entity
+end
+
 function component:setEnabled(enabled)
   assert(type(enabled) == "boolean", "Must set enabled to a boolean value")
   if self.enabled ~= enabled then

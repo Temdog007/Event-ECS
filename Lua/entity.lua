@@ -176,8 +176,8 @@ local Entity = ClassFactory(function(entity, system)
   end
 
   function entity:remove()
-    self:removeComponents(removeAll)
     local value = self.system:removeEntity(self)
+    self:removeComponents(removeAll)
     self.system = nil
     self.addComponent = nil
     return value

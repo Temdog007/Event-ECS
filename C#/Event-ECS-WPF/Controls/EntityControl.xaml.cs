@@ -2,6 +2,7 @@
 using Event_ECS_WPF.Logger;
 using Event_ECS_WPF.SystemObjects;
 using EventECSWrapper;
+using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -37,9 +38,16 @@ namespace Event_ECS_WPF.Controls
 
         private void RemoveEntity()
         {
-            ECS.Instance.UseWrapper(RemoveEntityFunc, out bool removed);
-            Entity.System.Deserialize();
-            LogManager.Instance.Add("Entities removed: {0}", removed);
+            try
+            {
+                ECS.Instance.UseWrapper(RemoveEntityFunc, out bool removed);
+                Entity.System.Deserialize();
+                LogManager.Instance.Add("Entities removed: {0}", removed);
+            }
+            catch(Exception e)
+            {
+                LogManager.Instance.Add("Can't remove entity: {0}\n{1}", Entity.Name, e.Message);
+            }
         }
 
         public ICommand AddComponentCommand => m_addComponentCommand ?? (m_addComponentCommand = new ActionCommand<string>(AddComponent));

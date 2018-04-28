@@ -26,16 +26,28 @@ local class = require("classlib")
 local TestComponent = class("TestComponent", Component)
 local FinalComponent = class("FinalComponent", Component)
 
+--
+-- FinalComponent
+--
 function FinalComponent:__init(entity)
   self.Component:__init(entity, self)
 end
 
 function FinalComponent:eventRemovingEntity(args)
-  if self.entity == args.entity then
+  if self:getEntity() == args.entity then
     error("Cannot remove this entity")
   end
 end
 
+function FinalComponent:eventRemovingComponent(args)
+  if self == args.component then
+    error("Cannot remove this component")
+  end
+end
+
+--
+--TestComponent
+--
 function TestComponent:__init(entity)
   self.Component:__init(entity, self)
   self.addedComponentCalled = 0
@@ -176,13 +188,15 @@ end
 
 function ecsTests:testEntityComponents1()
   local system = System()
-  system:registerComponent(TestComponent)
   local entity = system:createEntity()
-
+  assertError(entity.addComponent, entity, 'TestComponent')
+  
+  system:registerComponent(TestComponent)
   local comp1 = entity:addComponent('TestComponent')
   assertEquals(classname(TestComponent), classname(comp1))
   assertEquals(entity:componentCount(), 1)
   assertIsNil(comp1.entity)
+  assertEquals(comp1:getEntity(), entity)
   assertIs(comp1:getID(), "number")
   assertEquals(comp1.addedComponentCalled, 1)
   assertIsTrue(entity:removeComponent(comp1))
@@ -193,6 +207,7 @@ function ecsTests:testEntityComponents1()
   local comp2 = entity:addComponent('TestComponent')
   assertEquals(entity:componentCount(), 1)
   assertIsNil(comp2.entity)
+  assertEquals(comp2:getEntity(), entity)
   assertIs(comp2:getID(), "number")
   assertEquals(comp2.addedComponentCalled, 1)
   assertEquals(comp2.removingComponentCalled, 0)
@@ -206,12 +221,12 @@ function ecsTests:testEntityComponents1()
   assertNotIsTrue(entity:removeComponent(comp1))
   assertEquals(comp1.removingComponentCalled, 1)
 
-  assertError(entity:addComponent('TestComponent'))
-
   entity = system:createEntity()
   assertIsTrue(entity:isEnabled())
   assertEquals(entity:componentCount(), 0)
   local comp3 = entity:addComponent('TestComponent')
+  assertIsNil(comp3.entity)
+  assertEquals(comp3:getEntity(), entity)
   assertIs(comp3:getID(), "number")
   assertEquals(comp3.addedComponentCalled, 1)
   assertIsTrue(comp3:remove())
@@ -219,6 +234,8 @@ function ecsTests:testEntityComponents1()
   assertEquals(entity:componentCount(), 0)
 
   local comp4 = entity:addComponent('TestComponent')
+  assertIsNil(comp4.entity)
+  assertEquals(comp4:getEntity(), entity)
   assertIs(comp4:getID(), "number")
   assertEquals(comp3.addedComponentCalled, 1)
   assertIsTrue(system:removeEntity(entity:getID()))
@@ -261,8 +278,11 @@ function ecsTests:testEntityComponents4()
   system:registerComponent(FinalComponent)
   local entity = system:createEntity()
   local comp = entity:addComponent("FinalComponent")
-  assertError(comp:remove())
-  assertError(entity:remove())
+  assertEquals(entity:componentCount(), 1)
+  assertError(comp.remove, comp)
+  assertEquals(entity:componentCount(), 1)
+  assertError(entity.remove, comp)
+  assertEquals(entity:componentCount(), 1)
 end
 
 function ecsTests:testEntityFunctions()
