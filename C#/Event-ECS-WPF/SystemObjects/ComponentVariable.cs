@@ -4,33 +4,46 @@ using System.Collections.Generic;
 
 namespace Event_ECS_WPF.SystemObjects
 {
-    public class ComponentVariable : NotifyPropertyChanged, IEquatable<ComponentVariable>
+    internal interface IComponentVariableSetter
+    {
+        Component Component { set; }
+    }
+
+    public interface IComponentVariable
+    {
+        string Name { get; }
+        Type Type { get; }
+        object Value { get; set; }
+        Component Component { get; }
+    }
+
+    public class ComponentVariable<T> : NotifyPropertyChanged, IEquatable<ComponentVariable<T>>, IComponentVariable, IComponentVariableSetter
     {
         private readonly string m_name;
-        private readonly Type m_type;
-        private object m_value;
-        
-        public ComponentVariable(string name, Type type, object value)
+        private T m_value;
+
+        public ComponentVariable(string name, T value)
         {
             if (string.IsNullOrWhiteSpace(name))
             {
                 throw new ArgumentNullException(nameof(name));
             }
-
-            this.m_name = name;
-            if (!value.GetType().IsAssignableFrom(type))
+            Type t = typeof(T);
+            if (t != typeof(float) && t != typeof(string) && t != typeof(bool))
             {
-                throw new Exception("Type must match type of value");
+                throw new ArgumentException("Invalid variable type", nameof(T));
             }
-            this.m_type = type;
+            this.m_name = name;
             this.m_value = value;
         }
 
         public string Name => m_name;
 
-        public Type Type => m_type;
+        public Type Type => typeof(T);
 
-        public Component Component { get; internal set; }
+        Component IComponentVariableSetter.Component { set => Component = value; }
+
+        public Component Component { get; private set; }
 
         private void UpdateValue(ECSWrapper ecs)
         {
@@ -41,25 +54,25 @@ namespace Event_ECS_WPF.SystemObjects
 
             int entityID = Component.Entity.ID;
             int compID = (int)Convert.ChangeType(Component.ID, typeof(int));
-            if (Type == typeof(float))
+            if (typeof(T) == typeof(float))
             {
-                ecs.SetComponentNumber(entityID, compID, Name, (float)Convert.ChangeType(Value, Type));
+                ecs.SetComponentNumber(entityID, compID, Name, (float)Convert.ChangeType(Value, typeof(T)));
             }
-            else if (Type == typeof(string))
+            else if (typeof(T) == typeof(string))
             {
                 ecs.SetComponentString(entityID, compID, Name, (string)Convert.ChangeType(Value, typeof(string)));
             }
-            else if (Type == typeof(bool))
+            else if (typeof(T) == typeof(bool))
             {
                 ecs.SetComponentBool(entityID, compID, Name, (bool)Convert.ChangeType(Value, typeof(bool)));
             }
             else
             {
-                throw new Exception(string.Format("Unknown type: {0}", Type.FullName));
+                throw new ArgumentException("Invalid variable type", nameof(T));
             }
         }
 
-        public object Value
+        public T Value
         {
             get => m_value;
             set
@@ -70,19 +83,21 @@ namespace Event_ECS_WPF.SystemObjects
             }
         }
 
-        public static bool operator !=(ComponentVariable variable1, ComponentVariable variable2)
+        object IComponentVariable.Value { get => Value; set => Value = (T)value; }
+
+        public static bool operator !=(ComponentVariable<T> variable1, ComponentVariable<T> variable2)
         {
             return !(variable1 == variable2);
         }
 
-        public static bool operator ==(ComponentVariable variable1, ComponentVariable variable2)
+        public static bool operator ==(ComponentVariable<T> variable1, ComponentVariable<T> variable2)
         {
-            return EqualityComparer<ComponentVariable>.Default.Equals(variable1, variable2);
+            return EqualityComparer<ComponentVariable<T>>.Default.Equals(variable1, variable2);
         }
 
-        public bool Equals(ComponentVariable other)
+        public bool Equals(ComponentVariable<T> other)
         {
-            return Name.Equals(other.Name) && Type.Equals(other.Type) && Value.Equals(other.Value);
+            return Name.Equals(other.Name) && Value.Equals(other.Value);
         }
 
         public override bool Equals(object obj)
@@ -91,9 +106,9 @@ namespace Event_ECS_WPF.SystemObjects
             {
                 return false;
             }
-            if (obj is ComponentVariable)
+            if (obj is ComponentVariable<T>)
             {
-                return Equals((ComponentVariable)obj);
+                return Equals((ComponentVariable<T>)obj);
             }
             return base.Equals(obj);
         }

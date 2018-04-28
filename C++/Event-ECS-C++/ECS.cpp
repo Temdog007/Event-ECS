@@ -47,6 +47,7 @@ namespace EventECS
 	{
 		if (loveInitialized)
 		{
+			lua_settop(L, 0);
 			lua_getglobal(L, love);
 			lua_getfield(L, -1, "event");
 			lua_getfield(L, -1, "quit");

@@ -14,13 +14,13 @@ namespace Event_ECS_WPF.Controls
             InitializeComponent();
         }
 
-        public ComponentVariable ComponentVariable
+        public IComponentVariable ComponentVariable
         {
-            get { return (ComponentVariable)GetValue(ComponentProperty); }
+            get { return (IComponentVariable)GetValue(ComponentProperty); }
             set { SetValue(ComponentProperty, value); }
         }
 
         public static readonly DependencyProperty ComponentProperty =
-            DependencyProperty.Register("ComponentVariable", typeof(ComponentVariable), typeof(ComponentVariableControl));
+            DependencyProperty.Register("ComponentVariable", typeof(IComponentVariable), typeof(ComponentVariableControl));
     }
 }

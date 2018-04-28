@@ -68,7 +68,7 @@ namespace Event_ECS_WPF.SystemObjects
         {
             lock (m_lock)
             {
-                return m_ecs.GetAutoUpdate();
+                return m_ecs?.GetAutoUpdate() ?? false;
             }
         }
 
@@ -91,7 +91,7 @@ namespace Event_ECS_WPF.SystemObjects
         {
             lock (m_lock)
             {
-                m_ecs.SetAutoUpdate(value);
+                m_ecs?.SetAutoUpdate(value);
                 OnAutoUpdateChanged?.Invoke(this, new AutoUpdateChangedArgs(value));
             }
         }

@@ -86,9 +86,9 @@
     <Compile Include="Converters\EnabledToColor.cs" />
     <Compile Include="Converters\LogLevelToColor.cs" />
     <Compile Include="Extensions\BindingProxy.cs" />
+    <Compile Include="Misc\ComponentVariableValidation.cs" />
     <Compile Include="Projects\UpdateType.cs" />
     <Compile Include="SystemObjects\ComponentVariable.cs" />
-    <Compile Include="TemplateSelectors\ComponentVariableTemplateSelector.cs" />
     <Compile Include="TemplateSelectors\ProjectMenuDataTemplateSelctor.cs" />
     <Page Include="Controls\ComponentControl.xaml">
       <SubType>Designer</SubType>

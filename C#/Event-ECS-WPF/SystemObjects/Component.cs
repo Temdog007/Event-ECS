@@ -9,13 +9,13 @@ using System.Linq;
 
 namespace Event_ECS_WPF.SystemObjects
 {
-    public class Component : Collection<ComponentVariable>, INotifyCollectionChanged, INotifyPropertyChanged
+    public class Component : Collection<IComponentVariable>, INotifyCollectionChanged, INotifyPropertyChanged
     {
         private readonly Entity m_entity;
         private readonly int m_id;
         private readonly string m_name;
         private bool m_isEnabled;
-        private ObservableSet<ComponentVariable> m_variables = new ObservableSet<ComponentVariable>();
+        private ObservableSet<IComponentVariable> m_variables = new ObservableSet<IComponentVariable>();
         public Component(Entity m_entity, string m_name, int m_id, bool m_isEnabled = true)
         {
             this.m_entity = m_entity ?? throw new ArgumentNullException(nameof(m_entity));
@@ -61,17 +61,17 @@ namespace Event_ECS_WPF.SystemObjects
             }
         }
 
-        public bool IsReadOnly => ((ICollection<ComponentVariable>)Variables).IsReadOnly;
+        public bool IsReadOnly => ((ICollection<IComponentVariable>)Variables).IsReadOnly;
 
         public string Name => m_name;
 
-        public ObservableSet<ComponentVariable> Variables
+        public ObservableSet<IComponentVariable> Variables
         {
             get => m_variables;
             set
             {
                 m_variables = value;
-                foreach (var v in m_variables)
+                foreach (var v in m_variables.Cast< IComponentVariableSetter>())
                 {
                     v.Component = this;
                 }
@@ -122,7 +122,7 @@ namespace Event_ECS_WPF.SystemObjects
 
         public override int GetHashCode()
         {
-            return -1853421134 + EqualityComparer<ObservableSet<ComponentVariable>>.Default.GetHashCode(Variables);
+            return -1853421134 + EqualityComparer<ObservableSet<IComponentVariable>>.Default.GetHashCode(Variables);
         }
 
         public override string ToString()

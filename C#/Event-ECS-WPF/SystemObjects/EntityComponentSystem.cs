@@ -140,7 +140,7 @@ namespace Event_ECS_WPF.SystemObjects
 
                     int id = 0;
                     bool enabled = true;
-                    List<ComponentVariable> tempVars = new List<ComponentVariable>();
+                    List<IComponentVariable> tempVars = new List<IComponentVariable>();
                     while (data.Count > 0)
                     {
                         string name = data.First.Value;
@@ -174,13 +174,14 @@ namespace Event_ECS_WPF.SystemObjects
                             }
                             data.RemoveFirst();
 
-                            tempVars.Add(new ComponentVariable(name, type, Convert.ChangeType(data.First.Value, type)));
+                            Type generic = typeof(ComponentVariable<>).MakeGenericType(type);
+                            tempVars.Add((IComponentVariable)Activator.CreateInstance(generic, new object[] { name, Convert.ChangeType(data.First.Value, type) }));
                         }
                         data.RemoveFirst();
                     }
 
                     Component comp = new Component(entity, compName, id, enabled);
-                    comp.Variables = new ObservableSet<ComponentVariable>(tempVars);
+                    comp.Variables = new ObservableSet<IComponentVariable>(tempVars);
                 }
             }
 

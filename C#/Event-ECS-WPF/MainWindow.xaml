@@ -62,32 +62,6 @@
             </ScrollViewer>
         </DataTemplate>
 
-        <DataTemplate x:Key="boolTemp">
-            <StackPanel>
-                <RadioButton Content="True" IsChecked="{Binding Value, Delay=100, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}">
-                    <RadioButton.GroupName>
-                        <MultiBinding StringFormat="{}{0}{1}">
-                            <Binding Path="Name"/>
-                            <Binding Path="Component.ID"/>
-                        </MultiBinding>
-                    </RadioButton.GroupName>
-                </RadioButton>
-                
-                <RadioButton Content="False" IsChecked="{Binding Value, Converter={StaticResource notConv}, Delay=100, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}">
-                    <RadioButton.GroupName>
-                        <MultiBinding StringFormat="{}{0}{1}">
-                            <Binding Path="Name"/>
-                            <Binding Path="Component.ID"/>
-                        </MultiBinding>
-                    </RadioButton.GroupName>
-                </RadioButton>
-            </StackPanel>
-        </DataTemplate>
-        
-        <DataTemplate x:Key="valueTemp">
-            <TextBox Text="{Binding Value, Delay=100, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
-        </DataTemplate>
-
         <selector:ProjectDataTemplateSelector x:Key="projectSelector"/>
         <selector:ProjectMenuDataTemplateSelector x:Key="projectMenuSelector"/>
     </Window.Resources>

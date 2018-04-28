@@ -3,7 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:selector="clr-namespace:Event_ECS_WPF.TemplateSelectors"
+             xmlns:misc="clr-namespace:Event_ECS_WPF.Misc"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
              x:Name="m_control">
@@ -13,8 +13,7 @@
             <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
-        
-        <selector:ComponentVariableTemplateSelector x:Key="selector"/>
+        <misc:ComponentVariableValidation x:Key="validator"/>
     </UserControl.Resources>
     
     <Grid>
@@ -24,8 +23,16 @@
         </Grid.ColumnDefinitions>
 
         <TextBlock Margin="5" Grid.Column="0" Text="{Binding ElementName=m_control, Path=ComponentVariable.Name}"/>
-        <ContentPresenter Grid.Column="1" Margin="5"
-                          Content="{Binding ElementName=m_control, Path=ComponentVariable}"
-                          ContentTemplateSelector="{StaticResource selector}"/>
+        <TextBox Grid.Column="1" Text="{Binding ElementName=m_control, Path=ComponentVariable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+            <TextBox.Style>
+                <Style TargetType="TextBox">
+                    <Style.Triggers>
+                        <Trigger Property="Validation.HasError" Value="true">
+                            <Setter Property="ToolTip" Value="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=(Validation.Errors)[0].ErrorContent}"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBox.Style>
+        </TextBox>
     </Grid>
 </UserControl>
