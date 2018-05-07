@@ -1,8 +1,9 @@
-﻿using Event_ECS_WPF.Logger;
-using Event_ECS_WPF.SystemObjects;
-using System;
+﻿using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Xml.Serialization;
 
@@ -13,6 +14,13 @@ namespace Event_ECS_WPF.Projects
         DESKTOP,
         EXCLUSIVE
     }
+
+    public enum UpdateType
+    {
+        MANUAL,
+        AUTOMATIC
+    }
+
     [XmlRoot("LoveProject")]
     public class LoveProject : Project
     {
@@ -56,11 +64,13 @@ namespace Event_ECS_WPF.Projects
     t.modules.video = {32}-- Enable the video module (boolean)
     t.modules.window = {33}-- Enable the window module (boolean)
 end";
-        private LoveProjectSettings _settings;
 
+        private LoveProjectSettings _settings;
+        private UpdateType _updateType;
         public LoveProject()
         {
             Settings = new LoveProjectSettings();
+            UpdateType = UpdateType.MANUAL;
         }
 
         [XmlElement("Settings")]
@@ -68,45 +78,27 @@ end";
 
         public override ProjectType Type => ProjectType.LOVE;
 
-        public override bool Start()
+        [XmlElement]
+        public UpdateType UpdateType
         {
-            string text = string.Format(confFormat,
-            Settings.AccelerometerJoystick, Settings.ExternalStorage, Settings.GammaCorrect, Settings.MixWithSystem, Settings.Width, Settings.Height,
-            Settings.Borderless, Settings.Resizable, Settings.MinWidth, Settings.MinHeight, Settings.Fullscreen, Settings.FullscreenType.ToString().ToLower(),
-            Settings.VSync, Settings.Msaa, Settings.Display, Settings.HighDPI, Settings.Modules.Audio, Settings.Modules.Data, Settings.Modules.Event,
-            Settings.Modules.Font, Settings.Modules.Graphics, Settings.Modules.Image, Settings.Modules.Joystick, Settings.Modules.Keyboard, Settings.Modules.Math,
-            Settings.Modules.Mouse, Settings.Modules.Physics, Settings.Modules.Sound, Settings.Modules.System, Settings.Modules.Thread, Settings.Modules.Timer,
-            Settings.Modules.Touch, Settings.Modules.Video, Settings.Modules.Window);
-
-            text = text.Replace("True", "true").Replace("False", "false");
-            File.WriteAllText(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "conf.lua"), text);
-
-            if (Setup())
+            get => _updateType;
+            set
             {
-                if (!ECS.Instance.InitializeLove(Name))
-                {
-                    throw new Exception("Failed to initialize LOVE");
-                }
-
-                ECS.Instance.UseWrapper(ecs =>
-                {
-                    foreach (string component in Components)
-                    {
-                        try
-                        {
-                            ecs.RegisterComponent(component, false);
-                        }
-                        catch(Exception e)
-                        {
-                            LogManager.Instance.Add(string.Format("Failed to register component {0}\n{1}", component, e.Message));
-                        }
-                    }
-                    InitializeECS(ecs);
-                });
-                DispatchProjectStateChange(ProjectStateChangeArgs.Started);
-                return true;
+                _updateType = value;
+                OnPropertyChanged("UpdateType");
             }
-            return false;
+        }
+
+        public override void Start()
+        {
+            File.WriteAllText(Path.Combine(Assembly.GetExecutingAssembly().Location, "conf.lua"), string.Format(confFormat,
+                Settings.AccelerometerJoystick, Settings.ExternalStorage, Settings.GammaCorrect, Settings.MixWithSystem, Settings.Width, Settings.Height,
+                Settings.Borderless, Settings.Resizable, Settings.MinWidth, Settings.MinHeight, Settings.Fullscreen, Settings.FullscreenType.ToString().ToLower(),
+                Settings.VSync, Settings.Msaa, Settings.Display, Settings.HighDPI, Settings.Modules["Audio"], Settings.Modules["Data"], Settings.Modules["Event"],
+                Settings.Modules["Font"], Settings.Modules["Graphics"], Settings.Modules["Image"], Settings.Modules["Joystick"], Settings.Modules["keyboard"], Settings.Modules["Math"],
+                Settings.Modules["Mouse"], Settings.Modules["Physics"], Settings.Modules["Sound"], Settings.Modules["System"], Settings.Modules["Thread"], Settings.Modules["Timer"],
+                Settings.Modules["Touch"], Settings.Modules["Video"], Settings.Modules["Window"]));
+            base.Start();
         }
     }
 
@@ -173,79 +165,52 @@ end";
         public int Width { get => _width; set { _width = value; OnPropertyChanged(); } }
     }
 
-    public class Modules : NotifyPropertyChanged
+    public class Modules : IEnumerable<Module>
     {
-        private bool _audio;
-        private bool _data;
-        private bool _event;
-        private bool _font;
-        private bool _graphics;
-        private bool _image;
-        private bool _joystick;
-        private bool _keyboard;
-        private bool _math;
-        private bool _mouse;
-        private bool _physics;
-        private bool _sound;
-        private bool _system;
-        private bool _thread;
-        private bool _timer;
-        private bool _touch;
-        private bool _video;
-        private bool _window;
+        private static readonly string[] modNames =
+        {
+            "Data",
+            "Event",
+            "Keyboard",
+            "Mouse",
+            "Timer",
+            "Joystick",
+            "Touch",
+            "Image",
+           " Graphics",
+            "Audio",
+           " Math",
+           " Physics",
+            "Sound",
+            "System",
+            "Font",
+            "Thread",
+            "Window",
+           " Video"
+        };
+
+        private readonly Module[] modules;
+
         public Modules()
         {
-            Data = true;
-            Event = true;
-            Keyboard = true;
-            Mouse = true;
-            Timer = true;
-            Joystick = true;
-            Touch = true;
-            Image = true;
-            Graphics = true;
-            Audio = true;
-            Math = true;
-            Physics = true;
-            Sound = true;
-            System = true;
-            Font = true;
-            Thread = true;
-            Window = true;
-            Video = true;
+            List<Module> mods = new List<Module>();
+            foreach (var modeName in modNames)
+            {
+                mods.Add(new Module(modeName));
+            }
+            modules = mods.ToArray();
         }
 
-        public bool Audio { get => _audio; set { _audio = value; OnPropertyChanged(); } }
-        public bool Data { get => _data; set { _data = value; OnPropertyChanged(); } }
-        public bool Event { get => _event; set { _event = value; OnPropertyChanged(); } }
-        public bool Font { get => _font; set { _font = value; OnPropertyChanged(); } }
-        public bool Graphics { get => _graphics; set { _graphics = value; OnPropertyChanged(); } }
-        public bool Image { get => _image; set { _image = value; OnPropertyChanged(); } }
-        public bool Joystick { get => _joystick; set { _joystick = value; OnPropertyChanged(); } }
-        public bool Keyboard { get => _keyboard; set { _keyboard = value; OnPropertyChanged(); } }
-        public bool Math { get => _math; set { _math = value; OnPropertyChanged(); } }
-        public bool Mouse { get => _mouse; set { _mouse = value; OnPropertyChanged(); } }
-        public bool Physics { get => _physics; set { _physics = value; OnPropertyChanged(); } }
-        public bool Sound { get => _sound; set { _sound = value; OnPropertyChanged(); } }
-        public bool System { get => _system; set { _system = value; OnPropertyChanged(); } }
-        public bool Thread { get => _thread; set { _thread = value; OnPropertyChanged(); } }
-        public bool Timer { get => _timer; set { _timer = value; OnPropertyChanged(); } }
-        public bool Touch { get => _touch; set { _touch = value; OnPropertyChanged(); } }
-        public bool Video { get => _video; set { _video = value; OnPropertyChanged(); } }
-        public bool Window { get => _window; set { _window = value; OnPropertyChanged(); } }
-    }
+        public bool this[string key] => modules.Single(m => m.Name == key)?.Enabled ?? false;
 
-    public class ProjectStateChangeArgs : EventArgs
-    {
-        private static readonly ProjectStateChangeArgs m_started = new ProjectStateChangeArgs(true);
-        private static readonly ProjectStateChangeArgs m_stopped = new ProjectStateChangeArgs(false);
-        private readonly bool _isStarted;
-        public ProjectStateChangeArgs(bool started)
+        public IEnumerator<Module> GetEnumerator()
         {
-            _isStarted = started;
+            return ((IEnumerable<Module>)modules).GetEnumerator();
         }
-        public static ProjectStateChangeArgs Started => m_started;
-        public static ProjectStateChangeArgs Stopped => m_stopped;
-        public bool IsStarted => _isStarted;
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return ((IEnumerable<Module>)modules).GetEnumerator();
+        }
     }
 }

@@ -25,6 +25,10 @@ namespace EventECS
 		{
 			throw std::exception("Failed to create global Entity Component System");
 		}
+		else if(ECS::logHandler != nullptr)
+		{
+			ECS::logHandler("Created a normal Entity Component System");
+		}
 		lua_pop(L, 1);
 
 		lua_pushcfunction(L, luaopen_logFunction);
@@ -70,6 +74,10 @@ namespace EventECS
 		if (lua_pcall(L, 2, 1, 0) == 0)
 		{
 			lua_setglobal(L, mySystem);
+			if (ECS::logHandler != nullptr)
+			{
+				ECS::logHandler("Created a LOVE2D Entity Component System");
+			}
 		}
 		else
 		{
@@ -148,7 +156,7 @@ namespace EventECS
 
 			lua_getglobal(L, mySystem);
 			lua_getfield(L, -1, replace ? "replaceComponent" : "registerComponent");
-			lua_pushnumber(L, -2);
+			lua_pushvalue(L, -2);
 			lua_getglobal(L, "Component");
 			if (lua_pcall(L, 2, 0, 0) == 0)
 			{

@@ -39,7 +39,7 @@ namespace Event_ECS_WPF.SystemObjects
         {
             get
             {
-                if (ECS.Instance.UseWrapper(GetFrameRateFunc, out int fps))
+                if (ECS.Instance.ProjectStarted && ECS.Instance.UseWrapper(GetFrameRateFunc, out int fps))
                 {
                     return fps;
                 }

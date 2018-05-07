@@ -33,148 +33,148 @@ local function systostring(sys)
 end
 
 function system:__init()
-  local entities = {}
-  local id = 1
+  self.entities = {}
+  self.id = 1
 
-  local registeredComponents = {}
+  self.registeredComponents = {}
+  self:registerComponent(Component)
+end
 
-  function system:getName()
-    return systostring(self)
-  end
+function system:getName()
+  return systostring(self)
+end
 
-  function system:createEntity()
-    local entity = Entity(self)
-    local thisID = id
-    entity.getID = function() return thisID end
-    id = id + 1
-    entities[#entities + 1] = entity
-    self:dispatchEvent("eventCreatedEntity", {entity = entity, system = self})
-    return entity
-  end
+function system:createEntity()
+  local entity = Entity(self)
+  local thisID = self.id
+  entity.getID = function() return thisID end
+  self.id = self.id + 1
+  self.entities[#self.entities + 1] = entity
+  self:dispatchEvent("eventCreatedEntity", {entity = entity, system = self})
+  return entity
+end
 
-  function system:removeEntity(entity)
-    if type(entity) == "number" then
-      for k, en in pairs(entities) do
-        if en:getID() == entity then
-          self:dispatchEvent("eventRemovingEntity", {entity = entity, system = self})
-          entities[k] = nil
-          self:dispatchEvent("eventRemovedEntity", {entity = entity, system = self})
-          return true
-        end
+function system:removeEntity(entity)
+  if type(entity) == "number" then
+    for k, en in pairs(self.entities) do
+      if en:getID() == entity then
+        self:dispatchEvent("eventRemovingEntity", {entity = entity, system = self})
+        self.entities[k] = nil
+        self:dispatchEvent("eventRemovedEntity", {entity = entity, system = self})
+        return true
       end
-    else
-      assert(entity and string.match(entity:getName(), "Entity"), "Must enter a entity to remove")
-      for k, en in pairs(entities) do
-        if en == entity then
-          self:dispatchEvent("eventRemovingEntity", {entity = entity, system = self})
-          entities[k] = nil
-          self:dispatchEvent("eventRemovedEntity", {entity = entity, system = self})
-          return true
-        end
+    end
+  else
+    assert(entity and string.match(entity:getName(), "Entity"), "Must enter a entity to remove")
+    for k, en in pairs(self.entities) do
+      if en == entity then
+        self:dispatchEvent("eventRemovingEntity", {entity = entity, system = self})
+        self.entities[k] = nil
+        self:dispatchEvent("eventRemovedEntity", {entity = entity, system = self})
+        return true
       end
     end
   end
+end
 
-  function system:removeEntities(matchFunction)
-    assert(typeof(matchFunction) == "function", "Must enter a function to remove entities")
+function system:removeEntities(matchFunction)
+  assert(typeof(matchFunction) == "function", "Must enter a function to remove self.entities")
 
-    local count = 0
-    for k, en in pairs(entities) do
-      if matchFunction(en) then
-        self:dispatchEvent("eventRemovingEntity", {entity = en, system = self})
-        entities[k] = nil
-        self:dispatchEvent("eventRemovedEntity", {entity = en, system = self})
-        count = count + 1
-      end
-    end
-    return count
-  end
-
-  function system:entityCount()
-    local count = 0
-    for _ in pairs(entities) do
+  local count = 0
+  for k, en in pairs(self.entities) do
+    if matchFunction(en) then
+      self:dispatchEvent("eventRemovingEntity", {entity = en, system = self})
+      self.entities[k] = nil
+      self:dispatchEvent("eventRemovedEntity", {entity = en, system = self})
       count = count + 1
     end
-    return count
+  end
+  return count
+end
+
+function system:entityCount()
+  local count = 0
+  for _ in pairs(self.entities) do
+    count = count + 1
+  end
+  return count
+end
+
+function system:findEntity(pArg)
+
+  local findFunc
+  if type(pArg) == "number" then
+    findFunc = function(en) return en:getID() == pArg end
+  else
+    findFunc = pArg
   end
 
-  function system:findEntity(pArg)
-
-    local findFunc
-    if type(pArg) == "number" then
-      findFunc = function(en) return en:getID() == pArg end
-    else
-      findFunc = pArg
-    end
-
-    for _, en in pairs(entities) do
-      if findFunc(en) then
-        return en
-      end
-    end
-
-  end
-
-  function system:findEntities(findFunc)
-    local tab = {}
-    for _, en in pairs(entities) do
-      if findFunc(en) then
-        tab[#tab + 1] = en
-      end
-    end
-    return tab
-  end
-
-  function system:dispatchEvent(event, args)
-    local eventsHandled = 0
-    for _, entity in pairs(entities) do
-      if entity:isEnabled() then
-        eventsHandled = eventsHandled + entity:dispatchEvent(event, args)
-      end
-    end
-    return eventsHandled
-  end
-
-  function system:replaceComponent(NewComponent)
-    assert(is_a(NewComponent, Component), string.format("Object '%s' is not an Component", name))
-    local name = classname(NewComponent)
-    registeredComponents[name] = NewComponent
-  end
-
-  function system:registerComponent(NewComponent)
-    local name = classname(NewComponent)
-    assert(not registeredComponents[name], "Component has already been registered")
-    assert(is_a(NewComponent, Component), string.format("Object '%s' is not an Component", name))
-    registeredComponents[name] = NewComponent
-  end
-  system:registerComponent(Component)
-
-  function system:registerComponents(...)
-    for _, comp in pairs({...}) do
-      self:registerComponent(comp)
+  for _, en in pairs(self.entities) do
+    if findFunc(en) then
+      return en
     end
   end
 
-  function system:getComponent(compName)
-    assert(type(compName) == "string", "Must find components by classname")
-    return registeredComponents[compName]
-  end
+end
 
-  function system:getComponentList()
-    local comps = {}
-    for k in pairs(registeredComponents) do
-      table.insert(comps, k)
+function system:findEntities(findFunc)
+  local tab = {}
+  for _, en in pairs(self.entities) do
+    if findFunc(en) then
+      tab[#tab + 1] = en
     end
-    return table.concat(comps, "|")
   end
+  return tab
+end
 
-  function system:serialize()
-    local tab = { self:getName().."|"..self:getComponentList()}
-    for _, en in pairs(entities) do
-      table.insert(tab, en:serialize())
+function system:dispatchEvent(event, args)
+  local eventsHandled = 0
+  for _, entity in pairs(self.entities) do
+    if entity:isEnabled() then
+      eventsHandled = eventsHandled + entity:dispatchEvent(event, args)
     end
-    return table.concat(tab, "\n");
   end
+  return eventsHandled
+end
+
+function system:replaceComponent(NewComponent)
+  assert(is_a(NewComponent, Component), string.format("Object '%s' is not an Component", name))
+  local name = classname(NewComponent)
+  self.registeredComponents[name] = NewComponent
+end
+
+function system:registerComponent(NewComponent)
+  local name = classname(NewComponent)
+  assert(not self.registeredComponents[name], "Component has already been registered")
+  assert(is_a(NewComponent, Component), string.format("Object '%s' is not an Component", name))
+  self.registeredComponents[name] = NewComponent
+end
+
+function system:registerComponents(...)
+  for _, comp in pairs({...}) do
+    self:registerComponent(comp)
+  end
+end
+
+function system:getComponent(compName)
+  assert(type(compName) == "string", "Must find components by classname")
+  return self.registeredComponents[compName]
+end
+
+function system:getComponentList()
+  local comps = {}
+  for k in pairs(self.registeredComponents) do
+    table.insert(comps, k)
+  end
+  return table.concat(comps, "|")
+end
+
+function system:serialize()
+  local tab = { self:getName().."|"..self:getComponentList()}
+  for _, en in pairs(self.entities) do
+    table.insert(tab, en:serialize())
+  end
+  return table.concat(tab, "\n");
 end
 
 return system

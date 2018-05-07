@@ -35,180 +35,182 @@ local function entostring(en)
   return en.name or ClassName
 end
 
+local function addComponentsFromTable(s, t, i)
+  i = i or 1
+  if t[i] ~= nil then
+    return s:addComponent(t[i]), addComponentsFromTable(s, t, i + 1)
+  end
+end
+
+local function removeComponentFunction(entity, index, component)
+  entity.system:dispatchEvent("eventRemovingComponent", {component = component, entity = entity})
+  entity.components[index] = nil
+
+  for eventName,eventTables in pairs(entity.eventTablesTable) do
+    for k, eventTable in pairs(eventTables) do
+      if eventTable.component == component then
+        eventTables[k] = nil
+      end
+    end
+  end
+  entity.system:dispatchEvent("eventRemovedComponent", {component = component, entity = entity})
+end
+
 function entity:__init(system)
   assert(system, "Entity must have a system")
 
-  entity.system = system
+  self.system = system
 
-  local enabled = true
+  self.enabled = true
+  self.components = {}
+  self.eventTablesTable = {}
+end
 
-  function entity:isEnabled() return enabled end
-  function entity:setEnabled(pEnabled)
-    assert(type(pEnabled) == "boolean", "Must set enabled to a boolean value")
-    if enabled ~= pEnabled then
-      enabled = pEnabled
-      self.entity.system:dispatchEvent("eventEnabledChanged", self, pEnabled)
+function entity:isEnabled()
+  return self.enabled
+end
+
+function entity:setEnabled(pEnabled)
+  assert(type(pEnabled) == "boolean", "Must set self.enabled to a boolean value")
+  if self.enabled ~= pEnabled then
+    self.enabled = pEnabled
+    self.entity.system:dispatchEvent("eventEnabledChanged", self, pEnabled)
+  end
+end
+
+function entity:addComponents(...)
+  return addComponentsFromTable(self, {...})
+end
+
+function entity:removeComponent(component)
+  if type(component) == "number" then
+    component = self:findComponent(component)
+  end
+  local base = component:getBase()
+  for k,v in pairs(self.components) do
+    if v == base then
+      removeComponentFunction(self, k, component)
+      return true
     end
   end
+end
 
-  local components = {}
-  local eventTablesTable = {}
-
-  function entity:addComponent(compName, args)
-    local compClass = assert(self.system:getComponent(compName), "Component not found in system")
-    local component = assert(compClass(self, args), "Class instance couldn't be created")
-
-    -- Insert component into list of components
-    table.insert(components, component:getBase())
-
-    -- Grab all of the components functions and put them into the event tables
-    for k,v in pairs(compClass) do
-      k = string.lower(k)
-      if string.starts(k, "event") and type(v) == "function" then
-        if not eventTablesTable[k] then
-          eventTablesTable[k] = {}
-        end
-        table.insert(eventTablesTable[k], {component = component, func = v})
-      end
-    end
-
-    self.system:dispatchEvent("eventAddedComponent",  {component = component, entity = self})
-    return component
-  end
-
-  local function addComponentsFromTable(s, t, i)
-    i = i or 1
-    if t[i] ~= nil then
-      return s:addComponent(t[i]), addComponentsFromTable(s, t, i + 1)
+function entity:removeComponents(compFunc)
+  for k,component in pairs(self.components) do
+    if compFunc(component) then
+      removeComponentFunction(self, k, component)
     end
   end
+end
 
-  function entity:addComponents(...)
-    return addComponentsFromTable(self, {...})
+function entity:componentCount()
+  local count = 0
+  for _ in pairs(self.components) do
+    count = count + 1
+  end
+  return count
+end
+
+function entity:findComponent(pArg)
+
+  local matchFunction
+  if type(pArg) == "number" then
+    matchFunction = function(en) return en:getID() == pArg end
+  else
+    matchFunction = pArg
   end
 
-  local function removeComponentFunction(index, component)
-    entity.system:dispatchEvent("eventRemovingComponent", {component = component, entity = entity})
-    components[index] = nil
-
-    for eventName,eventTables in pairs(eventTablesTable) do
-      for k, eventTable in pairs(eventTables) do
-        if eventTable.component == component then
-          eventTables[k] = nil
-        end
-      end
-    end
-    entity.system:dispatchEvent("eventRemovedComponent", {component = component, entity = entity})
-  end
-
-  function entity:removeComponent(component)
-    if type(component) == "number" then
-      component = self:findComponent(component)
-    end
-    local base = component:getBase()
-    for k,v in pairs(components) do
-      if v == base then
-        removeComponentFunction(k, component)
-        return true
-      end
+  for _, component in pairs(self.components) do
+    if matchFunction(component) then
+      return component.parent or component
     end
   end
+end
 
-  function entity:removeComponents(compFunc)
-    for k,component in pairs(components) do
-      if compFunc(component) then
-        removeComponentFunction(k, component)
-      end
+function entity:findComponents(matchFunction)
+  local tab = {}
+  for _, component in pairs(self.components) do
+    if matchFunction(component) then
+      tab[#tab + 1] = component
     end
   end
+  return tab
+end
 
-  function entity:componentCount()
-    local count = 0
-    for _ in pairs(components) do
+function entity:dispatchEvent(event, args)
+  event = string.lower(event)
+  local eventTables = self.eventTablesTable[event]
+  if not eventTables then
+    return 0
+  end
+
+  local count = 0
+  for _, eventTable in pairs(eventTables) do
+    local comp = eventTable.component
+    if comp:isEnabled() then
+      eventTable.func(comp, args)
       count = count + 1
     end
-    return count
+  end
+  return count
+end
+
+function entity:remove()
+  local value = self.system:removeEntity(self)
+  self:removeComponents(removeAll)
+  self.system = nil
+  self.addComponent = nil
+  return value
+end
+
+function entity:getEventList()
+  local tab = {}
+  for k in pairs(self.eventTablesTable) do
+    local str = string.gsub(k, "event", "")
+    table.insert(tab, str)
+  end
+  return table.concat(tab, "|")
+end
+
+function entity:serialize()
+  local events = self:getEventList()
+  local tab = {}
+  if string.len(events) > 0 then
+    table.insert(tab, string.format("%d|%s|%s", self:getID(), self:getName(), self:getEventList()))
+  else
+    table.insert(tab, string.format("%d|%s", self:getID(), self:getName()))
   end
 
-  function entity:findComponent(pArg)
-
-    local matchFunction
-    if type(pArg) == "number" then
-      matchFunction = function(en) return en:getID() == pArg end
-    else
-      matchFunction = pArg
-    end
-
-    for _, component in pairs(components) do
-      if matchFunction(component) then
-        return component.parent or component
-      end
-    end
+  for k,v in pairs(self.components) do
+    table.insert(tab, v:serialize())
   end
-
-  function entity:findComponents(matchFunction)
-    local tab = {}
-    for _, component in pairs(components) do
-      if matchFunction(component) then
-        tab[#tab + 1] = component
-      end
-    end
-    return tab
-  end
-
-  function entity:dispatchEvent(event, args)
-    event = string.lower(event)
-    local eventTables = eventTablesTable[event]
-    if not eventTables then
-      return 0
-    end
-
-    local count = 0
-    for _, eventTable in pairs(eventTables) do
-      local comp = eventTable.component
-      if comp:isEnabled() then
-        eventTable.func(comp, args)
-        count = count + 1
-      end
-    end
-    return count
-  end
-
-  function entity:remove()
-    local value = self.system:removeEntity(self)
-    self:removeComponents(removeAll)
-    self.system = nil
-    self.addComponent = nil
-    return value
-  end
-
-  function entity:getEventList()
-    local tab = {}
-    for k in pairs(eventTablesTable) do
-      local str = string.gsub(k, "event", "")
-      table.insert(tab, str)
-    end
-    return table.concat(tab, "|")
-  end
-
-  function entity:serialize()
-    local events = self:getEventList()
-    local tab = {}
-    if string.len(events) > 0 then
-      table.insert(tab, string.format("%d|%s|%s", self:getID(), self:getName(), self:getEventList()))
-    else
-      table.insert(tab, string.format("%d|%s", self:getID(), self:getName()))
-    end
-
-    for k,v in pairs(components) do
-      table.insert(tab, v:serialize())
-    end
-    return table.concat(tab, "\n")
-  end
+  return table.concat(tab, "\n")
 end
 
 function entity:getName()
   return entostring(self)
+end
+
+function entity:addComponent(compName, args)
+  local compClass = assert(self.system:getComponent(compName), string.format("Component '%s' not found in system", compName))
+  local component = assert(compClass(self, args), string.format("Instance of '%s' couldn't be created", compName))
+
+  -- Insert component into list of self.components
+  table.insert(self.components, component:getBase())
+
+  -- Grab all of the self.components functions and put them into the event tables
+  for k,v in pairs(compClass) do
+    k = string.lower(k)
+    if string.starts(k, "event") and type(v) == "function" then
+      if not self.eventTablesTable[k] then
+        self.eventTablesTable[k] = {}
+      end
+      table.insert(self.eventTablesTable[k], {component = component, func = v})
+    end
+  end
+
+  self.system:dispatchEvent("eventAddedComponent",  {component = component, entity = self})
+  return component
 end
 
 return entity
