@@ -18,9 +18,9 @@
         <ex:BindingProxy x:Key="EntityControl" Data="{Binding ElementName=m_entityControl}"/>
     </UserControl.Resources>
 
-    <Expander ExpandDirection="Right">
+    <ListBox>
 
-        <Expander.ContextMenu>
+        <ListBox.ContextMenu>
             <ContextMenu>
 
                 <ContextMenu.ItemsSource>
@@ -28,8 +28,7 @@
                         <MenuItem Header="Add Component" ItemsSource="{Binding Source={StaticResource EntityControl}, Path=Data.Entity.AvailableComponents}">
                             <MenuItem.ItemTemplate>
                                 <DataTemplate>
-                                    <MenuItem Header="{Binding}" CommandParameter="{Binding}" Command="{Binding Source={StaticResource EntityControl}, Path=Data.AddComponentCommand}">
-                                    </MenuItem>
+                                    <MenuItem Header="{Binding}" CommandParameter="{Binding}" Command="{Binding Source={StaticResource EntityControl}, Path=Data.AddComponentCommand}"/>
                                 </DataTemplate>
                             </MenuItem.ItemTemplate>
                         </MenuItem>
@@ -39,37 +38,21 @@
                 </ContextMenu.ItemsSource>
 
             </ContextMenu>
-        </Expander.ContextMenu>
+        </ListBox.ContextMenu>
 
-        <Expander.Header>
-            <StackPanel Orientation="Horizontal">
-                <TextBox Text="{Binding ElementName=m_entityControl, Path=Entity.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                <TextBlock Margin="10">
-                    <TextBlock.Text>
-                        <MultiBinding StringFormat="{}ID #{0}">
-                            <Binding Path="Entity.ID" ElementName="m_entityControl" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged"/>
-                        </MultiBinding>
-                    </TextBlock.Text>
-                </TextBlock>
-            </StackPanel>
-        </Expander.Header>
+        <Expander Header="Events" Background="LightYellow">
+            <ListBox ItemsSource="{Binding ElementName=m_entityControl, Path=Entity.Events, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+        </Expander>
 
-        <ListBox>
-
-            <Expander Header="Events" Background="LightYellow">
-                <ListBox ItemsSource="{Binding ElementName=m_entityControl, Path=Entity.Events, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-            </Expander>
-
-            <GroupBox Header="Components">
-                <ListBox x:Name="ComponentsGroupBox" ItemsSource="{Binding ElementName=m_entityControl, Path=Entity.Components, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <controls:ComponentControl Component="{Binding}" Background="AliceBlue" 
-                                                       IsExpanded="{Binding Mode=TwoWay, Path=IsSelected, RelativeSource={RelativeSource AncestorType=ListBoxItem, Mode=FindAncestor}}"/>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
-            </GroupBox>
-        </ListBox>
-    </Expander>
+        <GroupBox Header="Components">
+            <ListBox x:Name="ComponentsGroupBox" ItemsSource="{Binding ElementName=m_entityControl, Path=Entity.Components, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <controls:ComponentControl Component="{Binding}" Background="AliceBlue" IsExpanded="{Binding Mode=TwoWay, Path=IsSelected, 
+                                                            RelativeSource={RelativeSource AncestorType=ListBoxItem, Mode=FindAncestor}}"/>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </GroupBox>
+    </ListBox>
 </UserControl>

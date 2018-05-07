@@ -34,6 +34,7 @@ namespace Event_ECS_WPF.Projects
         }
 
         public static event ProjectStateChangeEvent ProjectStateChange;
+
         /// <summary>
         /// Directory containing all of the lua component files
         /// </summary>
@@ -45,6 +46,32 @@ namespace Event_ECS_WPF.Projects
             {
                 _componentPath = value;
                 OnPropertyChanged("ComponentPath");
+                OnPropertyChanged("Components");
+            }
+        }
+
+        public IEnumerable<string> Files
+        {
+            get
+            {
+                if (!isHidden(ComponentPath) && Directory.Exists(ComponentPath))
+                {
+                    foreach (var file in Directory.GetFiles(ComponentPath).Where(f => !isHidden(f) && Path.GetExtension(f) == ".lua"))
+                    {
+                        yield return file;
+                    }
+                }
+            }
+        }
+
+        public IEnumerable<string> Components
+        {
+            get
+            {
+                foreach(var file in Files)
+                {
+                    yield return Path.GetFileNameWithoutExtension(Path.GetFileName(file));
+                }
             }
         }
 
@@ -95,19 +122,19 @@ namespace Event_ECS_WPF.Projects
 
         public virtual bool Start()
         {
-            if(Start(out IEnumerable<string> componentsToRegsiter))
+            if(Setup())
             {
                 ECS.Instance.UseWrapper(ecs =>
                 {
-                    foreach (var file in componentsToRegsiter)
+                    foreach (var component in Components)
                     {
                         try
                         {
-                            ecs.RegisterComponent(file, false);
+                            ecs.RegisterComponent(component, false);
                         }
                         catch (Exception e)
                         {
-                            LogManager.Instance.Add(string.Format("Failed to register component {0}\n{1}", file, e.Message));
+                            LogManager.Instance.Add(string.Format("Failed to register component {0}\n{1}", component, e.Message));
                         }
                     }
                     InitializeECS(ecs);
@@ -118,29 +145,11 @@ namespace Event_ECS_WPF.Projects
             return false;
         }
 
-        protected bool Start(out IEnumerable<string> pComponentsToRegister)
+        protected bool Setup()
         {
             try
             {
                 string location = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-                List<string> componentsToRegister = new List<string>();
-                if (!isHidden(ComponentPath) && Directory.Exists(ComponentPath))
-                {
-                    foreach (var file in Directory.GetFiles(ComponentPath).Where(f => !isHidden(f) && Path.GetExtension(f) == ".lua"))
-                    {
-                        string component = Path.GetFileName(file);
-                        string dest = Path.Combine(location, component);
-                        if (!File.Exists(dest) || File.GetLastWriteTimeUtc(dest) != (File.GetLastWriteTimeUtc(file)))
-                        {
-                            File.Copy(file, dest, true);
-                            var now = DateTime.Now;
-                            File.SetLastWriteTimeUtc(file, now);
-                            File.SetLastWriteTimeUtc(dest, now);
-                            LogManager.Instance.Add(LogLevel.Medium, "Copied {0} to {1}", file, dest);
-                        }
-                        componentsToRegister.Add(Path.GetFileNameWithoutExtension(component));
-                    }
-                }
 
                 if (!isHidden(LibraryPath) && Directory.Exists(LibraryPath))
                 {
@@ -155,15 +164,26 @@ namespace Event_ECS_WPF.Projects
                     }
                 }
 
+                foreach(string file in Files)
+                {
+                    string dest = Path.Combine(location, Path.GetFileName(file));
+                    if (!File.Exists(dest) || File.GetLastWriteTimeUtc(dest) != (File.GetLastWriteTimeUtc(file)))
+                    {
+                        File.Copy(file, dest, true);
+                        var now = DateTime.Now;
+                        File.SetLastWriteTimeUtc(file, now);
+                        File.SetLastWriteTimeUtc(dest, now);
+                        LogManager.Instance.Add(LogLevel.Medium, "Copied {0} to {1}", file, dest);
+                    }
+                }
+
                 ECS.Instance.CreateInstance();
-                pComponentsToRegister = componentsToRegister;
                 return true;
             }
             catch (Exception e)
             {
                 ECS.Instance.Dispose();
                 LogManager.Instance.Add(LogLevel.High, e.Message);
-                pComponentsToRegister = Enumerable.Empty<string>();
                 return false;
             }
             finally
@@ -187,6 +207,7 @@ namespace Event_ECS_WPF.Projects
                 int entityID = int.Parse(enData[0]);
                 ecs.SetEntityString(entityID, "name", "MainEntity");
                 ecs.AddComponent(entityID, IntializerComponent);
+                ecs.Serialize();
             }
         }
 

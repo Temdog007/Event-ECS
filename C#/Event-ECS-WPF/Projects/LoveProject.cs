@@ -81,7 +81,7 @@ end";
             text = text.Replace("True", "true").Replace("False", "false");
             File.WriteAllText(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "conf.lua"), text);
 
-            if (Start(out IEnumerable<string> componentsToRegsiter))
+            if (Setup())
             {
                 if (!ECS.Instance.InitializeLove(Name))
                 {
@@ -90,15 +90,15 @@ end";
 
                 ECS.Instance.UseWrapper(ecs =>
                 {
-                    foreach (string file in componentsToRegsiter)
+                    foreach (string component in Components)
                     {
                         try
                         {
-                            ecs.RegisterComponent(file, false);
+                            ecs.RegisterComponent(component, false);
                         }
                         catch(Exception e)
                         {
-                            LogManager.Instance.Add(string.Format("Failed to register component {0}\n{1}", file, e.Message));
+                            LogManager.Instance.Add(string.Format("Failed to register component {0}\n{1}", component, e.Message));
                         }
                     }
                     InitializeECS(ecs);

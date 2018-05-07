@@ -1,11 +1,10 @@
 ﻿<UserControl x:Class="Event_ECS_WPF.Controls.ProjectControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:obj ="clr-namespace:Event_ECS_WPF.SystemObjects"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" 
-             d:DesignHeight="200" d:DesignWidth="400"
+             d:DesignHeight="600" d:DesignWidth="400"
              x:Name="m_project">
 
     <UserControl.Resources>
@@ -30,6 +29,7 @@
                 <RowDefinition Height="auto"/>
                 <RowDefinition Height="auto"/>
                 <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
             </Grid.RowDefinitions>
 
             <GroupBox Margin="5" Header="Path to Component Files" Grid.Row="0">
@@ -38,13 +38,20 @@
                     Content="{Binding ElementName=m_project, Path=Project.ComponentPath, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
             </GroupBox>
 
-            <GroupBox Margin="5" Header="Path to Library Files" Grid.Row="1">
+            <GroupBox Margin="5" Header="Initializer Component" Grid.Row="1"
+                      ToolTip="This component will be added to the main entity that will be created on startup">
+                <ComboBox ItemsSource="{Binding ElementName=m_project, Path=Project.Components, UpdateSourceTrigger=PropertyChanged}" Margin="5" MinHeight="20"
+                          SelectedItem="{Binding ElementName=m_project, Path=Project.IntializerComponent, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                        HorizontalAlignment="Stretch"/>
+            </GroupBox>
+
+            <GroupBox Margin="5" Header="Path to Library Files" Grid.Row="2">
                 <Button Command="{Binding ElementName=m_project, Path=GetPathCommand}" CommandParameter="LibraryPath" Margin="5" MinHeight="20"
                         HorizontalAlignment="Stretch"
                         Content="{Binding ElementName=m_project, Path=Project.LibraryPath, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
             </GroupBox>
 
-            <GroupBox Header="Commands" Grid.Row="2">
+            <GroupBox Header="Commands" Grid.Row="3">
                 <Grid>
 
                     <Grid.RowDefinitions>

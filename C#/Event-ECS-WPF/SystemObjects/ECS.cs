@@ -51,18 +51,20 @@ namespace Event_ECS_WPF.SystemObjects
             }
         }
 
+        private void DoDispose()
+        {
+            m_ecs.Dispose();
+            m_ecs = null;
+            LogManager.Instance.Add(LogLevel.Medium, "Project Stopped");
+        }
+
         public void Dispose()
         {
             lock (m_lock)
             {
                 if (m_ecs != null)
                 {
-                    DisposeDelegate d = () =>
-                    {
-                        m_ecs.Dispose();
-                        m_ecs = null;
-                        LogManager.Instance.Add(LogLevel.Medium, "Project Stopped");
-                    };
+                    DisposeDelegate d = DoDispose;
                     Application.Current.Dispatcher.BeginInvoke(d);
                 }
             }
