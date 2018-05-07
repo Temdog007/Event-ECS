@@ -10,7 +10,7 @@ end
 function DebugComponent:eventToggleVsync()
 	local width, height, flags = love.window.getMode()
 	flags.vsync = not flags.vsync
-	love.window.updateMode(_, _, flags)
+	love.window.updateMode(width, height, flags)
 end
   
 return DebugComponent

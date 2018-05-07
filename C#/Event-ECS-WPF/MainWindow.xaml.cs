@@ -1,9 +1,10 @@
 ﻿using Event_ECS_WPF.Logger;
 using Event_ECS_WPF.Properties;
-using Event_ECS_WPF.SystemObjects;
 using System;
 using System.ComponentModel;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Threading;
 
 namespace Event_ECS_WPF
@@ -41,6 +42,22 @@ namespace Event_ECS_WPF
         {
             m_viewmodel.Project?.Stop();
             Settings.Default.Save();
+        }
+
+        private void ContentPresenter_MouseEnter(object sender, MouseEventArgs e)
+        {
+            if (sender is UIElement ele)
+            {
+                ele.Visibility = Visibility.Visible;
+            }
+        }
+
+        private void ContentPresenter_MouseLeave(object sender, MouseEventArgs e)
+        {
+            if (sender is UIElement ele)
+            {
+                ele.Visibility = Visibility.Hidden;
+            }
         }
     }
 }

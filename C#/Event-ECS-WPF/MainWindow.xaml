@@ -126,10 +126,12 @@
                 </Grid.ColumnDefinitions>
                 
                 <controls:EntityComponentSystemControl EntityComponentSystem="{Binding System, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Column="0"/>
-                
-                <Expander Grid.Column="1"
-                          Header="Project Settings" ExpandDirection="Left" Visibility="{Binding HasProject, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource boolConv}}" 
+
+                <Expander Grid.Column="1" ExpandDirection="Left">
+                <GroupBox
+                          Header="Project Settings" Visibility="{Binding HasProject, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource boolConv}}" 
                           Content="{Binding Project, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ContentTemplateSelector="{StaticResource projectSelector}"/>
+                </Expander>
 
             </Grid>
             
