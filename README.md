@@ -9,8 +9,10 @@ Each component is a table of functions that are called when the dispatched event
 
 Each system can have a server that will listen for requests to send data.
 
-The System will encode itself into JSON code and then that code to the client.
+Each system, entity, and component will be able to serialize itself.
 
 The WPF C# application will be designed to give a visual representation of the ECS in Lua.
 
-The WPF C# application will be the ECS state by sending requests to the system's server.
+The WPF C# application will be reading the serilalized ECS state to update the GUI.
+
+The WPF C# application will be able to change the ECS state including (adding, removing, or editing the system, its entities, and its components)
