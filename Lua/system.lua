@@ -18,10 +18,11 @@
 -- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 -- SOFTWARE.
 
-local ClassFactory = require("classFactory")
+local class = require("classlib")
 local Entity = require("entity")
 local Component = require("component")
 local ClassName = "Entity Component System"
+local system = class(ClassName)
 
 local function systostring(sys)
   if sys.name then
@@ -31,7 +32,7 @@ local function systostring(sys)
   end
 end
 
-return ClassFactory(function(system)
+function system:__init()
   local entities = {}
   local id = 1
 
@@ -174,4 +175,6 @@ return ClassFactory(function(system)
     end
     return table.concat(tab, "\n");
   end
-end)
+end
+
+return system

@@ -18,8 +18,10 @@
 -- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 -- SOFTWARE.
 
-local ClassFactory = require("classFactory")
+local class = require("classlib")
+local component = class("Component")
 local ClassName = "Entity"
+local entity = class(ClassName)
 
 function string.starts(str, start)
   return string.sub(str, 1, string.len(start)) == start
@@ -33,14 +35,11 @@ local function entostring(en)
   return en.name or ClassName
 end
 
-local Entity = ClassFactory(function(entity, system)
+function entity:__init(system)
   assert(system, "Entity must have a system")
 
-  function entity:getName()
-    return entostring(self)
-  end
-
   entity.system = system
+
   local enabled = true
 
   function entity:isEnabled() return enabled end
@@ -206,5 +205,10 @@ local Entity = ClassFactory(function(entity, system)
     end
     return table.concat(tab, "\n")
   end
-end)
-return Entity
+end
+
+function entity:getName()
+  return entostring(self)
+end
+
+return entity

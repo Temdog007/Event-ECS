@@ -8,7 +8,8 @@
              xmlns:ex="clr-namespace:Event_ECS_WPF.Extensions"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
-             x:Name="m_system">
+             x:Name="m_system"
+             PreviewMouseRightButtonDown="System_PreviewMouseRightButtonDown">
     
     <UserControl.Resources>
         <CollectionViewSource x:Key="entitiesSrc" Source="{Binding ElementName=m_system, Path=EntityComponentSystem.Entities, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
@@ -22,33 +23,36 @@
     <GroupBox>
 
         <GroupBox.Header>
-            <TextBox Text="{Binding ElementName=m_system, Path=EntityComponentSystem.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+            <StackPanel Orientation="Horizontal">
+                <TextBox Text="{Binding ElementName=m_system, Path=EntityComponentSystem.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,50,0"/>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Frame Rate"/>
+                    <TextBox VerticalAlignment="Stretch" Text="{Binding ElementName=m_system, Path=EntityComponentSystem.FrameRate, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, Delay=500}"/>
+                </StackPanel>
+            </StackPanel>
         </GroupBox.Header>
+
+        <GroupBox.ContextMenu>
+            <ContextMenu>
+                <MenuItem Header="Add Entity" Command="{Binding Source={StaticResource SystemControl}, Path=Data.AddEntityCommand}"/>
+                <MenuItem Header="Remove Entity" Command="{Binding Source={StaticResource SystemControl}, Path=Data.RemoveEntityCommand}"/>
+            </ContextMenu>
+        </GroupBox.ContextMenu>
         
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <GroupBox Header="Frame Rate" Grid.Row="0">
-                <TextBox Text="{Binding ElementName=m_system, Path=EntityComponentSystem.FrameRate, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, Delay=500}"/>
-            </GroupBox>
-            
-            <Expander Header="Registered Components" Grid.Row="1" Background="Snow">
+            <Expander Header="Registered Components" Grid.Row="0" Background="Snow">
                 <ListBox ItemsSource="{Binding ElementName=m_system, Path=EntityComponentSystem.RegisteredComponents, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
             </Expander>
 
-            <Expander Header="Entities" Grid.Row="2" IsExpanded="True">
-                
-                <ListBox ItemsSource="{Binding Source={StaticResource entitiesSrc}}">
+            <Expander Header="Entities" Grid.Row="1" IsExpanded="True">
 
-                    <ListBox.ContextMenu>
-                        <ContextMenu>
-                            <MenuItem Header="Add Entity" Command="{Binding Source={StaticResource SystemControl}, Path=Data.AddEntityCommand}"/>
-                        </ContextMenu>
-                    </ListBox.ContextMenu>
+                <ListBox ItemsSource="{Binding Source={StaticResource entitiesSrc}}" 
+                         SelectedItem="{Binding ElementName=m_system, Path=SelectedEntity, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}">
 
                     <ListBox.ItemTemplate>
                         <DataTemplate>

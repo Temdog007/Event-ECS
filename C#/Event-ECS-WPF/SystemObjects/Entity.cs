@@ -20,8 +20,6 @@ namespace Event_ECS_WPF.SystemObjects
         {
             this.m_system = system ?? throw new ArgumentNullException(nameof(system));
             this.m_system.Entities.Add(this);
-
-            this.m_system.SetUniqueID(this);
         }
 
         public ObservableCollection<string> AvailableComponents => System.RegisteredComponents;

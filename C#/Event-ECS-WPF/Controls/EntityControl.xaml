@@ -32,8 +32,6 @@
                                 </DataTemplate>
                             </MenuItem.ItemTemplate>
                         </MenuItem>
-                        <Separator/>
-                        <MenuItem Header="Remove Entity" Command="{Binding Source={StaticResource EntityControl}, Path=Data.RemoveEntityCommand}"/>
                     </CompositeCollection>
                 </ContextMenu.ItemsSource>
 

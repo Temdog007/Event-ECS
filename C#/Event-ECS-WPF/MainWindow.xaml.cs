@@ -1,5 +1,6 @@
 ﻿using Event_ECS_WPF.Logger;
 using Event_ECS_WPF.Properties;
+using Event_ECS_WPF.SystemObjects;
 using System;
 using System.ComponentModel;
 using System.Windows;
@@ -40,23 +41,15 @@ namespace Event_ECS_WPF
 
         private void Window_Closing(object sender, CancelEventArgs e)
         {
-            m_viewmodel.Project?.Stop();
-            Settings.Default.Save();
-        }
-
-        private void ContentPresenter_MouseEnter(object sender, MouseEventArgs e)
-        {
-            if (sender is UIElement ele)
+            if (m_viewmodel.Project?.IsStarted ?? false)
             {
-                ele.Visibility = Visibility.Visible;
+                LogManager.Instance.Add("Cannot close application while project is running!", LogLevel.Medium);
+                e.Cancel = true;
             }
-        }
-
-        private void ContentPresenter_MouseLeave(object sender, MouseEventArgs e)
-        {
-            if (sender is UIElement ele)
+            else
             {
-                ele.Visibility = Visibility.Hidden;
+                ECS.Instance.Dispose();
+                Settings.Default.Save();
             }
         }
     }

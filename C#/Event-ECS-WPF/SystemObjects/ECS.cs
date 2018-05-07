@@ -134,6 +134,24 @@ namespace Event_ECS_WPF.SystemObjects
             }
         }
 
+        public bool UseWrapper<T,K>(Func<ECSWrapper, K, T> action, K argument, out T t)
+        {
+            lock (m_lock)
+            {
+                if (m_ecs == null)
+                {
+                    LogManager.Instance.Add(LogLevel.High, "Project has not been started. Cannot run function");
+                    t = default(T);
+                    return false;
+                }
+                else
+                {
+                    t = Application.Current.Dispatcher.Invoke(() => action(m_ecs, argument));
+                    return true;
+                }
+            }
+        }
+
         public void UseWrapper(Action<ECSWrapper> action)
         {
             lock (m_lock)

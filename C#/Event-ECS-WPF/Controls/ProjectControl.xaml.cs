@@ -22,23 +22,23 @@ namespace Event_ECS_WPF.Controls
 
         private ActionCommand<string> m_getPathCommand;
 
-        private ICommand m_serializeCommand;
+        private IActionCommand m_serializeCommand;
 
         public ProjectControl()
         {
             InitializeComponent();
         }
 
-        public ICommand DispatchEventCommand => m_dispatchEventCommand ?? (m_dispatchEventCommand = new ActionCommand<string>(DispatchEvent));
+        public IActionCommand DispatchEventCommand => m_dispatchEventCommand ?? (m_dispatchEventCommand = new ActionCommand<string>(DispatchEvent));
 
-        public ICommand GetPathCommand => m_getPathCommand ?? (m_getPathCommand = new ActionCommand<string>(GetPath));
+        public IActionCommand GetPathCommand => m_getPathCommand ?? (m_getPathCommand = new ActionCommand<string>(GetPath));
 
         public Project Project
         {
             get { return (Project)GetValue(ProjectProperty); }
             set { SetValue(ProjectProperty, value); }
         }
-        public ICommand SerializeCommand => m_serializeCommand ?? (m_serializeCommand = new ActionCommand(Serialize));
+        public IActionCommand SerializeCommand => m_serializeCommand ?? (m_serializeCommand = new ActionCommand(Serialize));
 
         private void DispatchEvent(string ev)
         {
@@ -56,6 +56,7 @@ namespace Event_ECS_WPF.Controls
         {
             if (e.Key != Key.Enter)
             {
+                DispatchEventCommand.UpdateCanExecute(this, EventArgs.Empty);
                 return;
             }
 

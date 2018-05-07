@@ -196,11 +196,6 @@ namespace Event_ECS_WPF.SystemObjects
             }
         }
 
-        internal void SetUniqueID(Entity entity)
-        {
-            entity.ID = m_entityID++;
-        }
-
         private string[] DeserializeFunc(ECSWrapper ecs)
         {
             return ecs.Serialize().Split('\n');

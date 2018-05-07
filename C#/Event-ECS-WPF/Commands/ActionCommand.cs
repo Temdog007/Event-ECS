@@ -3,13 +3,27 @@ using System.Windows.Input;
 
 namespace Event_ECS_WPF.Commands
 {
-    public class ActionCommand : ICommand
+    public interface IActionCommand : ICommand
+    {
+        void UpdateCanExecute(object sender, EventArgs e);
+    }
+
+    public interface IActionCommand<T> : IActionCommand
+    {
+        bool CanExecute(T parameter);
+    }
+
+    public class ActionCommand : IActionCommand
     {
         private readonly Action m_action;
+        private readonly Func<bool> m_canExecute;
 
-        public ActionCommand(Action action)
+        public ActionCommand(Action action) : this(action, null) { }
+
+        public ActionCommand(Action action, Func<bool> canExecute)
         {
             m_action = action;
+            m_canExecute = canExecute;
         }
 
         public event EventHandler CanExecuteChanged;
@@ -21,7 +35,7 @@ namespace Event_ECS_WPF.Commands
         
         public bool CanExecute(object parameter)
         {
-            return true;
+            return m_canExecute == null ? true : m_canExecute();
         }
 
         public virtual void Execute(object parameter)
@@ -30,7 +44,7 @@ namespace Event_ECS_WPF.Commands
         }
     }
 
-    public class ActionCommand<T> : ICommand
+    public class ActionCommand<T> : IActionCommand<T>
     {
         private readonly Action<T> m_action;
         private readonly Func<T, bool> m_canExecute;
@@ -61,7 +75,7 @@ namespace Event_ECS_WPF.Commands
 
         public bool CanExecute(object parameter)
         {
-            if (parameter == null)
+            if (parameter == null && Nullable.GetUnderlyingType(typeof(T)) != null)
             {
                 return true;
             }
@@ -74,7 +88,14 @@ namespace Event_ECS_WPF.Commands
 
         public virtual void Execute(object parameter)
         {
-            m_action.Invoke((T)parameter);
+            if (parameter is T)
+            {
+                m_action.Invoke((T)parameter);
+            }
+            else
+            {
+                UpdateCanExecute(this, EventArgs.Empty);
+            }
         }
     }
 }
