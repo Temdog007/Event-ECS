@@ -40,9 +40,10 @@
 
             <GroupBox Margin="5" Header="Initializer Component" Grid.Row="1"
                       ToolTip="This component will be added to the main entity that will be created on startup">
-                <ComboBox ItemsSource="{Binding ElementName=m_project, Path=Project.Components, UpdateSourceTrigger=PropertyChanged}" Margin="5" MinHeight="20"
-                          SelectedItem="{Binding ElementName=m_project, Path=Project.IntializerComponent, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                        HorizontalAlignment="Stretch"/>
+                <ComboBox SelectedItem="{Binding ElementName=m_project, Path=Project.InitializerComponent, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                        HorizontalAlignment="Stretch" Margin="5" MinHeight="20"
+                          ItemsSource="{Binding ElementName=m_project, Path=Project.Components, UpdateSourceTrigger=PropertyChanged}"/>
+
             </GroupBox>
 
             <GroupBox Margin="5" Header="Path to Library Files" Grid.Row="2">

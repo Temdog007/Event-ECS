@@ -13,7 +13,6 @@ namespace Event_ECS_WPF.SystemObjects
         public const char Delim = '|';
 
         private ObservableCollection<Entity> m_entities = new ObservableCollection<Entity>();
-        private int m_entityID = 0;
 
         private string m_name = "Entity Component System";
 

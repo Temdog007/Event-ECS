@@ -63,7 +63,15 @@ namespace Event_ECS_WPF.Controls
 
         private bool RemoveEntityFunc(ECSWrapper ecs, int entityID)
         {
-            return ecs.RemoveEntity(entityID);
+            try
+            {
+                return ecs.RemoveEntity(entityID);
+            }
+            catch(Exception e)
+            {
+                LogManager.Instance.Add(LogLevel.High, "Cannot remove entity: {0}", e.Message);
+                return false;
+            }
         }
 
         private void AddEntity()
@@ -84,15 +92,10 @@ namespace Event_ECS_WPF.Controls
             }
         }
 
-        private void UpdateCommands()
-        {
-            AddEntityCommand.UpdateCanExecute(this, EventArgs.Empty);
-            RemoveEntityCommand.UpdateCanExecute(this, EventArgs.Empty);
-        }
-
         private void System_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
-            UpdateCommands();
+            AddEntityCommand.UpdateCanExecute(this, e);
+            RemoveEntityCommand.UpdateCanExecute(this, e);
         }
     }
 }

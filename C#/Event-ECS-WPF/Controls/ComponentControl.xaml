@@ -27,17 +27,11 @@
         <sys:Boolean x:Key="True">True</sys:Boolean>
         <sys:Boolean x:Key="False">False</sys:Boolean>
     </UserControl.Resources>
-    
+
     <Expander Header="{Binding ElementName=m_componentControl, Path=Component.Name}" 
               IsExpanded="{Binding Path=IsExpanded, Mode=TwoWay, ElementName=m_componentControl}"
               Background="{Binding ElementName=m_componentControl, Path=Component.IsEnabled, Converter={StaticResource enToCol}}"
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" MinWidth="100">
-
-        <Expander.ContextMenu>
-            <ContextMenu>
-                <MenuItem Header="Remove Component" Command="{Binding Source={StaticResource ComponentControl}, Path=Data.RemoveComponentCommand}"/>
-            </ContextMenu>
-        </Expander.ContextMenu>
 
         <Grid>
             

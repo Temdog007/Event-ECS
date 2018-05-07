@@ -98,7 +98,7 @@ namespace Event_ECS_WPF.Projects
         }
 
         [XmlElement]
-        public string IntializerComponent
+        public string InitializerComponent
         {
             get => _initializer;
             set
@@ -201,12 +201,12 @@ namespace Event_ECS_WPF.Projects
 
         public void InitializeECS(ECSWrapper ecs)
         {
-            if (!string.IsNullOrWhiteSpace(IntializerComponent))
+            if (Components.Any(c => c.Equals(InitializerComponent)))
             {
                 string[] enData = ecs.AddEntity().Split(EntityComponentSystem.Delim);
                 int entityID = int.Parse(enData[0]);
                 ecs.SetEntityString(entityID, "name", "MainEntity");
-                ecs.AddComponent(entityID, IntializerComponent);
+                ecs.AddComponent(entityID, InitializerComponent);
                 ecs.Serialize();
             }
         }
