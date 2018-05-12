@@ -50,14 +50,16 @@ function TestComponent:eventKeyPressed(args)
 end
 
 loveSystem:registerComponent(TestComponent)
+loveSystem:run()
+
 local entity = loveSystem:createEntity()
 entity:addComponent("TestComponent")
 
-repeat until not loveSystem:run()
+repeat loveSystem:draw() until not loveSystem:run()
 
 repeat until not loveSystem:run()
 
 loveSystem = LoveSystem("Unit Test")
-repeat until not loveSystem:run()
+repeat loveSystem:draw() until not loveSystem:run()
 
 print("Corutine ended")

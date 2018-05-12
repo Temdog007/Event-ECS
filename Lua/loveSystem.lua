@@ -139,12 +139,16 @@ return function(identity, executablePath, frameRate)
   -- Check the version
   c.version = tostring(c.version)
   if not love.isVersionCompatible(c.version) then
-  	local major, minor, revision = c.version:match("^(%d+)%.(%d+)%.(%d+)$")
-  	if (not major or not minor or not revision) or (major ~= love._version_major and minor ~= love._version_minor) then
-  		local msg = ("This game indicates it was made for version '%s' of LOVE.\n"..
-  			"It may not be compatible with the running version (%s)."):format(c.version, love._version)
+    local major, minor, revision = c.version:match("^(%d+)%.(%d+)%.(%d+)$")
+    if (not major or not minor or not revision) or (major ~= love._version_major and minor ~= love._version_minor) then
+    	local msg = ("This game indicates it was made for version '%s' of LOVE.\n"..
+    		"It may not be compatible with the running version (%s)."):format(c.version, love._version)
 
-  		print(msg)
+      if Log then
+        Log(tostring(msg))
+      else
+        print(msg)
+      end
 
   		if love.window then
   			love.window.showMessageBox("Compatibility Warning", msg, "warning")
@@ -201,10 +205,8 @@ return function(identity, executablePath, frameRate)
 
     loveSystem:dispatchEvent("eventload")
 
-    local nextTime
-  	if love.timer then
+    if love.timer then
       love.timer.step()
-      nextTime = love.timer.getTime()
     end
 
   	local updateArgs = {dt = 0}
@@ -220,6 +222,7 @@ return function(identity, executablePath, frameRate)
             quitArgs.handled = false
   					loveSystem:dispatchEvent("eventquit", quitArgs)
             if not quitArgs.handled then
+              loveSystem.done = true
   						return a or 0
   					end
   				else
@@ -230,7 +233,6 @@ return function(identity, executablePath, frameRate)
 
       -- Update dt, as we'll be passing it to update
       if love.timer then
-        nextTime = nextTime + (1 / loveSystem.frameRate)
         updateArgs.dt = love.timer.step()
       else
         updateArgs.dt = 0
@@ -239,16 +241,28 @@ return function(identity, executablePath, frameRate)
       -- Call update and draw
       loveSystem:dispatchEvent("eventupdate", updateArgs) -- will pass 0 if love.timer is disabled
 
+    end
+  end
+
+  local function draw()
+    local nextTime
+    if love.timer then
+      nextTime = love.timer.getTime()
+    end
+
+    return function()
+
       if love.graphics and love.graphics.isActive() then
-      	love.graphics.origin()
-      	love.graphics.clear(love.graphics.getBackgroundColor())
+        love.graphics.origin()
+        love.graphics.clear(love.graphics.getBackgroundColor())
 
-      	loveSystem:dispatchEvent("eventdraw")
+        loveSystem:dispatchEvent("eventdraw")
 
-      	love.graphics.present()
+        love.graphics.present()
       end
 
       if love.timer then
+        nextTime = nextTime + (1 / loveSystem.frameRate)
         local curTime = love.timer.getTime()
         if nextTime <= curTime then
           nextTime = curTime
@@ -266,7 +280,7 @@ return function(identity, executablePath, frameRate)
 
   local function error_printer(msg, layer)
     if Log then
-      Log("high", (debug.traceback("Error: " .. tostring(msg), 1+(layer or 1)):gsub("\n[^\n]+$", "")))
+      Log(debug.traceback("Error: " .. tostring(msg), 1+(layer or 1)):gsub("\n[^\n]+$", ""))
     else
   	   print((debug.traceback("Error: " .. tostring(msg), 1+(layer or 1)):gsub("\n[^\n]+$", "")))
      end
@@ -286,8 +300,7 @@ return function(identity, executablePath, frameRate)
     local function earlyinit()
       -- NOTE: We can't assign to func directly, as we'd
       -- overwrite the result of deferErrhand with nil on error
-      local main
-      result, main = xpcall(run, deferErrhand)
+      local result, main = xpcall(run, deferErrhand)
       if result then
         func = main
       end
@@ -304,17 +317,62 @@ return function(identity, executablePath, frameRate)
     return 1
   end
 
-  local co = coroutine.create(runCoroutine)
+  local function drawCourtine()
+    local func
+
+    local function deferErrhand(...)
+      func = error_printer(...)
+    end
+
+    local result, main = xpcall(draw, deferErrhand)
+    if result then
+      func = main
+    end
+
+    while func do
+      local _, retval = xpcall(func, deferErrhand)
+      if retval then return retval end
+      coroutine.yield()
+    end
+
+    return 1
+  end
+
+  local runCo = coroutine.create(runCoroutine)
   function loveSystem:run()
 
-    if not co then
+    if not runCo then
       return false
     end
 
-  	local rval, result = coroutine.resume(co)
+  	local rval, result = coroutine.resume(runCo)
     if not rval then
-      print(result)
-      co = nil
+      if Log then
+        Log(tostring(result))
+      else
+        print(result)
+      end
+      runCo = nil
+    end
+
+    return rval
+  end
+
+  local drawCo = coroutine.create(drawCourtine)
+  function loveSystem:draw()
+    
+    if not drawCo then
+      return false
+    end
+
+    local rval, result = coroutine.resume(drawCo)
+    if not rval then
+      if Log then
+        Log(tostring(result))
+      else
+        print(result)
+      end
+      drawCo = nil
     end
 
     return rval
