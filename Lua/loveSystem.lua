@@ -201,15 +201,12 @@ return function(identity, executablePath, frameRate)
   -- Default callbacks.
   -----------------------------------------------------------
 
+  local updateArgs = {dt = 0}
+
   local function run()
 
     loveSystem:dispatchEvent("eventload")
 
-    if love.timer then
-      love.timer.step()
-    end
-
-  	local updateArgs = {dt = 0}
     local quitArgs = {handled = false}
 
   	-- Main loop time.
@@ -222,7 +219,6 @@ return function(identity, executablePath, frameRate)
             quitArgs.handled = false
   					loveSystem:dispatchEvent("eventquit", quitArgs)
             if not quitArgs.handled then
-              loveSystem.done = true
   						return a or 0
   					end
   				else
@@ -247,6 +243,7 @@ return function(identity, executablePath, frameRate)
   local function draw()
     local nextTime
     if love.timer then
+      love.timer.step()
       nextTime = love.timer.getTime()
     end
 
@@ -267,7 +264,9 @@ return function(identity, executablePath, frameRate)
         if nextTime <= curTime then
           nextTime = curTime
         else
-          love.timer.sleep(nextTime - curTime)
+          local sleepTime = nextTime - curTime
+          love.timer.sleep(sleepTime)
+          loveSystem.sleepTime = sleepTime
         end
       end
 
@@ -360,7 +359,7 @@ return function(identity, executablePath, frameRate)
 
   local drawCo = coroutine.create(drawCourtine)
   function loveSystem:draw()
-    
+
     if not drawCo then
       return false
     end

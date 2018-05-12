@@ -9,10 +9,11 @@ using System.Windows.Threading;
 
 namespace Event_ECS_WPF.SystemObjects
 {
-    public delegate bool UpdateDelegate();
-    public delegate void DisposeDelegate();
-
     public delegate void AutoUpdateChanged(object sender, AutoUpdateChangedArgs e);
+
+    public delegate void DoActionOnMainThreadDelegate(Action action);
+
+    public delegate void DisposeDelegate();
 
     public class AutoUpdateChangedArgs : EventArgs
     {
@@ -23,6 +24,7 @@ namespace Event_ECS_WPF.SystemObjects
 
         public bool AutoUpdate { get; private set; }
     }
+
     public class ECS : NotifyPropertyChanged, IDisposable
     {
         private static readonly TimeSpan WaitTimeSpan = TimeSpan.FromMilliseconds(10);
@@ -47,15 +49,9 @@ namespace Event_ECS_WPF.SystemObjects
             {
                 Dispose();
                 m_ecs = new ECSWrapper();
+                m_ecs.OnMainThread += DoOnMainThread;
                 LogManager.Instance.Add(LogLevel.Medium, "Project Started");
             }
-        }
-
-        private void DoDispose()
-        {
-            m_ecs.Dispose();
-            m_ecs = null;
-            LogManager.Instance.Add(LogLevel.Medium, "Project Stopped");
         }
 
         public void Dispose()
@@ -87,7 +83,7 @@ namespace Event_ECS_WPF.SystemObjects
                     return false;
                 }
                 UseWrapper(ecs =>
-                    ecs.InitializeLove(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), name, UpdateOnMainThread),
+                    ecs.InitializeLove(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), name),
                     out bool rval);
                 return rval;
             }
@@ -134,7 +130,7 @@ namespace Event_ECS_WPF.SystemObjects
             }
         }
 
-        public bool UseWrapper<T,K>(Func<ECSWrapper, K, T> action, K argument, out T t)
+        public bool UseWrapper<T, K>(Func<ECSWrapper, K, T> action, K argument, out T t)
         {
             lock (m_lock)
             {
@@ -176,27 +172,17 @@ namespace Event_ECS_WPF.SystemObjects
             return ecs.LoveUpdate();
         }
 
-        private bool UpdateAction()
+        private void DoAction(Action action)
         {
-            lock (m_lock)
-            {
-                try
-                {
-                    return m_ecs == null || m_ecs.IsDisposing() ? false : m_ecs.LoveUpdate();
-                }
-                catch (Exception)
-                {
-                    return false;
-                }
-            }
+            action();
         }
-        
-        private bool UpdateOnMainThread()
+
+        private void DoOnMainThread(Action action)
         {
             try
             {
-                UpdateDelegate d = UpdateAction;
-                DispatcherOperation operation = Application.Current.Dispatcher.BeginInvoke(Settings.Default.LoveUpdatePriority, d);
+                DoActionOnMainThreadDelegate d = DoAction;
+                DispatcherOperation operation = Application.Current.Dispatcher.BeginInvoke(Settings.Default.LoveUpdatePriority, d, action);
                 while (operation.Wait(WaitTimeSpan) != DispatcherOperationStatus.Completed && operation.Status != DispatcherOperationStatus.Aborted)
                 {
                     if (m_ecs == null || m_ecs.GetAutoUpdate() == false || m_ecs.IsDisposing())
@@ -215,12 +201,18 @@ namespace Event_ECS_WPF.SystemObjects
                         }
                     }
                 }
-                return (operation.Result as bool?) ?? false;
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                return false;
+                LogManager.Instance.Add(LogLevel.High, e.Message);
             }
+        }
+
+        private void DoDispose()
+        {
+            m_ecs.Dispose();
+            m_ecs = null;
+            LogManager.Instance.Add(LogLevel.Medium, "Project Stopped");
         }
     }
 }

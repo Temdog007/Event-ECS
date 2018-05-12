@@ -88,6 +88,19 @@ namespace EventECS
 		return loveInitialized;
 	}
 
+	void ECS::Sleep(lua_Number seconds)
+	{
+		lua_settop(L, 0);
+		lua_getglobal(L, love);
+		lua_getfield(L, -1, "timer");
+		lua_getfield(L, -1, "sleep");
+		lua_pushnumber(L, seconds);
+		if (lua_pcall(L, 1, 0, 0) != 0)
+		{
+			throw std::exception(lua_tostring(L, -1));
+		}
+	}
+
 	void ECS::Require(const char* modName, const char* globalName)
 	{
 		lua_settop(L, 0);
@@ -501,6 +514,31 @@ namespace EventECS
 			throw std::exception("LOVE not initialized. Can't call LOVE update");
 		}
 		return DoLoveUpdate(throwException);
+	}
+
+	bool ECS::DoLoveDraw(bool throwException)
+	{
+		SetFunction("draw");
+		if (lua_pcall(L, 1, 1, 0) == 0)
+		{
+			bool rval = static_cast<bool>(lua_toboolean(L, -1));
+			lua_pop(L, 1);
+			return rval;
+		}
+		if (throwException)
+		{
+			throw std::exception(lua_tostring(L, -1));
+		}
+		return 0;
+	}
+
+	bool ECS::LoveDraw(bool throwException)
+	{
+		if (!loveInitialized)
+		{
+			throw std::exception("LOVE not initialized. Can't call LOVE draw");
+		}
+		return DoLoveDraw(throwException);
 	}
 
 	void ECS::SetLogHandler(void(*func)(const char*))

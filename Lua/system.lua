@@ -21,6 +21,7 @@
 local class = require("classlib")
 local Entity = require("entity")
 local Component = require("component")
+local FinalizerComponent = require("finalizerComponent")
 local ClassName = "Entity Component System"
 local system = class(ClassName)
 
@@ -38,6 +39,7 @@ function system:__init()
 
   self.registeredComponents = {}
   self:registerComponent(Component)
+  self:registerComponent(FinalizerComponent)
 end
 
 function system:getName()

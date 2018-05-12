@@ -23,8 +23,7 @@ local System = require("system")
 local Component = require("component")
 local class = require("classlib")
 
-local TestComponent = require("testComponent")
-local FinalizerComponent = require("finalizerComponent")
+local TestComponent = require("Unit Tests/testComponent")
 
 function assertIs(actual, expected)
   assertEquals(type(actual), expected)
@@ -222,7 +221,6 @@ end
 
 function ecsTests:testEntityComponents4()
   local system = System()
-  system:registerComponent(FinalizerComponent)
   local entity = system:createEntity()
   local comp = entity:addComponent("FinalizerComponent")
   assertEquals(entity:componentCount(), 1)
@@ -241,9 +239,9 @@ end
 
 function ecsTests:testSystemSerialization()
   local system = System()
-  assertEquals(system:serialize(), "Entity Component System|Component")
+  assertEquals(system:serialize(), "Entity Component System|Component|FinalizerComponent")
   system:registerComponent(TestComponent)
-  assertEquals(system:serialize(), "Entity Component System|Component|TestComponent")
+  assertEquals(system:serialize(), "Entity Component System|Component|FinalizerComponent|TestComponent")
 end
 
 function ecsTests:testAddingRemovingEntities()

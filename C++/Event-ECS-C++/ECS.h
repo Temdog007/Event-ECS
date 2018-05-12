@@ -27,6 +27,7 @@ namespace EventECS
 		void FindComponent(int entityID, int componentID) const;
 
 		bool DoLoveUpdate(bool throwException);
+		bool DoLoveDraw(bool throwException);
 
 		void Quit();
 
@@ -38,6 +39,7 @@ namespace EventECS
 		ECS& operator=(const ECS&) = delete;
 
 		bool InitializeLove(const char* executablePath, const char* identity);
+		void Sleep(lua_Number seconds);
 
 		std::string AddEntity();
 		bool RemoveEntity(int entityID);
@@ -81,6 +83,7 @@ namespace EventECS
 		std::string SerializeComponent(int entityID, int componentID);
 
 		bool LoveUpdate(bool throwException = true);
+		bool LoveDraw(bool throwException = true);
 
 		static void SetLogHandler(void(*) (const char*));
 	};

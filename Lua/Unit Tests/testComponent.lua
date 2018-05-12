@@ -7,6 +7,7 @@ function TestComponent:__init(entity)
   self.Component:__init(entity, self)
   self.addedComponentCalled = 0
   self.removingComponentCalled = 0
+  self.text = ""
 end
 
 function TestComponent:eventAddedComponent(args)
@@ -14,6 +15,19 @@ function TestComponent:eventAddedComponent(args)
     self.added = true
   end
   self.addedComponentCalled = self.addedComponentCalled + 1
+end
+
+function TestComponent:eventDraw(args)
+  love.graphics.print(love.timer.getFPS())
+  love.graphics.print(love.timer.getDelta(), 0, 10)
+  love.graphics.print(self.text, 0, 20)
+end
+
+function TestComponent:eventKeyPressed(args)
+  if args[1] == "escape" then
+    love.event.quit()
+  end
+  self.text = args[1]
 end
 
 function TestComponent:addedComponent(args)

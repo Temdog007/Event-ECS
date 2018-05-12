@@ -20,6 +20,7 @@
 
 package.preload['conf'] = function()
   return function(t)
+    t.window.vsync = 0
   end
 end
 
@@ -29,27 +30,10 @@ local loveSystem = LoveSystem("Unit Test")
 local Component = require("component")
 local class = require("classlib")
 
-local TestComponent = class("TestComponent", Component)
-
-function TestComponent:__init(entity)
-  self.Component:__init(entity, self)
-  self.text = ""
-end
-
-function TestComponent:eventDraw(args)
-  love.graphics.print(love.timer.getFPS())
-  love.graphics.print(love.timer.getDelta(), 0, 10)
-  love.graphics.print(self.text, 0, 20)
-end
-
-function TestComponent:eventKeyPressed(args)
-  if args[1] == "escape" then
-    love.event.quit()
-  end
-  self.text = args[1]
-end
+local TestComponent = require("Unit Tests/testComponent")
 
 loveSystem:registerComponent(TestComponent)
+loveSystem.frameRate = 120
 loveSystem:run()
 
 local entity = loveSystem:createEntity()
