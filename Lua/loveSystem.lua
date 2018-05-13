@@ -32,6 +32,7 @@ return function(identity, executablePath, frameRate)
   loveSystem = System()
 
   loveSystem.frameRate = frameRate or 60
+  loveSystem.sleep = true
 
   -- Make sure love exists.
   local love = require("love")
@@ -258,7 +259,7 @@ return function(identity, executablePath, frameRate)
         love.graphics.present()
       end
 
-      if love.timer then
+      if love.timer and loveSystem.sleep then
         nextTime = nextTime + (1 / loveSystem.frameRate)
         local curTime = love.timer.getTime()
         if nextTime <= curTime then

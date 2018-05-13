@@ -5,16 +5,17 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Windows;
+using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Threading;
 
 namespace Event_ECS_WPF.SystemObjects
 {
     public delegate void AutoUpdateChanged(object sender, AutoUpdateChangedArgs e);
 
-    public delegate void DoActionOnMainThreadDelegate(Action action);
-
     public delegate void DisposeDelegate();
 
+    public delegate void DoActionOnMainThreadDelegate(Action action);
     public class AutoUpdateChangedArgs : EventArgs
     {
         public AutoUpdateChangedArgs(bool autoUpdate)
@@ -41,6 +42,7 @@ namespace Event_ECS_WPF.SystemObjects
 
         public static event AutoUpdateChanged OnAutoUpdateChanged;
         public static ECS Instance => s_instance ?? (s_instance = new ECS());
+        public uint FrameRate { get => m_ecs?.GetFrameRate() ?? 0; set => m_ecs?.SetFrameRate(value); }
         public bool ProjectStarted => m_ecs != null;
 
         public void CreateInstance()
@@ -49,7 +51,6 @@ namespace Event_ECS_WPF.SystemObjects
             {
                 Dispose();
                 m_ecs = new ECSWrapper();
-                m_ecs.OnMainThread += DoOnMainThread;
                 LogManager.Instance.Add(LogLevel.Medium, "Project Started");
             }
         }
@@ -73,7 +74,6 @@ namespace Event_ECS_WPF.SystemObjects
                 return m_ecs?.GetAutoUpdate() ?? false;
             }
         }
-
         public bool InitializeLove(string name)
         {
             lock (m_lock)
@@ -82,10 +82,12 @@ namespace Event_ECS_WPF.SystemObjects
                 {
                     return false;
                 }
-                UseWrapper(ecs =>
+                bool returnRval = 
+                    UseWrapper(ecs =>
                     ecs.InitializeLove(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), name),
-                    out bool rval);
-                return rval;
+                    out bool rval) && rval;
+                CompositionTarget.Rendering += CompositionTarget_Rendering;
+                return returnRval;
             }
         }
 
@@ -172,47 +174,20 @@ namespace Event_ECS_WPF.SystemObjects
             return ecs.LoveUpdate();
         }
 
-        private void DoAction(Action action)
+        private void CompositionTarget_Rendering(object sender, EventArgs e)
         {
-            action();
-        }
-
-        private void DoOnMainThread(Action action)
-        {
-            try
-            {
-                DoActionOnMainThreadDelegate d = DoAction;
-                DispatcherOperation operation = Application.Current.Dispatcher.BeginInvoke(Settings.Default.LoveUpdatePriority, d, action);
-                while (operation.Wait(WaitTimeSpan) != DispatcherOperationStatus.Completed && operation.Status != DispatcherOperationStatus.Aborted)
-                {
-                    if (m_ecs == null || m_ecs.GetAutoUpdate() == false || m_ecs.IsDisposing())
-                    {
-                        int tries = 0;
-                        while (!operation.Abort())
-                        {
-                            if (++tries < 3)
-                            {
-                                operation.Priority = DispatcherPriority.Normal;
-                            }
-                            else
-                            {
-                                throw new Exception("Must exit this thread!");
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                LogManager.Instance.Add(LogLevel.High, e.Message);
-            }
+            UseWrapper(ecs => ecs.LoveDraw());
         }
 
         private void DoDispose()
         {
-            m_ecs.Dispose();
-            m_ecs = null;
-            LogManager.Instance.Add(LogLevel.Medium, "Project Stopped");
+            lock (m_lock)
+            {
+                m_ecs.Dispose();
+                CompositionTarget.Rendering -= CompositionTarget_Rendering;
+                m_ecs = null;
+                LogManager.Instance.Add(LogLevel.Medium, "Project Stopped");
+            }
         }
     }
 }

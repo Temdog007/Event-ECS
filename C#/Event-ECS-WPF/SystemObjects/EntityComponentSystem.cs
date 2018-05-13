@@ -35,19 +35,12 @@ namespace Event_ECS_WPF.SystemObjects
             }
         }
 
-        public int FrameRate
+        public uint FrameRate
         {
-            get
-            {
-                if (ECS.Instance.ProjectStarted && ECS.Instance.UseWrapper(GetFrameRateFunc, out int fps))
-                {
-                    return fps;
-                }
-                return 0;
-            }
+            get => ECS.Instance.FrameRate;
             set
             {
-                ECS.Instance.UseWrapper(ecs => ecs.SetSystemNumber("frameRate", value));
+                ECS.Instance.FrameRate = value;
                 OnPropertyChanged("FrameRate");
             }
         }
