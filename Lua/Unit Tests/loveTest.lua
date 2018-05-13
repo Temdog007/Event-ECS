@@ -33,11 +33,13 @@ local class = require("classlib")
 local TestComponent = require("Unit Tests/testComponent")
 
 loveSystem:registerComponent(TestComponent)
-loveSystem.frameRate = 120
+loveSystem.frameRate = 30
 loveSystem:run()
 
 local entity = loveSystem:createEntity()
 entity:addComponent("TestComponent")
+local color = entity:addComponent("ColorComponent")
+color:set(1,0.5,0,1)
 
 repeat loveSystem:draw() until not loveSystem:run()
 

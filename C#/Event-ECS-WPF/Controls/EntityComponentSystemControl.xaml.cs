@@ -15,13 +15,25 @@ namespace Event_ECS_WPF.Controls
     /// </summary>
     public partial class EntityComponentSystemControl : UserControl, INotifyPropertyChanged
     {
+        public static readonly DependencyProperty EntityProperty =
+            DependencyProperty.Register("EntityComponentSystem", typeof(EntityComponentSystem), typeof(EntityComponentSystemControl));
+
+        private IActionCommand m_addEntityCommand;
+
+        private IActionCommand m_removeEntityCommand;
+
+        private Entity m_selectedEntity;
+
         public EntityComponentSystemControl()
         {
             InitializeComponent();
+
+            ECS.DeserializeRequested += ECS_DeserializeRequested;
         }
 
-        public static readonly DependencyProperty EntityProperty =
-            DependencyProperty.Register("EntityComponentSystem", typeof(EntityComponentSystem), typeof(EntityComponentSystemControl));
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public IActionCommand AddEntityCommand => m_addEntityCommand ?? (m_addEntityCommand = new ActionCommand(AddEntity));
 
         public EntityComponentSystem EntityComponentSystem
         {
@@ -29,16 +41,7 @@ namespace Event_ECS_WPF.Controls
             set { SetValue(EntityProperty, value); }
         }
 
-        public IActionCommand AddEntityCommand => m_addEntityCommand ?? (m_addEntityCommand = new ActionCommand(AddEntity));
-        private IActionCommand m_addEntityCommand;
-
         public IActionCommand RemoveEntityCommand => m_removeEntityCommand ?? (m_removeEntityCommand = new ActionCommand(RemoveEntity, CanRemoveEntity));
-        private IActionCommand m_removeEntityCommand;
-
-        public bool CanRemoveEntity()
-        {
-            return SelectedEntity != null;
-        }
 
         public Entity SelectedEntity
         {
@@ -47,18 +50,43 @@ namespace Event_ECS_WPF.Controls
                 m_selectedEntity = value;
                 OnPropertyChanged("SelectedEntity");
             }
-        } private Entity m_selectedEntity;
+        }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public bool CanRemoveEntity()
+        {
+            return SelectedEntity != null;
+        }
 
         protected void OnPropertyChanged(string propName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
         }
 
+        private void AddEntity()
+        {
+            if (ECS.Instance.UseWrapper(AddEntityFunc, out string str))
+            {
+                LogManager.Instance.Add("Added entity: {0}", str);
+                EntityComponentSystem.Deserialize();
+            }
+        }
+
         private string AddEntityFunc(ECSWrapper ecs)
         {
             return ecs.AddEntity();
+        }
+
+        private void ECS_DeserializeRequested()
+        {
+            Dispatcher.BeginInvoke(new Action(() => EntityComponentSystem.Deserialize()));
+        }
+        private void RemoveEntity()
+        {
+            if (ECS.Instance.UseWrapper(RemoveEntityFunc, SelectedEntity.ID, out bool removed))
+            {
+                LogManager.Instance.Add("Entity removed: {0}", removed);
+                EntityComponentSystem.Deserialize();
+            }
         }
 
         private bool RemoveEntityFunc(ECSWrapper ecs, int entityID)
@@ -71,24 +99,6 @@ namespace Event_ECS_WPF.Controls
             {
                 LogManager.Instance.Add(LogLevel.High, "Cannot remove entity: {0}", e.Message);
                 return false;
-            }
-        }
-
-        private void AddEntity()
-        {
-            if (ECS.Instance.UseWrapper(AddEntityFunc, out string str))
-            {
-                LogManager.Instance.Add("Added entity: {0}", str);
-                EntityComponentSystem.Deserialize();
-            }
-        }
-
-        private void RemoveEntity()
-        {
-            if(ECS.Instance.UseWrapper(RemoveEntityFunc, SelectedEntity.ID, out bool removed))
-            {
-                LogManager.Instance.Add("Entity removed: {0}", removed);
-                EntityComponentSystem.Deserialize();
             }
         }
 

@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:controls="clr-namespace:Event_ECS_WPF.Controls"
              xmlns:converter="clr-namespace:Event_ECS_WPF.Converters"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
              xmlns:ex="clr-namespace:Event_ECS_WPF.Extensions"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
@@ -17,6 +18,11 @@
             <Setter Property="HorizontalAlignment" Value="Center"/>
         </Style>
         <ex:BindingProxy x:Key="EntityControl" Data="{Binding ElementName=m_entityControl}"/>
+
+        <converter:NotConverter x:Key="notCol"/>
+
+        <sys:Boolean x:Key="True">True</sys:Boolean>
+        <sys:Boolean x:Key="False">False</sys:Boolean>
     </UserControl.Resources>
 
     <StackPanel>
@@ -39,6 +45,31 @@
 
             </ContextMenu>
         </StackPanel.ContextMenu>
+
+        <GroupBox Header="Enabled">
+            <StackPanel Orientation="Vertical">
+
+                <RadioButton IsChecked="{Binding ElementName=m_entityControl, Path=Entity.IsEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Delay=100}" 
+                             Content="Enabled" Command="{Binding ElementName=m_entityControl, Path=SetEntityEnabledCommand}" CommandParameter="{StaticResource True}">
+                    <RadioButton.GroupName>
+                        <MultiBinding StringFormat="{}{0}{1}">
+                            <Binding ElementName="m_entityControl" Path="Entity.Name"/>
+                            <Binding ElementName="m_entityControl" Path="Entity.ID"/>
+                        </MultiBinding>
+                    </RadioButton.GroupName>
+                </RadioButton>
+
+                <RadioButton IsChecked="{Binding ElementName=m_entityControl, Path=Entity.IsEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource notCol}, Delay=100}" 
+                             Content="Disabled" Command="{Binding ElementName=m_entityControl, Path=SetEntityEnabledCommand}" CommandParameter="{StaticResource False}">
+                    <RadioButton.GroupName>
+                        <MultiBinding StringFormat="{}{0}{1}">
+                            <Binding ElementName="m_entityControl" Path="Entity.Name"/>
+                            <Binding ElementName="m_entityControl" Path="Entity.ID"/>
+                        </MultiBinding>
+                    </RadioButton.GroupName>
+                </RadioButton>
+            </StackPanel>
+        </GroupBox>
 
         <Expander Header="Events" Background="LightYellow">
             <ListBox ItemsSource="{Binding ElementName=m_entityControl, Path=Entity.Events, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>

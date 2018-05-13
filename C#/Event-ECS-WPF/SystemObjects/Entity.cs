@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using Event_ECS_WPF.Misc;
+using EventECSWrapper;
 
 namespace Event_ECS_WPF.SystemObjects
 {
@@ -44,6 +45,22 @@ namespace Event_ECS_WPF.SystemObjects
             }
         }
 
+        private bool GetIsEnabled(ECSWrapper ecs)
+        {
+            return ecs.GetEntityBool(ID, "enabled");
+        }
+
+        private void SetIsEnabled(ECSWrapper ecs, bool value)
+        {
+            ecs.SetEntityBool(ID, "enabled", value);
+        }
+
+        public bool IsEnabled
+        {
+            get => ECS.Instance.UseWrapper(GetIsEnabled, out bool enabled) ? enabled : false;
+            set => ECS.Instance.UseWrapper(SetIsEnabled, value);
+        }
+
         internal EntityComponentSystem System => m_system;
 
         public int ID
@@ -55,6 +72,7 @@ namespace Event_ECS_WPF.SystemObjects
                 OnPropertyChanged("ID");
             }
         }
+
         public string Name
         {
             get => m_name;

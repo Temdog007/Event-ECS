@@ -32,7 +32,6 @@ return function(identity, executablePath, frameRate)
   loveSystem = System()
 
   loveSystem.frameRate = frameRate or 60
-  loveSystem.sleep = true
 
   -- Make sure love exists.
   local love = require("love")
@@ -259,15 +258,13 @@ return function(identity, executablePath, frameRate)
         love.graphics.present()
       end
 
-      if love.timer and loveSystem.sleep then
+      if love.timer then
         nextTime = nextTime + (1 / loveSystem.frameRate)
         local curTime = love.timer.getTime()
         if nextTime <= curTime then
           nextTime = curTime
         else
-          local sleepTime = nextTime - curTime
-          love.timer.sleep(sleepTime)
-          loveSystem.sleepTime = sleepTime
+          love.timer.sleep(nextTime - curTime)
         end
       end
 
@@ -317,22 +314,24 @@ return function(identity, executablePath, frameRate)
     return 1
   end
 
-  local function drawCourtine()
+  local function drawCoroutine()
+
     local func
 
-    local function deferErrhand(...)
-      func = error_printer(...)
+    local function earlyinit()
+      -- NOTE: We can't assign to func directly, as we'd
+      -- overwrite the result of deferErrhand with nil on error
+      local result, main = pcall(draw)
+      if result then
+        func = main
+      end
     end
 
-    local result, main = xpcall(draw, deferErrhand)
-    if result then
-      func = main
-    end
+    func = earlyinit
 
     while func do
-      local _, retval = xpcall(func, deferErrhand)
-      if retval then return retval end
-      coroutine.yield()
+      local _, retval = pcall(func)
+      coroutine.yield(retval)
     end
 
     return 1
@@ -358,7 +357,7 @@ return function(identity, executablePath, frameRate)
     return rval
   end
 
-  local drawCo = coroutine.create(drawCourtine)
+  local drawCo = coroutine.create(drawCoroutine)
   function loveSystem:draw()
 
     if not drawCo then
@@ -366,13 +365,12 @@ return function(identity, executablePath, frameRate)
     end
 
     local rval, result = coroutine.resume(drawCo)
-    if not rval then
+    if result then
       if Log then
         Log(tostring(result))
       else
         print(result)
       end
-      drawCo = nil
     end
 
     return rval

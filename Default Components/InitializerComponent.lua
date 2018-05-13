@@ -10,10 +10,14 @@ function InitializerComponent:__init(entity)
   en:addComponent("FinalizerComponent")
   en:addComponent("LogTestComponent")
   en:addComponent("DebugComponent")
+  en:addComponent("ColorComponent")
 end
 
 function InitializerComponent:eventUpdate()
 	self:remove()
+	if Log then
+		Log("Deserialize")
+	end
 end
 
 return InitializerComponent

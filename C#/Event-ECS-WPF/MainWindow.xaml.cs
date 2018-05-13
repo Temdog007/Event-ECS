@@ -24,7 +24,7 @@ namespace Event_ECS_WPF
 
         private static void LogException(Exception e)
         {
-            LogManager.Instance.Add(e.Message);
+            LogManager.Instance.Add(LogLevel.High, e.Message);
             if(e.InnerException != null)
             {
                 LogException(e.InnerException);

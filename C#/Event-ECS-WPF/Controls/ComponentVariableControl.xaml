@@ -20,7 +20,7 @@
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="auto"/>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*" MinWidth="100"/>
         </Grid.ColumnDefinitions>
 
         <TextBlock Margin="5" Grid.Column="0" Text="{Binding ElementName=m_control, Path=ComponentVariable.Name}"/>

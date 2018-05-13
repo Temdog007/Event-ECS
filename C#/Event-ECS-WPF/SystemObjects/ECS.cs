@@ -1,13 +1,10 @@
 ﻿using Event_ECS_WPF.Logger;
-using Event_ECS_WPF.Properties;
 using EventECSWrapper;
 using System;
 using System.IO;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Media;
-using System.Windows.Media.Animation;
-using System.Windows.Threading;
 
 namespace Event_ECS_WPF.SystemObjects
 {
@@ -16,6 +13,8 @@ namespace Event_ECS_WPF.SystemObjects
     public delegate void DisposeDelegate();
 
     public delegate void DoActionOnMainThreadDelegate(Action action);
+
+    public delegate void LogDelegate(string message);
     public class AutoUpdateChangedArgs : EventArgs
     {
         public AutoUpdateChangedArgs(bool autoUpdate)
@@ -28,21 +27,34 @@ namespace Event_ECS_WPF.SystemObjects
 
     public class ECS : NotifyPropertyChanged, IDisposable
     {
+        private const string DeserializeLog = "Deserialize";
+
         private static readonly TimeSpan WaitTimeSpan = TimeSpan.FromMilliseconds(10);
 
         private static ECS s_instance;
+
         private readonly object m_lock = new object();
+
         private ECSWrapper m_ecs;
+
         static ECS()
         {
-            ECSWrapper.LogEvent = str => LogManager.Instance.Add(str);
+            ECSWrapper.LogEvent = HandleLogFromECS;
         }
 
-        internal ECS(){}
+        internal ECS() { }
 
+        public static event Action DeserializeRequested;
         public static event AutoUpdateChanged OnAutoUpdateChanged;
+
         public static ECS Instance => s_instance ?? (s_instance = new ECS());
-        public uint FrameRate { get => m_ecs?.GetFrameRate() ?? 0; set => m_ecs?.SetFrameRate(value); }
+
+        public uint FrameRate
+        {
+            get => UseWrapper(GetFrameRate, out uint fps) ? fps : 0;
+            set => UseWrapper(ecs => ecs.SetSystemNumber("frameRate", value));
+        }
+
         public bool ProjectStarted => m_ecs != null;
 
         public void CreateInstance()
@@ -74,6 +86,7 @@ namespace Event_ECS_WPF.SystemObjects
                 return m_ecs?.GetAutoUpdate() ?? false;
             }
         }
+
         public bool InitializeLove(string name)
         {
             lock (m_lock)
@@ -82,7 +95,7 @@ namespace Event_ECS_WPF.SystemObjects
                 {
                     return false;
                 }
-                bool returnRval = 
+                bool returnRval =
                     UseWrapper(ecs =>
                     ecs.InitializeLove(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), name),
                     out bool rval) && rval;
@@ -132,6 +145,23 @@ namespace Event_ECS_WPF.SystemObjects
             }
         }
 
+        public bool UseWrapper<K>(Action<ECSWrapper, K> action, K argument)
+        {
+            lock (m_lock)
+            {
+                if (m_ecs == null)
+                {
+                    LogManager.Instance.Add(LogLevel.High, "Project has not been started. Cannot run function");
+                    return false;
+                }
+                else
+                {
+                    Application.Current.Dispatcher.BeginInvoke(new Action(() => action(m_ecs, argument)));
+                    return true;
+                }
+            }
+        }
+
         public bool UseWrapper<T, K>(Func<ECSWrapper, K, T> action, K argument, out T t)
         {
             lock (m_lock)
@@ -169,6 +199,21 @@ namespace Event_ECS_WPF.SystemObjects
             }
         }
 
+        private static void DoHandleLogFromECS(string message)
+        {
+            LogManager.Instance.Add(message);
+            if (message == DeserializeLog)
+            {
+                DeserializeRequested?.Invoke();
+            }
+        }
+
+        private static void HandleLogFromECS(string message)
+        {
+            LogDelegate d = DoHandleLogFromECS;
+            Application.Current.Dispatcher.BeginInvoke(d, message);
+        }
+
         private static bool UpdateAction(ECSWrapper ecs)
         {
             return ecs.LoveUpdate();
@@ -188,6 +233,11 @@ namespace Event_ECS_WPF.SystemObjects
                 m_ecs = null;
                 LogManager.Instance.Add(LogLevel.Medium, "Project Stopped");
             }
+        }
+
+        private uint GetFrameRate(ECSWrapper ecs)
+        {
+            return (uint)ecs.GetSystemNumber("frameRate");
         }
     }
 }

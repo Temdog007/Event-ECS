@@ -77,8 +77,17 @@ function component:remove()
   return self.entity:removeComponent(self.parent or self)
 end
 
-local function addValues(input, t)
-  for k,v in pairs(input) do
+local function contains(tab, value)
+  for k,v in pairs(tab) do
+    if v == value then
+      return true
+    end
+  end
+  return false
+end
+
+local function addValues(tab, t, addTables)
+  for k,v in pairs(tab) do
     k = tostring(k)
     if not string.starts(k, "__") then
       local typ = type(v)
@@ -87,6 +96,13 @@ local function addValues(input, t)
         table.insert(t, k)
         table.insert(t, typ)
         table.insert(t, val)
+      elseif addTables and typ == "table" then
+        if classname(v) then
+          print(string.format("%s will not be added", k))
+        else
+          print(string.format("%s will be added", k))
+          addValues(v, t, args)
+        end
       end
     end
   end
@@ -98,7 +114,7 @@ function component:serialize()
     classname(self.parent or self),
   }
   if self.parent then
-    addValues(self.parent, t)
+    addValues(self.parent, t, true)
   end
   addValues(self, t)
   return table.concat(t, "|")
