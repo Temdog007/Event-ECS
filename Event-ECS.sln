@@ -11,8 +11,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Event-ECS-Wrapper", "CLI\Ev
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Event-ECS-C++", "C++\Event-ECS-C++\Event-ECS-C++.vcxproj", "{F77AE44E-99AD-4CD0-BA2C-135C856900B4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Event-ECS-Service", "C#\Event-ECS-Service\Event-ECS-Service.csproj", "{F2E4E96F-F26F-4612-8BA6-ADB2A7298294}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,18 +61,6 @@ Global
 		{F77AE44E-99AD-4CD0-BA2C-135C856900B4}.Release|x64.Build.0 = Debug|x64
 		{F77AE44E-99AD-4CD0-BA2C-135C856900B4}.Release|x86.ActiveCfg = Debug|Win32
 		{F77AE44E-99AD-4CD0-BA2C-135C856900B4}.Release|x86.Build.0 = Debug|Win32
-		{F2E4E96F-F26F-4612-8BA6-ADB2A7298294}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F2E4E96F-F26F-4612-8BA6-ADB2A7298294}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F2E4E96F-F26F-4612-8BA6-ADB2A7298294}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{F2E4E96F-F26F-4612-8BA6-ADB2A7298294}.Debug|x64.Build.0 = Debug|Any CPU
-		{F2E4E96F-F26F-4612-8BA6-ADB2A7298294}.Debug|x86.ActiveCfg = Debug|x86
-		{F2E4E96F-F26F-4612-8BA6-ADB2A7298294}.Debug|x86.Build.0 = Debug|x86
-		{F2E4E96F-F26F-4612-8BA6-ADB2A7298294}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F2E4E96F-F26F-4612-8BA6-ADB2A7298294}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F2E4E96F-F26F-4612-8BA6-ADB2A7298294}.Release|x64.ActiveCfg = Release|Any CPU
-		{F2E4E96F-F26F-4612-8BA6-ADB2A7298294}.Release|x64.Build.0 = Release|Any CPU
-		{F2E4E96F-F26F-4612-8BA6-ADB2A7298294}.Release|x86.ActiveCfg = Debug|x86
-		{F2E4E96F-F26F-4612-8BA6-ADB2A7298294}.Release|x86.Build.0 = Debug|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
