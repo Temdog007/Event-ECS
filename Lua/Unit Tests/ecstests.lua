@@ -194,12 +194,12 @@ function ecsTests:testEntityComponents2()
 
   assertEquals(entity:componentCount(), 0)
   local comp1, comp2 = entity:addComponents("TestComponent", "TestComponent")
-  assertEquals(entity:componentCount(), 2)
+  assertEquals(entity:componentCount(), 1)
 
-  assertEquals(comp1.addedComponentCalled, 2)
+  assertEquals(comp1.addedComponentCalled, 1)
   assertEquals(comp2.addedComponentCalled, 1)
 
-  assertNotIsNil(entity:findComponent(comp1:getID()))
+  assertIsNil(entity:findComponent(comp1:getID()))
   assertNotIsNil(entity:findComponent(comp2:getID()))
 end
 

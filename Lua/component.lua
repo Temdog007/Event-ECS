@@ -26,6 +26,13 @@ local id = 0
 function component:__init(entity, parent)
   assert(entity and string.match(entity:getName(), "Entity"), "Component must have an entity")
   self.entity = entity
+
+  local name = classname(parent or self)
+  if entity[name] then
+    entity[name]:remove()
+  end
+  entity[name] = parent or self
+
   self.enabled = true
   self.parent = parent
   self.id = id
