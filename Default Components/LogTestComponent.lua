@@ -9,7 +9,7 @@ function LogTest:__init(entity)
   self.x = 0
   self.y = 0
   self.space = 10
-  self.color = entity.color
+  self.color = entity.ColorComponent
 end
 
 function LogTest:eventAddedComponent(args)
