@@ -26,26 +26,25 @@ local ColorComponent = require("colorComponent")
 local ClassName = "Entity Component System"
 local system = class(ClassName)
 
-local function systostring(sys)
-  if sys.name then
-    return string.format("%s: %s", ClassName, sys.name)
-  else
-    return ClassName
-  end
-end
-
-function system:__init()
+function system:__init(name)
   self.entities = {}
   self.id = 1
-
-  self.registeredComponents = {}
-  self:registerComponent(Component)
-  self:registerComponent(FinalizerComponent)
-  self:registerComponent(ColorComponent)
+  self.name = name or ClassName
+  self.enabled = true
 end
 
 function system:getName()
-  return systostring(self)
+  return self.name
+end
+
+function system:isEnabled()
+  return self.enabled
+end
+
+function system:setEnabled(value)
+  assert(type(value) == "boolean", "Must set enabled to a boolean value")
+
+  self.enabled = value
 end
 
 function system:createEntity()
@@ -132,6 +131,10 @@ function system:findEntities(findFunc)
 end
 
 function system:dispatchEvent(event, args)
+  if not self:isEnabled() then
+    return 0
+  end
+  
   local eventsHandled = 0
   for _, entity in pairs(self.entities) do
     if entity:isEnabled() then
@@ -141,40 +144,8 @@ function system:dispatchEvent(event, args)
   return eventsHandled
 end
 
-function system:replaceComponent(NewComponent)
-  assert(is_a(NewComponent, Component), string.format("Object '%s' is not an Component", name))
-  local name = classname(NewComponent)
-  self.registeredComponents[name] = NewComponent
-end
-
-function system:registerComponent(NewComponent)
-  local name = classname(NewComponent)
-  assert(not self.registeredComponents[name], "Component has already been registered")
-  assert(is_a(NewComponent, Component), string.format("Object '%s' is not an Component", name))
-  self.registeredComponents[name] = NewComponent
-end
-
-function system:registerComponents(...)
-  for _, comp in pairs({...}) do
-    self:registerComponent(comp)
-  end
-end
-
-function system:getComponent(compName)
-  assert(type(compName) == "string", "Must find components by classname")
-  return self.registeredComponents[compName]
-end
-
-function system:getComponentList()
-  local comps = {}
-  for k in pairs(self.registeredComponents) do
-    table.insert(comps, k)
-  end
-  return table.concat(comps, "|")
-end
-
 function system:serialize()
-  local tab = { self:getName().."|"..self:getComponentList()}
+  local tab = { self:getName() }
   for _, en in pairs(self.entities) do
     table.insert(tab, en:serialize())
   end

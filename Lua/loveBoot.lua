@@ -18,20 +18,27 @@
 -- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 -- SOFTWARE.
 
-local System = require("system")
-local loveSystem
-return function(identity, executablePath, frameRate)
+local frameRate = 60
 
-  if loveSystem then
-    return loveSystem
-  end
+function setFrameRate(rate)
+  assert(type(rate) == "number", "Frame rate must be set to a number")
+  assert(rate > 0, "Frame rate must be greater than zero")
+  frameRate = rate
+end
+
+function getFrameRate()
+  return frameRate
+end
+
+local broadcastEvent
+local function bootLove(broadcastEventFunc, identity, executablePath)
+
+  assert(broadcastEventFunc, "Must enter a broadcast event function")
+
+  broadcastEvent = broadcastEventFunc
 
   executablePath = executablePath or os.execute('cd')
   assert(type(identity) == "string", "Must enter a name for the game")
-
-  loveSystem = System()
-
-  loveSystem.frameRate = frameRate or 60
 
   -- Make sure love exists.
   local love = require("love")
@@ -196,185 +203,182 @@ return function(identity, executablePath, frameRate)
   	love.filesystem._setAndroidSaveExternal(c.externalstorage)
   	love.filesystem.setIdentity(identity, true)
   end
+end
 
-  -----------------------------------------------------------
-  -- Default callbacks.
-  -----------------------------------------------------------
+-----------------------------------------------------------
+-- Default callbacks.
+-----------------------------------------------------------
+
+local function run()
+
+  broadcastEvent("eventload")
 
   local updateArgs = {dt = 0}
 
-  local function run()
+  local quitArgs = {handled = false}
 
-    loveSystem:dispatchEvent("eventload")
-
-    local quitArgs = {handled = false}
-
-  	-- Main loop time.
-  	return function()
-  		-- Process events.
-  		if love.event then
-  			love.event.pump()
-  			for name, a,b,c,d,e,f in love.event.poll() do
-  				if name == "quit" then
-            quitArgs.handled = false
-  					loveSystem:dispatchEvent("eventquit", quitArgs)
-            if not quitArgs.handled then
-  						return a or 0
-  					end
-  				else
-            loveSystem:dispatchEvent("event"..name, {a,b,c,d,ef})
-          end
-  			end
-  		end
-
-      -- Update dt, as we'll be passing it to update
-      if love.timer then
-        updateArgs.dt = love.timer.step()
-      else
-        updateArgs.dt = 0
-      end
-
-      -- Call update and draw
-      loveSystem:dispatchEvent("eventupdate", updateArgs) -- will pass 0 if love.timer is disabled
-
-    end
-  end
-
-  local function draw()
-    local nextTime
-    if love.timer then
-      love.timer.step()
-      nextTime = love.timer.getTime()
-    end
-
-    return function()
-
-      if love.graphics and love.graphics.isActive() then
-        love.graphics.origin()
-        love.graphics.clear(love.graphics.getBackgroundColor())
-
-        loveSystem:dispatchEvent("eventdraw")
-
-        love.graphics.present()
-      end
-
-      if love.timer then
-        nextTime = nextTime + (1 / loveSystem.frameRate)
-        local curTime = love.timer.getTime()
-        if nextTime <= curTime then
-          nextTime = curTime
-        else
-          love.timer.sleep(nextTime - curTime)
+	-- Main loop time.
+	return function()
+		-- Process events.
+		if love.event then
+			love.event.pump()
+			for name, a,b,c,d,e,f in love.event.poll() do
+				if name == "quit" then
+          quitArgs.handled = false
+					broadcastEvent("eventquit", quitArgs)
+          if not quitArgs.handled then
+						return a or 0
+					end
+				else
+          broadcastEvent("event"..name, {a,b,c,d,ef})
         end
-      end
+			end
+		end
 
-    end
-  end
-
-  local debug, print, error = debug, print, error
-
-  local utf8 = require("utf8")
-
-  local function error_printer(msg, layer)
-    if Log then
-      Log(debug.traceback("Error: " .. tostring(msg), 1+(layer or 1)):gsub("\n[^\n]+$", ""))
+    -- Update dt, as we'll be passing it to update
+    if love.timer then
+      updateArgs.dt = love.timer.step()
     else
-  	   print((debug.traceback("Error: " .. tostring(msg), 1+(layer or 1)):gsub("\n[^\n]+$", "")))
-     end
+      updateArgs.dt = 0
+    end
+
+    -- Call update and draw
+    broadcastEvent("eventupdate", updateArgs) -- will pass 0 if love.timer is disabled
+
   end
-
-  -----------------------------------------------------------
-  -- The root of all calls.
-  -----------------------------------------------------------
-
-  local function runCoroutine()
-    local func
-
-    local function deferErrhand(...)
-      func = error_printer(...)
-    end
-
-    local function earlyinit()
-      -- NOTE: We can't assign to func directly, as we'd
-      -- overwrite the result of deferErrhand with nil on error
-      local result, main = xpcall(run, deferErrhand)
-      if result then
-        func = main
-      end
-    end
-
-    func = earlyinit
-
-    while func do
-      local _, retval = xpcall(func, deferErrhand)
-      if retval then return retval end
-      coroutine.yield()
-    end
-
-    return 1
-  end
-
-  local function drawCoroutine()
-
-    local func
-
-    local function earlyinit()
-      -- NOTE: We can't assign to func directly, as we'd
-      -- overwrite the result of deferErrhand with nil on error
-      local result, main = pcall(draw)
-      if result then
-        func = main
-      end
-    end
-
-    func = earlyinit
-
-    while func do
-      local _, retval = pcall(func)
-      coroutine.yield(retval)
-    end
-
-    return 1
-  end
-
-  local runCo = coroutine.create(runCoroutine)
-  function loveSystem:run()
-
-    if not runCo then
-      return false
-    end
-
-  	local rval, result = coroutine.resume(runCo)
-    if not rval then
-      if Log then
-        Log(tostring(result))
-      else
-        print(result)
-      end
-      runCo = nil
-    end
-
-    return rval
-  end
-
-  local drawCo = coroutine.create(drawCoroutine)
-  function loveSystem:draw()
-
-    if not drawCo then
-      return false
-    end
-
-    local rval, result = coroutine.resume(drawCo)
-    if result then
-      if Log then
-        Log(tostring(result))
-      else
-        print(result)
-      end
-    end
-
-    return rval
-  end
-
-  return loveSystem
 end
+
+local function draw()
+  local nextTime
+  if love.timer then
+    love.timer.step()
+    nextTime = love.timer.getTime()
+  end
+
+  return function()
+
+    if love.graphics and love.graphics.isActive() then
+      love.graphics.origin()
+      love.graphics.clear(love.graphics.getBackgroundColor())
+
+      broadcastEvent("eventdraw")
+
+      love.graphics.present()
+    end
+
+    if love.timer then
+      nextTime = nextTime + (1 / frameRate)
+      local curTime = love.timer.getTime()
+      if nextTime <= curTime then
+        nextTime = curTime
+      else
+        love.timer.sleep(nextTime - curTime)
+      end
+    end
+
+  end
+end
+
+local debug, print, error = debug, print, error
+
+local function error_printer(msg, layer)
+  if Log then
+    Log(debug.traceback("Error: " .. tostring(msg), 1+(layer or 1)):gsub("\n[^\n]+$", ""))
+  else
+	   print((debug.traceback("Error: " .. tostring(msg), 1+(layer or 1)):gsub("\n[^\n]+$", "")))
+   end
+end
+
+-----------------------------------------------------------
+-- The root of all calls.
+-----------------------------------------------------------
+
+local function runCoroutine()
+  local func
+
+  local function deferErrhand(...)
+    func = error_printer(...)
+  end
+
+  local function earlyinit()
+    -- NOTE: We can't assign to func directly, as we'd
+    -- overwrite the result of deferErrhand with nil on error
+    local result, main = xpcall(run, deferErrhand)
+    if result then
+      func = main
+    end
+  end
+
+  func = earlyinit
+
+  while func do
+    local _, retval = xpcall(func, deferErrhand)
+    if retval then return retval end
+    coroutine.yield()
+  end
+
+  return 1
+end
+
+local function drawCoroutine()
+
+  local func
+
+  local function earlyinit()
+    -- NOTE: We can't assign to func directly, as we'd
+    -- overwrite the result of deferErrhand with nil on error
+    local result, main = pcall(draw)
+    if result then
+      func = main
+    end
+  end
+
+  func = earlyinit
+
+  while func do
+    local _, retval = pcall(func)
+    coroutine.yield(retval)
+  end
+
+  return 1
+end
+
+local runCo = coroutine.create(runCoroutine)
+local drawCo = coroutine.create(drawCoroutine)
+
+local function updateLove()
+  if not runCo then
+    return false
+  end
+
+	local rval, result = coroutine.resume(runCo)
+  if not rval then
+    if Log then
+      Log(tostring(result))
+    else
+      print(result)
+    end
+    runCo = nil
+  end
+
+  return rval
+end
+
+local function drawLove()
+  if not drawCo then
+    return false
+  end
+
+  local rval, result = coroutine.resume(drawCo)
+  if result then
+    if Log then
+      Log(tostring(result))
+    else
+      print(result)
+    end
+  end
+
+  return rval
+end
+
+return {bootLove = bootLove, updateLove = updateLove, drawLove = drawLove}

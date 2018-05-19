@@ -24,28 +24,34 @@ package.preload['conf'] = function()
   end
 end
 
-local LoveSystem = require("loveSystem")
-local loveSystem = LoveSystem("Unit Test")
+local loveFuncs = require("loveBoot")
+
+local system = require("system")()
+loveFuncs.bootLove(
+  function(eventName)
+    system:dispatchEvent(eventName)
+  end,
+  "Love Unit Test")
 
 local Component = require("component")
 local class = require("classlib")
 
 local TestComponent = require("Unit Tests/testComponent")
 
-loveSystem:registerComponent(TestComponent)
-loveSystem.frameRate = 30
-loveSystem:run()
+setFrameRate(120)
+loveFuncs.updateLove()
 
-local entity = loveSystem:createEntity()
-entity:addComponent("TestComponent")
+
+local entity = system:createEntity()
+entity:addComponent(TestComponent)
 local color = entity:addComponent("ColorComponent")
 color:set(1,0.5,0,1)
 
-repeat loveSystem:draw() until not loveSystem:run()
+repeat loveFuncs.drawLove() until not loveFuncs.updateLove()
 
-repeat until not loveSystem:run()
+repeat until not loveFuncs.updateLove()
 
-loveSystem = LoveSystem("Unit Test")
-repeat loveSystem:draw() until not loveSystem:run()
+local loveFuncs = require("loveBoot")
+repeat loveFuncs.drawLove() until not loveFuncs.updateLove()
 
 print("Corutine ended")

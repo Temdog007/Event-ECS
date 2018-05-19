@@ -22,7 +22,6 @@ local LuaUnit = require("luaunit")
 local System = require("system")
 local Component = require("component")
 local class = require("classlib")
-
 local TestComponent = require("Unit Tests/testComponent")
 
 function assertIs(actual, expected)
@@ -103,13 +102,11 @@ function ecsTests:testSystemInitialization()
   assertIs(system.findEntity, "function")
   assertIs(system.findEntities, "function")
   assertIs(system.dispatchEvent, "function")
-  assertIs(system.registerComponent, "function")
-  assertIs(system.registerComponents, "function")
 
   assertEquals(system:getName(), "Entity Component System")
   system.name = "Unit Test"
   assertNotEquals(system:getName(), "Entity Component System")
-  assertEquals(system:getName(), "Entity Component System: Unit Test")
+  assertEquals(system:getName(), "Unit Test")
 end
 
 function ecsTests:testSystemFind()
@@ -124,18 +121,12 @@ function ecsTests:testSystemFind()
   assertIsNil(system:findEntity(function(en) return en == entity end))
 end
 
-function ecsTests:testSystemRegister()
-  local system = System()
-  assertNotIsNil(system:getComponent("Component"))
-end
-
 function ecsTests:testEntityComponents1()
   local system = System()
   local entity = system:createEntity()
   assertError(entity.addComponent, entity, 'TestComponent')
 
-  system:registerComponent(TestComponent)
-  local comp1 = entity:addComponent('TestComponent')
+  local comp1 = entity:addComponent(TestComponent)
   assertEquals(classname(TestComponent), classname(comp1))
   assertEquals(entity:componentCount(), 1)
   assertIsNil(comp1.entity)
@@ -148,7 +139,7 @@ function ecsTests:testEntityComponents1()
   assertEquals(entity:componentCount(), 0)
   assertNotIsNil(system:findEntity(function(en) return en == entity end))
 
-  local comp2 = entity:addComponent('TestComponent')
+  local comp2 = entity:addComponent(TestComponent)
   assertEquals(entity:componentCount(), 1)
   assertIsNil(comp2.entity)
   assertIsTrue(comp2:getEntity() == entity)
@@ -168,7 +159,7 @@ function ecsTests:testEntityComponents1()
   entity = system:createEntity()
   assertIsTrue(entity:isEnabled())
   assertEquals(entity:componentCount(), 0)
-  local comp3 = entity:addComponent('TestComponent')
+  local comp3 = entity:addComponent(TestComponent)
   assertIsNil(comp3.entity)
   assertIsTrue(comp3:getEntity() == entity)
   assertIsTrue(comp3:getSystem() == system)
@@ -178,7 +169,7 @@ function ecsTests:testEntityComponents1()
   assertEquals(comp3.removingComponentCalled, 1)
   assertEquals(entity:componentCount(), 0)
 
-  local comp4 = entity:addComponent('TestComponent')
+  local comp4 = entity:addComponent(TestComponent)
   assertIsNil(comp4.entity)
   assertIsTrue(comp4:getEntity() == entity)
   assertIsTrue(comp4:getSystem() == system)
@@ -189,11 +180,10 @@ end
 
 function ecsTests:testEntityComponents2()
   local system = System()
-  system:registerComponent(TestComponent)
   local entity = system:createEntity()
 
   assertEquals(entity:componentCount(), 0)
-  local comp1, comp2 = entity:addComponents("TestComponent", "TestComponent")
+  local comp1, comp2 = entity:addComponents(TestComponent, TestComponent)
   assertEquals(entity:componentCount(), 1)
 
   assertEquals(comp1.addedComponentCalled, 1)
@@ -205,7 +195,6 @@ end
 
 function ecsTests:testEntityComponents3()
   local system = System()
-  system:registerComponent(TestComponent)
   local entity1 = system:createEntity()
   local entity2 = system:createEntity()
   local entity3 = system:createEntity()
@@ -245,8 +234,7 @@ function ecsTests:testAddingRemovingEntities()
   assertEquals(entity1:componentCount(), 0)
   assertEquals(entity2:componentCount(), 0)
 
-  system:registerComponent(TestComponent)
-  entity1:addComponent('TestComponent')
+  entity1:addComponent(TestComponent)
 
   assertEquals(entity1:componentCount(), 1)
   assertEquals(entity2:componentCount(), 0)
@@ -255,19 +243,16 @@ end
 -- function ecsTests:testSystemSerialization()
 --   local system = System()
 --   assertEquals(system:serialize(), "Entity Component System|Component|FinalizerComponent|ColorComponent")
---   system:registerComponent(TestComponent)
 --   assertEquals(system:serialize(), "Entity Component System|Component|FinalizerComponent|ColorComponent|TestComponent")
 -- end
 
 -- function ecsTests:testEntitySerialization()
 --   local system = System()
---   system:registerComponent(TestComponent)
 --   local entity = system:createEntity()
 --
 --   assertEquals(entity:serialize(), "1|Entity")
 --   local comp = entity:addComponent("Component")
 --   assertMatch(entity:serialize(), "1|Entity|removingentity|removingcomponent\nComponent|enabled|boolean|true")
---   comp = entity:addComponent("TestComponent")
 --   assertMatch(entity:serialize(), "1|Entity|removingcomponent|removingentity|addedcomponent\nComponent|enabled|boolean|true\nTestComponent|enabled|boolean|true|removingComponentCalled|number|0|addedComponentCalled|number|1|added|boolean|true")
 --   assertMatch(system:serialize(), "Entity Component System|Component|TestComponent\n1|Entity|removingcomponent|removingentity|addedcomponent\nComponent|enabled|boolean|true\nTestComponent|enabled|boolean|true|removingComponentCalled|number|0|addedComponentCalled|number|1|added|boolean|true")
 --

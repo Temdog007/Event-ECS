@@ -159,7 +159,6 @@ function entity:remove()
   local value = self.system:removeEntity(self)
   self:removeComponents(removeAll)
   self.system = nil
-  self.addComponent = nil
   return value
 end
 
@@ -191,9 +190,15 @@ function entity:getName()
   return entostring(self)
 end
 
-function entity:addComponent(compName, args)
-  local compClass = assert(self.system:getComponent(compName), string.format("Component '%s' not found in system", compName))
-  local component = assert(compClass(self, args), string.format("Instance of '%s' couldn't be created", compName))
+function entity:addComponent(comp, args)
+  local compClass
+  if type(comp) == "string" then
+    compClass = assert(require(comp), string.format("Instance of '%s' coudln't be created", comp))
+  else
+    compClass = comp
+  end
+
+  local component = assert(compClass(self, args), string.format("Instance of '%s' couldn't be created", tostring(compClass)))
 
   -- Insert component into list of self.components
   table.insert(self.components, component:getBase())
