@@ -4,7 +4,7 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Windows;
-using System.Windows.Media;
+using System.Windows.Threading;
 
 namespace Event_ECS_WPF.SystemObjects
 {
@@ -42,18 +42,12 @@ namespace Event_ECS_WPF.SystemObjects
             ECSWrapper.LogEvent = HandleLogFromECS;
         }
 
-        internal ECS() { }
+        internal ECS(){}
 
         public static event Action DeserializeRequested;
         public static event AutoUpdateChanged OnAutoUpdateChanged;
 
         public static ECS Instance => s_instance ?? (s_instance = new ECS());
-
-        public uint FrameRate
-        {
-            get => UseWrapper(GetFrameRate, out uint fps) ? fps : 0;
-            set => UseWrapper(ecs => ecs.SetSystemNumber("frameRate", value));
-        }
 
         public bool ProjectStarted => m_ecs != null;
 
@@ -62,7 +56,7 @@ namespace Event_ECS_WPF.SystemObjects
             lock (m_lock)
             {
                 Dispose();
-                m_ecs = new ECSWrapper();
+                m_ecs = new ECSWrapper(Application.Current.Dispatcher);
                 LogManager.Instance.Add(LogLevel.Medium, "Project Started");
             }
         }
@@ -99,7 +93,6 @@ namespace Event_ECS_WPF.SystemObjects
                     UseWrapper(ecs =>
                     ecs.InitializeLove(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), name),
                     out bool rval) && rval;
-                CompositionTarget.Rendering += CompositionTarget_Rendering;
                 return returnRval;
             }
         }
@@ -113,17 +106,16 @@ namespace Event_ECS_WPF.SystemObjects
             }
         }
 
-        public bool Update()
+        public void Update()
         {
             lock (m_lock)
             {
                 if (m_ecs == null)
                 {
-                    return false;
+                    return;
                 }
-                UseWrapper(UpdateAction, out bool rval);
+                UseWrapper(UpdateAction);
                 LogManager.Instance.Add(LogLevel.Low, "Manual Update");
-                return rval;
             }
         }
 
@@ -199,7 +191,7 @@ namespace Event_ECS_WPF.SystemObjects
             }
         }
 
-        private static void DoHandleLogFromECS(string message)
+        private static void HandleLogFromECS(string message)
         {
             LogManager.Instance.Add(message);
             if (message == DeserializeLog)
@@ -208,36 +200,19 @@ namespace Event_ECS_WPF.SystemObjects
             }
         }
 
-        private static void HandleLogFromECS(string message)
+        private static void UpdateAction(ECSWrapper ecs)
         {
-            LogDelegate d = DoHandleLogFromECS;
-            Application.Current.Dispatcher.BeginInvoke(d, message);
+            ecs.LoveUpdate();
         }
-
-        private static bool UpdateAction(ECSWrapper ecs)
-        {
-            return ecs.LoveUpdate();
-        }
-
-        private void CompositionTarget_Rendering(object sender, EventArgs e)
-        {
-            UseWrapper(ecs => ecs.LoveDraw());
-        }
-
+        
         private void DoDispose()
         {
             lock (m_lock)
             {
-                m_ecs.Dispose();
-                CompositionTarget.Rendering -= CompositionTarget_Rendering;
+                m_ecs?.Dispose();
                 m_ecs = null;
                 LogManager.Instance.Add(LogLevel.Medium, "Project Stopped");
             }
-        }
-
-        private uint GetFrameRate(ECSWrapper ecs)
-        {
-            return (uint)ecs.GetSystemNumber("frameRate");
         }
     }
 }

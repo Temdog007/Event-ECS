@@ -20,10 +20,12 @@ namespace Event_ECS_WPF.SystemObjects
 
         public EntityComponentSystem()
         {
-            Instance = this;
         }
 
-        public static EntityComponentSystem Instance { get; private set; }
+        public EntityComponentSystem(IList<string> list)
+        {
+            Deserialize(list);
+        }
 
         public ObservableCollection<Entity> Entities
         {
@@ -35,16 +37,6 @@ namespace Event_ECS_WPF.SystemObjects
             }
         }
 
-        public uint FrameRate
-        {
-            get => ECS.Instance.FrameRate;
-            set
-            {
-                ECS.Instance.FrameRate = value;
-                OnPropertyChanged("FrameRate");
-            }
-        }
-
         public string Name
         {
             get => m_name;
@@ -52,15 +44,6 @@ namespace Event_ECS_WPF.SystemObjects
             {
                 m_name = value;
                 OnPropertyChanged("Name");
-            }
-        }
-        public ObservableCollection<string> RegisteredComponents
-        {
-            get => m_registeredComponents;
-            set
-            {
-                m_registeredComponents = value;
-                OnPropertyChanged("RegisteredComponents");
             }
         }
 
@@ -74,25 +57,9 @@ namespace Event_ECS_WPF.SystemObjects
 
         public void Deserialize(IList<string> list)
         {
-            OnPropertyChanged("FrameRate");
-
             string systemData = list[0];
             string[] systemDataList = systemData.Split(Delim);
-            if (systemDataList.Length > 1)
-            {
-                Name = systemDataList[0];
-                List<string> newList = new List<string>();
-                foreach (var comp in systemDataList.SubArray(1))
-                {
-                    newList.Add(comp);
-                }
-                RegisteredComponents = new ObservableCollection<string>(newList);
-            }
-            else
-            {
-                Name = systemDataList[0];
-                RegisteredComponents.Clear();
-            }
+            Name = systemDataList[0];
 
             List<string> enList = new List<string>(list.SubArray(1));
             List<int> handledIDs = new List<int>();
@@ -112,9 +79,11 @@ namespace Event_ECS_WPF.SystemObjects
                     }
                     else
                     {
-                        entity = new Entity(this);
-                        entity.Name = enData[1];
-                        entity.ID = entityID;
+                        entity = new Entity(this)
+                        {
+                            Name = enData[1],
+                            ID = entityID
+                        };
                     }
 
                     List<string> events = new List<string>();
@@ -190,12 +159,12 @@ namespace Event_ECS_WPF.SystemObjects
 
         private string[] DeserializeFunc(ECSWrapper ecs)
         {
-            return ecs.Serialize().Split('\n');
+            return ecs.SerializeSystem(Name).Split('\n');
         }
 
         private int GetFrameRateFunc(ECSWrapper ecs)
         {
-            return (int)Convert.ChangeType(ecs.GetSystemNumber("frameRate"), typeof(int));
+            return (int)Convert.ChangeType(ecs.GetSystemNumber(Name, "frameRate"), typeof(int));
         }
     }
 }

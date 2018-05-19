@@ -24,12 +24,18 @@
     <ClInclude Include="ECS.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ECSMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ECS.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ECSMap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

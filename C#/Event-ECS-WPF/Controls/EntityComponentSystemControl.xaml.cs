@@ -1,5 +1,6 @@
 ﻿using Event_ECS_WPF.Commands;
 using Event_ECS_WPF.Logger;
+using Event_ECS_WPF.Projects;
 using Event_ECS_WPF.SystemObjects;
 using EventECSWrapper;
 using System;
@@ -18,9 +19,14 @@ namespace Event_ECS_WPF.Controls
         public static readonly DependencyProperty EntityProperty =
             DependencyProperty.Register("EntityComponentSystem", typeof(EntityComponentSystem), typeof(EntityComponentSystemControl));
 
+        public static readonly DependencyProperty ProjectProperty =
+           DependencyProperty.Register("Project", typeof(Project), typeof(EntityComponentSystemControl));
+
         private IActionCommand m_addEntityCommand;
 
         private IActionCommand m_removeEntityCommand;
+
+        private IActionCommand m_serializeCommand;
 
         private Entity m_selectedEntity;
 
@@ -41,6 +47,12 @@ namespace Event_ECS_WPF.Controls
             set { SetValue(EntityProperty, value); }
         }
 
+        public Project Project
+        {
+            get { return (Project)GetValue(ProjectProperty); }
+            set { SetValue(ProjectProperty, value); }
+        }
+
         public IActionCommand RemoveEntityCommand => m_removeEntityCommand ?? (m_removeEntityCommand = new ActionCommand(RemoveEntity, CanRemoveEntity));
 
         public Entity SelectedEntity
@@ -51,6 +63,8 @@ namespace Event_ECS_WPF.Controls
                 OnPropertyChanged("SelectedEntity");
             }
         }
+
+        public IActionCommand SerializeCommand => m_serializeCommand ?? (m_serializeCommand = new ActionCommand(Serialize));
 
         public bool CanRemoveEntity()
         {
@@ -73,13 +87,14 @@ namespace Event_ECS_WPF.Controls
 
         private string AddEntityFunc(ECSWrapper ecs)
         {
-            return ecs.AddEntity();
+            return ecs.AddEntity(EntityComponentSystem.Name);
         }
 
         private void ECS_DeserializeRequested()
         {
             Dispatcher.BeginInvoke(new Action(() => EntityComponentSystem.Deserialize()));
         }
+
         private void RemoveEntity()
         {
             if (ECS.Instance.UseWrapper(RemoveEntityFunc, SelectedEntity.ID, out bool removed))
@@ -93,12 +108,21 @@ namespace Event_ECS_WPF.Controls
         {
             try
             {
-                return ecs.RemoveEntity(entityID);
+                return ecs.RemoveEntity(EntityComponentSystem.Name, entityID);
             }
             catch(Exception e)
             {
                 LogManager.Instance.Add(LogLevel.High, "Cannot remove entity: {0}", e.Message);
                 return false;
+            }
+        }
+
+        private void Serialize()
+        {
+            if (ECS.Instance.UseWrapper(ecs => ecs.SerializeSystem(EntityComponentSystem.Name), out string data))
+            {
+                EntityComponentSystem.Deserialize(data.Split('\n'));
+                LogManager.Instance.Add(data, LogLevel.Low);
             }
         }
 

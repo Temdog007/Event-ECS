@@ -9,16 +9,9 @@ namespace EventECS
 	private:
 		lua_State * L;
 
-		bool disposed;
+		const int idx;
 
-		bool loveInitialized;
-
-		bool autoUpdate;
-
-		static void(*logHandler)(const char* log);
-		static int luaopen_logFunction(lua_State* L);
-
-		void Require(const char* moduleName, const char* globalName);
+		void SetSystem() const;
 
 		void SetFunction(const char* funcName) const;
 
@@ -26,31 +19,32 @@ namespace EventECS
 
 		void FindComponent(int entityID, int componentID) const;
 
-		bool DoLoveUpdate(bool throwException);
-		bool DoLoveDraw(bool throwException);
-
-		void Quit();
-
 	public:
-		ECS();
+		ECS(lua_State* L, int pIdx);
 		virtual ~ECS();
 
+		ECS() = delete;
 		ECS(const ECS&) = delete;
 		ECS& operator=(const ECS&) = delete;
-
-		bool InitializeLove(const char* executablePath, const char* identity);
-		void Sleep(lua_Number seconds);
 
 		std::string AddEntity();
 		bool RemoveEntity(int entityID);
 
 		int DispatchEvent(const char* eventName);
-		void RegisterComponent(const char* moduleName, bool replace = false);
 
 		void AddComponent(int entityID, const char* componentName);
 		void AddComponents(int entityID, const std::list<std::string>& componentNames);
 
 		bool RemoveComponent(int entityID, int componentID);
+
+		bool IsSystemEnabled() const;
+		void SetSystemEnabled(bool value);
+
+		bool IsEntityEnabled(int entityID) const;
+		void SetEntityEnabled(int entityID, bool value);
+
+		bool IsComponentEnabled(int entityID, int componentID) const;
+		void SetComponentEnabled(int entityID, int componentID, bool value);
 
 		void SetSystemBool(const char* key, bool value);
 		void SetSystemNumber(const char* key, lua_Number value);
@@ -60,12 +54,10 @@ namespace EventECS
 		void SetEntityNumber(int entityID, const char* key, lua_Number value);
 		void SetEntityString(int entityID, const char* key, const char* value);
 
-		void SetEnabled(int entityID, int componentID, bool value);
 		void SetComponentBool(int entityID, int componentID, const char* key, bool value);
 		void SetComponentNumber(int entityID, int componentID, const char* key, lua_Number value);
 		void SetComponentString(int entityID, int componentID, const char* key, const char* value);
 
-		bool IsEnabled(int entityID, int componentID) const;
 		bool GetSystemBool(const char* key) const;
 		lua_Number GetSystemNumber(const char* key) const;
 		const char* GetSystemString(const char* key) const;
@@ -78,13 +70,8 @@ namespace EventECS
 		lua_Number GetComponentNumber(int entityID, int componentID, const char* key) const;
 		const char* GetComponentString(int entityID, int componentID, const char* key) const;
 
-		std::string Serialize();
-		std::string SerializeEntity(int entityID);
-		std::string SerializeComponent(int entityID, int componentID);
-
-		bool LoveUpdate(bool throwException = true);
-		bool LoveDraw(bool throwException = true);
-
-		static void SetLogHandler(void(*) (const char*));
+		std::string Serialize() const;
+		std::string SerializeEntity(int entityID) const;
+		std::string SerializeComponent(int entityID, int componentID) const;
 	};
 }

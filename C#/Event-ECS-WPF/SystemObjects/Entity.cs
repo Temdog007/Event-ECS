@@ -7,8 +7,6 @@ namespace Event_ECS_WPF.SystemObjects
 {
     public class Entity : NotifyPropertyChanged, IComparable<Entity>
     {
-        private readonly EntityComponentSystem m_system;
-
         private ObservableCollection<Component> m_components = new ObservableCollection<Component>();
 
         private ObservableSet<string> m_events = new ObservableSet<string>();
@@ -19,11 +17,9 @@ namespace Event_ECS_WPF.SystemObjects
 
         public Entity(EntityComponentSystem system)
         {
-            this.m_system = system ?? throw new ArgumentNullException(nameof(system));
-            this.m_system.Entities.Add(this);
+            this.System = system ?? throw new ArgumentNullException(nameof(system));
+            this.System.Entities.Add(this);
         }
-
-        public ObservableCollection<string> AvailableComponents => System.RegisteredComponents;
 
         public ObservableCollection<Component> Components
         {
@@ -47,12 +43,12 @@ namespace Event_ECS_WPF.SystemObjects
 
         private bool GetIsEnabled(ECSWrapper ecs)
         {
-            return ecs.GetEntityBool(ID, "enabled");
+            return ecs.GetEntityBool(System.Name, ID, "enabled");
         }
 
         private void SetIsEnabled(ECSWrapper ecs, bool value)
         {
-            ecs.SetEntityBool(ID, "enabled", value);
+            ecs.SetEntityBool(System.Name, ID, "enabled", value);
         }
 
         public bool IsEnabled
@@ -61,7 +57,7 @@ namespace Event_ECS_WPF.SystemObjects
             set => ECS.Instance.UseWrapper(SetIsEnabled, value);
         }
 
-        internal EntityComponentSystem System => m_system;
+        internal EntityComponentSystem System { get; }
 
         public int ID
         {

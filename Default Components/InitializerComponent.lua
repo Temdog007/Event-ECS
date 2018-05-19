@@ -7,10 +7,10 @@ function InitializerComponent:__init(entity)
   self.Component:__init(entity, self)
   
   local en = self:getEntity()
-  en:addComponent("FinalizerComponent")
-  en:addComponent("LogTestComponent")
-  en:addComponent("DebugComponent")
-  en:addComponent("ColorComponent")
+	en:addComponent("finalizerComponent")
+	en:addComponent("logTestComponent")
+	en:addComponent("debugComponent")
+	en:addComponent("colorComponent")
 end
 
 function InitializerComponent:eventUpdate()

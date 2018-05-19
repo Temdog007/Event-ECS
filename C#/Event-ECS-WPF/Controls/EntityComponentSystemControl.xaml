@@ -19,64 +19,45 @@
         </CollectionViewSource>
         <ex:BindingProxy x:Key="SystemControl" Data="{Binding ElementName=m_system}"/>
     </UserControl.Resources>
-    
-    <GroupBox>
 
-        <GroupBox.Header>
-            <StackPanel Orientation="Horizontal">
-                <TextBox Text="{Binding ElementName=m_system, Path=EntityComponentSystem.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,50,0"/>
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Frame Rate"/>
-                    <TextBox VerticalAlignment="Stretch" Text="{Binding ElementName=m_system, Path=EntityComponentSystem.FrameRate, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, Delay=500}"/>
-                </StackPanel>
-            </StackPanel>
-        </GroupBox.Header>
+    <GroupBox>
 
         <GroupBox.ContextMenu>
             <ContextMenu>
                 <MenuItem Header="Add Entity" Command="{Binding Source={StaticResource SystemControl}, Path=Data.AddEntityCommand}"/>
                 <MenuItem Header="Remove Entity" Command="{Binding Source={StaticResource SystemControl}, Path=Data.RemoveEntityCommand}"/>
+                <Separator/>
+                <MenuItem Header="Update System" Command="{Binding Source={StaticResource SystemControl}, Path=Data.SerializeCommand}"/>
             </ContextMenu>
         </GroupBox.ContextMenu>
-        
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
 
-            <Expander Header="Registered Components" Grid.Row="0" Background="Snow">
-                <ListBox ItemsSource="{Binding ElementName=m_system, Path=EntityComponentSystem.RegisteredComponents, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-            </Expander>
+        <Expander Header="Entities" Grid.Row="1" IsExpanded="True">
 
-            <Expander Header="Entities" Grid.Row="1" IsExpanded="True">
-
-                <ListBox ItemsSource="{Binding Source={StaticResource entitiesSrc}}" 
+            <ListBox ItemsSource="{Binding Source={StaticResource entitiesSrc}}" 
                          SelectedItem="{Binding ElementName=m_system, Path=SelectedEntity, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}">
 
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <Expander>
-                                <Expander.Header>
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBox Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                                        <TextBlock Margin="5,0,0,0">
-                                            <TextBlock.Text>
-                                                <MultiBinding StringFormat="{}ID #{0}">
-                                                    <Binding Path="ID" UpdateSourceTrigger="PropertyChanged"/>
-                                                </MultiBinding>
-                                            </TextBlock.Text>
-                                        </TextBlock>
-                                    </StackPanel>
-                                </Expander.Header>
-                                <controls:EntityControl Entity="{Binding}"/>
-                            </Expander>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                    
-                </ListBox>
-                
-            </Expander>
-        </Grid>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Expander>
+                            <Expander.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBox Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBlock Margin="5,0,0,0">
+                                        <TextBlock.Text>
+                                            <MultiBinding StringFormat="{}ID #{0}">
+                                                <Binding Path="ID" UpdateSourceTrigger="PropertyChanged"/>
+                                            </MultiBinding>
+                                        </TextBlock.Text>
+                                    </TextBlock>
+                                </StackPanel>
+                            </Expander.Header>
+                            <controls:EntityControl Entity="{Binding}" Project="{Binding Source={StaticResource SystemControl}, Path=Data.Project}"/>
+                        </Expander>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+
+            </ListBox>
+
+        </Expander>
     </GroupBox>
 </UserControl>

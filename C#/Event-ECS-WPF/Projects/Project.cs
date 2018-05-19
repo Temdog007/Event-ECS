@@ -17,11 +17,16 @@ namespace Event_ECS_WPF.Projects
     [XmlRoot("Project")]
     public class Project : NotifyPropertyChanged
     {
+        // Components that are compiled in the lua code
+        public static readonly string[] DefaultComponents = 
+        {
+            "colorComponent",
+            "finalizerComponent"
+        };
+
         private string _componentPath;
 
         private string _name;
-
-        private ObservableCollection<string> m_extensions = new ObservableCollection<string>();
 
         private string m_libraryPath;
 
@@ -30,7 +35,7 @@ namespace Event_ECS_WPF.Projects
             Name = "New Project";
             ComponentPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             LibraryPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-
+            Systems.Add("Default");
         }
 
         public static event ProjectStateChangeEvent ProjectStateChange;
@@ -54,9 +59,9 @@ namespace Event_ECS_WPF.Projects
         {
             get
             {
-                if (!isHidden(ComponentPath) && Directory.Exists(ComponentPath))
+                if (!IsHidden(ComponentPath) && Directory.Exists(ComponentPath))
                 {
-                    foreach (var file in Directory.GetFiles(ComponentPath).Where(f => !isHidden(f) && Path.GetExtension(f) == ".lua"))
+                    foreach (var file in Directory.GetFiles(ComponentPath).Where(f => !IsHidden(f) && Path.GetExtension(f) == ".lua"))
                     {
                         yield return file;
                     }
@@ -68,7 +73,11 @@ namespace Event_ECS_WPF.Projects
         {
             get
             {
-                foreach(var file in Files)
+                foreach (var comp in DefaultComponents)
+                {
+                    yield return comp;
+                }
+                foreach (var file in Files)
                 {
                     yield return Path.GetFileNameWithoutExtension(Path.GetFileName(file));
                 }
@@ -108,6 +117,18 @@ namespace Event_ECS_WPF.Projects
             }
         }private string _initializer;
 
+        [XmlArray("Systems")]
+        [XmlArrayItem("System")]
+        public ObservableCollection<StringWrapper> Systems
+        {
+            get => m_systems;
+            set
+            {
+                m_systems = value;
+                OnPropertyChanged("Systems");
+            }
+        } private ObservableCollection<StringWrapper> m_systems = new ObservableCollection<StringWrapper>();
+
         public virtual ProjectType Type
         {
             get => ProjectType.NORMAL;
@@ -120,25 +141,16 @@ namespace Event_ECS_WPF.Projects
             ProjectStateChange?.Invoke(this, args);
         }
 
+        protected void CreateSystems(ECSWrapper ecs)
+        {
+            ecs.AddSystems(Systems.Select(s => (string)s).ToArray());
+        }
+
         public virtual bool Start()
         {
             if(Setup())
             {
-                ECS.Instance.UseWrapper(ecs =>
-                {
-                    foreach (var component in Components)
-                    {
-                        try
-                        {
-                            ecs.RegisterComponent(component, false);
-                        }
-                        catch (Exception e)
-                        {
-                            LogManager.Instance.Add(string.Format("Failed to register component {0}\n{1}", component, e.Message));
-                        }
-                    }
-                    InitializeECS(ecs);
-                });
+                ECS.Instance.UseWrapper(CreateSystems);
                 DispatchProjectStateChange(ProjectStateChangeArgs.Started);
                 return true;
             }
@@ -151,9 +163,9 @@ namespace Event_ECS_WPF.Projects
             {
                 string location = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-                if (!isHidden(LibraryPath) && Directory.Exists(LibraryPath))
+                if (!IsHidden(LibraryPath) && Directory.Exists(LibraryPath))
                 {
-                    foreach (var file in Directory.GetFiles(LibraryPath).Where(f => !isHidden(f) && Path.GetExtension(f) == ".dll"))
+                    foreach (var file in Directory.GetFiles(LibraryPath).Where(f => !IsHidden(f) && Path.GetExtension(f) == ".dll"))
                     {
                         string dest = Path.Combine(location, Path.GetFileName(file));
                         if (!File.Exists(dest))
@@ -199,22 +211,25 @@ namespace Event_ECS_WPF.Projects
             OnPropertyChanged("IsStarted");
         }
 
-        public void InitializeECS(ECSWrapper ecs)
-        {
-            if (Components.Any(c => c.Equals(InitializerComponent)))
-            {
-                string[] enData = ecs.AddEntity().Split(EntityComponentSystem.Delim);
-                int entityID = int.Parse(enData[0]);
-                ecs.SetEntityString(entityID, "name", "MainEntity");
-                ecs.AddComponent(entityID, InitializerComponent);
-                ecs.Serialize();
-            }
-        }
-
-        private static bool isHidden(string path)
+        private static bool IsHidden(string path)
         {
             FileAttributes attr = File.GetAttributes(path);
             return ((attr & FileAttributes.Hidden) == FileAttributes.Hidden);
+        }
+    }
+
+    public class StringWrapper
+    {
+        public string Value { get; set; }
+
+        public static implicit operator string(StringWrapper w)
+        {
+            return w.Value;
+        }
+
+        public static implicit operator StringWrapper(string str)
+        {
+            return new StringWrapper() { Value = str };
         }
     }
 }

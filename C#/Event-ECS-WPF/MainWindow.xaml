@@ -20,7 +20,7 @@
         Closing="Window_Closing">
     
     <Window.DataContext>
-        <local:MainWindowViewModel/>
+        <local:MainWindowViewModel x:Name="viewmodel"/>
     </Window.DataContext>
 
     <Window.InputBindings>
@@ -124,9 +124,22 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
-                
-                <controls:EntityComponentSystemControl EntityComponentSystem="{Binding System, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Column="0"/>
 
+                <TabControl Grid.Column="0"
+                            ItemsSource="{Binding Systems, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            SelectedItem="{Binding CurrentSystem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                    <TabControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Name}"/>
+                        </DataTemplate>
+                    </TabControl.ItemTemplate>
+                    <TabControl.ContentTemplate>
+                        <DataTemplate>
+                            <controls:EntityComponentSystemControl EntityComponentSystem="{Binding}" Project="{Binding ElementName=viewmodel, Path=Project, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        </DataTemplate>
+                    </TabControl.ContentTemplate>
+                </TabControl>
+                
                 <Expander Grid.Column="1" ExpandDirection="Left">
                 <GroupBox
                           Header="Project Settings" Visibility="{Binding HasProject, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource boolConv}}" 

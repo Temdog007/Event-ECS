@@ -11,18 +11,15 @@ namespace Event_ECS_WPF.SystemObjects
 {
     public class Component : Collection<IComponentVariable>, INotifyCollectionChanged, INotifyPropertyChanged
     {
-        private readonly Entity m_entity;
-        private readonly int m_id;
-        private readonly string m_name;
         private bool m_isEnabled;
         private ObservableSet<IComponentVariable> m_variables = new ObservableSet<IComponentVariable>();
         public Component(Entity m_entity, string m_name, int m_id, bool m_isEnabled = true)
         {
-            this.m_entity = m_entity ?? throw new ArgumentNullException(nameof(m_entity));
-            this.m_entity.Components.Add(this);
+            this.Entity = m_entity ?? throw new ArgumentNullException(nameof(m_entity));
+            this.Entity.Components.Add(this);
 
-            this.m_name = m_name ?? throw new ArgumentNullException(nameof(m_name));
-            this.m_id = m_id;
+            this.Name = m_name ?? throw new ArgumentNullException(nameof(m_name));
+            this.ID = m_id;
             this.m_isEnabled = m_isEnabled;
         }
 
@@ -41,13 +38,12 @@ namespace Event_ECS_WPF.SystemObjects
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public Entity Entity => m_entity;
-
-        public int ID => m_id;
+        public Entity Entity { get; }
+        public int ID { get; }
 
         private void SetEnabled(ECSWrapper ecs)
         {
-            ecs.SetEnabled(Entity.ID, ID, IsEnabled);
+            ecs.SetComponentEnabled(Entity.System.Name, Entity.ID, ID, IsEnabled);
         }
 
         public bool IsEnabled
@@ -63,7 +59,7 @@ namespace Event_ECS_WPF.SystemObjects
 
         public bool IsReadOnly => ((ICollection<IComponentVariable>)Variables).IsReadOnly;
 
-        public string Name => m_name;
+        public string Name { get; }
 
         public ObservableSet<IComponentVariable> Variables
         {

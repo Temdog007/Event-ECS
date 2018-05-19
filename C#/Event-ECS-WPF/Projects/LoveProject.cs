@@ -78,26 +78,12 @@ end";
 
             if (Setup())
             {
+                ECS.Instance.UseWrapper(CreateSystems);
                 if (!ECS.Instance.InitializeLove(Name))
                 {
                     throw new Exception("Failed to initialize LOVE");
                 }
-
-                ECS.Instance.UseWrapper(ecs =>
-                {
-                    foreach (string component in Components)
-                    {
-                        try
-                        {
-                            ecs.RegisterComponent(component, false);
-                        }
-                        catch (Exception e)
-                        {
-                            LogManager.Instance.Add(string.Format("Failed to register component {0}\n{1}", component, e.Message));
-                        }
-                    }
-                    InitializeECS(ecs);
-                });
+                
                 DispatchProjectStateChange(ProjectStateChangeArgs.Started);
                 return true;
             }

@@ -53,18 +53,19 @@ namespace Event_ECS_WPF.SystemObjects
             }
 
             int entityID = Component.Entity.ID;
+            string systemName = Component.Entity.System.Name;
             int compID = (int)Convert.ChangeType(Component.ID, typeof(int));
             if (typeof(T) == typeof(float))
             {
-                ecs.SetComponentNumber(entityID, compID, Name, (float)Convert.ChangeType(Value, typeof(T)));
+                ecs.SetComponentNumber(systemName, entityID, compID, Name, (float)Convert.ChangeType(Value, typeof(T)));
             }
             else if (typeof(T) == typeof(string))
             {
-                ecs.SetComponentString(entityID, compID, Name, (string)Convert.ChangeType(Value, typeof(string)));
+                ecs.SetComponentString(systemName, entityID, compID, Name, (string)Convert.ChangeType(Value, typeof(string)));
             }
             else if (typeof(T) == typeof(bool))
             {
-                ecs.SetComponentBool(entityID, compID, Name, (bool)Convert.ChangeType(Value, typeof(bool)));
+                ecs.SetComponentBool(systemName, entityID, compID, Name, (bool)Convert.ChangeType(Value, typeof(bool)));
             }
             else
             {

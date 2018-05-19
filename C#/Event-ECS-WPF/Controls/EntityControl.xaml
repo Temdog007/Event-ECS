@@ -32,7 +32,7 @@
 
                 <ContextMenu.ItemsSource>
                     <CompositeCollection>
-                        <MenuItem Header="Add Component" ItemsSource="{Binding Source={StaticResource EntityControl}, Path=Data.Entity.AvailableComponents}">
+                        <MenuItem Header="Add Component" ItemsSource="{Binding Source={StaticResource EntityControl}, Path=Data.Project.Components}">
                             <MenuItem.ItemTemplate>
                                 <DataTemplate>
                                     <MenuItem Header="{Binding}" CommandParameter="{Binding}" Command="{Binding Source={StaticResource EntityControl}, Path=Data.AddComponentCommand}"/>

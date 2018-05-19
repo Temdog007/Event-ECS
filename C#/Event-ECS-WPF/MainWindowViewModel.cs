@@ -2,7 +2,9 @@
 using Event_ECS_WPF.Logger;
 using Event_ECS_WPF.Projects;
 using Event_ECS_WPF.SystemObjects;
+using EventECSWrapper;
 using System;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Windows;
@@ -17,7 +19,7 @@ namespace Event_ECS_WPF
     public class MainWindowViewModel : INotifyPropertyChanged
     {
         public const string FileFilter = "xml files (*.xml)|*.xml|All files (*.*)|*.*";
-        
+
         private string m_arguments = string.Empty;
         private ICommand m_clearLogCommand;
         private ActionCommand<Window> m_closeCommand;
@@ -28,7 +30,7 @@ namespace Event_ECS_WPF
         private ActionCommand m_saveProjectCommand;
         private ActionCommand m_startProjectCommand;
         private ActionCommand m_stopProjectCommand;
-        private ECSSystem m_system = new ECSSystem();
+        private ObservableCollection<ECSSystem> m_systems = new ObservableCollection<ECSSystem>();
         private ActionCommand m_toggleProjectCommand;
         private ActionCommand m_toggleProjectModeCommand;
 
@@ -107,13 +109,23 @@ namespace Event_ECS_WPF
 
         public ICommand StopProjectCommand => m_stopProjectCommand ?? (m_stopProjectCommand = new ActionCommand(StopProject));
 
-        public ECSSystem System
+        public ECSSystem CurrentSystem
         {
-            get => m_system;
+            get => m_currentSystem;
             set
             {
-                m_system = value;
-                OnPropertyChanged("System");
+                m_currentSystem = value;
+                OnPropertyChanged("CurrentSystem");
+            }
+        }private ECSSystem m_currentSystem;
+
+        public ObservableCollection<ECSSystem> Systems
+        {
+            get => m_systems;
+            set
+            {
+                m_systems = value;
+                OnPropertyChanged("Systems");
             }
         }
 
@@ -130,10 +142,7 @@ namespace Event_ECS_WPF
         {
             try
             {
-                Application.Current.Dispatcher.Invoke(new Action(() =>
-                {
-                    LogManager.Instance.Clear();
-                }));
+                Application.Current.Dispatcher.Invoke(new Action(() => LogManager.Instance.Clear()));
             }
             catch (Exception e)
             {
@@ -201,6 +210,18 @@ namespace Event_ECS_WPF
                 }
             }
         }
+
+        private string[] Serialize(ECSWrapper ecs)
+        {
+            return ecs.Serialize();
+        }
+
+        private void AddInitializerEntity(ECSWrapper ecs)
+        {
+            string data = ecs.AddEntity(CurrentSystem.Name);
+            ecs.AddComponent(CurrentSystem.Name, int.Parse(data.Split('|')[0]), Project.InitializerComponent);
+        }
+
         private void StartProject()
         {
             StopProject();
@@ -208,7 +229,15 @@ namespace Event_ECS_WPF
             try
             {
                 Project.Start();
-                System.Deserialize();
+                if(ECS.Instance.UseWrapper(Serialize, out string[] data))
+                {
+                    foreach (string line in data)
+                    {
+                        Systems.Add(new ECSSystem(line.Split('\n')));
+                    }
+                    CurrentSystem = Systems[0];
+                    ECS.Instance.UseWrapper(AddInitializerEntity);
+                }
                 OnPropertyChanged("ProjectBackground");
             }
             catch(Exception e)
@@ -220,6 +249,8 @@ namespace Event_ECS_WPF
 
         private void StopProject()
         {
+            Systems.Clear();
+            CurrentSystem = null;
             Project.Stop();
         }
 

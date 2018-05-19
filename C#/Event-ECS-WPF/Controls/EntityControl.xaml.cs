@@ -1,5 +1,6 @@
 ﻿using Event_ECS_WPF.Commands;
 using Event_ECS_WPF.Logger;
+using Event_ECS_WPF.Projects;
 using Event_ECS_WPF.SystemObjects;
 using EventECSWrapper;
 using System;
@@ -17,6 +18,9 @@ namespace Event_ECS_WPF.Controls
     {
         public static readonly DependencyProperty EntityProperty =
             DependencyProperty.Register("Entity", typeof(Entity), typeof(EntityControl));
+
+        public static readonly DependencyProperty ProjectProperty =
+            DependencyProperty.Register("Project", typeof(Project), typeof(EntityControl));
 
         private IActionCommand m_addComponentCommand;
 
@@ -40,6 +44,12 @@ namespace Event_ECS_WPF.Controls
             set { SetValue(EntityProperty, value); }
         }
 
+        public Project Project
+        {
+            get { return (Project)GetValue(ProjectProperty); }
+            set { SetValue(ProjectProperty, value); }
+        }
+
         public IActionCommand RemoveComponentCommand => m_removeComponentCommand ?? (m_removeComponentCommand = new ActionCommand(RemoveComponent, CanRemoveComponent));
 
         public SystemObjects.Component SelectedComponent
@@ -59,7 +69,7 @@ namespace Event_ECS_WPF.Controls
         }
         private void AddComponent(string param)
         {
-            ECS.Instance.UseWrapper(ecs => ecs.AddComponent(Entity.ID, param));
+            ECS.Instance.UseWrapper(ecs => ecs.AddComponent(Entity.System.Name, Entity.ID, param));
             Entity.System.Deserialize();
         }
 
@@ -84,7 +94,7 @@ namespace Event_ECS_WPF.Controls
         {
             try
             {
-                return ecs.RemoveComponent(Entity.ID, SelectedComponent.ID);
+                return ecs.RemoveComponent(Entity.System.Name, Entity.ID, SelectedComponent.ID);
             }
             catch(Exception e)
             {

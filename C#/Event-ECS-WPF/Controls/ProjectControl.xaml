@@ -30,42 +30,43 @@
                 <RowDefinition Height="auto"/>
                 <RowDefinition Height="auto"/>
                 <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
             </Grid.RowDefinitions>
 
-            <GroupBox Margin="5" Header="Path to Component Files" Grid.Row="0">
+            <GroupBox Margin="5" Header="Initializer Component" Grid.Row="0"
+                      ToolTip="This component will be added to the main entity that will be created on startup">
+                <ComboBox SelectedItem="{Binding ElementName=m_project, Path=Project.InitializerComponent, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                        HorizontalAlignment="Stretch" Margin="5" MinHeight="20"
+                          ItemsSource="{Binding ElementName=m_project, Path=Project.Components, UpdateSourceTrigger=PropertyChanged}"/>
+            </GroupBox>
+
+            <GroupBox Margin="5" Header="Path to Component Files" Grid.Row="1">
                 <Button Command="{Binding ElementName=m_project, Path=GetPathCommand}" CommandParameter="ComponentPath" Margin="5" MinHeight="20"
                         HorizontalAlignment="Stretch"
                     Content="{Binding ElementName=m_project, Path=Project.ComponentPath, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
             </GroupBox>
 
-            <GroupBox Margin="5" Header="Initializer Component" Grid.Row="1"
-                      ToolTip="This component will be added to the main entity that will be created on startup">
-                <ComboBox SelectedItem="{Binding ElementName=m_project, Path=Project.InitializerComponent, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                        HorizontalAlignment="Stretch" Margin="5" MinHeight="20"
-                          ItemsSource="{Binding ElementName=m_project, Path=Project.Components, UpdateSourceTrigger=PropertyChanged}"/>
-
+            <GroupBox Margin="5" Header="Systems" Grid.Row="2">
+                <DataGrid ItemsSource="{Binding ElementName=m_project, Path=Project.Systems, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
             </GroupBox>
 
-            <GroupBox Margin="5" Header="Path to Library Files" Grid.Row="2">
+            <GroupBox Margin="5" Header="Path to Library Files" Grid.Row="3">
                 <Button Command="{Binding ElementName=m_project, Path=GetPathCommand}" CommandParameter="LibraryPath" Margin="5" MinHeight="20"
                         HorizontalAlignment="Stretch"
                         Content="{Binding ElementName=m_project, Path=Project.LibraryPath, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
             </GroupBox>
 
-            <GroupBox Header="Commands" Grid.Row="3">
+            <GroupBox Header="Commands" Grid.Row="4">
                 <Grid>
 
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="auto" MinHeight="20"/>
-                        <RowDefinition Height="*" MinHeight="20"/>
-                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" MinWidth="20"/>
+                        <ColumnDefinition Width="auto" MinWidth="20"/>
+                    </Grid.ColumnDefinitions>
 
-                    <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center">
-                        <Button Content="Dispatch&#xA;Event" 
-                        Command="{Binding ElementName=m_project, Path=DispatchEventCommand}" CommandParameter="{Binding ElementName=eventText, Path=Text}"/>
-                        <Button Content="Serialize&#xA;System" Command="{Binding ElementName=m_project, Path=SerializeCommand}"/>
-                    </StackPanel>
-                    <TextBox Grid.Row="1" x:Name="eventText" Margin="5" PreviewKeyDown="eventText_PreviewKeyDown" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+                    <TextBox Grid.Column="0" x:Name="eventText" Margin="5" PreviewKeyDown="EventText_PreviewKeyDown" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+                    <Button Content="Dispatch&#xA;Event"  Grid.Column="1"
+                    Command="{Binding ElementName=m_project, Path=BroadcastEventCommand}" CommandParameter="{Binding ElementName=eventText, Path=Text}"/>
                 </Grid>
             </GroupBox>
             

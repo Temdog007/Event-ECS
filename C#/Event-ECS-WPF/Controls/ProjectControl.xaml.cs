@@ -22,14 +22,12 @@ namespace Event_ECS_WPF.Controls
 
         private ActionCommand<string> m_getPathCommand;
 
-        private IActionCommand m_serializeCommand;
-
         public ProjectControl()
         {
             InitializeComponent();
         }
 
-        public IActionCommand DispatchEventCommand => m_dispatchEventCommand ?? (m_dispatchEventCommand = new ActionCommand<string>(DispatchEvent));
+        public IActionCommand BroadcastEventCommand => m_dispatchEventCommand ?? (m_dispatchEventCommand = new ActionCommand<string>(BroadcastEvent));
 
         public IActionCommand GetPathCommand => m_getPathCommand ?? (m_getPathCommand = new ActionCommand<string>(GetPath));
 
@@ -38,32 +36,31 @@ namespace Event_ECS_WPF.Controls
             get { return (Project)GetValue(ProjectProperty); }
             set { SetValue(ProjectProperty, value); }
         }
-        public IActionCommand SerializeCommand => m_serializeCommand ?? (m_serializeCommand = new ActionCommand(Serialize));
 
-        private void DispatchEvent(string ev)
+        private void BroadcastEvent(string ev)
         {
             if(!ev.StartsWith("event", StringComparison.OrdinalIgnoreCase))
             {
                 ev = "event" + ev;
             }
-            if (ECS.Instance.UseWrapper(ecs => ecs.DispatchEvent(ev), out int handles))
+            if (ECS.Instance.UseWrapper(ecs => ecs.BroadcastEvent(ev), out int handles))
             {
                 LogManager.Instance.Add(LogLevel.Medium, "Event '{0}' was handled '{1}' time(s)", ev, handles);
             }
         }
 
-        private void eventText_PreviewKeyDown(object sender, KeyEventArgs e)
+        private void EventText_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key != Key.Enter)
             {
-                DispatchEventCommand.UpdateCanExecute(this, EventArgs.Empty);
+                BroadcastEventCommand.UpdateCanExecute(this, EventArgs.Empty);
                 return;
             }
 
             TextBox box = sender as TextBox;
             if (box != null)
             {
-                DispatchEvent(box.Text);
+                BroadcastEvent(box.Text);
                 e.Handled = true;
             }
         }
@@ -83,14 +80,6 @@ namespace Event_ECS_WPF.Controls
                     default:
                         break;
                 }
-            }
-        }
-        private void Serialize()
-        {
-            if (ECS.Instance.UseWrapper(ecs => ecs.Serialize(), out string data))
-            {
-                EntityComponentSystem.Instance.Deserialize(data.Split('\n'));
-                LogManager.Instance.Add(data, LogLevel.Low);
             }
         }
     }
