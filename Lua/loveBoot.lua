@@ -272,7 +272,8 @@ local function draw()
       if nextTime <= curTime then
         nextTime = curTime
       else
-        love.timer.sleep(nextTime - curTime)
+        -- love.timer.sleep(nextTime - curTime)
+        return nextTime - curTime
       end
     end
 
@@ -361,24 +362,30 @@ local function updateLove()
     runCo = nil
   end
 
-  return rval
+  return rval, result
 end
 
-local function drawLove()
+local function drawLove(doSleep)
   if not drawCo then
     return false
   end
 
   local rval, result = coroutine.resume(drawCo)
   if result then
-    if Log then
-      Log(tostring(result))
+    if type(result) == "number" then
+      if doSleep  then
+        love.timer.sleep(result)
+      end
     else
-      print(result)
+      if Log then
+        Log(tostring(result))
+      else
+        print(result)
+      end
     end
   end
 
-  return rval
+  return rval, result
 end
 
 return {bootLove = bootLove, updateLove = updateLove, drawLove = drawLove}

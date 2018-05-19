@@ -47,11 +47,11 @@ entity:addComponent(TestComponent)
 local color = entity:addComponent("ColorComponent")
 color:set(1,0.5,0,1)
 
-repeat loveFuncs.drawLove() until not loveFuncs.updateLove()
+repeat loveFuncs.drawLove(true) until not loveFuncs.updateLove()
 
 repeat until not loveFuncs.updateLove()
 
 local loveFuncs = require("loveBoot")
-repeat loveFuncs.drawLove() until not loveFuncs.updateLove()
+repeat loveFuncs.drawLove(true) until not loveFuncs.updateLove()
 
 print("Corutine ended")

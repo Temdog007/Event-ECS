@@ -8,7 +8,10 @@ function TestComponent:__init(entity)
   self.addedComponentCalled = 0
   self.removingComponentCalled = 0
   self.text = ""
-  self.color = entity.color or {r=1,g=1,b=1,a=1}
+  self.x = 0
+  self.y = 0
+  self.space = 10
+  self.color = entity.ColorComponent
 end
 
 function TestComponent:eventAddedComponent(args)
@@ -22,9 +25,9 @@ end
 
 function TestComponent:eventDraw(args)
   love.graphics.setColor(self.color.r, self.color.g, self.color.b, self.color.a)
-  love.graphics.print(love.timer.getFPS())
-  love.graphics.print(love.timer.getDelta(), 0, 10)
-  love.graphics.print(self.text, 0, 20)
+  love.graphics.print(love.timer.getFPS(), self.x, self.y)
+  love.graphics.print(love.timer.getDelta(), self.x, self.y + self.space)
+  love.graphics.print(self.text, self.x, self.y + self.space * 2)
 end
 
 function TestComponent:eventKeyPressed(args)
