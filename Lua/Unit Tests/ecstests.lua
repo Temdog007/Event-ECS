@@ -20,6 +20,7 @@
 
 local LuaUnit = require("luaunit")
 local System = require("system")
+local DebugSystem = require("debugSystem")
 local Component = require("component")
 local class = require("classlib")
 local TestComponent = require("Unit Tests/testComponent")
@@ -107,6 +108,14 @@ function ecsTests:testSystemInitialization()
   system.name = "Unit Test"
   assertNotEquals(system:getName(), "Entity Component System")
   assertEquals(system:getName(), "Unit Test")
+end
+
+function ecsTests:testDebugSystem()
+  local system = DebugSystem()
+
+  local en = system:createEntity()
+  en:addComponent(TestComponent)
+  assertEquals(system:dispatchEvent("eventError"), -1)
 end
 
 function ecsTests:testSystemFind()
