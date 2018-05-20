@@ -26,7 +26,7 @@ end
 
 local loveFuncs = require("loveBoot")
 
-local system = require("system")()
+local system = require("debugSystem")()
 loveFuncs.bootLove(
   function(eventName, args)
     system:dispatchEvent(eventName, args)

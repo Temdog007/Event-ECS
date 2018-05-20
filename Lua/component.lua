@@ -19,12 +19,11 @@
 -- SOFTWARE.
 
 local class = require("classlib")
-
 local component = class("Component")
 
 local id = 0
 function component:__init(entity, parent)
-  assert(entity and string.match(entity:getName(), "Entity"), "Component must have an entity")
+  assert(entity and string.match(entity:getName(), "Entity"), "Cannot create component without an entity")
   self.entity = entity
 
   local name = classname(parent or self)

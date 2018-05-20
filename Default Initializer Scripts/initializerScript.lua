@@ -1,5 +1,4 @@
-local System = require("system")
-
-return function()
+return function(isDebug)
+	local System = require(isDebug and "debugSystem" or "system")
 	return System("Default")
 end

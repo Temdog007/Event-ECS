@@ -134,7 +134,7 @@ function system:dispatchEvent(event, args)
   if not self:isEnabled() then
     return 0
   end
-  
+
   local eventsHandled = 0
   for _, entity in pairs(self.entities) do
     if entity:isEnabled() then

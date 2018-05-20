@@ -17,23 +17,25 @@
 -- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 -- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 -- SOFTWARE.
+
 local class = require("classlib")
 local ClassName = "Debug Entity Component System"
-local system = class(ClassName, require("system"))
+local system = require("system")
+local debugSystem = class(ClassName, system)
 
-function system:__init(name)
-  self.System = self["Entity Component System"]
+function debugSystem:__init(name)
+  self.System = self[classname(system)]
   self.System:__init(name)
 end
 
-function system:dispatchEvent(name, args)
-  local result, err = pcall(self.System.dispatchEvent, self.System, name, args)
-  if not result then
-    if Log then Log(err)
-    else print(err) end
+function debugSystem:dispatchEvent(name, args)
+  local callResult, returnValue = pcall(self.System.dispatchEvent, self.System, name, args)
+  if not callResult then
+    if Log then Log(returnValue)
+    else print(returnValue) end
     return -1
   end
-  return err
+  return returnValue
 end
 
-return system
+return debugSystem
