@@ -170,7 +170,7 @@ namespace EventECS
 			lua_getglobal(L, "love");
 			lua_getfield(L, -1, "event");
 			lua_getfield(L, -1, "quit");
-			if (lua_pcall(L, 0, 0, 0) != 0)
+			if (lua_pcall(L, 0, 0, 0) == 0)
 			{
 				while (this->UpdateLove());
 			}
@@ -189,7 +189,7 @@ namespace EventECS
 		lua_pushcfunction(L, lua_broadcastEvent);
 		lua_pushstring(L, identity);
 		lua_pushstring(L, executablePath);
-		if(lua_pcall(L, 3, 0, 0))
+		if(lua_pcall(L, 3, 0, 0) == 0)
 		{
 			if (ECSMap::logHandler != nullptr)
 			{

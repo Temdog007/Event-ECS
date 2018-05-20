@@ -28,8 +28,8 @@ local loveFuncs = require("loveBoot")
 
 local system = require("system")()
 loveFuncs.bootLove(
-  function(eventName)
-    system:dispatchEvent(eventName)
+  function(eventName, args)
+    system:dispatchEvent(eventName, args)
   end,
   "Love Unit Test")
 

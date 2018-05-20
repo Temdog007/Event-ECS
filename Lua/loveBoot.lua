@@ -103,8 +103,8 @@ local function bootLove(broadcastEventFunc, identity, executablePath)
   	gammacorrect = false,
   }
 
-  local conf = require("conf")
-  if conf then
+  local result, conf = pcall(require, "conf")
+  if result and conf then
     conf(c)
   end
 
