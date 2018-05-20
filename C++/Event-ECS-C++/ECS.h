@@ -21,17 +21,20 @@ namespace EventECS
 
 	public:
 		ECS();
-		ECS(const ECS&);
 		ECS(lua_State* L);
 		ECS(lua_State* L, int pIdx);
 		virtual ~ECS();
 		
+		ECS(const ECS&) = delete;
+		ECS(ECS&& ecs) = delete;
 		ECS& operator=(const ECS&) = delete;
+		ECS& operator=(ECS&&) = delete;
 
 		std::string AddEntity();
 		bool RemoveEntity(int entityID);
 
 		int DispatchEvent(const char* eventName);
+		int DispatchEvent(const char* eventName, int argRef);
 
 		void AddComponent(int entityID, const char* componentName);
 		void AddComponents(int entityID, const std::list<std::string>& componentNames);

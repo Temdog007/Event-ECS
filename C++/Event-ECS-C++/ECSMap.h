@@ -6,6 +6,8 @@ class ECS;
 
 namespace EventECS
 {
+	extern bool luax_toboolean(lua_State* L, int idx);
+
 	class ECSMap
 	{
 		friend int w__broadcastevent(lua_State*);
@@ -17,9 +19,13 @@ namespace EventECS
 
 		static ECSMap* instance;
 
-		lua_State * L;
+		lua_State *const L;
 
 		bool disposed;
+
+		bool dispatchingEvent;
+
+		bool logEvents;
 
 		bool loveInitialized;
 
@@ -39,6 +45,21 @@ namespace EventECS
 
 		void Quit();
 
+		void EmptyEventQueue();
+
+		static void Log(const char* log, ...);
+
+		struct Event
+		{
+			lua_State*const L;
+			int ref;
+			const char* name;
+
+			Event(lua_State* pL, const char* pName, int pRef);
+			~Event();
+		};
+		std::queue<Event> queue;
+
 	public:
 		virtual ~ECSMap();
 
@@ -53,7 +74,11 @@ namespace EventECS
 		void Add(const char* name);
 		size_t Remove(const char* name);
 
-		int BroadcastEvent(const char* eventName);
+		void SetLogEvents(bool value);
+		bool IsLoggingEvents() const;
+
+		void BroadcastEventWithArgs(const char* eventName);
+		void BroadcastEvent(const char* eventName, int argRef = LUA_REFNIL);
 
 		bool UpdateLove();
 

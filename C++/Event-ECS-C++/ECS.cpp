@@ -4,7 +4,7 @@ namespace EventECS
 {
 	ECS::ECS() : L(nullptr), idx(LUA_REFNIL) {}
 
-	ECS::ECS(lua_State* pL) : L(pL), idx(luaL_ref(L, -1))
+	ECS::ECS(lua_State* pL) : L(pL), idx(luaL_ref(L, LUA_REGISTRYINDEX))
 	{
 
 	}
@@ -12,11 +12,6 @@ namespace EventECS
 	ECS::ECS(lua_State* pL, int pIdx) : L(pL), idx(pIdx)
 	{
 		
-	}
-
-	ECS::ECS(const ECS& ecs) : L(ecs.L), idx(ecs.idx)
-	{
-
 	}
 
 	ECS::~ECS()
@@ -29,6 +24,7 @@ namespace EventECS
 
 	void ECS::SetSystem() const 
 	{
+		lua_settop(L, 0);
 		lua_rawgeti(L, LUA_REGISTRYINDEX, idx);
 	}
 
@@ -85,7 +81,7 @@ namespace EventECS
 		lua_pushvalue(L, -2);
 		if (lua_pcall(L, 1, 1, 0) == 0)
 		{
-			bool entitesRemoved = static_cast<bool>(lua_toboolean(L, -1));
+			bool entitesRemoved = luax_toboolean(L, -1);
 			lua_pop(L, 1);
 			return entitesRemoved;
 		}
@@ -97,6 +93,20 @@ namespace EventECS
 		SetFunction("dispatchEvent");
 		lua_pushstring(L, eventName);
 		if (lua_pcall(L, 2, 1, 0) == 0)
+		{
+			int handles = static_cast<int>(lua_tonumber(L, -1));
+			lua_pop(L, 1);
+			return handles;
+		}
+		throw std::exception(lua_tostring(L, -1));
+	}
+
+	int ECS::DispatchEvent(const char* eventName, int argRef)
+	{
+		SetFunction("dispatchEvent");
+		lua_pushstring(L, eventName);
+		lua_rawgeti(L, LUA_REGISTRYINDEX, argRef);
+		if (lua_pcall(L, 3, 1, 0) == 0)
 		{
 			int handles = static_cast<int>(lua_tonumber(L, -1));
 			lua_pop(L, 1);
@@ -131,7 +141,7 @@ namespace EventECS
 		const int size = componentNames.size();
 		if (lua_pcall(L, size + 1, size, 0) == 0)
 		{
-			while(lua_gettop(L))
+			while(lua_gettop(L) > 0)
 			{
 				lua_pop(L, 1);
 			}
@@ -148,7 +158,7 @@ namespace EventECS
 		lua_pushvalue(L, -2);
 		if (lua_pcall(L, 1, 1, 0) == 0)
 		{
-			bool rval = static_cast<bool>(lua_toboolean(L, -1));
+			bool rval = luax_toboolean(L, -1);
 			lua_pop(L, 1);
 			return rval;
 		}
@@ -186,7 +196,7 @@ namespace EventECS
 	{
 		SetSystem();
 		lua_getfield(L, -1, key);
-		return static_cast<bool>(lua_toboolean(L, -1));
+		return luax_toboolean(L, -1);
 	}
 
 	lua_Number ECS::GetSystemNumber(const char* key) const
@@ -233,7 +243,7 @@ namespace EventECS
 	{
 		FindEntity(entityID);
 		lua_getfield(L, -1, key);
-		return static_cast<bool>(lua_toboolean(L, -1));
+		return luax_toboolean(L, -1);
 	}
 
 	lua_Number ECS::GetEntityNumber(int entityID, const char* key) const
@@ -323,7 +333,7 @@ namespace EventECS
 		{
 			throw std::exception(lua_tostring(L, -1));
 		}
-		return static_cast<bool>(lua_toboolean(L, -1));
+		return luax_toboolean(L, -1);
 	}
 
 	bool ECS::IsEntityEnabled(int entityID) const
@@ -335,7 +345,7 @@ namespace EventECS
 		{
 			throw std::exception(lua_tostring(L, -1));
 		}
-		return static_cast<bool>(lua_toboolean(L, -1));
+		return luax_toboolean(L, -1);
 	}
 
 	bool ECS::IsComponentEnabled(int entityID, int componentID) const
@@ -347,14 +357,14 @@ namespace EventECS
 		{
 			throw std::exception(lua_tostring(L, -1));
 		}
-		return static_cast<bool>(lua_toboolean(L, -1));
+		return luax_toboolean(L, -1);
 	}
 
 	bool ECS::GetComponentBool(int entityID, int componentID, const char* key) const
 	{
 		FindComponent(entityID, componentID);
 		lua_getfield(L, -1, key);
-		return static_cast<bool>(lua_toboolean(L, -1));
+		return luax_toboolean(L, -1);
 	}
 
 	lua_Number ECS::GetComponentNumber(int entityID, int componentID, const char* key) const

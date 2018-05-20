@@ -30,12 +30,11 @@ function getFrameRate()
   return frameRate
 end
 
-local broadcastEvent
 local function bootLove(broadcastEventFunc, identity, executablePath)
 
   assert(type(broadcastEventFunc) == "function", "Must enter a broadcast event function")
 
-  broadcastEvent = broadcastEventFunc
+  BroadcastEvent = broadcastEventFunc
 
   executablePath = executablePath or os.execute('cd')
   assert(type(identity) == "string", "Must enter a name for the game")
@@ -104,8 +103,11 @@ local function bootLove(broadcastEventFunc, identity, executablePath)
   }
 
   local result, conf = pcall(require, "conf")
-  if result and conf then
+  if result then
     conf(c)
+  else
+    local f = Log or print
+    f("conf.lua not found. Using defaults")
   end
 
   -- Hack for disabling accelerometer-as-joystick on Android / iOS.
@@ -211,7 +213,7 @@ end
 
 local function run()
 
-  broadcastEvent("eventload")
+  BroadcastEvent("eventload")
 
   local updateArgs = {dt = 0}
 
@@ -225,12 +227,12 @@ local function run()
 			for name, a,b,c,d,e,f in love.event.poll() do
 				if name == "quit" then
           quitArgs.handled = false
-					broadcastEvent("eventquit", quitArgs)
+					BroadcastEvent("eventquit", quitArgs)
           if not quitArgs.handled then
 						return a or 0
 					end
 				else
-          broadcastEvent("event"..name, {a,b,c,d,ef})
+          BroadcastEvent("event"..name, {a,b,c,d,ef})
         end
 			end
 		end
@@ -243,7 +245,7 @@ local function run()
     end
 
     -- Call update and draw
-    broadcastEvent("eventupdate", updateArgs) -- will pass 0 if love.timer is disabled
+    BroadcastEvent("eventupdate", updateArgs) -- will pass 0 if love.timer is disabled
 
   end
 end
@@ -261,7 +263,7 @@ local function draw()
       love.graphics.origin()
       love.graphics.clear(love.graphics.getBackgroundColor())
 
-      broadcastEvent("eventdraw")
+      BroadcastEvent("eventdraw")
 
       love.graphics.present()
     end
@@ -348,29 +350,24 @@ local runCo = coroutine.create(runCoroutine)
 local drawCo = coroutine.create(drawCoroutine)
 
 local function updateLove()
-  if not runCo then
-    return false
-  end
 
 	local rval, result = coroutine.resume(runCo)
-  if not rval then
+
+  if result then
     if Log then
       Log(tostring(result))
     else
       print(result)
     end
-    runCo = nil
   end
 
   return rval, result
 end
 
 local function drawLove(skipSleep)
-  if not drawCo then
-    return false
-  end
 
   local rval, result = coroutine.resume(drawCo)
+
   if result then
     if type(result) == "number" then
       if not skipSleep then

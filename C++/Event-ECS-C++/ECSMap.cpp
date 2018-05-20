@@ -2,16 +2,23 @@
 
 namespace EventECS
 {
+	bool luax_toboolean(lua_State* L, int idx)
+	{
+		return lua_toboolean(L, idx) != 0;
+	}
+
 	void(*ECSMap::logHandler)(const char* log);
 
 	ECSMap* ECSMap::instance = nullptr;
 
-	ECSMap::ECSMap() : L(luaL_newstate()), loveInitialized(false), disposed(false)
+	ECSMap::ECSMap() 
+		: L(luaL_newstate()), loveInitialized(false), disposed(false), dispatchingEvent(false), logEvents(false)
 	{
 		SetDefaults();
 	}
 
-	ECSMap::ECSMap(const char* initializerCode, size_t size) : L(luaL_newstate()), loveInitialized(false), disposed(false)
+	ECSMap::ECSMap(const char* initializerCode, size_t size) 
+		: L(luaL_newstate()), loveInitialized(false), disposed(false), dispatchingEvent(false), logEvents(false)
 	{
 		SetDefaults();
 
@@ -20,7 +27,8 @@ namespace EventECS
 		Reset();
 	}
 
-	ECSMap::ECSMap(const char* initializerCode, size_t size, const char* executablePath, const char* identity) : L(luaL_newstate()), loveInitialized(false), disposed(false)
+	ECSMap::ECSMap(const char* initializerCode, size_t size, const char* executablePath, const char* identity) 
+		: L(luaL_newstate()), loveInitialized(false), disposed(false), dispatchingEvent(false), logEvents(false)
 	{
 		SetDefaults();
 
@@ -48,7 +56,11 @@ namespace EventECS
 		luaL_openlibs(L);
 
 		Require("eventecs", nullptr);
+#ifdef NDEBUG
 		Require("system", "System");
+#else
+		Require("system", "DebugSystem");
+#endif
 
 		lua_pushcfunction(L, lua_logFunction);
 		lua_setglobal(L, "Log");
@@ -85,16 +97,20 @@ namespace EventECS
 			throw std::exception(lua_tostring(L, -1));
 		}
 
-		std::list<ECS> list;
-		while (lua_gettop(L)) // get all systems
+		std::list<int> refs;
+		while (lua_gettop(L) > 0) // get all systems
 		{
-			list.push_back(ECS(L));
+			refs.push_back(luaL_ref(L, LUA_REGISTRYINDEX));
 			lua_pop(L, 1);
 		}
 
-		for (auto ecs : list)
+		for (int ref : refs)
 		{
-			map.emplace(ecs.GetSystemString("name"), ecs);
+			lua_rawgeti(L, LUA_REGISTRYINDEX, ref);
+			lua_pushstring(L, "name");
+			lua_gettable(L, -2);
+			const char* name = lua_tostring(L, -1);
+			map.emplace(std::piecewise_construct, std::make_tuple(name), std::make_tuple(L, ref));
 		}
 	}
 
@@ -134,7 +150,12 @@ namespace EventECS
 			throw std::exception(buffer);
 		}
 
+#if NDEBUG
 		lua_getglobal(L, "System");
+#else
+		lua_getglobal(L, "DebugSystem");
+#endif
+		
 		lua_pushstring(L, name);
 
 		if (lua_pcall(L, 1, 1, 0) != 0)
@@ -166,42 +187,48 @@ namespace EventECS
 	{
 		if (loveInitialized)
 		{
-			lua_settop(L, 0);
-			lua_getglobal(L, "love");
-			lua_getfield(L, -1, "event");
-			lua_getfield(L, -1, "quit");
-			if (lua_pcall(L, 0, 0, 0) == 0)
+			try 
 			{
-				while (this->UpdateLove());
+				lua_settop(L, 0);
+				lua_getglobal(L, "love");
+				lua_getfield(L, -1, "event");
+				lua_getfield(L, -1, "quit");
+				loveInitialized = false;
 			}
-			loveInitialized = false;
+			catch (const std::exception& e)
+			{
+				Log(e.what());
+			}
+			catch (...) 
+			{
+				Log("Unknown error occurred while quitting Love");
+			}
 		}
 	}
 
 	bool ECSMap::InitializeLove(const char* executablePath, const char* identity)
 	{
-		Require("love", "love");
-		Require("loveBoot", "loveInitializerFunctions");
-
-		lua_settop(L, 0);
-		lua_getglobal(L, "loveInitializerFunctions");
-		lua_getfield(L, -1, "bootLove");
-		lua_pushcfunction(L, lua_broadcastEvent);
-		lua_pushstring(L, identity);
-		lua_pushstring(L, executablePath);
-		if(lua_pcall(L, 3, 0, 0) == 0)
+		if (!loveInitialized)
 		{
-			if (ECSMap::logHandler != nullptr)
+			Require("love", "love");
+			Require("loveBoot", "loveInitializerFunctions");
+
+			lua_settop(L, 0);
+			lua_getglobal(L, "loveInitializerFunctions");
+			lua_getfield(L, -1, "bootLove");
+			lua_pushcfunction(L, lua_broadcastEvent);
+			lua_pushstring(L, identity);
+			lua_pushstring(L, executablePath);
+			if (lua_pcall(L, 3, 0, 0) == 0)
 			{
-				ECSMap::logHandler("Created a LOVE2D Entity Component System");
+				Log("Created a LOVE2D Entity Component System");
 			}
+			else
+			{
+				throw std::exception(lua_tostring(L, -1));
+			}
+			loveInitialized = true;
 		}
-		else
-		{
-			throw std::exception(lua_tostring(L, -1));
-		}
-		loveInitialized = true;
-
 		return loveInitialized;
 	}
 
@@ -227,14 +254,52 @@ namespace EventECS
 		}
 	}
 
-	int ECSMap::BroadcastEvent(const char * eventName)
+	void ECSMap::BroadcastEventWithArgs(const char* eventName)
 	{
-		int handlers = 0;
-		for (auto iter = map.begin(); iter != map.end(); ++iter)
+		lua_newtable(L);
+		int ref = luaL_ref(L, LUA_REGISTRYINDEX);
+		BroadcastEvent(eventName, ref);
+		lua_pop(L, 1);
+	}
+
+	void ECSMap::BroadcastEvent(const char * eventName, int ref)
+	{
+		queue.emplace(L, eventName, ref);
+		if (!dispatchingEvent)
 		{
-			handlers += iter->second.DispatchEvent(eventName);
+			EmptyEventQueue();
 		}
-		return handlers;
+	}
+
+	void ECSMap::EmptyEventQueue()
+	{
+		dispatchingEvent = true;
+		while (!queue.empty())
+		{
+			const Event& ev = queue.front();
+			int handlers = 0;
+			for (auto iter = map.begin(); iter != map.end(); ++iter)
+			{
+				if (ev.ref == LUA_REFNIL)
+				{
+					handlers += iter->second.DispatchEvent(ev.name);
+				}
+				else 
+				{
+					if (logEvents) 
+					{
+						Log("Event '%s' will be called with ref '%d.'", ev.name, ev.ref);
+					}
+					handlers += iter->second.DispatchEvent(ev.name, ev.ref);
+				}
+			}
+			if (logEvents) 
+			{
+				Log("Event '%s' was handled by '%d' components", ev.name, handlers);
+			}
+			queue.pop();
+		}
+		dispatchingEvent = false;
 	}
 
 	bool ECSMap::UpdateLove()
@@ -242,10 +307,18 @@ namespace EventECS
 		lua_settop(L, 0);
 		lua_getglobal(L, "loveInitializerFunctions");
 		lua_getfield(L, -1, "updateLove");
-		if (lua_pcall(L, 0, 0, 0) == 0)
+		if (lua_pcall(L, 0, 2, 0) == 0)
 		{
-			bool rval = static_cast<bool>(lua_toboolean(L, -1));
-			lua_pop(L, 1);
+			bool rval = luax_toboolean(L, -1);
+			if (!rval)
+			{
+				if (lua_isstring(L, -2))
+				{
+					const char* message = lua_tostring(L, -2);
+					Log(message);
+				}
+			}
+			lua_settop(L, 0);
 			return rval;
 		}
 
@@ -258,10 +331,15 @@ namespace EventECS
 		lua_getglobal(L, "loveInitializerFunctions");
 		lua_getfield(L, -1, "drawLove");
 		lua_pushboolean(L, static_cast<int>(skipSleep));
-		if (lua_pcall(L, 1, 1, 0) == 0)
+		if (lua_pcall(L, 1, 2, 0) == 0)
 		{
 			lua_Number sleep = lua_tonumber(L, -1);
-			lua_pop(L, 1);
+			if (lua_isstring(L, -2))
+			{
+				const char* message = lua_tostring(L, -2);
+				Log(message);
+			}
+			lua_settop(L, 0);
 			return sleep;
 		}
 		throw std::exception(lua_tostring(L, -1));
@@ -277,9 +355,32 @@ namespace EventECS
 		return list;
 	}
 
+	bool ECSMap::IsLoggingEvents() const 
+	{
+		return logEvents;
+	}
+
+	void ECSMap::SetLogEvents(bool value)
+	{
+		logEvents = value;
+	}
+
 	void ECSMap::SetLogHandler(void(*func)(const char*))
 	{
 		ECSMap::logHandler = func;
+	}
+
+	void ECSMap::Log(const char* format, ...)
+	{
+		if (logHandler != nullptr && format != nullptr)
+		{
+			va_list args;
+			va_start(args, format);
+			char log[1000];
+			vsnprintf(log, sizeof(log), format, args);
+			logHandler(log);
+			va_end(args);
+		}
 	}
 
 	int ECSMap::lua_logFunction(lua_State* L)
@@ -306,17 +407,33 @@ namespace EventECS
 
 	int ECSMap::lua_broadcastEvent(lua_State* L)
 	{
-		if (ECSMap::instance == nullptr)
+		if (ECSMap::instance != nullptr)
 		{
-			return 0;
+			const char* log = luaL_checkstring(L, 1);
+			if (log != nullptr) 
+			{
+				if (lua_isnil(L, 2))
+				{
+					ECSMap::instance->BroadcastEvent(log);
+				}
+				else
+				{
+					lua_pushvalue(L, 2);
+					int reg = luaL_ref(L, LUA_REGISTRYINDEX);
+					ECSMap::instance->BroadcastEvent(log, reg);
+				}
+			}
 		}
-		const char* log = luaL_checkstring(L, 1);
-		if (log == nullptr)
+		return 0;
+	}
+
+	ECSMap::Event::Event(lua_State*const pL, const char* pName, int pRef) : L(pL), name(pName), ref(pRef) {}
+
+	ECSMap::Event::~Event()
+	{
+		if (ref != LUA_REFNIL)
 		{
-			return 0;
+			luaL_unref(L, LUA_REGISTRYINDEX, ref);
 		}
-		int handles = ECSMap::instance->BroadcastEvent(log);
-		lua_pushnumber(L, handles);
-		return 1;
 	}
 }

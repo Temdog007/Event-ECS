@@ -26,6 +26,21 @@ love.graphics.print(love.timer.getFPS(), self.x, self.y)
 love.graphics.print(self.text, self.x, self.y + self.space)
 end
 
+function LogTest:eventBroadcast(args)
+args.number = love.math.random()
+if Log then
+Log("EventBroadcast handled. Going to dispatch a test event")
+Log("Set args to "..tostring(args.number))
+end
+BroadcastEvent("eventTest", args)
+end
+
+function LogTest:eventTest(args)
+	if Log then
+		Log("Received "..tostring(args.number).." in event test handler")
+	end
+end
+
 function LogTest:eventRemovingComponent(args)
   self.Component:eventRemovingComponent(args)
   if args.component == self then

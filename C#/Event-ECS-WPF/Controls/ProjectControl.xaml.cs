@@ -44,10 +44,7 @@ namespace Event_ECS_WPF.Controls
             {
                 ev = "event" + ev;
             }
-            if (ECS.Instance.UseWrapper(ecs => ecs.BroadcastEvent(ev), out int handles))
-            {
-                LogManager.Instance.Add(LogLevel.Medium, "Event '{0}' was handled '{1}' time(s)", ev, handles);
-            }
+            ECS.Instance.UseWrapper(ecs => ecs.BroadcastEvent(ev));
         }
 
         private void EventText_PreviewKeyDown(object sender, KeyEventArgs e)
