@@ -4,7 +4,7 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Windows;
-using System.Windows.Threading;
+using System.Windows.Media;
 
 namespace Event_ECS_WPF.SystemObjects
 {
@@ -41,8 +41,18 @@ namespace Event_ECS_WPF.SystemObjects
         {
             ECSWrapper.LogEvent = HandleLogFromECS;
         }
-
+        
         internal ECS(){}
+
+        private double LoveDraw(ECSWrapper ecs)
+        {
+            return ecs.LoveDraw();
+        }
+
+        private void CompositionTarget_Rendering(object sender, EventArgs e)
+        {
+            UseWrapper(LoveDraw, out double sleepMilliseconds);
+        }
 
         public static event Action DeserializeRequested;
         public static event AutoUpdateChanged OnAutoUpdateChanged;
@@ -50,13 +60,24 @@ namespace Event_ECS_WPF.SystemObjects
         public static ECS Instance => s_instance ?? (s_instance = new ECS());
 
         public bool ProjectStarted => m_ecs != null;
-
-        public void CreateInstance()
+        
+        public void CreateInstance(string code)
         {
             lock (m_lock)
             {
                 Dispose();
-                m_ecs = new ECSWrapper(Application.Current.Dispatcher);
+                m_ecs = new ECSWrapper(code);
+                LogManager.Instance.Add(LogLevel.Medium, "Project Started");
+            }
+        }
+
+        public void CreateInstance(string code, string path, string name)
+        {
+            lock (m_lock)
+            {
+                Dispose();
+                m_ecs = new ECSWrapper(code, path, name);
+                CompositionTarget.Rendering += CompositionTarget_Rendering;
                 LogManager.Instance.Add(LogLevel.Medium, "Project Started");
             }
         }
@@ -65,6 +86,7 @@ namespace Event_ECS_WPF.SystemObjects
         {
             lock (m_lock)
             {
+                CompositionTarget.Rendering -= CompositionTarget_Rendering;
                 if (m_ecs != null)
                 {
                     DisposeDelegate d = DoDispose;
@@ -78,22 +100,6 @@ namespace Event_ECS_WPF.SystemObjects
             lock (m_lock)
             {
                 return m_ecs?.GetAutoUpdate() ?? false;
-            }
-        }
-
-        public bool InitializeLove(string name)
-        {
-            lock (m_lock)
-            {
-                if (m_ecs == null)
-                {
-                    return false;
-                }
-                bool returnRval =
-                    UseWrapper(ecs =>
-                    ecs.InitializeLove(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), name),
-                    out bool rval) && rval;
-                return returnRval;
             }
         }
 

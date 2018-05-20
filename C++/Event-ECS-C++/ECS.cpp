@@ -2,14 +2,29 @@
 
 namespace EventECS
 {
+	ECS::ECS() : L(nullptr), idx(LUA_REFNIL) {}
+
+	ECS::ECS(lua_State* pL) : L(pL), idx(luaL_ref(L, -1))
+	{
+
+	}
+
 	ECS::ECS(lua_State* pL, int pIdx) : L(pL), idx(pIdx)
 	{
 		
 	}
 
+	ECS::ECS(const ECS& ecs) : L(ecs.L), idx(ecs.idx)
+	{
+
+	}
+
 	ECS::~ECS()
 	{
-		luaL_unref(L, LUA_REGISTRYINDEX, idx);
+		if (idx != LUA_REFNIL)
+		{
+			luaL_unref(L, LUA_REGISTRYINDEX, idx);
+		}
 	}
 
 	void ECS::SetSystem() const 

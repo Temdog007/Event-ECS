@@ -4,19 +4,34 @@ namespace EventECS
 {
 	void(*ECSMap::logHandler)(const char* log);
 
-	int w__broadcastevent(lua_State* L);
-
 	ECSMap* ECSMap::instance = nullptr;
 
 	ECSMap::ECSMap() : L(luaL_newstate()), loveInitialized(false), disposed(false)
 	{
-		luaL_openlibs(L);
+		SetDefaults();
+	}
 
-		Require("eventecs", nullptr);
-		Require("system", "System");
+	ECSMap::ECSMap(const char* initializerCode, size_t size) : L(luaL_newstate()), loveInitialized(false), disposed(false)
+	{
+		SetDefaults();
 
-		lua_pushcfunction(L, lua_logFunction);
-		lua_setglobal(L, "Log");
+		LoadInitializerCode(initializerCode, size);
+
+		Reset();
+	}
+
+	ECSMap::ECSMap(const char* initializerCode, size_t size, const char* executablePath, const char* identity) : L(luaL_newstate()), loveInitialized(false), disposed(false)
+	{
+		SetDefaults();
+
+		if (!InitializeLove(executablePath, identity))
+		{
+			throw std::exception("Failed to initialize LOVE");
+		}
+
+		LoadInitializerCode(initializerCode, size);
+
+		Reset();
 	}
 
 	ECSMap::~ECSMap()
@@ -28,10 +43,77 @@ namespace EventECS
 		lua_close(L);
 	}
 
+	void ECSMap::SetDefaults()
+	{
+		luaL_openlibs(L);
+
+		Require("eventecs", nullptr);
+		Require("system", "System");
+
+		lua_pushcfunction(L, lua_logFunction);
+		lua_setglobal(L, "Log");
+	}
+
+	void ECSMap::LoadInitializerCode(const char* initializerCode, size_t size)
+	{
+		if (luaL_loadbuffer(L, initializerCode, size, "initliaze.lua") != 0)
+		{
+			throw std::exception(lua_tostring(L, -1));
+		}
+
+		int bufferRef = luaL_ref(L, LUA_REGISTRYINDEX);
+		lua_pop(L, 1);
+
+		lua_getglobal(L, "package");
+		lua_getfield(L, -1, "preload");
+		lua_rawgeti(L, LUA_REGISTRYINDEX, bufferRef);
+		lua_setfield(L, -2, "initializer");
+		lua_pop(L, 2);
+
+		luaL_unref(L, LUA_REGISTRYINDEX, bufferRef);
+	}
+
+	void ECSMap::Reset()
+	{
+		map.clear();
+
+		lua_getglobal(L, "require");
+		lua_pushstring(L, "initializer");
+		if (lua_pcall(L, 1, 1, 0) != 0 || // get initializer function
+			lua_pcall(L, 0, LUA_MULTRET, 0) != 0) // call initializer function
+		{
+			throw std::exception(lua_tostring(L, -1));
+		}
+
+		std::list<ECS> list;
+		while (lua_gettop(L)) // get all systems
+		{
+			list.push_back(ECS(L));
+			lua_pop(L, 1);
+		}
+
+		for (auto ecs : list)
+		{
+			map.emplace(ecs.GetSystemString("name"), ecs);
+		}
+	}
+
 	ECSMap* ECSMap::CreateInstance()
 	{
 		DeleteInstance();
 		return (instance = new ECSMap());
+	}
+
+	ECSMap* ECSMap::CreateInstance(const char* initializerCode, size_t size)
+	{
+		DeleteInstance();
+		return (instance = new ECSMap(initializerCode, size));
+	}
+
+	ECSMap* ECSMap::CreateInstance(const char* initializerCode, size_t size, const char* executablePath, const char* identity)
+	{
+		DeleteInstance();
+		return (instance = new ECSMap(initializerCode, size, executablePath, identity));
 	}
 
 	void ECSMap::DeleteInstance()
@@ -90,7 +172,7 @@ namespace EventECS
 			lua_getfield(L, -1, "quit");
 			if (lua_pcall(L, 0, 0, 0) != 0)
 			{
-				//while (this->LoveUpdate(false));
+				while (this->UpdateLove());
 			}
 			loveInitialized = false;
 		}
@@ -99,14 +181,15 @@ namespace EventECS
 	bool ECSMap::InitializeLove(const char* executablePath, const char* identity)
 	{
 		Require("love", "love");
-		Require("loveBoot", "loveInitializerFunc");
+		Require("loveBoot", "loveInitializerFunctions");
 
-		lua_getglobal(L, "loveInitializerFunc");
+		lua_settop(L, 0);
+		lua_getglobal(L, "loveInitializerFunctions");
 		lua_getfield(L, -1, "bootLove");
-		lua_pushcfunction(L, w__broadcastevent);
+		lua_pushcfunction(L, lua_broadcastEvent);
 		lua_pushstring(L, identity);
 		lua_pushstring(L, executablePath);
-		if (lua_pcall(L, 3, 0, 0) == 0)
+		if(lua_pcall(L, 3, 0, 0))
 		{
 			if (ECSMap::logHandler != nullptr)
 			{
@@ -154,26 +237,31 @@ namespace EventECS
 		return handlers;
 	}
 
-	void ECSMap::UpdateLove()
+	bool ECSMap::UpdateLove()
 	{
 		lua_settop(L, 0);
-		lua_getglobal(L, "loveInitializerFunc");
+		lua_getglobal(L, "loveInitializerFunctions");
 		lua_getfield(L, -1, "updateLove");
-		if (lua_pcall(L, 0, 0, 0) != 0)
+		if (lua_pcall(L, 0, 0, 0) == 0)
 		{
-			throw std::exception(lua_tostring(L, -1));
+			bool rval = static_cast<bool>(lua_toboolean(L, -1));
+			lua_pop(L, 1);
+			return rval;
 		}
+
+		throw std::exception(lua_tostring(L, -1));
 	}
 
-	lua_Number ECSMap::DrawLove()
+	lua_Number ECSMap::DrawLove(bool skipSleep)
 	{
 		lua_settop(L, 0);
-		lua_getglobal(L, "loveInitializerFunc");
+		lua_getglobal(L, "loveInitializerFunctions");
 		lua_getfield(L, -1, "drawLove");
-		if (lua_pcall(L, 0, 1, 0) == 0)
+		lua_pushboolean(L, static_cast<int>(skipSleep));
+		if (lua_pcall(L, 1, 1, 0) == 0)
 		{
 			lua_Number sleep = lua_tonumber(L, -1);
-			lua_pop(L, -1);
+			lua_pop(L, 1);
 			return sleep;
 		}
 		throw std::exception(lua_tostring(L, -1));
@@ -216,7 +304,7 @@ namespace EventECS
 		return 0;
 	}
 
-	int w__broadcastevent(lua_State* L)
+	int ECSMap::lua_broadcastEvent(lua_State* L)
 	{
 		if (ECSMap::instance == nullptr)
 		{

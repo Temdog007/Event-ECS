@@ -216,12 +216,6 @@ namespace Event_ECS_WPF
             return ecs.Serialize();
         }
 
-        private void AddInitializerEntity(ECSWrapper ecs)
-        {
-            string data = ecs.AddEntity(CurrentSystem.Name);
-            ecs.AddComponent(CurrentSystem.Name, int.Parse(data.Split('|')[0]), Project.InitializerComponent);
-        }
-
         private void StartProject()
         {
             StopProject();
@@ -231,12 +225,14 @@ namespace Event_ECS_WPF
                 Project.Start();
                 if(ECS.Instance.UseWrapper(Serialize, out string[] data))
                 {
-                    foreach (string line in data)
+                    if (data.Length > 0)
                     {
-                        Systems.Add(new ECSSystem(line.Split('\n')));
+                        foreach (string line in data)
+                        {
+                            Systems.Add(new ECSSystem(line.Split('\n')));
+                        }
+                        CurrentSystem = Systems[0];
                     }
-                    CurrentSystem = Systems[0];
-                    ECS.Instance.UseWrapper(AddInitializerEntity);
                 }
                 OnPropertyChanged("ProjectBackground");
             }

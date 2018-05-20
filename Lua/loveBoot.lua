@@ -33,7 +33,7 @@ end
 local broadcastEvent
 local function bootLove(broadcastEventFunc, identity, executablePath)
 
-  assert(broadcastEventFunc, "Must enter a broadcast event function")
+  assert(type(broadcastEventFunc) == "function", "Must enter a broadcast event function")
 
   broadcastEvent = broadcastEventFunc
 
@@ -365,7 +365,7 @@ local function updateLove()
   return rval, result
 end
 
-local function drawLove(doSleep)
+local function drawLove(skipSleep)
   if not drawCo then
     return false
   end
@@ -373,7 +373,7 @@ local function drawLove(doSleep)
   local rval, result = coroutine.resume(drawCo)
   if result then
     if type(result) == "number" then
-      if doSleep  then
+      if not skipSleep then
         love.timer.sleep(result)
       end
     else

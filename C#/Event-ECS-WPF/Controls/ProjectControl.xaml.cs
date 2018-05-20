@@ -7,6 +7,7 @@ using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using Forms = System.Windows.Forms;
 
 namespace Event_ECS_WPF.Controls
 {
@@ -57,8 +58,7 @@ namespace Event_ECS_WPF.Controls
                 return;
             }
 
-            TextBox box = sender as TextBox;
-            if (box != null)
+            if (sender is TextBox box)
             {
                 BroadcastEvent(box.Text);
                 e.Handled = true;
@@ -67,11 +67,11 @@ namespace Event_ECS_WPF.Controls
 
         private void GetPath(string propertyName)
         {
-            using(var dialog = new System.Windows.Forms.FolderBrowserDialog())
+            using(var dialog = new Forms.FolderBrowserDialog())
             {
                 switch(dialog.ShowDialog())
                 {
-                    case System.Windows.Forms.DialogResult.OK:
+                    case Forms.DialogResult.OK:
                         if(!string.IsNullOrWhiteSpace(dialog.SelectedPath))
                         {
                             Project.SetProperty(propertyName, dialog.SelectedPath);
@@ -80,6 +80,18 @@ namespace Event_ECS_WPF.Controls
                     default:
                         break;
                 }
+            }
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            Forms.OpenFileDialog dialog = new Forms.OpenFileDialog
+            {
+                Filter = "lua files (*.lua)|*.lua|All files (*.*)|*.*"
+            };
+            if (dialog.ShowDialog() == Forms.DialogResult.OK)
+            {
+                Project.InitializerScript = dialog.FileName;
             }
         }
     }

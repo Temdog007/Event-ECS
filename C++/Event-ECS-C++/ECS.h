@@ -20,11 +20,12 @@ namespace EventECS
 		void FindComponent(int entityID, int componentID) const;
 
 	public:
+		ECS();
+		ECS(const ECS&);
+		ECS(lua_State* L);
 		ECS(lua_State* L, int pIdx);
 		virtual ~ECS();
-
-		ECS() = delete;
-		ECS(const ECS&) = delete;
+		
 		ECS& operator=(const ECS&) = delete;
 
 		std::string AddEntity();

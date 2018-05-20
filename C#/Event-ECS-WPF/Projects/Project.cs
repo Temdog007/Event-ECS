@@ -35,7 +35,6 @@ namespace Event_ECS_WPF.Projects
             Name = "New Project";
             ComponentPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             LibraryPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            Systems.Add("Default");
         }
 
         public static event ProjectStateChangeEvent ProjectStateChange;
@@ -107,27 +106,15 @@ namespace Event_ECS_WPF.Projects
         }
 
         [XmlElement]
-        public string InitializerComponent
+        public string InitializerScript
         {
             get => _initializer;
             set
             {
                 _initializer = value;
-                OnPropertyChanged("IntializerComponent");
+                OnPropertyChanged("InitializerScript");
             }
         }private string _initializer;
-
-        [XmlArray("Systems")]
-        [XmlArrayItem("System")]
-        public ObservableCollection<StringWrapper> Systems
-        {
-            get => m_systems;
-            set
-            {
-                m_systems = value;
-                OnPropertyChanged("Systems");
-            }
-        } private ObservableCollection<StringWrapper> m_systems = new ObservableCollection<StringWrapper>();
 
         public virtual ProjectType Type
         {
@@ -140,17 +127,11 @@ namespace Event_ECS_WPF.Projects
         {
             ProjectStateChange?.Invoke(this, args);
         }
-
-        protected void CreateSystems(ECSWrapper ecs)
-        {
-            ecs.AddSystems(Systems.Select(s => (string)s).ToArray());
-        }
-
+        
         public virtual bool Start()
         {
             if(Setup())
             {
-                ECS.Instance.UseWrapper(CreateSystems);
                 DispatchProjectStateChange(ProjectStateChangeArgs.Started);
                 return true;
             }
@@ -161,6 +142,11 @@ namespace Event_ECS_WPF.Projects
         {
             try
             {
+                if (string.IsNullOrEmpty(InitializerScript))
+                {
+                    throw new ArgumentNullException(nameof(InitializerScript));
+                }
+
                 string location = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
                 if (!IsHidden(LibraryPath) && Directory.Exists(LibraryPath))
@@ -176,7 +162,7 @@ namespace Event_ECS_WPF.Projects
                     }
                 }
 
-                foreach(string file in Files)
+                foreach (string file in Files)
                 {
                     string dest = Path.Combine(location, Path.GetFileName(file));
                     if (!File.Exists(dest) || File.GetLastWriteTimeUtc(dest) != (File.GetLastWriteTimeUtc(file)))
@@ -189,7 +175,7 @@ namespace Event_ECS_WPF.Projects
                     }
                 }
 
-                ECS.Instance.CreateInstance();
+                CreateInstance();
                 return true;
             }
             catch (Exception e)
@@ -215,6 +201,12 @@ namespace Event_ECS_WPF.Projects
         {
             FileAttributes attr = File.GetAttributes(path);
             return ((attr & FileAttributes.Hidden) == FileAttributes.Hidden);
+        }
+
+        protected virtual void CreateInstance()
+        {
+            string code = File.ReadAllText(InitializerScript);
+            ECS.Instance.CreateInstance(code);
         }
     }
 

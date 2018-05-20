@@ -1,7 +1,5 @@
-﻿using Event_ECS_WPF.Logger;
-using Event_ECS_WPF.SystemObjects;
+﻿using Event_ECS_WPF.SystemObjects;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Xml.Serialization;
@@ -78,16 +76,17 @@ end";
 
             if (Setup())
             {
-                ECS.Instance.UseWrapper(CreateSystems);
-                if (!ECS.Instance.InitializeLove(Name))
-                {
-                    throw new Exception("Failed to initialize LOVE");
-                }
-                
                 DispatchProjectStateChange(ProjectStateChangeArgs.Started);
                 return true;
             }
             return false;
+        }
+
+        protected override void CreateInstance()
+        {
+            string path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            string code = File.ReadAllText(InitializerScript);
+            ECS.Instance.CreateInstance(code, path, Name);
         }
     }
 

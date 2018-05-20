@@ -11,6 +11,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Event-ECS-Wrapper", "CLI\Ev
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Event-ECS-C++", "C++\Event-ECS-C++\Event-ECS-C++.vcxproj", "{F77AE44E-99AD-4CD0-BA2C-135C856900B4}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Event-ECS-Tester", "CLI\Event-ECS-Tester\Event-ECS-Tester.vcxproj", "{7628A924-DE12-4070-9294-C6DD66BD948E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -61,6 +63,16 @@ Global
 		{F77AE44E-99AD-4CD0-BA2C-135C856900B4}.Release|x64.Build.0 = Debug|x64
 		{F77AE44E-99AD-4CD0-BA2C-135C856900B4}.Release|x86.ActiveCfg = Debug|Win32
 		{F77AE44E-99AD-4CD0-BA2C-135C856900B4}.Release|x86.Build.0 = Debug|Win32
+		{7628A924-DE12-4070-9294-C6DD66BD948E}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{7628A924-DE12-4070-9294-C6DD66BD948E}.Debug|x64.ActiveCfg = Debug|x64
+		{7628A924-DE12-4070-9294-C6DD66BD948E}.Debug|x64.Build.0 = Debug|x64
+		{7628A924-DE12-4070-9294-C6DD66BD948E}.Debug|x86.ActiveCfg = Debug|Win32
+		{7628A924-DE12-4070-9294-C6DD66BD948E}.Debug|x86.Build.0 = Debug|Win32
+		{7628A924-DE12-4070-9294-C6DD66BD948E}.Release|Any CPU.ActiveCfg = Release|Win32
+		{7628A924-DE12-4070-9294-C6DD66BD948E}.Release|x64.ActiveCfg = Release|x64
+		{7628A924-DE12-4070-9294-C6DD66BD948E}.Release|x64.Build.0 = Release|x64
+		{7628A924-DE12-4070-9294-C6DD66BD948E}.Release|x86.ActiveCfg = Release|Win32
+		{7628A924-DE12-4070-9294-C6DD66BD948E}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
