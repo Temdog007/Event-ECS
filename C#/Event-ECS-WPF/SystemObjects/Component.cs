@@ -12,6 +12,7 @@ namespace Event_ECS_WPF.SystemObjects
     public class Component : Collection<IComponentVariable>, INotifyCollectionChanged, INotifyPropertyChanged
     {
         private ObservableSet<IComponentVariable> m_variables = new ObservableSet<IComponentVariable>();
+
         public Component(Entity m_entity, string m_name, int m_id)
         {
             this.Entity = m_entity ?? throw new ArgumentNullException(nameof(m_entity));
@@ -37,17 +38,8 @@ namespace Event_ECS_WPF.SystemObjects
         public event PropertyChangedEventHandler PropertyChanged;
 
         public Entity Entity { get; }
+
         public int ID { get; }
-
-        private bool IsEnabledFunc(ECSWrapper ecs)
-        {
-            return ecs.IsComponentEnabled(Entity.System.Name, Entity.ID, ID);
-        }
-
-        private void SetEnabledFunc(ECSWrapper ecs, bool value)
-        {
-            ecs.SetComponentEnabled(Entity.System.Name, Entity.ID, ID, value);
-        }
 
         public bool IsEnabled
         {
@@ -71,7 +63,7 @@ namespace Event_ECS_WPF.SystemObjects
             set
             {
                 m_variables = value;
-                foreach (var v in m_variables.Cast< IComponentVariableSetter>())
+                foreach (var v in m_variables.Cast<IComponentVariableSetter>())
                 {
                     v.Component = this;
                 }
@@ -133,6 +125,16 @@ namespace Event_ECS_WPF.SystemObjects
         protected void OnPropertyChanged(string propName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
+        }
+
+        private bool IsEnabledFunc(ECSWrapper ecs)
+        {
+            return ecs.IsComponentEnabled(Entity.System.Name, Entity.ID, ID);
+        }
+
+        private void SetEnabledFunc(ECSWrapper ecs, bool value)
+        {
+            ecs.SetComponentEnabled(Entity.System.Name, Entity.ID, ID, value);
         }
     }
 }

@@ -34,7 +34,7 @@ namespace Event_ECS_WPF.SystemObjects
             {
                 if (ECS.Instance.UseWrapper(SetEnabledFunc, value))
                 {
-                    OnPropertyChanged();
+                    OnPropertyChanged("IsEnabled");
                 }
             }
         }
@@ -124,7 +124,7 @@ namespace Event_ECS_WPF.SystemObjects
                         else if (name == "id")
                         {
                             data.RemoveFirst(); // Type must be a number
-                            id = (int)Convert.ChangeType(data.First.Value, typeof(int));
+                            id = Convert.ToInt32(data.First.Value);
                         }
                         else
                         {
@@ -172,11 +172,6 @@ namespace Event_ECS_WPF.SystemObjects
         private string[] DeserializeFunc(ECSWrapper ecs)
         {
             return ecs.SerializeSystem(Name).Split('\n');
-        }
-
-        private int GetFrameRateFunc(ECSWrapper ecs)
-        {
-            return (int)Convert.ChangeType(ecs.GetSystemNumber(Name, "frameRate"), typeof(int));
         }
 
         private bool IsEnabledFunc(ECSWrapper ecs)

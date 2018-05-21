@@ -3,7 +3,6 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:controls="clr-namespace:Event_ECS_WPF.Controls"
              xmlns:conv="clr-namespace:Event_ECS_WPF.Converters"
              xmlns:ex="clr-namespace:Event_ECS_WPF.Extensions"
              xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase"

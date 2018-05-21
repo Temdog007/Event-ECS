@@ -154,7 +154,7 @@ namespace Event_ECS_WPF.SystemObjects
                 }
                 else
                 {
-                    Application.Current.Dispatcher.BeginInvoke(new Action(() => action(m_ecs, argument)));
+                    Application.Current.Dispatcher.Invoke(new Action(() => action(m_ecs, argument)));
                     return true;
                 }
             }
@@ -189,11 +189,7 @@ namespace Event_ECS_WPF.SystemObjects
                 }
                 else
                 {
-                    Application.Current.Dispatcher.Invoke(() =>
-                    {
-                        try { action(m_ecs); }
-                        catch (Exception e) { LogManager.Instance.Add(e.Message, LogLevel.High); }
-                    });
+                    Application.Current.Dispatcher.Invoke(() => action(m_ecs));
                     return true;
                 }
             }
