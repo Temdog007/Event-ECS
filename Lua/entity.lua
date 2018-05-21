@@ -74,7 +74,7 @@ function entity:setEnabled(pEnabled)
   assert(type(pEnabled) == "boolean", "Must set self.enabled to a boolean value")
   if self.enabled ~= pEnabled then
     self.enabled = pEnabled
-    self.entity.system:dispatchEvent("eventEnabledChanged", self, pEnabled)
+    self.system:dispatchEvent("eventEnabledChanged", self, pEnabled)
   end
 end
 

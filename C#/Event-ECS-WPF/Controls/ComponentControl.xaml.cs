@@ -1,5 +1,7 @@
 ﻿using Event_ECS_WPF.Commands;
+using Event_ECS_WPF.Logger;
 using Event_ECS_WPF.SystemObjects;
+using EventECSWrapper;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -19,6 +21,8 @@ namespace Event_ECS_WPF.Controls
 
         private ICommand m_setComponentEnabledCommand;
 
+        private ICommand m_removeComponentCommand;
+
         public ComponentControl()
         {
             InitializeComponent();
@@ -35,11 +39,28 @@ namespace Event_ECS_WPF.Controls
             get { return (bool)GetValue(IsExpandedProperty); }
             set { SetValue(IsExpandedProperty, value); }
         }
+
         public ICommand SetComponentEnabledCommand => m_setComponentEnabledCommand ?? (m_setComponentEnabledCommand = new ActionCommand<bool>(SetComponentEnabled));
         
         private void SetComponentEnabled(bool enabled)
         {
             Component.IsEnabled = enabled;
+        }
+
+        public ICommand RemoveComponentCommand => m_removeComponentCommand ?? (m_removeComponentCommand = new ActionCommand(RemoveComponent));
+
+        private void RemoveComponent()
+        {
+            if(ECS.Instance.UseWrapper(RemoveComponentFunc, out bool rval))
+            {
+                LogManager.Instance.Add(LogLevel.Medium, "Removed component {0} => {1}", Component.Name, rval);
+                Component.Entity.System.Deserialize();
+            }
+        }
+
+        private bool RemoveComponentFunc(ECSWrapper ecs)
+        {
+            return ecs.RemoveComponent(Component.Entity.System.Name, Component.Entity.ID, Component.ID);
         }
     }
 }

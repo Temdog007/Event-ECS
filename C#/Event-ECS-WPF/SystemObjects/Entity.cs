@@ -54,7 +54,13 @@ namespace Event_ECS_WPF.SystemObjects
         public bool IsEnabled
         {
             get => ECS.Instance.UseWrapper(GetIsEnabled, out bool enabled) ? enabled : false;
-            set => ECS.Instance.UseWrapper(SetIsEnabled, value);
+            set
+            {
+                if (ECS.Instance.UseWrapper(SetIsEnabled, value))
+                {
+                    OnPropertyChanged("IsEnabled");
+                }
+            }
         }
 
         internal EntityComponentSystem System { get; }

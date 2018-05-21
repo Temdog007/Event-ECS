@@ -15,6 +15,10 @@ namespace EventECS
 
 		void SetFunction(const char* funcName) const;
 
+		void SetEntityFunction(int entityID, const char* funcName) const;
+
+		void SetComponentFunction(int entityID, int componentID, const char* funcName) const;
+
 		void FindEntity(int entityID) const;
 
 		void FindComponent(int entityID, int componentID) const;
@@ -64,15 +68,15 @@ namespace EventECS
 
 		bool GetSystemBool(const char* key) const;
 		lua_Number GetSystemNumber(const char* key) const;
-		const char* GetSystemString(const char* key) const;
+		std::string GetSystemString(const char* key) const;
 
 		bool GetEntityBool(int entityID, const char* key) const;
 		lua_Number GetEntityNumber(int entityID, const char* key) const;
-		const char* GetEntityString(int entityID, const char* key) const;
+		std::string GetEntityString(int entityID, const char* key) const;
 
 		bool GetComponentBool(int entityID, int componentID, const char* key) const;
 		lua_Number GetComponentNumber(int entityID, int componentID, const char* key) const;
-		const char* GetComponentString(int entityID, int componentID, const char* key) const;
+		std::string GetComponentString(int entityID, int componentID, const char* key) const;
 
 		std::string Serialize() const;
 		std::string SerializeEntity(int entityID) const;

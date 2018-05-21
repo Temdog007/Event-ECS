@@ -178,13 +178,14 @@ namespace Event_ECS_WPF.SystemObjects
             }
         }
 
-        public void UseWrapper(Action<ECSWrapper> action)
+        public bool UseWrapper(Action<ECSWrapper> action)
         {
             lock (m_lock)
             {
                 if (m_ecs == null)
                 {
                     LogManager.Instance.Add(LogLevel.High, "Project has not been started. Cannot run function");
+                    return false;
                 }
                 else
                 {
@@ -193,6 +194,7 @@ namespace Event_ECS_WPF.SystemObjects
                         try { action(m_ecs); }
                         catch (Exception e) { LogManager.Instance.Add(e.Message, LogLevel.High); }
                     });
+                    return true;
                 }
             }
         }

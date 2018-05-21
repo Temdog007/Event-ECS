@@ -23,20 +23,22 @@
         <conv:NotConverter x:Key="notCol"/>
 
         <ex:BindingProxy x:Key="ComponentControl" Data="{Binding ElementName=m_componentControl}"/>
-
-        <sys:Boolean x:Key="True">True</sys:Boolean>
-        <sys:Boolean x:Key="False">False</sys:Boolean>
     </UserControl.Resources>
 
     <Expander Header="{Binding ElementName=m_componentControl, Path=Component.Name}" 
               IsExpanded="{Binding Path=IsExpanded, Mode=TwoWay, ElementName=m_componentControl}"
               Background="{Binding ElementName=m_componentControl, Path=Component.IsEnabled, Converter={StaticResource enToCol}}"
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" MinWidth="100">
-
+        <Expander.ContextMenu>
+            <ContextMenu>
+                <MenuItem Header="Is Enabled" IsCheckable="True" IsChecked="{Binding Source={StaticResource ComponentControl}, Path=Data.Component.IsEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                <Separator/>
+                <MenuItem Header="Remove Component" Command="{Binding Source={StaticResource ComponentControl}, Path=Data.RemoveComponentCommand}"/>
+            </ContextMenu>
+        </Expander.ContextMenu>
         <Grid>
             
             <Grid.RowDefinitions>
-                <RowDefinition Height="auto"/>
                 <RowDefinition Height="auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
@@ -45,31 +47,7 @@
                 <TextBlock Text="ID" Margin="5"/>
                 <TextBlock Text="{Binding ElementName=m_componentControl, Path=Component.ID}" Margin="5"/>
             </StackPanel>
-
-            <StackPanel Orientation="Vertical" Grid.Row="1">
-                
-                <RadioButton IsChecked="{Binding ElementName=m_componentControl, Path=Component.IsEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Delay=100}" 
-                             Content="Enabled" Command="{Binding ElementName=m_componentControl, Path=SetComponentEnabledCommand}" CommandParameter="{StaticResource True}">
-                    <RadioButton.GroupName>
-                        <MultiBinding StringFormat="{}{0}{1}">
-                            <Binding ElementName="m_componentControl" Path="Component.Name"/>
-                            <Binding ElementName="m_componentControl" Path="Component.ID"/>
-                        </MultiBinding>
-                    </RadioButton.GroupName>
-                </RadioButton>
-
-                <RadioButton IsChecked="{Binding ElementName=m_componentControl, Path=Component.IsEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource notCol}, Delay=100}" 
-                             Content="Disabled" Command="{Binding ElementName=m_componentControl, Path=SetComponentEnabledCommand}" CommandParameter="{StaticResource False}">
-                    <RadioButton.GroupName>
-                        <MultiBinding StringFormat="{}{0}{1}">
-                            <Binding ElementName="m_componentControl" Path="Component.Name"/>
-                            <Binding ElementName="m_componentControl" Path="Component.ID"/>
-                        </MultiBinding>
-                    </RadioButton.GroupName>
-                </RadioButton>
-            </StackPanel>
-
-            <ListBox ItemsSource="{Binding Source={StaticResource compSrc}}" Grid.Row="2"
+            <ListBox ItemsSource="{Binding Source={StaticResource compSrc}}" Grid.Row="1"
                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                 <ListBox.ItemTemplate>
                     <DataTemplate>

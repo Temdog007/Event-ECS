@@ -11,16 +11,14 @@ namespace Event_ECS_WPF.SystemObjects
 {
     public class Component : Collection<IComponentVariable>, INotifyCollectionChanged, INotifyPropertyChanged
     {
-        private bool m_isEnabled;
         private ObservableSet<IComponentVariable> m_variables = new ObservableSet<IComponentVariable>();
-        public Component(Entity m_entity, string m_name, int m_id, bool m_isEnabled = true)
+        public Component(Entity m_entity, string m_name, int m_id)
         {
             this.Entity = m_entity ?? throw new ArgumentNullException(nameof(m_entity));
             this.Entity.Components.Add(this);
 
             this.Name = m_name ?? throw new ArgumentNullException(nameof(m_name));
             this.ID = m_id;
-            this.m_isEnabled = m_isEnabled;
         }
 
         public event NotifyCollectionChangedEventHandler CollectionChanged
@@ -41,19 +39,25 @@ namespace Event_ECS_WPF.SystemObjects
         public Entity Entity { get; }
         public int ID { get; }
 
-        private void SetEnabled(ECSWrapper ecs)
+        private bool IsEnabledFunc(ECSWrapper ecs)
         {
-            ecs.SetComponentEnabled(Entity.System.Name, Entity.ID, ID, IsEnabled);
+            return ecs.IsComponentEnabled(Entity.System.Name, Entity.ID, ID);
+        }
+
+        private void SetEnabledFunc(ECSWrapper ecs, bool value)
+        {
+            ecs.SetComponentEnabled(Entity.System.Name, Entity.ID, ID, value);
         }
 
         public bool IsEnabled
         {
-            get => m_isEnabled;
+            get => ECS.Instance.UseWrapper(IsEnabledFunc, out bool rval) ? rval : false;
             set
             {
-                m_isEnabled = value;
-                ECS.Instance.UseWrapper(SetEnabled);
-                OnPropertyChanged("IsEnabled");
+                if (ECS.Instance.UseWrapper(SetEnabledFunc, value))
+                {
+                    OnPropertyChanged("IsEnabled");
+                }
             }
         }
 

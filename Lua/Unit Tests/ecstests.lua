@@ -88,6 +88,8 @@ function ecsTests:testEntityInitialization()
   assertEquals(type(entity.removeComponent), "function")
   assertEquals(type(entity.removeComponents), "function")
   assertEquals(type(entity.getID), "function")
+  assertEquals(type(entity.isEnabled), "function")
+  assertEquals(type(entity.setEnabled), "function")
   assertEquals(type(entity.remove), "function")
   assertEquals(type(entity.dispatchEvent), "function")
 end
@@ -108,6 +110,18 @@ function ecsTests:testSystemInitialization()
   system.name = "Unit Test"
   assertNotEquals(system:getName(), "Entity Component System")
   assertEquals(system:getName(), "Unit Test")
+end
+
+function ecsTests:testComponentInitialization()
+  local system = System()
+  local entity = system:createEntity()
+  local comp = entity:addComponent(TestComponent)
+
+  assertIs(comp.isEnabled, "function")
+  assertIs(comp.setEnabled, "function")
+  assertIs(comp.getID, "function")
+  assertIs(comp.getEntity, "function")
+  assertIs(comp.getSystem, "function")
 end
 
 function ecsTests:testDebugSystem()

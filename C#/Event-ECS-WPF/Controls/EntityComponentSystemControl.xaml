@@ -27,6 +27,8 @@
                 <MenuItem Header="Add Entity" Command="{Binding Source={StaticResource SystemControl}, Path=Data.AddEntityCommand}"/>
                 <MenuItem Header="Remove Entity" Command="{Binding Source={StaticResource SystemControl}, Path=Data.RemoveEntityCommand}"/>
                 <Separator/>
+                <MenuItem Header="Is Enabled" IsCheckable="True" IsChecked="{Binding Source={StaticResource SystemControl}, Path=Data.EntityComponentSystem.IsEnabled, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
+                <Separator/>
                 <MenuItem Header="Update System" Command="{Binding Source={StaticResource SystemControl}, Path=Data.SerializeCommand}"/>
             </ContextMenu>
         </GroupBox.ContextMenu>
@@ -38,21 +40,7 @@
 
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <Expander>
-                            <Expander.Header>
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBox Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                                    <TextBlock Margin="5,0,0,0">
-                                        <TextBlock.Text>
-                                            <MultiBinding StringFormat="{}ID #{0}">
-                                                <Binding Path="ID" UpdateSourceTrigger="PropertyChanged"/>
-                                            </MultiBinding>
-                                        </TextBlock.Text>
-                                    </TextBlock>
-                                </StackPanel>
-                            </Expander.Header>
-                            <controls:EntityControl Entity="{Binding}" Project="{Binding Source={StaticResource SystemControl}, Path=Data.Project}"/>
-                        </Expander>
+                        <controls:EntityControl Entity="{Binding}" Project="{Binding Source={StaticResource SystemControl}, Path=Data.Project}"/>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
 

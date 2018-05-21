@@ -1,9 +1,6 @@
 ﻿using Event_ECS_WPF.Commands;
-using Event_ECS_WPF.Logger;
 using Event_ECS_WPF.Projects;
 using Event_ECS_WPF.SystemObjects;
-using EventECSWrapper;
-using System;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
@@ -24,11 +21,7 @@ namespace Event_ECS_WPF.Controls
 
         private IActionCommand m_addComponentCommand;
 
-        private SystemObjects.Component m_component;
-
-        private IActionCommand m_removeComponentCommand;
-
-        private ICommand m_setEntityEnabledCommand;
+        private bool m_showEvents = false;
 
         public EntityControl()
         {
@@ -50,61 +43,30 @@ namespace Event_ECS_WPF.Controls
             set { SetValue(ProjectProperty, value); }
         }
 
-        public IActionCommand RemoveComponentCommand => m_removeComponentCommand ?? (m_removeComponentCommand = new ActionCommand(RemoveComponent, CanRemoveComponent));
-
-        public SystemObjects.Component SelectedComponent
+        public bool ShowEvents
         {
-            get => m_component;
+            get => m_showEvents;
             set
             {
-                m_component = value;
-                OnPropertyChanged("SelectedComponent");
+                m_showEvents = value;
+                OnPropertyChanged("ShowEvents");
             }
         }
-        public ICommand SetEntityEnabledCommand => m_setEntityEnabledCommand ?? (m_setEntityEnabledCommand = new ActionCommand<bool>(SetEntityEnabled));
 
         protected void OnPropertyChanged(string propName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
         }
+
         private void AddComponent(string param)
         {
             ECS.Instance.UseWrapper(ecs => ecs.AddComponent(Entity.System.Name, Entity.ID, param));
             Entity.System.Deserialize();
         }
 
-        private bool CanRemoveComponent()
-        {
-            return SelectedComponent != null;
-        }
-
         private void Entity_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
             AddComponentCommand.UpdateCanExecute(this, e);
-            RemoveComponentCommand.UpdateCanExecute(this, e);
-        }
-
-        private void RemoveComponent()
-        {
-            ECS.Instance.UseWrapper(RemoveSelectedComponent, out bool rval);
-            Entity.System.Deserialize();
-        }
-
-        private bool RemoveSelectedComponent(ECSWrapper ecs)
-        {
-            try
-            {
-                return ecs.RemoveComponent(Entity.System.Name, Entity.ID, SelectedComponent.ID);
-            }
-            catch(Exception e)
-            {
-                LogManager.Instance.Add(LogLevel.High, "Cannot remove component: {0}", e.Message);
-                return false;
-            }
-        }
-        private void SetEntityEnabled(bool enabled)
-        {
-            Entity.IsEnabled = enabled;
         }
     }
 }

@@ -2,11 +2,6 @@
 
 namespace EventECS
 {
-	bool luax_toboolean(lua_State* L, int idx)
-	{
-		return lua_toboolean(L, idx) != 0;
-	}
-
 	void(*ECSMap::logHandler)(const char* log);
 
 	ECSMap* ECSMap::instance = nullptr;
@@ -56,11 +51,6 @@ namespace EventECS
 		luaL_openlibs(L);
 
 		Require("eventecs", nullptr);
-#ifdef NDEBUG
-		Require("system", "System");
-#else
-		Require("system", "DebugSystem");
-#endif
 
 		lua_pushcfunction(L, lua_logFunction);
 		lua_setglobal(L, "Log");
@@ -68,21 +58,21 @@ namespace EventECS
 
 	void ECSMap::LoadInitializerCode(const char* initializerCode, size_t size)
 	{
-		if (luaL_loadbuffer(L, initializerCode, size, "initliaze.lua") != 0)
+		if (luaL_loadbuffer(L, initializerCode, size, "initliaze.lua") != 0)//load function and put on stack
 		{
 			throw std::exception(lua_tostring(L, -1));
 		}
 
-		int bufferRef = luaL_ref(L, LUA_REGISTRYINDEX);
-		lua_pop(L, 1);
+		int bufferRef = luaL_ref(L, LUA_REGISTRYINDEX); // store function in registry
+		lua_pop(L, 1); // remove function from stack
 
 		lua_getglobal(L, "package");
 		lua_getfield(L, -1, "preload");
-		lua_rawgeti(L, LUA_REGISTRYINDEX, bufferRef);
+		lua_rawgeti(L, LUA_REGISTRYINDEX, bufferRef); // put function in initializer in preload table
 		lua_setfield(L, -2, "initializer");
 		lua_pop(L, 2);
 
-		luaL_unref(L, LUA_REGISTRYINDEX, bufferRef);
+		luaL_unref(L, LUA_REGISTRYINDEX, bufferRef); // remove from registry
 	}
 
 	void ECSMap::Reset()
@@ -91,11 +81,15 @@ namespace EventECS
 
 		lua_getglobal(L, "require");
 		lua_pushstring(L, "initializer");
-		if (lua_pcall(L, 1, 1, 0) != 0 || // get initializer function
-			lua_pcall(L, 0, LUA_MULTRET, 0) != 0) // call initializer function
-		{
-			throw std::exception(lua_tostring(L, -1));
-		}
+
+		luax_call(L, 1, 1); // get initializer function
+
+#ifdef NDEBUG
+		luax_pushboolean(L, false); // push false to signal not debug mode
+#else
+		luax_pushboolean(L, true); // push true to signal debug mode
+#endif
+		luax_call(L, 1, LUA_MULTRET); // call initializer function
 
 		std::list<int> refs;
 		while (lua_gettop(L) > 0) // get all systems
@@ -107,10 +101,12 @@ namespace EventECS
 		for (int ref : refs)
 		{
 			lua_rawgeti(L, LUA_REGISTRYINDEX, ref);
-			lua_pushstring(L, "name");
-			lua_gettable(L, -2);
+			lua_getfield(L, -1, "getName");
+			lua_pushvalue(L, -2);
+			luax_call(L, 1, 1);
 			const char* name = lua_tostring(L, -1);
 			map.emplace(std::piecewise_construct, std::make_tuple(name), std::make_tuple(L, ref));
+			lua_pop(L, 1);
 		}
 	}
 
@@ -139,38 +135,6 @@ namespace EventECS
 			delete instance;
 			instance = nullptr;
 		}
-	}
-
-	void ECSMap::Add(const char* name)
-	{
-		if (map.find(name) != map.end())
-		{
-			char buffer[100];
-			sprintf_s(buffer, "'%s' already exists in the map", name);
-			throw std::exception(buffer);
-		}
-
-#if NDEBUG
-		lua_getglobal(L, "System");
-#else
-		lua_getglobal(L, "DebugSystem");
-#endif
-		
-		lua_pushstring(L, name);
-
-		if (lua_pcall(L, 1, 1, 0) != 0)
-		{
-			throw std::exception(lua_tostring(L, -1));
-		}
-
-		int idx = luaL_ref(L, LUA_REGISTRYINDEX);
-
-		map.emplace(std::piecewise_construct, std::make_tuple(name), std::make_tuple(L, idx));
-	}
-
-	size_t ECSMap::Remove(const char* name)
-	{
-		return map.erase(name);
 	}
 
 	ECS& ECSMap::operator[](const char* name)
@@ -219,14 +183,8 @@ namespace EventECS
 			lua_pushcfunction(L, lua_broadcastEvent);
 			lua_pushstring(L, identity);
 			lua_pushstring(L, executablePath);
-			if (lua_pcall(L, 3, 0, 0) == 0)
-			{
-				Log("Created a LOVE2D Entity Component System");
-			}
-			else
-			{
-				throw std::exception(lua_tostring(L, -1));
-			}
+			luax_call(L, 3, 0);
+			Log("Created a LOVE2D Entity Component System");
 			loveInitialized = true;
 		}
 		return loveInitialized;
@@ -237,20 +195,15 @@ namespace EventECS
 		lua_settop(L, 0);
 		lua_getglobal(L, "require");
 		lua_pushstring(L, modName);
-		if (lua_pcall(L, 1, 1, 0) == 0)
+		luax_call(L, 1, 1);
+		
+		if (globalName != nullptr)
 		{
-			if (globalName != nullptr)
-			{
-				lua_setglobal(L, globalName);
-			}
-			else
-			{
-				lua_pop(L, 1);
-			}
+			lua_setglobal(L, globalName);
 		}
 		else
 		{
-			throw std::exception(lua_tostring(L, -1));
+			lua_pop(L, 1);
 		}
 	}
 
@@ -307,22 +260,18 @@ namespace EventECS
 		lua_settop(L, 0);
 		lua_getglobal(L, "loveInitializerFunctions");
 		lua_getfield(L, -1, "updateLove");
-		if (lua_pcall(L, 0, 2, 0) == 0)
+		luax_call(L, 0, 2);
+		bool rval = luax_toboolean(L, -1);
+		if (!rval)
 		{
-			bool rval = luax_toboolean(L, -1);
-			if (!rval)
+			if (lua_isstring(L, -2))
 			{
-				if (lua_isstring(L, -2))
-				{
-					const char* message = lua_tostring(L, -2);
-					Log(message);
-				}
+				const char* message = lua_tostring(L, -2);
+				Log(message);
 			}
-			lua_settop(L, 0);
-			return rval;
 		}
-
-		throw std::exception(lua_tostring(L, -1));
+		lua_settop(L, 0);
+		return rval;
 	}
 
 	lua_Number ECSMap::DrawLove(bool skipSleep)
@@ -330,19 +279,17 @@ namespace EventECS
 		lua_settop(L, 0);
 		lua_getglobal(L, "loveInitializerFunctions");
 		lua_getfield(L, -1, "drawLove");
-		lua_pushboolean(L, static_cast<int>(skipSleep));
-		if (lua_pcall(L, 1, 2, 0) == 0)
+		luax_pushboolean(L, skipSleep);
+		luax_call(L, 1, 2);
+
+		lua_Number sleep = lua_tonumber(L, -1);
+		if (lua_isstring(L, -2))
 		{
-			lua_Number sleep = lua_tonumber(L, -1);
-			if (lua_isstring(L, -2))
-			{
-				const char* message = lua_tostring(L, -2);
-				Log(message);
-			}
-			lua_settop(L, 0);
-			return sleep;
+			const char* message = lua_tostring(L, -2);
+			Log(message);
 		}
-		throw std::exception(lua_tostring(L, -1));
+		lua_settop(L, 0);
+		return sleep;
 	}
 
 	std::list<std::string> ECSMap::Serialize() const

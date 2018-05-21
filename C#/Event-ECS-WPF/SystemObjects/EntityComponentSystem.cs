@@ -27,6 +27,18 @@ namespace Event_ECS_WPF.SystemObjects
             Deserialize(list);
         }
 
+        public bool IsEnabled
+        {
+            get => ECS.Instance.UseWrapper(IsEnabledFunc, out bool rval) ? rval : false;
+            set
+            {
+                if (ECS.Instance.UseWrapper(SetEnabledFunc, value))
+                {
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         public ObservableCollection<Entity> Entities
         {
             get => m_entities;
@@ -100,7 +112,6 @@ namespace Event_ECS_WPF.SystemObjects
                     data.RemoveFirst(); // Remove component name
 
                     int id = 0;
-                    bool enabled = true;
                     List<IComponentVariable> tempVars = new List<IComponentVariable>();
                     while (data.Count > 0)
                     {
@@ -109,7 +120,6 @@ namespace Event_ECS_WPF.SystemObjects
                         if (name == "enabled")
                         {
                             data.RemoveFirst(); // Type must be a boolean
-                            enabled = (bool)Convert.ChangeType(data.First.Value, typeof(bool));
                         }
                         else if (name == "id")
                         {
@@ -141,8 +151,10 @@ namespace Event_ECS_WPF.SystemObjects
                         data.RemoveFirst();
                     }
 
-                    Component comp = new Component(entity, compName, id, enabled);
-                    comp.Variables = new ObservableSet<IComponentVariable>(tempVars);
+                    Component comp = new Component(entity, compName, id)
+                    {
+                        Variables = new ObservableSet<IComponentVariable>(tempVars)
+                    };
                 }
             }
 
@@ -165,6 +177,16 @@ namespace Event_ECS_WPF.SystemObjects
         private int GetFrameRateFunc(ECSWrapper ecs)
         {
             return (int)Convert.ChangeType(ecs.GetSystemNumber(Name, "frameRate"), typeof(int));
+        }
+
+        private bool IsEnabledFunc(ECSWrapper ecs)
+        {
+            return ecs.IsSystemEnabled(Name);
+        }
+
+        private void SetEnabledFunc(ECSWrapper ecs, bool value)
+        {
+            ecs.SetSystemEnabled(Name, value);
         }
     }
 }

@@ -6,8 +6,6 @@ class ECS;
 
 namespace EventECS
 {
-	extern bool luax_toboolean(lua_State* L, int idx);
-
 	class ECSMap
 	{
 		friend int w__broadcastevent(lua_State*);
@@ -70,9 +68,6 @@ namespace EventECS
 
 		ECS& operator[](const char* name);
 		const ECS& operator[](const char* name) const;
-
-		void Add(const char* name);
-		size_t Remove(const char* name);
 
 		void SetLogEvents(bool value);
 		bool IsLoggingEvents() const;

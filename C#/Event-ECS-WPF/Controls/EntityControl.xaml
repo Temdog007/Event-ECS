@@ -20,14 +20,25 @@
         <ex:BindingProxy x:Key="EntityControl" Data="{Binding ElementName=m_entityControl}"/>
 
         <converter:NotConverter x:Key="notCol"/>
-
-        <sys:Boolean x:Key="True">True</sys:Boolean>
-        <sys:Boolean x:Key="False">False</sys:Boolean>
+        <converter:BoolToVisibilityConverter x:Key="boolVis"/>
     </UserControl.Resources>
 
-    <StackPanel>
+    <Expander>
+        
+        <Expander.Header>
+            <StackPanel Orientation="Horizontal">
+                <TextBox Text="{Binding ElementName=m_entityControl, Path=Entity.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                <TextBlock Margin="5,0,0,0">
+                    <TextBlock.Text>
+                        <MultiBinding StringFormat="{}ID #{0}">
+                            <Binding ElementName="m_entityControl" Path="Entity.ID" UpdateSourceTrigger="PropertyChanged"/>
+                        </MultiBinding>
+                    </TextBlock.Text>
+                </TextBlock>
+            </StackPanel>
+        </Expander.Header>
 
-        <StackPanel.ContextMenu>
+        <Expander.ContextMenu>
             <ContextMenu>
 
                 <ContextMenu.ItemsSource>
@@ -39,52 +50,33 @@
                                 </DataTemplate>
                             </MenuItem.ItemTemplate>
                         </MenuItem>
-                        <MenuItem Header="Remove Component" Command="{Binding Source={StaticResource EntityControl}, Path=Data.RemoveComponentCommand}"/>
+                        <Separator/>
+                        <MenuItem Header="Show Events" IsCheckable="True" IsChecked="{Binding Source={StaticResource EntityControl}, Path=Data.ShowEvents, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <Separator/>
+                        <MenuItem Header="Is Enabled" IsCheckable="True" IsChecked="{Binding Source={StaticResource EntityControl}, Path=Data.Entity.IsEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     </CompositeCollection>
                 </ContextMenu.ItemsSource>
 
             </ContextMenu>
-        </StackPanel.ContextMenu>
+        </Expander.ContextMenu>
+        
+        <StackPanel>
 
-        <GroupBox Header="Enabled">
-            <StackPanel Orientation="Vertical">
+            <Expander Header="Events" Background="LightYellow" Visibility="{Binding ElementName=m_entityControl, Path=ShowEvents, Converter={StaticResource boolVis}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                <ListBox ItemsSource="{Binding ElementName=m_entityControl, Path=Entity.Events, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+            </Expander>
 
-                <RadioButton IsChecked="{Binding ElementName=m_entityControl, Path=Entity.IsEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Delay=100}" 
-                             Content="Enabled" Command="{Binding ElementName=m_entityControl, Path=SetEntityEnabledCommand}" CommandParameter="{StaticResource True}">
-                    <RadioButton.GroupName>
-                        <MultiBinding StringFormat="{}{0}{1}">
-                            <Binding ElementName="m_entityControl" Path="Entity.Name"/>
-                            <Binding ElementName="m_entityControl" Path="Entity.ID"/>
-                        </MultiBinding>
-                    </RadioButton.GroupName>
-                </RadioButton>
-
-                <RadioButton IsChecked="{Binding ElementName=m_entityControl, Path=Entity.IsEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource notCol}, Delay=100}" 
-                             Content="Disabled" Command="{Binding ElementName=m_entityControl, Path=SetEntityEnabledCommand}" CommandParameter="{StaticResource False}">
-                    <RadioButton.GroupName>
-                        <MultiBinding StringFormat="{}{0}{1}">
-                            <Binding ElementName="m_entityControl" Path="Entity.Name"/>
-                            <Binding ElementName="m_entityControl" Path="Entity.ID"/>
-                        </MultiBinding>
-                    </RadioButton.GroupName>
-                </RadioButton>
-            </StackPanel>
-        </GroupBox>
-
-        <Expander Header="Events" Background="LightYellow">
-            <ListBox ItemsSource="{Binding ElementName=m_entityControl, Path=Entity.Events, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-        </Expander>
-
-        <GroupBox Header="Components">
-            <ListBox x:Name="ComponentsGroupBox" ItemsSource="{Binding ElementName=m_entityControl, Path=Entity.Components, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            <GroupBox Header="Components">
+                <ListBox ItemsSource="{Binding ElementName=m_entityControl, Path=Entity.Components, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                      SelectedItem="{Binding ElementName=m_entityControl, Path=SelectedComponent, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}">
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <controls:ComponentControl Component="{Binding}" Background="AliceBlue" IsExpanded="{Binding Mode=TwoWay, Path=IsSelected, 
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <controls:ComponentControl Component="{Binding}" Background="AliceBlue" IsExpanded="{Binding Mode=TwoWay, Path=IsSelected, 
                                                             RelativeSource={RelativeSource AncestorType=ListBoxItem, Mode=FindAncestor}}"/>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
-        </GroupBox>
-    </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </GroupBox>
+        </StackPanel>
+    </Expander>
 </UserControl>

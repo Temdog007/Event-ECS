@@ -25,80 +25,82 @@ namespace EventECS
 	void ECS::SetSystem() const 
 	{
 		lua_settop(L, 0);
-		lua_rawgeti(L, LUA_REGISTRYINDEX, idx);
+		lua_rawgeti(L, LUA_REGISTRYINDEX, idx); // push system
 	}
 
 	void ECS::SetFunction(const char* funcName) const
 	{
-		SetSystem();
-		lua_getfield(L, -1, funcName);
-		lua_pushvalue(L, -2);
+		SetSystem(); // stack has system
+		lua_getfield(L, -1, funcName); // push system function
+		lua_pushvalue(L, -2); // push system (system function system)
+		lua_remove(L, -3); // remove the first system (function system)
+	}
+
+	void ECS::SetEntityFunction(int entityID, const char* funcName) const
+	{
+		FindEntity(entityID); // stack has entity
+		lua_getfield(L, -1, funcName); // push entity function (entity function)
+		lua_pushvalue(L, -2); // push entity (entity function entity)
+		lua_remove(L, -3); // remove first entity (function entity)
+	}
+
+	void ECS::SetComponentFunction(int entityID, int componentID, const char* funcName) const
+	{
+		FindComponent(entityID, componentID); // stack has component
+		lua_getfield(L, -1, funcName); // push component function (component function)
+		lua_pushvalue(L, -2); // push component (component function component)
+		lua_remove(L, -3); // remove first component (function component)
 	}
 
 	void ECS::FindEntity(int entityID) const
 	{
-		SetFunction("findEntity");
-		lua_pushnumber(L, entityID);
-		if (lua_pcall(L, 2, 1, 0) != 0)
-		{
-			throw std::exception(lua_tostring(L, -1));
-		}
+		SetFunction("findEntity"); // stack has function
+		lua_pushnumber(L, entityID); // push number
+		luax_call(L, 2, 1); // call function (entity)
 	}
 
 	void ECS::FindComponent(int entityID, int componentID) const
 	{
-		FindEntity(entityID);
-		lua_getfield(L, -1, "findComponent");
-		lua_pushvalue(L, -2);
-		lua_pushnumber(L, componentID);
-		if (lua_pcall(L, 2, 1, 0) != 0)
-		{
-			throw std::exception(lua_tostring(L, -1));
-		}
+		FindEntity(entityID); // stack has entity
+		lua_getfield(L, -1, "findComponent"); // push entity function
+		lua_pushvalue(L, -2); // push entity (entity function entity)
+		lua_remove(L, -3); // remove first entity (function entity)
+		lua_pushnumber(L, componentID); // push number
+		luax_call(L, 2, 1); // call function component
 	}
 
 	std::string ECS::AddEntity()
 	{
 		SetFunction("createEntity");
-		if (lua_pcall(L, 1, 1, 0) == 0)
-		{
-			lua_getfield(L, -1, "serialize");
-			lua_pushvalue(L, -2);
-			if (lua_pcall(L, 1, 1, 0) == 0)
-			{
-				std::string rval(lua_tostring(L, -1));
-				lua_pop(L, 1);
-				return rval;
-			}
-		}
-		throw std::exception(lua_tostring(L, -1));
+		luax_call(L, 1, 1);
+
+		lua_getfield(L, -1, "serialize");
+		lua_pushvalue(L, -2);
+		lua_remove(L, -3);
+		luax_call(L, 1, 1);
+
+		std::string rval(lua_tostring(L, -1));
+		lua_pop(L, 1);
+		return rval;
 	}
 
 	bool ECS::RemoveEntity(int entityID)
 	{
-		FindEntity(entityID);
-		lua_getfield(L, -1, "remove");
-		lua_pushvalue(L, -2);
-		if (lua_pcall(L, 1, 1, 0) == 0)
-		{
-			bool entitesRemoved = luax_toboolean(L, -1);
-			lua_pop(L, 1);
-			return entitesRemoved;
-		}
-		throw std::exception(lua_tostring(L, -1));
+		SetEntityFunction(entityID, "remove");
+		luax_call(L, 1, 1);
+		bool entitesRemoved = luax_toboolean(L, -1);
+		lua_pop(L, 1);
+		return entitesRemoved;
 	}
 
 	int ECS::DispatchEvent(const char* eventName)
 	{
 		SetFunction("dispatchEvent");
 		lua_pushstring(L, eventName);
-		if (lua_pcall(L, 2, 1, 0) == 0)
-		{
-			int handles = static_cast<int>(lua_tonumber(L, -1));
-			lua_pop(L, 1);
-			return handles;
-		}
-		throw std::exception(lua_tostring(L, -1));
+		luax_call(L, 2, 1);
+		int handles = static_cast<int>(lua_tonumber(L, -1));
+		lua_pop(L, 1);
+		return handles;
 	}
 
 	int ECS::DispatchEvent(const char* eventName, int argRef)
@@ -106,63 +108,38 @@ namespace EventECS
 		SetFunction("dispatchEvent");
 		lua_pushstring(L, eventName);
 		lua_rawgeti(L, LUA_REGISTRYINDEX, argRef);
-		if (lua_pcall(L, 3, 1, 0) == 0)
-		{
-			int handles = static_cast<int>(lua_tonumber(L, -1));
-			lua_pop(L, 1);
-			return handles;
-		}
-		throw std::exception(lua_tostring(L, -1));
+		luax_call(L, 3, 1);
+		int handles = static_cast<int>(lua_tonumber(L, -1));
+		lua_pop(L, 1);
+		return handles;
 	}
 
 	void ECS::AddComponent(int entityID, const char* componentName)
 	{
-		FindEntity(entityID);
-		lua_getfield(L, -1, "addComponent");
-		lua_pushvalue(L, -2);
+		SetEntityFunction(entityID, "addComponent");
 		lua_pushstring(L, componentName);
-		if (lua_pcall(L, 2, 1, 0) != 0)
-		{
-			throw std::exception(lua_tostring(L, -1));
-		}
-		lua_pop(L, 1);
+		luax_call(L, 2, 0);
 	}
 
 	void ECS::AddComponents(int entityID, const std::list<std::string>& componentNames)
 	{
-		FindEntity(entityID);
-		lua_getfield(L, -1, "addComponents");
-		lua_pushvalue(L, -2);
+		SetEntityFunction(entityID, "addComponents");
 		for (auto componentName : componentNames)
 		{
 			lua_pushstring(L, componentName.c_str());
 		}
 
 		const int size = componentNames.size();
-		if (lua_pcall(L, size + 1, size, 0) == 0)
-		{
-			while(lua_gettop(L) > 0)
-			{
-				lua_pop(L, 1);
-			}
-			return;
-		}
-
-		throw std::exception(lua_tostring(L, -1));
+		luax_call(L, size + 1, 0);
 	}
 
 	bool ECS::RemoveComponent(int entityID, int componentID)
 	{
-		FindComponent(entityID, componentID);
-		lua_getfield(L, -1, "remove");
-		lua_pushvalue(L, -2);
-		if (lua_pcall(L, 1, 1, 0) == 0)
-		{
-			bool rval = luax_toboolean(L, -1);
-			lua_pop(L, 1);
-			return rval;
-		}
-		throw std::exception(lua_tostring(L, -1));
+		SetComponentFunction(entityID, componentID, "remove");
+		luax_call(L, 1, 1);
+		bool rval = luax_toboolean(L, -1);
+		lua_pop(L, 1);
+		return rval;
 	}
 
 	#pragma region Getter/Setters
@@ -171,46 +148,49 @@ namespace EventECS
 	void ECS::SetSystemBool(const char* key, bool value)
 	{
 		SetSystem();
-		lua_pushstring(L, key);
-		lua_pushboolean(L, value);
-		lua_settable(L, -3);
+		luax_pushboolean(L, value);
+		lua_setfield(L, -2, key);
 	}
 
 	void ECS::SetSystemNumber(const char* key, lua_Number value)
 	{
 		SetSystem();
-		lua_pushstring(L, key);
 		lua_pushnumber(L, value);
-		lua_settable(L, -3);
+		lua_setfield(L, -2, key);
 	}
 
 	void ECS::SetSystemString(const char* key, const char* value)
 	{
 		SetSystem();
-		lua_pushstring(L, key);
 		lua_pushstring(L, value);
-		lua_settable(L, -3);
+		lua_setfield(L, -2, key);
 	}
 
 	bool ECS::GetSystemBool(const char* key) const
 	{
 		SetSystem();
 		lua_getfield(L, -1, key);
-		return luax_toboolean(L, -1);
+		bool rval = luax_toboolean(L, -1);
+		lua_pop(L, 1);
+		return rval;
 	}
 
 	lua_Number ECS::GetSystemNumber(const char* key) const
 	{
 		SetSystem();
 		lua_getfield(L, -1, key);
-		return lua_tonumber(L, -1);
+		lua_Number rval = lua_tonumber(L, -1);
+		lua_pop(L, 1);
+		return rval;
 	}
 
-	const char* ECS::GetSystemString(const char* key) const
+	std::string ECS::GetSystemString(const char* key) const
 	{
 		SetSystem();
 		lua_getfield(L, -1, key);
-		return lua_tostring(L, -1);
+		std::string rval(lua_tostring(L, -1));
+		lua_pop(L, 1);
+		return rval;
 	}
 	#pragma endregion
 
@@ -218,46 +198,49 @@ namespace EventECS
 	void ECS::SetEntityBool(int entityID, const char* key, bool value)
 	{
 		FindEntity(entityID);
-		lua_pushstring(L, key);
-		lua_pushboolean(L, value);
-		lua_settable(L, -3);
+		luax_pushboolean(L, value);
+		lua_setfield(L, -2, key);
 	}
 
 	void ECS::SetEntityNumber(int entityID, const char* key, lua_Number value)
 	{
 		FindEntity(entityID);
-		lua_pushstring(L, key);
 		lua_pushnumber(L, value);
-		lua_settable(L, -3);
+		lua_setfield(L, -2, key);
 	}
 
 	void ECS::SetEntityString(int entityID, const char* key, const char* value)
 	{
 		FindEntity(entityID);
-		lua_pushstring(L, key);
 		lua_pushstring(L, value);
-		lua_settable(L, -3);
+		lua_setfield(L, -2, key);
 	}
 
 	bool ECS::GetEntityBool(int entityID, const char* key) const
 	{
 		FindEntity(entityID);
 		lua_getfield(L, -1, key);
-		return luax_toboolean(L, -1);
+		bool rval = luax_toboolean(L, -1);
+		lua_pop(L, 1);
+		return rval;
 	}
 
 	lua_Number ECS::GetEntityNumber(int entityID, const char* key) const
 	{
 		FindEntity(entityID);
 		lua_getfield(L, -1, key);
-		return lua_tonumber(L, -1);
+		lua_Number rval = lua_tonumber(L, -1);
+		lua_pop(L, 1);
+		return rval;
 	}
 
-	const char* ECS::GetEntityString(int entityID, const char* key) const
+	std::string ECS::GetEntityString(int entityID, const char* key) const
 	{
 		FindEntity(entityID);
 		lua_getfield(L, -1, key);
-		return lua_tostring(L, -1);
+		std::string rval(lua_tostring(L, -1));
+		lua_pop(L, 1);
+		return rval;
 	}
 	
 	#pragma endregion
@@ -266,105 +249,80 @@ namespace EventECS
 
 	void ECS::SetSystemEnabled(bool enabled)
 	{
-		SetSystem();
-		lua_getfield(L, -1, "setEnabled");
-		lua_pushvalue(L, -2);
-		lua_pushboolean(L, static_cast<int>(enabled));
-		if (lua_pcall(L, 2, 0, 0) != 0)
-		{
-			throw std::exception(lua_tostring(L, -1));
-		}
+		SetFunction("setEnabled");
+		luax_pushboolean(L, enabled);
+		luax_call(L, 2, 0);
 	}
 
 	void ECS::SetEntityEnabled(int entityID, bool enabled)
 	{
-		FindEntity(entityID);
-		lua_getfield(L, -1, "setEnabled");
-		lua_pushvalue(L, -2);
-		lua_pushboolean(L, static_cast<int>(enabled));
-		if (lua_pcall(L, 2, 0, 0) != 0)
-		{
-			throw std::exception(lua_tostring(L, -1));
-		}
+		SetEntityFunction(entityID, "setEnabled");
+		luax_pushboolean(L, enabled);
+		luax_call(L, 2, 0);
 	}
 
 	void ECS::SetComponentEnabled(int entityID, int componentID, bool enabled)
 	{
-		FindComponent(entityID, componentID);
-		lua_getfield(L, -1, "setEnabled");
-		lua_pushvalue(L, -2);
-		lua_pushboolean(L, static_cast<int>(enabled));
-		if (lua_pcall(L, 2, 0, 0) != 0)
-		{
-			throw std::exception(lua_tostring(L, -1));
-		}
+		SetComponentFunction(entityID, componentID, "setEnabled");
+		luax_pushboolean(L, enabled);
+		luax_call(L, 2, 0);
 	}
 
 	void ECS::SetComponentBool(int entityID, int componentID, const char* key, bool value)
 	{
 		FindComponent(entityID, componentID);
-		lua_pushstring(L, key);
-		lua_pushboolean(L, value);
-		lua_settable(L, -3);
+		luax_pushboolean(L, value);
+		lua_setfield(L, -2, key);
 	}
 
 	void ECS::SetComponentNumber(int entityID, int componentID, const char* key, lua_Number value)
 	{
 		FindComponent(entityID, componentID);
-		lua_pushstring(L, key);
 		lua_pushnumber(L, value);
-		lua_settable(L, -3);
+		lua_setfield(L, -2, key);
 	}
 
 	void ECS::SetComponentString(int entityID, int componentID, const char* key, const char* value)
 	{
 		FindComponent(entityID, componentID);
-		lua_pushstring(L, key);
 		lua_pushstring(L, value);
-		lua_settable(L, -3);
+		lua_setfield(L, -2, key);
 	}
 
 	bool ECS::IsSystemEnabled() const
 	{
-		SetSystem();
-		lua_getfield(L, -1, "isEnabled");
-		lua_pushvalue(L, -2);
-		if (lua_pcall(L, 2, 1, 0) != 0)
-		{
-			throw std::exception(lua_tostring(L, -1));
-		}
-		return luax_toboolean(L, -1);
+		SetFunction("isEnabled");
+		luax_call(L, 1, 1);
+		bool rval = luax_toboolean(L, -1);
+		lua_pop(L, 1);
+		return rval;
 	}
 
 	bool ECS::IsEntityEnabled(int entityID) const
 	{
-		FindEntity(entityID);
-		lua_getfield(L, -1, "isEnabled");
-		lua_pushvalue(L, -2);
-		if (lua_pcall(L, 2, 1, 0) != 0)
-		{
-			throw std::exception(lua_tostring(L, -1));
-		}
-		return luax_toboolean(L, -1);
+		SetEntityFunction(entityID, "isEnabled");
+		luax_call(L, 1, 1);
+		bool rval = luax_toboolean(L, -1);
+		lua_pop(L, 1);
+		return rval;
 	}
 
 	bool ECS::IsComponentEnabled(int entityID, int componentID) const
 	{
-		FindComponent(entityID, componentID);
-		lua_getfield(L, -1, "isEnabled");
-		lua_pushvalue(L, -2);
-		if (lua_pcall(L, 2, 1, 0) != 0)
-		{
-			throw std::exception(lua_tostring(L, -1));
-		}
-		return luax_toboolean(L, -1);
+		SetComponentFunction(entityID, componentID, "isEnabled");
+		luax_call(L, 1, 1);
+		bool rval = luax_toboolean(L, -1);
+		lua_pop(L, 1);
+		return rval;
 	}
 
 	bool ECS::GetComponentBool(int entityID, int componentID, const char* key) const
 	{
 		FindComponent(entityID, componentID);
 		lua_getfield(L, -1, key);
-		return luax_toboolean(L, -1);
+		bool rval = luax_toboolean(L, -1);
+		lua_pop(L, 1);
+		return rval;
 	}
 
 	lua_Number ECS::GetComponentNumber(int entityID, int componentID, const char* key) const
@@ -374,11 +332,13 @@ namespace EventECS
 		return lua_tonumber(L, -1);
 	}
 
-	const char* ECS::GetComponentString(int entityID, int componentID, const char* key) const
+	std::string ECS::GetComponentString(int entityID, int componentID, const char* key) const
 	{
 		FindComponent(entityID, componentID);
 		lua_getfield(L, -1, key);
-		return lua_tostring(L, -1);
+		std::string rval(lua_tostring(L, -1));
+		lua_pop(L, 1);
+		return rval;
 	}
 	#pragma endregion
 
@@ -388,43 +348,28 @@ namespace EventECS
 	std::string ECS::Serialize() const
 	{
 		SetFunction("serialize");
-		if (lua_pcall(L, 1, 1, 0) == 0)
-		{
-			std::string rval(lua_tostring(L, -1));
-			lua_pop(L, 1);
-			return rval;
-		}
-		throw std::exception(lua_tostring(L, -1));
+		luax_call(L, 1, 1);
+		std::string rval(lua_tostring(L, -1));
+		lua_pop(L, 1);
+		return rval;
 	}
 
 	std::string ECS::SerializeEntity(int entityID) const
 	{
-		FindEntity(entityID);
-		lua_getfield(L, -1, "serialize");
-		lua_pushvalue(L, -2);
-		if (lua_pcall(L, 2, 1, 0) == 0)
-		{
-			std::string rval(lua_tostring(L, -1));
-			lua_pop(L, 1);
-			return rval;
-		}
-
-		throw std::exception(lua_tostring(L, -1));
+		SetEntityFunction(entityID, "serialize");
+		luax_call(L, 1, 1);
+		std::string rval(lua_tostring(L, -1));
+		lua_pop(L, 1);
+		return rval;
 	}
 
 	std::string ECS::SerializeComponent(int entityID, int componentID) const
 	{
-		FindComponent(entityID, componentID);
-		lua_getfield(L, -1, "serilize");
-		lua_pushvalue(L, -2);
-		if (lua_pcall(L, 2, 1, 0) == 0)
-		{
-			std::string rval(lua_tostring(L, -1));
-			lua_pop(L, 1);
-			return rval;
-		}
-
-		throw std::exception(lua_tostring(L, -1));
+		SetComponentFunction(entityID, componentID, "serialize");
+		luax_call(L, 1, 1);
+		std::string rval(lua_tostring(L, -1));
+		lua_pop(L, 1);
+		return rval;
 	}
 	#pragma endregion
 }
