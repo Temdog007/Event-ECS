@@ -74,6 +74,7 @@ namespace Event_ECS_WPF.SystemObjects
             Name = systemDataList[0];
 
             List<string> enList = new List<string>(list.SubArray(1));
+            Dictionary<string, bool> expandedMap = new Dictionary<string, bool>();
             List<int> handledIDs = new List<int>();
             Entity entity = null;
             foreach (string en in enList.AsReadOnly())
@@ -87,6 +88,11 @@ namespace Event_ECS_WPF.SystemObjects
                     if (entity != null)
                     {
                         entity.Name = enData[1];
+                        expandedMap.Clear();
+                        foreach(var comp in entity.Components)
+                        {
+                            expandedMap[comp.Name] = comp.IsExpanded;
+                        }
                         entity.Components.Clear();
                     }
                     else
@@ -155,6 +161,7 @@ namespace Event_ECS_WPF.SystemObjects
                     {
                         Variables = new ObservableSet<IComponentVariable>(tempVars)
                     };
+                    comp.IsExpanded = expandedMap.TryGetValue(compName, out bool value) ? value : false;
                 }
             }
 

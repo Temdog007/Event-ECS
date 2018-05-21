@@ -5,13 +5,11 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Event_ECS_WPF"
         xmlns:controls="clr-namespace:Event_ECS_WPF.Controls"
-        xmlns:converter="clr-namespace:Event_ECS_WPF.Converters"
         xmlns:ex="clr-namespace:Event_ECS_WPF.Extensions"
         xmlns:logger="clr-namespace:Event_ECS_WPF.Logger"
         xmlns:misc="clr-namespace:Event_ECS_WPF.Misc"
         xmlns:proj="clr-namespace:Event_ECS_WPF.Projects"
         xmlns:properties="clr-namespace:Event_ECS_WPF.Properties"
-        xmlns:selector="clr-namespace:Event_ECS_WPF.TemplateSelectors"
         xmlns:forms="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
         mc:Ignorable="d"
         Title="Entity Component System Viewer" 
@@ -34,14 +32,6 @@
         <KeyBinding Key="F5" Command="{Binding ToggleProjectCommand}"/>
     </Window.InputBindings>
 
-    <Window.Resources>
-        <converter:BoolToVisibilityConverter x:Key="boolConv"/>
-        <converter:NotConverter x:Key="notConv"/>
-        <converter:EnumToBoolConverter x:Key="enumConv"/>
-        <converter:NullCheckVisibilityConverter x:Key="nullCheck"/>
-        <converter:LogLevelToColor x:Key="logToColor"/>
-    </Window.Resources>
-
     <DockPanel>
         <Menu DockPanel.Dock="Top">
             
@@ -58,7 +48,7 @@
             
             <MenuItem Header="View">
                 <MenuItem Header="Multi-Line Log" IsCheckable="True" IsChecked="{Binding Source={x:Static properties:Settings.Default}, Mode=TwoWay, Path=MultilineLog}"/>
-                <MenuItem Visibility="{Binding Source={x:Static properties:Settings.Default}, Converter={StaticResource boolConv}, Path=MultilineLog}">
+                <MenuItem Visibility="{Binding Source={x:Static properties:Settings.Default}, Converter={StaticResource boolVis}, Path=MultilineLog}">
                     <MenuItem.Header>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Max Log Line Length" Margin="0,0,5,0"/>
@@ -81,7 +71,7 @@
                 </StackPanel>
             </MenuItem>
 
-            <MenuItem Header="Project" Visibility="{Binding HasProject, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource boolConv}}" 
+            <MenuItem Header="Project" Visibility="{Binding HasProject, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource boolVis}}" 
                       Background="{Binding ProjectBackground, UpdateSourceTrigger=PropertyChanged}">
 
                 <ContentPresenter Content="{Binding Project, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
@@ -111,14 +101,16 @@
                     </TabControl.ItemTemplate>
                     <TabControl.ContentTemplate>
                         <DataTemplate>
-                            <controls:EntityComponentSystemControl EntityComponentSystem="{Binding}" Project="{Binding ElementName=viewmodel, Path=Project, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            <ScrollViewer PreviewMouseWheel="ScrollViewer_PreviewMouseWheel">
+                                <controls:EntityComponentSystemControl EntityComponentSystem="{Binding}" Project="{Binding ElementName=viewmodel, Path=Project, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            </ScrollViewer>
                         </DataTemplate>
                     </TabControl.ContentTemplate>
                 </TabControl>
                 
                 <Expander Grid.Column="1" ExpandDirection="Left">
                 <GroupBox
-                          Header="Project Settings" Visibility="{Binding HasProject, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource boolConv}}" 
+                          Header="Project Settings" Visibility="{Binding HasProject, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource boolVis}}" 
                           Content="{Binding Project, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ContentTemplateSelector="{StaticResource projectSelector}"/>
                 </Expander>
 

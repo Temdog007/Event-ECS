@@ -3,7 +3,6 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:conv="clr-namespace:Event_ECS_WPF.Converters"
              xmlns:ex="clr-namespace:Event_ECS_WPF.Extensions"
              xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
              mc:Ignorable="d" 
@@ -16,15 +15,12 @@
                 <scm:SortDescription PropertyName="Name"/>
             </CollectionViewSource.SortDescriptions>
         </CollectionViewSource>
-        
-        <conv:EnabledToColor x:Key="enToCol"/>
-        <conv:NotConverter x:Key="notCol"/>
 
         <ex:BindingProxy x:Key="ComponentControl" Data="{Binding ElementName=m_componentControl}"/>
     </UserControl.Resources>
 
     <Expander Header="{Binding ElementName=m_componentControl, Path=Component.Name}" 
-              IsExpanded="{Binding Path=IsExpanded, Mode=TwoWay, ElementName=m_componentControl}"
+              IsExpanded="{Binding Path=Component.IsExpanded, Mode=TwoWay, ElementName=m_componentControl}"
               Background="{Binding ElementName=m_componentControl, Path=Component.IsEnabled, Converter={StaticResource enToCol}}"
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" MinWidth="100">
         <Expander.ContextMenu>

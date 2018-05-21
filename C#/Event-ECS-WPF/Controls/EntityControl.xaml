@@ -4,7 +4,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:controls="clr-namespace:Event_ECS_WPF.Controls"
-             xmlns:converter="clr-namespace:Event_ECS_WPF.Converters"
              xmlns:ex="clr-namespace:Event_ECS_WPF.Extensions"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
@@ -17,9 +16,6 @@
             <Setter Property="HorizontalAlignment" Value="Center"/>
         </Style>
         <ex:BindingProxy x:Key="EntityControl" Data="{Binding ElementName=m_entityControl}"/>
-
-        <converter:NotConverter x:Key="notCol"/>
-        <converter:BoolToVisibilityConverter x:Key="boolVis"/>
     </UserControl.Resources>
 
     <Expander>
@@ -69,8 +65,7 @@
                 <ListBox ItemsSource="{Binding ElementName=m_entityControl, Path=Entity.Components, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <controls:ComponentControl Component="{Binding}" Background="AliceBlue" IsExpanded="{Binding Mode=TwoWay, Path=IsSelected, 
-                                                            RelativeSource={RelativeSource AncestorType=ListBoxItem, Mode=FindAncestor}}"/>
+                            <controls:ComponentControl Component="{Binding}" Background="AliceBlue"/>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>

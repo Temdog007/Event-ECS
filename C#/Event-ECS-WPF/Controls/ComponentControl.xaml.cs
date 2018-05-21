@@ -16,9 +16,6 @@ namespace Event_ECS_WPF.Controls
         public static readonly DependencyProperty ComponentProperty =
             DependencyProperty.Register("Component", typeof(Component), typeof(ComponentControl));
 
-        public static readonly DependencyProperty IsExpandedProperty =
-            DependencyProperty.Register("IsExpanded", typeof(bool), typeof(ComponentControl));
-
         private ICommand m_setComponentEnabledCommand;
 
         private ICommand m_removeComponentCommand;
@@ -32,12 +29,6 @@ namespace Event_ECS_WPF.Controls
         {
             get { return (Component)GetValue(ComponentProperty); }
             set { SetValue(ComponentProperty, value); }
-        }
-
-        public bool IsExpanded
-        {
-            get { return (bool)GetValue(IsExpandedProperty); }
-            set { SetValue(IsExpandedProperty, value); }
         }
 
         public ICommand SetComponentEnabledCommand => m_setComponentEnabledCommand ?? (m_setComponentEnabledCommand = new ActionCommand<bool>(SetComponentEnabled));

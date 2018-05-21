@@ -4,6 +4,8 @@ using Event_ECS_WPF.SystemObjects;
 using System;
 using System.ComponentModel;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Threading;
 
 namespace Event_ECS_WPF
@@ -49,6 +51,15 @@ namespace Event_ECS_WPF
             {
                 ECS.Instance.Dispose();
                 Settings.Default.Save();
+            }
+        }
+
+        private void ScrollViewer_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            if(sender is ScrollViewer scv)
+            {
+                scv.ScrollToVerticalOffset(scv.VerticalOffset - e.Delta);
+                e.Handled = true;
             }
         }
     }

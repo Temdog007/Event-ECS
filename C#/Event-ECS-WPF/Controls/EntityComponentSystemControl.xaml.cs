@@ -5,6 +5,8 @@ using Event_ECS_WPF.SystemObjects;
 using EventECSWrapper;
 using System;
 using System.ComponentModel;
+using System.Threading;
+using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -26,20 +28,42 @@ namespace Event_ECS_WPF.Controls
 
         private IActionCommand m_removeEntityCommand;
 
-        private IActionCommand m_serializeCommand;
-
         private Entity m_selectedEntity;
+
+        private IActionCommand m_serializeCommand;
 
         public EntityComponentSystemControl()
         {
             InitializeComponent();
 
             ECS.DeserializeRequested += ECS_DeserializeRequested;
+            
+            Timer.Elapsed += Timer_Elapsed;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
         public IActionCommand AddEntityCommand => m_addEntityCommand ?? (m_addEntityCommand = new ActionCommand(AddEntity));
+
+        public bool AutoUpdate
+        {
+            get => Timer.Enabled;
+            set
+            {
+                Timer.Enabled = value;
+                OnPropertyChanged("AutoUpdate");
+            }
+        }
+
+        public double UpdateInterval
+        {
+            get => Timer.Interval;
+            set
+            {
+                Timer.Interval = value;
+                OnPropertyChanged("UpdateInterval");
+            }
+        }
 
         public EntityComponentSystem EntityComponentSystem
         {
@@ -66,6 +90,13 @@ namespace Event_ECS_WPF.Controls
 
         public IActionCommand SerializeCommand => m_serializeCommand ?? (m_serializeCommand = new ActionCommand(Serialize));
 
+        public System.Timers.Timer Timer { get; } = new System.Timers.Timer
+        {
+            AutoReset = true,
+            Enabled = true,
+            Interval = 1000
+        };
+
         public bool CanRemoveEntity()
         {
             return SelectedEntity != null;
@@ -90,9 +121,14 @@ namespace Event_ECS_WPF.Controls
             return ecs.AddEntity(EntityComponentSystem.Name);
         }
 
+        private void Deserialize()
+        {
+            Dispatcher.BeginInvoke(new Action(() => EntityComponentSystem?.Deserialize()));
+        }
+
         private void ECS_DeserializeRequested()
         {
-            Dispatcher.BeginInvoke(new Action(() => EntityComponentSystem.Deserialize()));
+            Deserialize();
         }
 
         private void RemoveEntity()
@@ -110,7 +146,7 @@ namespace Event_ECS_WPF.Controls
             {
                 return ecs.RemoveEntity(EntityComponentSystem.Name, entityID);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 LogManager.Instance.Add(LogLevel.High, "Cannot remove entity: {0}", e.Message);
                 return false;
@@ -130,6 +166,11 @@ namespace Event_ECS_WPF.Controls
         {
             AddEntityCommand.UpdateCanExecute(this, e);
             RemoveEntityCommand.UpdateCanExecute(this, e);
+        }
+
+        private void Timer_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            Deserialize();
         }
     }
 }
