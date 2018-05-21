@@ -35,35 +35,11 @@
     </Window.InputBindings>
 
     <Window.Resources>
-        
         <converter:BoolToVisibilityConverter x:Key="boolConv"/>
         <converter:NotConverter x:Key="notConv"/>
         <converter:EnumToBoolConverter x:Key="enumConv"/>
         <converter:NullCheckVisibilityConverter x:Key="nullCheck"/>
         <converter:LogLevelToColor x:Key="logToColor"/>
-        
-        <DataTemplate x:Key="projectTemplate">
-            <controls:ProjectControl Project="{Binding}"/>
-        </DataTemplate>
-        
-        <DataTemplate x:Key="loveProjectTemplate">
-            <ScrollViewer>
-                <controls:LoveProjectControl LoveProject="{Binding}"/>
-            </ScrollViewer>
-        </DataTemplate>
-
-        <DataTemplate x:Key="projectMenuTemplate">
-            <controls:ProjectMenuControl Project="{Binding}"/>
-        </DataTemplate>
-
-        <DataTemplate x:Key="loveProjectMenuTemplate">
-            <ScrollViewer>
-                <controls:LoveProjectMenuControl LoveProject="{Binding}"/>
-            </ScrollViewer>
-        </DataTemplate>
-
-        <selector:ProjectDataTemplateSelector x:Key="projectSelector"/>
-        <selector:ProjectMenuDataTemplateSelector x:Key="projectMenuSelector"/>
     </Window.Resources>
 
     <DockPanel>

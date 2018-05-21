@@ -8,16 +8,15 @@ namespace Event_ECS_WPF.TemplateSelectors
     {
         public override DataTemplate SelectTemplate(object item, DependencyObject container)
         {
-            Project project = item as Project;
-            if(project != null)
+            if (item is Project project)
             {
-                Window window = Application.Current.MainWindow;
+                var app = Application.Current;
 
-                if(project is LoveProject)
+                if (project is LoveProject)
                 {
-                    return window.FindResource("loveProjectTemplate") as DataTemplate;
+                    return app.FindResource("loveProjectTemplate") as DataTemplate;
                 }
-                return window.FindResource("projectTemplate") as DataTemplate;
+                return app.FindResource("projectTemplate") as DataTemplate;
             }
             return null;
         }
