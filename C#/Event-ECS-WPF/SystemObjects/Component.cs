@@ -41,16 +41,6 @@ namespace Event_ECS_WPF.SystemObjects
 
         public int ID { get; }
 
-        public bool IsExpanded
-        {
-            get => m_isExpanded;
-            set
-            {
-                m_isExpanded = value;
-                OnPropertyChanged("IsExpanded");
-            }
-        } private bool m_isExpanded = false;
-
         public bool IsEnabled
         {
             get => ECS.Instance.UseWrapper(IsEnabledFunc, out bool rval) ? rval : false;

@@ -1,6 +1,7 @@
 ﻿using Event_ECS_WPF.Commands;
 using Event_ECS_WPF.Logger;
 using Event_ECS_WPF.Projects;
+using Event_ECS_WPF.Properties;
 using Event_ECS_WPF.SystemObjects;
 using EventECSWrapper;
 using System;
@@ -25,10 +26,6 @@ namespace Event_ECS_WPF.Controls
            DependencyProperty.Register("Project", typeof(Project), typeof(EntityComponentSystemControl));
 
         private IActionCommand m_addEntityCommand;
-
-        private IActionCommand m_removeEntityCommand;
-
-        private Entity m_selectedEntity;
 
         private IActionCommand m_serializeCommand;
 
@@ -61,6 +58,7 @@ namespace Event_ECS_WPF.Controls
             set
             {
                 Timer.Interval = value;
+                Settings.Default.RefreshRate = Convert.ToUInt32(value);
                 OnPropertyChanged("UpdateInterval");
             }
         }
@@ -77,30 +75,14 @@ namespace Event_ECS_WPF.Controls
             set { SetValue(ProjectProperty, value); }
         }
 
-        public IActionCommand RemoveEntityCommand => m_removeEntityCommand ?? (m_removeEntityCommand = new ActionCommand(RemoveEntity, CanRemoveEntity));
-
-        public Entity SelectedEntity
-        {
-            get => m_selectedEntity; set
-            {
-                m_selectedEntity = value;
-                OnPropertyChanged("SelectedEntity");
-            }
-        }
-
         public IActionCommand SerializeCommand => m_serializeCommand ?? (m_serializeCommand = new ActionCommand(Serialize));
 
         public System.Timers.Timer Timer { get; } = new System.Timers.Timer
         {
             AutoReset = true,
             Enabled = true,
-            Interval = 1000
+            Interval = Settings.Default.RefreshRate
         };
-
-        public bool CanRemoveEntity()
-        {
-            return SelectedEntity != null;
-        }
 
         protected void OnPropertyChanged(string propName)
         {
@@ -131,15 +113,6 @@ namespace Event_ECS_WPF.Controls
             Deserialize();
         }
 
-        private void RemoveEntity()
-        {
-            if (ECS.Instance.UseWrapper(RemoveEntityFunc, SelectedEntity.ID, out bool removed))
-            {
-                LogManager.Instance.Add("Entity removed: {0}", removed);
-                EntityComponentSystem.Deserialize();
-            }
-        }
-
         private bool RemoveEntityFunc(ECSWrapper ecs, int entityID)
         {
             try
@@ -165,7 +138,6 @@ namespace Event_ECS_WPF.Controls
         private void System_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
             AddEntityCommand.UpdateCanExecute(this, e);
-            RemoveEntityCommand.UpdateCanExecute(this, e);
         }
 
         private void Timer_Elapsed(object sender, ElapsedEventArgs e)

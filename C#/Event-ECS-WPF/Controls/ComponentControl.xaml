@@ -20,7 +20,6 @@
     </UserControl.Resources>
 
     <Expander Header="{Binding ElementName=m_componentControl, Path=Component.Name}" 
-              IsExpanded="{Binding Path=Component.IsExpanded, Mode=TwoWay, ElementName=m_componentControl}"
               Background="{Binding ElementName=m_componentControl, Path=Component.IsEnabled, Converter={StaticResource enToCol}}"
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" MinWidth="100">
         <Expander.ContextMenu>

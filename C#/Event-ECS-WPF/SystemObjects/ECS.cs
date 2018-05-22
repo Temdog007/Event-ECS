@@ -46,7 +46,7 @@ namespace Event_ECS_WPF.SystemObjects
 
         private double LoveDraw(ECSWrapper ecs)
         {
-            return ecs.LoveDraw();
+            return ecs.LoveDraw(true);
         }
 
         private void CompositionTarget_Rendering(object sender, EventArgs e)

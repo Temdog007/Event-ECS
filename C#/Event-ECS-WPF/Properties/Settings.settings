@@ -17,8 +17,8 @@
     <Setting Name="ToggleStart" Type="System.Windows.Forms.Keys" Scope="User">
       <Value Profile="(Default)">F5</Value>
     </Setting>
-    <Setting Name="LoveUpdatePriority" Type="System.Windows.Threading.DispatcherPriority" Scope="User">
-      <Value Profile="(Default)">Normal</Value>
+    <Setting Name="RefreshRate" Type="System.UInt32" Scope="User">
+      <Value Profile="(Default)">1000</Value>
     </Setting>
   </Settings>
 </SettingsFile>

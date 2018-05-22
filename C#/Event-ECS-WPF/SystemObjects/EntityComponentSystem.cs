@@ -74,8 +74,8 @@ namespace Event_ECS_WPF.SystemObjects
             Name = systemDataList[0];
 
             List<string> enList = new List<string>(list.SubArray(1));
-            Dictionary<string, bool> expandedMap = new Dictionary<string, bool>();
             List<int> handledIDs = new List<int>();
+            List<Component> checkedVars = new List<Component>();
             Entity entity = null;
             foreach (string en in enList.AsReadOnly())
             {
@@ -88,12 +88,7 @@ namespace Event_ECS_WPF.SystemObjects
                     if (entity != null)
                     {
                         entity.Name = enData[1];
-                        expandedMap.Clear();
-                        foreach(var comp in entity.Components)
-                        {
-                            expandedMap[comp.Name] = comp.IsExpanded;
-                        }
-                        entity.Components.Clear();
+                        checkedVars.Clear();
                     }
                     else
                     {
@@ -157,11 +152,22 @@ namespace Event_ECS_WPF.SystemObjects
                         data.RemoveFirst();
                     }
 
-                    Component comp = new Component(entity, compName, id)
+                    var oldComp = entity.Components.FirstOrDefault(comp => comp.Name == compName);
+                    if (oldComp == null)
                     {
-                        Variables = new ObservableSet<IComponentVariable>(tempVars)
-                    };
-                    comp.IsExpanded = expandedMap.TryGetValue(compName, out bool value) ? value : false;
+                        Component comp = new Component(entity, compName, id)
+                        {
+                            Variables = new ObservableSet<IComponentVariable>(tempVars)
+                        };
+                    }
+                    else
+                    {
+                        foreach(var tempVar in tempVars)
+                        {
+                            oldComp[tempVar.Name] = tempVar.Value;
+                        }
+                        checkedVars.Add(oldComp);
+                    }
                 }
             }
 

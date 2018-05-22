@@ -47,8 +47,9 @@
                         </MenuItem>
                         <Separator/>
                         <MenuItem Header="Show Events" IsCheckable="True" IsChecked="{Binding Source={StaticResource EntityControl}, Path=Data.ShowEvents, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                        <Separator/>
                         <MenuItem Header="Is Enabled" IsCheckable="True" IsChecked="{Binding Source={StaticResource EntityControl}, Path=Data.Entity.IsEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <Separator/>
+                        <MenuItem Header="Remove" Command="{Binding Source={StaticResource EntityControl}, Path=Data.RemoveCommand}"/>
                     </CompositeCollection>
                 </ContextMenu.ItemsSource>
 

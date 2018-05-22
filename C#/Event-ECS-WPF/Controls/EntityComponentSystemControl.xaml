@@ -25,22 +25,23 @@
         <GroupBox.ContextMenu>
             <ContextMenu>
                 <MenuItem Header="Add Entity" Command="{Binding Source={StaticResource SystemControl}, Path=Data.AddEntityCommand}"/>
-                <MenuItem Header="Remove Entity" Command="{Binding Source={StaticResource SystemControl}, Path=Data.RemoveEntityCommand}"/>
                 <Separator/>
                 <MenuItem Header="Is Enabled" IsCheckable="True" IsChecked="{Binding Source={StaticResource SystemControl}, Path=Data.EntityComponentSystem.IsEnabled, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
                 <Separator/>
                 <MenuItem Header="Update System">
                     <MenuItem Header="Manual Update" Command="{Binding Source={StaticResource SystemControl}, Path=Data.SerializeCommand}"/>
                     <MenuItem Header="Update Automatically" IsCheckable="True" IsChecked="{Binding Source={StaticResource SystemControl}, Path=Data.AutoUpdate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                    <TextBlock Text="{Binding Source={StaticResource SystemControl}, Path=Data.UpdateInterval, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <DockPanel>
+                        <Label DockPanel.Dock="Left">Update Interval in Milliseconds</Label>
+                        <TextBox Text="{Binding Source={StaticResource SystemControl}, Path=Data.UpdateInterval, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    </DockPanel>
                 </MenuItem>
             </ContextMenu>
         </GroupBox.ContextMenu>
 
         <Expander Header="Entities" Grid.Row="1" IsExpanded="True">
 
-            <ListBox ItemsSource="{Binding Source={StaticResource entitiesSrc}}" 
-                         SelectedItem="{Binding ElementName=m_system, Path=SelectedEntity, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}">
+            <ListBox ItemsSource="{Binding Source={StaticResource entitiesSrc}}">
 
                 <ListBox.ItemTemplate>
                     <DataTemplate>

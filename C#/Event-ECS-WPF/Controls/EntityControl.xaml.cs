@@ -1,6 +1,8 @@
 ﻿using Event_ECS_WPF.Commands;
+using Event_ECS_WPF.Logger;
 using Event_ECS_WPF.Projects;
 using Event_ECS_WPF.SystemObjects;
+using EventECSWrapper;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
@@ -20,6 +22,8 @@ namespace Event_ECS_WPF.Controls
             DependencyProperty.Register("Project", typeof(Project), typeof(EntityControl));
 
         private IActionCommand m_addComponentCommand;
+
+        private IActionCommand m_removeEntityCommand;
 
         private bool m_showEvents = false;
 
@@ -52,6 +56,22 @@ namespace Event_ECS_WPF.Controls
                 OnPropertyChanged("ShowEvents");
             }
         }
+
+        private bool RemoveFunc(ECSWrapper ecs)
+        {
+            return ecs.RemoveEntity(Entity.System.Name, Entity.ID);
+        }
+
+        private void Remove()
+        {
+            if(ECS.Instance.UseWrapper(RemoveFunc, out bool rval))
+            {
+                LogManager.Instance.Add("Removed entity: {0}", rval);
+                Entity.System.Deserialize();
+            }
+        }
+
+        public ICommand RemoveCommand => m_removeEntityCommand ?? (m_removeEntityCommand = new ActionCommand(Remove));
 
         protected void OnPropertyChanged(string propName)
         {
