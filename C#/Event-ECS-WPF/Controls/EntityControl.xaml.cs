@@ -3,8 +3,8 @@ using Event_ECS_WPF.Logger;
 using Event_ECS_WPF.Projects;
 using Event_ECS_WPF.SystemObjects;
 using EventECSWrapper;
-using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -27,14 +27,14 @@ namespace Event_ECS_WPF.Controls
         private IActionCommand m_removeEntityCommand;
 
         private bool m_showEvents = false;
-
         public EntityControl()
         {
             InitializeComponent();
         }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public IActionCommand AddComponentCommand => m_addComponentCommand ?? (m_addComponentCommand = new ActionCommand<string>(AddComponent));
+        public ICommand AddComponentCommand => m_addComponentCommand ?? (m_addComponentCommand = new ActionCommand<string>(AddComponent));
 
         public Entity Entity
         {
@@ -47,6 +47,7 @@ namespace Event_ECS_WPF.Controls
             get { return (Project)GetValue(ProjectProperty); }
             set { SetValue(ProjectProperty, value); }
         }
+        public ICommand RemoveCommand => m_removeEntityCommand ?? (m_removeEntityCommand = new ActionCommand(Remove));
 
         public bool ShowEvents
         {
@@ -58,47 +59,29 @@ namespace Event_ECS_WPF.Controls
             }
         }
 
-        private bool RemoveFunc(ECSWrapper ecs)
+        protected void OnPropertyChanged(string propName)
         {
-            return ecs.RemoveEntity(Entity.System.Name, Entity.ID);
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
         }
 
+        private void AddComponent(string compName)
+        {
+            ECS.Instance.UseWrapper(ecs => ecs.AddComponent(Entity.System.Name, Entity.ID, compName));
+            Entity.System.Deserialize();
+        }
+        
         private void Remove()
         {
-            if(ECS.Instance.UseWrapper(RemoveFunc, out bool rval))
+            if (ECS.Instance.UseWrapper(RemoveFunc, out bool rval))
             {
                 LogManager.Instance.Add("Removed entity: {0}", rval);
                 Entity.System.Deserialize();
             }
         }
 
-        public static IEnumerable<string> Alphabet
+        private bool RemoveFunc(ECSWrapper ecs)
         {
-            get
-            {
-                for(char c = 'A'; c <= 'Z'; ++c)
-                {
-                    yield return c.ToString();
-                }
-            }
-        }
-
-        public ICommand RemoveCommand => m_removeEntityCommand ?? (m_removeEntityCommand = new ActionCommand(Remove));
-
-        protected void OnPropertyChanged(string propName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
-        }
-
-        private void AddComponent(string param)
-        {
-            ECS.Instance.UseWrapper(ecs => ecs.AddComponent(Entity.System.Name, Entity.ID, param));
-            Entity.System.Deserialize();
-        }
-
-        private void Entity_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            AddComponentCommand.UpdateCanExecute(this, e);
+            return ecs.RemoveEntity(Entity.System.Name, Entity.ID);
         }
     }
 }
