@@ -83,6 +83,7 @@
     <Compile Include="Controls\LoveProjectMenuControl.xaml.cs">
       <DependentUpon>LoveProjectMenuControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Converters\StringListToAlphaStringList.cs" />
     <Compile Include="Converters\EnabledToColor.cs" />
     <Compile Include="Converters\LogLevelToColor.cs" />
     <Compile Include="Extensions\BindingProxy.cs" />
@@ -174,7 +175,7 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="ResourceDictionary.xaml">
+    <Page Include="Resources\DataTemplateDictionary.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

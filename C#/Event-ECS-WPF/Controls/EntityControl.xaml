@@ -38,10 +38,18 @@
 
                 <ContextMenu.ItemsSource>
                     <CompositeCollection>
-                        <MenuItem Header="Add Component" ItemsSource="{Binding Source={StaticResource EntityControl}, Path=Data.Project.Components, UpdateSourceTrigger=PropertyChanged}">
+                        <MenuItem Header="Add Component" ItemsSource="{Binding Source={x:Static controls:EntityControl.Alphabet}}">
                             <MenuItem.ItemTemplate>
                                 <DataTemplate>
-                                    <MenuItem Header="{Binding}" CommandParameter="{Binding}" Command="{Binding Source={StaticResource EntityControl}, Path=Data.AddComponentCommand}"/>
+                                    <MenuItem Header="{Binding}" ItemsSource="{Binding Source={x:Static controls:EntityControl.Alphabet}, Converter={StaticResource alphaStr}, 
+                                        ConverterParameter={Binding RelativeSource={RelativeSource Mode=Self}}}">
+                                        <MenuItem.ItemTemplate>
+                                            <DataTemplate>
+                                                <MenuItem Header="{Binding}" Command="{Binding Source={StaticResource EntityControl}, Path=Data.Entity.AddComponentCommand,
+                                                          ConverterParameter={Binding RelativeSource={RelativeSource Mode=Self}}}"/>
+                                            </DataTemplate>
+                                        </MenuItem.ItemTemplate>
+                                    </MenuItem>
                                 </DataTemplate>
                             </MenuItem.ItemTemplate>
                         </MenuItem>

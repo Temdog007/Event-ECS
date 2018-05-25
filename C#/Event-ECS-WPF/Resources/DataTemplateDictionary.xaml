@@ -37,6 +37,13 @@
         </DockPanel>
     </DataTemplate>
 
+    <x:Array x:Key="Alphabet" Type="sys:String" xmlns:sys="clr-namespace:System;assembly=mscorlib">
+        <sys:String>A</sys:String>
+        <sys:String>A</sys:String>
+        <sys:String>A</sys:String>
+        <sys:String>A</sys:String>
+    </x:Array>
+
     <selector:ProjectDataTemplateSelector x:Key="projectSelector"/>
     <selector:ProjectMenuDataTemplateSelector x:Key="projectMenuSelector"/>
     <selector:ComponentTemplateSelector x:Key="componentTemplateSelector"/>
@@ -47,4 +54,5 @@
     <converter:NullCheckVisibilityConverter x:Key="nullCheck"/>
     <converter:LogLevelToColor x:Key="logToColor"/>
     <converter:EnabledToColor x:Key="enToCol"/>
+    <converter:StringListToAlphaStringList x:Key="alphaStr"/>
 </ResourceDictionary>

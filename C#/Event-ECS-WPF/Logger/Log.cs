@@ -128,6 +128,15 @@ namespace Event_ECS_WPF.Logger
             Add(string.Format(message, args), level);
         }
 
+        public void Add(Exception e)
+        {
+            Add(e.Message, LogLevel.High);
+            if(e.InnerException != null)
+            {
+                Add(e.InnerException);
+            }
+        }
+
         public void Clear()
         {
             lock (m_lock)

@@ -3,6 +3,7 @@ using Event_ECS_WPF.Logger;
 using Event_ECS_WPF.Projects;
 using Event_ECS_WPF.SystemObjects;
 using EventECSWrapper;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
@@ -68,6 +69,17 @@ namespace Event_ECS_WPF.Controls
             {
                 LogManager.Instance.Add("Removed entity: {0}", rval);
                 Entity.System.Deserialize();
+            }
+        }
+
+        public static IEnumerable<string> Alphabet
+        {
+            get
+            {
+                for(char c = 'A'; c <= 'Z'; ++c)
+                {
+                    yield return c.ToString();
+                }
             }
         }
 
