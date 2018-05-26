@@ -8,7 +8,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
 
-namespace Event_ECS_WPF
+namespace Event_ECS_WPF.Windows
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml

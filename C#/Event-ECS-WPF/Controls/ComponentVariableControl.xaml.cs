@@ -9,6 +9,9 @@ namespace Event_ECS_WPF.Controls
     /// </summary>
     public partial class ComponentVariableControl : UserControl
     {
+        public static readonly DependencyProperty ComponentProperty =
+            DependencyProperty.Register("ComponentVariable", typeof(IComponentVariable), typeof(ComponentVariableControl));
+
         public ComponentVariableControl()
         {
             InitializeComponent();
@@ -19,8 +22,5 @@ namespace Event_ECS_WPF.Controls
             get { return (IComponentVariable)GetValue(ComponentProperty); }
             set { SetValue(ComponentProperty, value); }
         }
-
-        public static readonly DependencyProperty ComponentProperty =
-            DependencyProperty.Register("ComponentVariable", typeof(IComponentVariable), typeof(ComponentVariableControl));
     }
 }

@@ -20,35 +20,62 @@
         <ex:BindingProxy x:Key="SystemControl" Data="{Binding ElementName=m_system}"/>
     </UserControl.Resources>
 
-    <GroupBox>
+    <GroupBox ToolTip="{Binding ElementName=m_system, Path=ClassName, UpdateSourceTrigger=PropertyChanged}">
 
         <GroupBox.ContextMenu>
             <ContextMenu>
                 <MenuItem Header="Add Entity" Command="{Binding Source={StaticResource SystemControl}, Path=Data.AddEntityCommand}"/>
-                <MenuItem Header="Remove Entity" Command="{Binding Source={StaticResource SystemControl}, Path=Data.RemoveEntityCommand}"/>
                 <Separator/>
                 <MenuItem Header="Is Enabled" IsCheckable="True" IsChecked="{Binding Source={StaticResource SystemControl}, Path=Data.EntityComponentSystem.IsEnabled, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
                 <Separator/>
                 <MenuItem Header="Update System">
                     <MenuItem Header="Manual Update" Command="{Binding Source={StaticResource SystemControl}, Path=Data.SerializeCommand}"/>
                     <MenuItem Header="Update Automatically" IsCheckable="True" IsChecked="{Binding Source={StaticResource SystemControl}, Path=Data.AutoUpdate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                    <TextBlock Text="{Binding Source={StaticResource SystemControl}, Path=Data.UpdateInterval, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <DockPanel>
+                        <Label DockPanel.Dock="Left">Update Interval in Milliseconds</Label>
+                        <TextBox Text="{Binding Source={StaticResource SystemControl}, Path=Data.UpdateInterval, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    </DockPanel>
                 </MenuItem>
             </ContextMenu>
         </GroupBox.ContextMenu>
 
         <Expander Header="Entities" Grid.Row="1" IsExpanded="True">
 
-            <ListBox ItemsSource="{Binding Source={StaticResource entitiesSrc}}" 
-                         SelectedItem="{Binding ElementName=m_system, Path=SelectedEntity, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}">
+            <ItemsControl ItemsSource="{Binding Source={StaticResource entitiesSrc}}" AlternationCount="5">
 
-                <ListBox.ItemTemplate>
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+
+                <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <controls:EntityControl Entity="{Binding}" Project="{Binding Source={StaticResource SystemControl}, Path=Data.Project}"/>
+                        <Border Name="Border">
+                            <controls:EntityControl Entity="{Binding}" Project="{Binding Source={StaticResource SystemControl}, Path=Data.Project}"/>
+                        </Border>
+                    
+                        <DataTemplate.Triggers>
+                            <Trigger Property="ItemsControl.AlternationIndex" Value="0">
+                                <Setter Property="Background" Value="LightBlue" TargetName="Border"/>
+                            </Trigger>
+                            <Trigger Property="ItemsControl.AlternationIndex" Value="1">
+                                <Setter Property="Background" Value="LightYellow" TargetName="Border"/>
+                            </Trigger>
+                            <Trigger Property="ItemsControl.AlternationIndex" Value="2">
+                                <Setter Property="Background" Value="LightPink" TargetName="Border"/>
+                            </Trigger>
+                            <Trigger Property="ItemsControl.AlternationIndex" Value="3">
+                                <Setter Property="Background" Value="LightCyan" TargetName="Border"/>
+                            </Trigger>
+                            <Trigger Property="ItemsControl.AlternationIndex" Value="4">
+                                <Setter Property="Background" Value="Snow" TargetName="Border"/>
+                            </Trigger>
+                        </DataTemplate.Triggers>
                     </DataTemplate>
-                </ListBox.ItemTemplate>
+                </ItemsControl.ItemTemplate>
 
-            </ListBox>
+            </ItemsControl>
 
         </Expander>
     </GroupBox>

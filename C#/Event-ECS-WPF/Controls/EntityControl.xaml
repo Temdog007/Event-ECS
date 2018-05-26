@@ -7,8 +7,7 @@
              xmlns:ex="clr-namespace:Event_ECS_WPF.Extensions"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
-             x:Name="m_entityControl"
-             PreviewMouseRightButtonDown="Entity_PreviewMouseRightButtonDown">
+             x:Name="m_entityControl">
 
     <UserControl.Resources>
         <Style TargetType="TextBox">
@@ -38,17 +37,15 @@
 
                 <ContextMenu.ItemsSource>
                     <CompositeCollection>
-                        <MenuItem Header="Add Component" ItemsSource="{Binding Source={StaticResource EntityControl}, Path=Data.Project.Components, UpdateSourceTrigger=PropertyChanged}">
-                            <MenuItem.ItemTemplate>
-                                <DataTemplate>
-                                    <MenuItem Header="{Binding}" CommandParameter="{Binding}" Command="{Binding Source={StaticResource EntityControl}, Path=Data.AddComponentCommand}"/>
-                                </DataTemplate>
-                            </MenuItem.ItemTemplate>
+                        <MenuItem Header="Add Component">
+                            <controls:AddComponentControl Project="{Binding Source={StaticResource EntityControl}, Path=Data.Project}" 
+                                                          Command="{Binding Source={StaticResource EntityControl}, Path=Data.AddComponentCommand}"/>
                         </MenuItem>
                         <Separator/>
                         <MenuItem Header="Show Events" IsCheckable="True" IsChecked="{Binding Source={StaticResource EntityControl}, Path=Data.ShowEvents, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                        <Separator/>
                         <MenuItem Header="Is Enabled" IsCheckable="True" IsChecked="{Binding Source={StaticResource EntityControl}, Path=Data.Entity.IsEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <Separator/>
+                        <MenuItem Header="Remove" Command="{Binding Source={StaticResource EntityControl}, Path=Data.RemoveCommand}"/>
                     </CompositeCollection>
                 </ContextMenu.ItemsSource>
 

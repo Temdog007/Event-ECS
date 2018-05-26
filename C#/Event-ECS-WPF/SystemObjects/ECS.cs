@@ -46,7 +46,7 @@ namespace Event_ECS_WPF.SystemObjects
 
         private double LoveDraw(ECSWrapper ecs)
         {
-            return ecs.LoveDraw();
+            return ecs.LoveDraw(true);
         }
 
         private void CompositionTarget_Rendering(object sender, EventArgs e)
@@ -137,7 +137,7 @@ namespace Event_ECS_WPF.SystemObjects
                 }
                 else
                 {
-                    t = Application.Current.Dispatcher.Invoke(() => action(m_ecs));
+                    t = action(m_ecs);
                     return true;
                 }
             }
@@ -154,7 +154,7 @@ namespace Event_ECS_WPF.SystemObjects
                 }
                 else
                 {
-                    Application.Current.Dispatcher.Invoke(new Action(() => action(m_ecs, argument)));
+                    action(m_ecs, argument);
                     return true;
                 }
             }
@@ -172,7 +172,7 @@ namespace Event_ECS_WPF.SystemObjects
                 }
                 else
                 {
-                    t = Application.Current.Dispatcher.Invoke(() => action(m_ecs, argument));
+                    t = action(m_ecs, argument);
                     return true;
                 }
             }
@@ -189,7 +189,7 @@ namespace Event_ECS_WPF.SystemObjects
                 }
                 else
                 {
-                    Application.Current.Dispatcher.Invoke(() => action(m_ecs));
+                    action(m_ecs);
                     return true;
                 }
             }

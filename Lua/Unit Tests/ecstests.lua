@@ -24,6 +24,7 @@ local DebugSystem = require("debugSystem")
 local Component = require("component")
 local class = require("classlib")
 local TestComponent = require("Unit Tests/testComponent")
+local TestComponentAlt = require("Unit Tests/testComponentAlt")
 
 function assertIs(actual, expected)
   assertEquals(type(actual), expected)
@@ -132,6 +133,18 @@ function ecsTests:testDebugSystem()
   assertEquals(system:dispatchEvent("eventError"), -1)
 end
 
+function ecsTests:testRegisterEntity()
+  local system = System()
+  system:registerEntity("test", TestComponent)
+
+  local entity = system:createEntity("test")
+  assertIs(entity.TestComponent, "table")
+  assertEquals(entity.TestComponent.addedComponentCalled, 1)
+  assertEquals(entity.TestComponent.removingComponentCalled, 0)
+
+  assertError(system.createEntity, system, "badTest")
+end
+
 function ecsTests:testSystemFind()
   local system = System()
   assertEquals(system:entityCount(), 0)
@@ -150,6 +163,7 @@ function ecsTests:testEntityComponents1()
   assertError(entity.addComponent, entity, 'TestComponent')
 
   local comp1 = entity:addComponent(TestComponent)
+  assertError(entity.addComponent, entity, TestComponent)
   assertEquals(classname(TestComponent), classname(comp1))
   assertEquals(entity:componentCount(), 1)
   assertIsNil(comp1.entity)
@@ -162,7 +176,7 @@ function ecsTests:testEntityComponents1()
   assertEquals(entity:componentCount(), 0)
   assertNotIsNil(system:findEntity(function(en) return en == entity end))
 
-  local comp2 = entity:addComponent(TestComponent)
+  local comp2 = entity:addComponent(TestComponentAlt)
   assertEquals(entity:componentCount(), 1)
   assertIsNil(comp2.entity)
   assertIsTrue(comp2:getEntity() == entity)
@@ -189,6 +203,7 @@ function ecsTests:testEntityComponents1()
   assertIs(comp3:getID(), "number")
   assertEquals(comp3.addedComponentCalled, 1)
   assertIsTrue(comp3:remove())
+  assertIsFalse(comp3:remove())
   assertEquals(comp3.removingComponentCalled, 1)
   assertEquals(entity:componentCount(), 0)
 
@@ -206,13 +221,13 @@ function ecsTests:testEntityComponents2()
   local entity = system:createEntity()
 
   assertEquals(entity:componentCount(), 0)
-  local comp1, comp2 = entity:addComponents(TestComponent, TestComponent)
-  assertEquals(entity:componentCount(), 1)
+  local comp1, comp2 = entity:addComponents(TestComponent, TestComponentAlt)
+  assertEquals(entity:componentCount(), 2)
 
-  assertEquals(comp1.addedComponentCalled, 1)
+  assertEquals(comp1.addedComponentCalled, 2)
   assertEquals(comp2.addedComponentCalled, 1)
 
-  assertIsNil(entity:findComponent(comp1:getID()))
+  assertNotIsNil(entity:findComponent(comp1:getID()))
   assertNotIsNil(entity:findComponent(comp2:getID()))
 end
 
@@ -288,22 +303,22 @@ function ecsTests:testColorComponent()
   local entity = system:createEntity()
   local comp = entity:addComponent("ColorComponent")
 
-  assertIsTrue(entity.color == comp)
-  assertEquals(entity.color.r, 1)
-  assertEquals(entity.color.g, 1)
-  assertEquals(entity.color.b, 1)
-  assertEquals(entity.color.a, 1)
+  assertIsTrue(entity.ColorComponent == comp)
+  assertEquals(entity.ColorComponent.r, 1)
+  assertEquals(entity.ColorComponent.g, 1)
+  assertEquals(entity.ColorComponent.b, 1)
+  assertEquals(entity.ColorComponent.a, 1)
 
   comp:set(1,0,0)
-  assertIsTrue(entity.color == comp)
-  assertEquals(entity.color.r, 1)
-  assertEquals(entity.color.g, 0)
-  assertEquals(entity.color.b, 0)
-  assertEquals(entity.color.a, 1)
+  assertIsTrue(entity.ColorComponent == comp)
+  assertEquals(entity.ColorComponent.r, 1)
+  assertEquals(entity.ColorComponent.g, 0)
+  assertEquals(entity.ColorComponent.b, 0)
+  assertEquals(entity.ColorComponent.a, 1)
 
   assertError(comp.set, comp, "red", "black", {})
 
-  print(comp:serialize())
+  -- print(comp:serialize())
 end
 
 LuaUnit:run('ecsTests')

@@ -1,8 +1,7 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:controls="clr-namespace:Event_ECS_WPF.Controls"
-                    xmlns:selector="clr-namespace:Event_ECS_WPF.TemplateSelectors"
-                    xmlns:converter="clr-namespace:Event_ECS_WPF.Converters">
+                    xmlns:selector="clr-namespace:Event_ECS_WPF.TemplateSelectors">
     
     <DataTemplate x:Key="projectTemplate">
         <controls:ProjectControl Project="{Binding}"/>
@@ -40,11 +39,4 @@
     <selector:ProjectDataTemplateSelector x:Key="projectSelector"/>
     <selector:ProjectMenuDataTemplateSelector x:Key="projectMenuSelector"/>
     <selector:ComponentTemplateSelector x:Key="componentTemplateSelector"/>
-
-    <converter:BoolToVisibilityConverter x:Key="boolVis"/>
-    <converter:NotConverter x:Key="notConv"/>
-    <converter:EnumToBoolConverter x:Key="enumConv"/>
-    <converter:NullCheckVisibilityConverter x:Key="nullCheck"/>
-    <converter:LogLevelToColor x:Key="logToColor"/>
-    <converter:EnabledToColor x:Key="enToCol"/>
 </ResourceDictionary>

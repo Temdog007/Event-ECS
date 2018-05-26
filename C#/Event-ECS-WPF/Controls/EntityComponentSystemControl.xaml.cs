@@ -1,6 +1,7 @@
 ﻿using Event_ECS_WPF.Commands;
 using Event_ECS_WPF.Logger;
 using Event_ECS_WPF.Projects;
+using Event_ECS_WPF.Properties;
 using Event_ECS_WPF.SystemObjects;
 using EventECSWrapper;
 using System;
@@ -25,10 +26,6 @@ namespace Event_ECS_WPF.Controls
            DependencyProperty.Register("Project", typeof(Project), typeof(EntityComponentSystemControl));
 
         private IActionCommand m_addEntityCommand;
-
-        private IActionCommand m_removeEntityCommand;
-
-        private Entity m_selectedEntity;
 
         private IActionCommand m_serializeCommand;
 
@@ -55,15 +52,7 @@ namespace Event_ECS_WPF.Controls
             }
         }
 
-        public double UpdateInterval
-        {
-            get => Timer.Interval;
-            set
-            {
-                Timer.Interval = value;
-                OnPropertyChanged("UpdateInterval");
-            }
-        }
+        public string ClassName => ECS.Instance.UseWrapper(GetClassName, out string classname) ? classname : string.Empty;
 
         public EntityComponentSystem EntityComponentSystem
         {
@@ -77,29 +66,24 @@ namespace Event_ECS_WPF.Controls
             set { SetValue(ProjectProperty, value); }
         }
 
-        public IActionCommand RemoveEntityCommand => m_removeEntityCommand ?? (m_removeEntityCommand = new ActionCommand(RemoveEntity, CanRemoveEntity));
-
-        public Entity SelectedEntity
-        {
-            get => m_selectedEntity; set
-            {
-                m_selectedEntity = value;
-                OnPropertyChanged("SelectedEntity");
-            }
-        }
-
         public IActionCommand SerializeCommand => m_serializeCommand ?? (m_serializeCommand = new ActionCommand(Serialize));
 
         public System.Timers.Timer Timer { get; } = new System.Timers.Timer
         {
             AutoReset = true,
             Enabled = true,
-            Interval = 1000
+            Interval = Settings.Default.RefreshRate
         };
 
-        public bool CanRemoveEntity()
+        public double UpdateInterval
         {
-            return SelectedEntity != null;
+            get => Timer.Interval;
+            set
+            {
+                Timer.Interval = value;
+                Settings.Default.RefreshRate = Convert.ToUInt32(value);
+                OnPropertyChanged("UpdateInterval");
+            }
         }
 
         protected void OnPropertyChanged(string propName)
@@ -131,13 +115,9 @@ namespace Event_ECS_WPF.Controls
             Deserialize();
         }
 
-        private void RemoveEntity()
+        private string GetClassName(ECSWrapper ecs)
         {
-            if (ECS.Instance.UseWrapper(RemoveEntityFunc, SelectedEntity.ID, out bool removed))
-            {
-                LogManager.Instance.Add("Entity removed: {0}", removed);
-                EntityComponentSystem.Deserialize();
-            }
+            return EntityComponentSystem == null ? string.Empty : ecs.GetClassName(EntityComponentSystem.Name);
         }
 
         private bool RemoveEntityFunc(ECSWrapper ecs, int entityID)
@@ -155,6 +135,7 @@ namespace Event_ECS_WPF.Controls
 
         private void Serialize()
         {
+            OnPropertyChanged("ClassName");
             if (ECS.Instance.UseWrapper(ecs => ecs.SerializeSystem(EntityComponentSystem.Name), out string data))
             {
                 EntityComponentSystem.Deserialize(data.Split('\n'));
@@ -165,7 +146,6 @@ namespace Event_ECS_WPF.Controls
         private void System_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
             AddEntityCommand.UpdateCanExecute(this, e);
-            RemoveEntityCommand.UpdateCanExecute(this, e);
         }
 
         private void Timer_Elapsed(object sender, ElapsedEventArgs e)

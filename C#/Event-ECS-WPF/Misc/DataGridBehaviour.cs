@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Event_ECS_WPF.Logger;
+using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
@@ -33,8 +34,7 @@ namespace Event_ECS_WPF.Misc
             DependencyObject d,
             DependencyPropertyChangedEventArgs e)
         {
-            var dataGrid = d as DataGrid;
-            if (dataGrid == null) return;
+            if (!(d is DataGrid dataGrid)) return;
             bool oldValue = (bool)e.OldValue, newValue = (bool)e.NewValue;
             if (newValue == oldValue) return;
             if (newValue)
@@ -74,8 +74,7 @@ namespace Event_ECS_WPF.Misc
         private static void DataGrid_Loaded(object sender, RoutedEventArgs e)
         {
             var dataGrid = (DataGrid)sender;
-            var incc = dataGrid.Items as INotifyCollectionChanged;
-            if (incc == null) return;
+            if (!(dataGrid.Items is INotifyCollectionChanged incc)) return;
             dataGrid.Loaded -= DataGrid_Loaded;
             Associations[dataGrid] = new Capture(dataGrid);
         }
@@ -91,23 +90,30 @@ namespace Event_ECS_WPF.Misc
                 incc = dataGrid.ItemsSource as INotifyCollectionChanged;
                 if (incc != null)
                 {
-                    incc.CollectionChanged += incc_CollectionChanged;
+                    incc.CollectionChanged += Incc_CollectionChanged;
                 }
             }
 
-            private void incc_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+            private void Incc_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
             {
                 if (e.Action == NotifyCollectionChangedAction.Add)
                 {
-                    dataGrid.ScrollIntoView(e.NewItems[0]);
-                    dataGrid.SelectedItem = e.NewItems[0];
+                    try
+                    {
+                        dataGrid.ScrollIntoView(e.NewItems[0]);
+                        dataGrid.SelectedItem = e.NewItems[0];
+                    }
+                    catch(Exception ex)
+                    {
+                        LogManager.Instance.Add(ex);
+                    }
                 }
             }
 
             public void Dispose()
             {
                 if (incc != null)
-                    incc.CollectionChanged -= incc_CollectionChanged;
+                    incc.CollectionChanged -= Incc_CollectionChanged;
             }
         }
     }

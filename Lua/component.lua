@@ -28,7 +28,7 @@ function component:__init(entity, parent)
 
   local name = classname(parent or self)
   if entity[name] then
-    entity[name]:remove()
+    error(string.format("This entity already has a component named '%s'", name))
   end
   entity[name] = parent or self
 
@@ -103,10 +103,7 @@ local function addValues(tab, t, addTables)
         table.insert(t, typ)
         table.insert(t, val)
       elseif addTables and typ == "table" then
-        if classname(v) then
-          print(string.format("%s will not be added", k))
-        else
-          print(string.format("%s will be added", k))
+        if not classname(v) then
           addValues(v, t, args)
         end
       end

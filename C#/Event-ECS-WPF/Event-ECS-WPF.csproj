@@ -77,6 +77,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Controls\AddComponentControl.xaml.cs">
+      <DependentUpon>AddComponentControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\ComponentVariableControl.xaml.cs">
       <DependentUpon>ComponentVariableControl.xaml</DependentUpon>
     </Compile>
@@ -92,6 +95,10 @@
     <Compile Include="SystemObjects\ComponentVariable.cs" />
     <Compile Include="TemplateSelectors\ComponentTemplateSelector.cs" />
     <Compile Include="TemplateSelectors\ProjectMenuDataTemplateSelctor.cs" />
+    <Page Include="Controls\AddComponentControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Controls\ComponentControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -132,7 +139,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="MainWindow.xaml">
+    <Page Include="Windows\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -170,17 +177,25 @@
     <Compile Include="Converters\NotConverter.cs" />
     <Compile Include="Converters\NullCheckVisibilityConverter.cs" />
     <Compile Include="Converters\NullCheckConverter.cs" />
-    <Compile Include="MainWindow.xaml.cs">
+    <Compile Include="Windows\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="ResourceDictionary.xaml">
+    <Page Include="Resources\ConverterDictionary.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Resources\DataTemplateDictionary.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Resources\StyleDictionary.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MainWindowViewModel.cs" />
+    <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Compile Include="Commands\AsyncActionCommand.cs" />
     <Compile Include="Extensions\EnumBindingSourceExtension.cs" />
     <Compile Include="Misc\DataGridBehaviour.cs" />

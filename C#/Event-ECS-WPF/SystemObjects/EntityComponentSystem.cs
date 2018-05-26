@@ -16,8 +16,6 @@ namespace Event_ECS_WPF.SystemObjects
 
         private string m_name = "Entity Component System";
 
-        private ObservableCollection<string> m_registeredComponents = new ObservableCollection<string>();
-
         public EntityComponentSystem()
         {
         }
@@ -74,9 +72,9 @@ namespace Event_ECS_WPF.SystemObjects
             Name = systemDataList[0];
 
             List<string> enList = new List<string>(list.SubArray(1));
-            Dictionary<string, bool> expandedMap = new Dictionary<string, bool>();
             List<int> handledIDs = new List<int>();
             Entity entity = null;
+            List<string> compNames = new List<string>();
             foreach (string en in enList.AsReadOnly())
             {
                 string[] enData = en.Split(Delim);
@@ -88,12 +86,14 @@ namespace Event_ECS_WPF.SystemObjects
                     if (entity != null)
                     {
                         entity.Name = enData[1];
-                        expandedMap.Clear();
-                        foreach(var comp in entity.Components)
+                        if (entity != null && compNames.Any())
                         {
-                            expandedMap[comp.Name] = comp.IsExpanded;
+                            var deadComps = entity.Components.Where(comp => !compNames.Contains(comp.Name));
+                            foreach (var deadComp in deadComps)
+                            {
+                                entity.Components.Remove(deadComp);
+                            }
                         }
-                        entity.Components.Clear();
                     }
                     else
                     {
@@ -103,7 +103,7 @@ namespace Event_ECS_WPF.SystemObjects
                             ID = entityID
                         };
                     }
-
+                    
                     List<string> events = new List<string>();
                     for (int i = 2; i < enData.Length; ++i)
                     {
@@ -114,6 +114,7 @@ namespace Event_ECS_WPF.SystemObjects
                 else // Is Component
                 {
                     string compName = enData[0];
+                    compNames.Add(compName);
                     LinkedList<string> data = new LinkedList<string>(enData);
                     data.RemoveFirst(); // Remove component name
 
@@ -157,11 +158,30 @@ namespace Event_ECS_WPF.SystemObjects
                         data.RemoveFirst();
                     }
 
-                    Component comp = new Component(entity, compName, id)
+                    var oldComp = entity.Components.FirstOrDefault(comp => comp.Name == compName);
+                    if (oldComp == null)
                     {
-                        Variables = new ObservableSet<IComponentVariable>(tempVars)
-                    };
-                    comp.IsExpanded = expandedMap.TryGetValue(compName, out bool value) ? value : false;
+                        Component comp = new Component(entity, compName, id)
+                        {
+                            Variables = new ObservableSet<IComponentVariable>(tempVars)
+                        };
+                    }
+                    else
+                    {
+                        foreach(var tempVar in tempVars)
+                        {
+                            oldComp[tempVar.Name] = tempVar.Value;
+                        }
+                    }
+                }
+            }
+
+            if (entity != null && compNames.Any())
+            {
+                var deadComps = entity.Components.Where(comp => !compNames.Contains(comp.Name));
+                foreach(var deadComp in deadComps)
+                {
+                    entity.Components.Remove(deadComp);
                 }
             }
 
