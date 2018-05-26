@@ -45,6 +45,7 @@ namespace Event_ECS_WPF.Controls
             if(ECS.Instance.UseWrapper(RemoveComponentFunc, out bool rval))
             {
                 LogManager.Instance.Add(LogLevel.Medium, "Removed component {0} => {1}", Component.Name, rval);
+                Component.Entity.Components.Remove(Component);
                 Component.Entity.System.Deserialize();
             }
         }

@@ -73,8 +73,8 @@ namespace Event_ECS_WPF.SystemObjects
 
             List<string> enList = new List<string>(list.SubArray(1));
             List<int> handledIDs = new List<int>();
-            List<Component> checkedVars = new List<Component>();
             Entity entity = null;
+            List<string> compNames = new List<string>();
             foreach (string en in enList.AsReadOnly())
             {
                 string[] enData = en.Split(Delim);
@@ -86,7 +86,14 @@ namespace Event_ECS_WPF.SystemObjects
                     if (entity != null)
                     {
                         entity.Name = enData[1];
-                        checkedVars.Clear();
+                        if (entity != null && compNames.Any())
+                        {
+                            var deadComps = entity.Components.Where(comp => !compNames.Contains(comp.Name));
+                            foreach (var deadComp in deadComps)
+                            {
+                                entity.Components.Remove(deadComp);
+                            }
+                        }
                     }
                     else
                     {
@@ -96,7 +103,7 @@ namespace Event_ECS_WPF.SystemObjects
                             ID = entityID
                         };
                     }
-
+                    
                     List<string> events = new List<string>();
                     for (int i = 2; i < enData.Length; ++i)
                     {
@@ -107,6 +114,7 @@ namespace Event_ECS_WPF.SystemObjects
                 else // Is Component
                 {
                     string compName = enData[0];
+                    compNames.Add(compName);
                     LinkedList<string> data = new LinkedList<string>(enData);
                     data.RemoveFirst(); // Remove component name
 
@@ -164,8 +172,16 @@ namespace Event_ECS_WPF.SystemObjects
                         {
                             oldComp[tempVar.Name] = tempVar.Value;
                         }
-                        checkedVars.Add(oldComp);
                     }
+                }
+            }
+
+            if (entity != null && compNames.Any())
+            {
+                var deadComps = entity.Components.Where(comp => !compNames.Contains(comp.Name));
+                foreach(var deadComp in deadComps)
+                {
+                    entity.Components.Remove(deadComp);
                 }
             }
 

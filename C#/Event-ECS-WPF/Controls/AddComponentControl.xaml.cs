@@ -97,12 +97,11 @@ namespace Event_ECS_WPF.Controls
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
         }
 
-        private void ListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void Button_Click(object sender, RoutedEventArgs e)
         {
-            var items = e.AddedItems;
-            if (items.Count > 0)
+            if (sender is Button button)
             {
-                var selectedItem = items[0];
+                var selectedItem = button.Content;
                 if (Command?.CanExecute(selectedItem) ?? false)
                 {
                     Command.Execute(selectedItem);

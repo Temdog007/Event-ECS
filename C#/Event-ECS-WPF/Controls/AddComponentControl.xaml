@@ -10,6 +10,12 @@
         <ComboBox DockPanel.Dock="Top" ItemsSource="{Binding ElementName=compControl, Path=RelevantLetters, UpdateSourceTrigger=PropertyChanged}"
                                       SelectedItem="{Binding ElementName=compControl, Path=SelectedLetter, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
 
-        <ListBox ItemsSource="{Binding ElementName=compControl, Path=SelectableComponents, UpdateSourceTrigger=PropertyChanged}" SelectionChanged="ListBox_SelectionChanged"/>
+        <ListBox ItemsSource="{Binding ElementName=compControl, Path=SelectableComponents, UpdateSourceTrigger=PropertyChanged}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Button Content="{Binding}" Click="Button_Click"/>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
     </DockPanel>
 </UserControl>

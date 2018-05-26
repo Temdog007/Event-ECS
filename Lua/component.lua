@@ -28,7 +28,7 @@ function component:__init(entity, parent)
 
   local name = classname(parent or self)
   if entity[name] then
-    entity[name]:remove()
+    error(string.format("This entity already has a component named '%s'", name))
   end
   entity[name] = parent or self
 

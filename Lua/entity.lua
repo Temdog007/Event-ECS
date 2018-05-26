@@ -86,6 +86,8 @@ function entity:removeComponent(component)
   if type(component) == "number" then
     component = self:findComponent(component)
   end
+  local name = classname(component)
+  if self[name] then self[name] = nil end
   local base = component:getBase()
   for k,v in pairs(self.components) do
     if v == base then
@@ -93,6 +95,7 @@ function entity:removeComponent(component)
       return true
     end
   end
+  return false
 end
 
 function entity:removeComponents(compFunc)
