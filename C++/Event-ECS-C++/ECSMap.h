@@ -75,6 +75,8 @@ namespace EventECS
 		void BroadcastEventWithArgs(const char* eventName);
 		void BroadcastEvent(const char* eventName, int argRef = LUA_REFNIL);
 
+		std::string GetClassname(const char* systemName) const;
+
 		bool UpdateLove();
 
 		lua_Number DrawLove(bool skipSleep = false);

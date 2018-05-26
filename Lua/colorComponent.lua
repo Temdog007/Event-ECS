@@ -9,7 +9,6 @@ function ColorComponent:__init(entity)
   self.g = 1
   self.b = 1
   self.a = 1
-  entity.color = self
 end
 
 function ColorComponent:set(r, g, b, a)

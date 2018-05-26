@@ -20,7 +20,7 @@
         <ex:BindingProxy x:Key="SystemControl" Data="{Binding ElementName=m_system}"/>
     </UserControl.Resources>
 
-    <GroupBox>
+    <GroupBox ToolTip="{Binding ElementName=m_system, Path=ClassName, UpdateSourceTrigger=PropertyChanged}">
 
         <GroupBox.ContextMenu>
             <ContextMenu>

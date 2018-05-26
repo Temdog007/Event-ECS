@@ -103,12 +103,6 @@ local function addValues(tab, t, addTables)
         table.insert(t, typ)
         table.insert(t, val)
       elseif addTables and typ == "table" then
-        -- if classname(v) then
-        --   print(string.format("%s will not be added", k))
-        -- else
-          -- print(string.format("%s will be added", k))
-          -- addValues(v, t, args)
-        -- end
         if not classname(v) then
           addValues(v, t, args)
         end

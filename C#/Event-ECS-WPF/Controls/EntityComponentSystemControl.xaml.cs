@@ -52,16 +52,7 @@ namespace Event_ECS_WPF.Controls
             }
         }
 
-        public double UpdateInterval
-        {
-            get => Timer.Interval;
-            set
-            {
-                Timer.Interval = value;
-                Settings.Default.RefreshRate = Convert.ToUInt32(value);
-                OnPropertyChanged("UpdateInterval");
-            }
-        }
+        public string ClassName => ECS.Instance.UseWrapper(GetClassName, out string classname) ? classname : string.Empty;
 
         public EntityComponentSystem EntityComponentSystem
         {
@@ -83,6 +74,17 @@ namespace Event_ECS_WPF.Controls
             Enabled = true,
             Interval = Settings.Default.RefreshRate
         };
+
+        public double UpdateInterval
+        {
+            get => Timer.Interval;
+            set
+            {
+                Timer.Interval = value;
+                Settings.Default.RefreshRate = Convert.ToUInt32(value);
+                OnPropertyChanged("UpdateInterval");
+            }
+        }
 
         protected void OnPropertyChanged(string propName)
         {
@@ -113,6 +115,11 @@ namespace Event_ECS_WPF.Controls
             Deserialize();
         }
 
+        private string GetClassName(ECSWrapper ecs)
+        {
+            return EntityComponentSystem == null ? string.Empty : ecs.GetClassName(EntityComponentSystem.Name);
+        }
+
         private bool RemoveEntityFunc(ECSWrapper ecs, int entityID)
         {
             try
@@ -128,6 +135,7 @@ namespace Event_ECS_WPF.Controls
 
         private void Serialize()
         {
+            OnPropertyChanged("ClassName");
             if (ECS.Instance.UseWrapper(ecs => ecs.SerializeSystem(EntityComponentSystem.Name), out string data))
             {
                 EntityComponentSystem.Deserialize(data.Split('\n'));

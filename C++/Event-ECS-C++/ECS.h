@@ -34,6 +34,11 @@ namespace EventECS
 		ECS& operator=(const ECS&) = delete;
 		ECS& operator=(ECS&&) = delete;
 
+		int GetIDX() const 
+		{
+			return idx;
+		}
+
 		std::string AddEntity();
 		bool RemoveEntity(int entityID);
 

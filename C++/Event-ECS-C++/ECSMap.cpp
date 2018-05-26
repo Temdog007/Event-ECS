@@ -147,6 +147,25 @@ namespace EventECS
 		return map.at(name);
 	}
 
+	std::string ECSMap::GetClassname(const char* name) const
+	{
+		if (map.find(name) != map.end())
+		{
+			lua_settop(L, 0);
+			lua_getglobal(L, "classname");
+			lua_rawgeti(L, LUA_REGISTRYINDEX, (*this)[name].GetIDX());
+			if (lua_pcall(L, 1, 1, 0) == 0)
+			{
+				return std::string(lua_tostring(L, -1));
+			}
+			else
+			{
+				throw std::exception(lua_tostring(L, -1));
+			}
+		}
+		return "";
+	}
+
 	void ECSMap::Quit()
 	{
 		if (loveInitialized)
