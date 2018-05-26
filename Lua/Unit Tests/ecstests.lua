@@ -132,6 +132,18 @@ function ecsTests:testDebugSystem()
   assertEquals(system:dispatchEvent("eventError"), -1)
 end
 
+function ecsTests:testRegisterEntity()
+  local system = System()
+  system:registerEntity("test", TestComponent)
+
+  local entity = system:createEntity("test")
+  assertIs(entity.TestComponent, "table")
+  assertEquals(entity.TestComponent.addedComponentCalled, 1)
+  assertEquals(entity.TestComponent.removingComponentCalled, 0)
+
+  assertError(system.createEntity, system, "badTest")
+end
+
 function ecsTests:testSystemFind()
   local system = System()
   assertEquals(system:entityCount(), 0)
@@ -288,18 +300,18 @@ function ecsTests:testColorComponent()
   local entity = system:createEntity()
   local comp = entity:addComponent("ColorComponent")
 
-  assertIsTrue(entity.color == comp)
-  assertEquals(entity.color.r, 1)
-  assertEquals(entity.color.g, 1)
-  assertEquals(entity.color.b, 1)
-  assertEquals(entity.color.a, 1)
+  assertIsTrue(entity.ColorComponent == comp)
+  assertEquals(entity.ColorComponent.r, 1)
+  assertEquals(entity.ColorComponent.g, 1)
+  assertEquals(entity.ColorComponent.b, 1)
+  assertEquals(entity.ColorComponent.a, 1)
 
   comp:set(1,0,0)
-  assertIsTrue(entity.color == comp)
-  assertEquals(entity.color.r, 1)
-  assertEquals(entity.color.g, 0)
-  assertEquals(entity.color.b, 0)
-  assertEquals(entity.color.a, 1)
+  assertIsTrue(entity.ColorComponent == comp)
+  assertEquals(entity.ColorComponent.r, 1)
+  assertEquals(entity.ColorComponent.g, 0)
+  assertEquals(entity.ColorComponent.b, 0)
+  assertEquals(entity.ColorComponent.a, 1)
 
   assertError(comp.set, comp, "red", "black", {})
 

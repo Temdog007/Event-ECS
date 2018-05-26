@@ -31,23 +31,23 @@ function TestComponent:__init(entity)
   self.x = 0
   self.y = 0
   self.space = 10
-  self.color = entity.ColorComponent
 end
 
 function TestComponent:eventAddedComponent(args)
   if args.component == self then
     self.added = true
-  elseif classname(args.component) == "ColorComponent" and args.entity == self:getEntity() then
-    self.color = args.component
   end
   self.addedComponentCalled = self.addedComponentCalled + 1
 end
 
 function TestComponent:eventDraw(args)
-  love.graphics.setColor(self.color.r, self.color.g, self.color.b, self.color.a)
-  love.graphics.print(love.timer.getFPS(), self.x, self.y)
-  love.graphics.print(love.timer.getDelta(), self.x, self.y + self.space)
-  love.graphics.print(self.text, self.x, self.y + self.space * 2)
+  local color = self:getEntity().ColorComponent
+  if color then
+    love.graphics.setColor(color.r, color.g, color.b, color.a)
+    love.graphics.print(love.timer.getFPS(), self.x, self.y)
+    love.graphics.print(love.timer.getDelta(), self.x, self.y + self.space)
+    love.graphics.print(self.text, self.x, self.y + self.space * 2)
+  end
 end
 
 function TestComponent:eventKeyPressed(args)

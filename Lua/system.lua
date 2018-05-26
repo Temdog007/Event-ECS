@@ -28,6 +28,7 @@ local system = class(ClassName)
 
 function system:__init(name)
   self.entities = {}
+  self.registeredEntities = {}
   self.id = 1
   self.name = name or ClassName
   self.enabled = true
@@ -47,13 +48,23 @@ function system:setEnabled(value)
   self.enabled = value
 end
 
-function system:createEntity()
+function system:registerEntity(name, ...)
+  assert(not self.registeredEntities[name], string.format("Entity with name '%s' is already registered", tostring(name)))
+  self.registeredEntities[name] = {...}
+end
+
+function system:createEntity(name)
+  assert(not name or self.registeredEntities[name], string.format("Entity with name '%s' is not registered", tostring(name)))
   local entity = Entity(self)
   local thisID = self.id
   entity.getID = function() return thisID end
   self.id = self.id + 1
   self.entities[#self.entities + 1] = entity
-  self:dispatchEvent("eventCreatedEntity", {entity = entity, system = self})
+  if name then
+    for _, comp in pairs(self.registeredEntities[name]) do
+      entity:addComponent(comp)
+    end
+  end
   return entity
 end
 
