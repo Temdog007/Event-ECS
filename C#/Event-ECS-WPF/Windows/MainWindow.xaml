@@ -27,6 +27,9 @@
         <KeyBinding Key="O" Modifiers="Ctrl" Command="{Binding OpenProjectCommand}"/>
         <KeyBinding Key="S" Modifiers="Ctrl" Command="{Binding SaveProjectCommand}"/>
         <KeyBinding Key="C" Modifiers="Ctrl" Command="{Binding ClearLogCommand}"/>
+        <KeyBinding Key="Q" Modifiers="Ctrl" Command="{Binding CreateComponentCommand}"/>
+        <KeyBinding Key="W" Modifiers="Ctrl" Command="{Binding SetComponentSettingsCommand}"/>
+        <KeyBinding Key="E" Modifiers="Ctrl" Command="{Binding EditComponentCommand}"/>
         <KeyBinding Key="F1" Command="{Binding ManualUpdateCommand}"/>
         <KeyBinding Key="F2" Command="{Binding ToggleProjectModeCommand}"/>
         <KeyBinding Key="F5" Command="{Binding ToggleProjectCommand}"/>
@@ -45,7 +48,7 @@
                 <Separator/>
                 <MenuItem Header="Create Component" InputGestureText="Ctrl+Q" Command="{Binding CreateComponentCommand}"/>
                 <MenuItem Header="Edit Component" InputGestureText="Ctrl+E" Command="{Binding EditComponentCommand}"/>
-                <MenuItem Header="Component Settings" InputGestureText="Ctrl+W" Command="{Binding SetComponentSettingsCommand}"/>
+                <MenuItem Header="Change Component Editor" InputGestureText="Ctrl+W" Command="{Binding SetComponentSettingsCommand}"/>
                 <Separator/>
                 <MenuItem Header="Exit" InputGestureText="Alt+F4" Command="{Binding CloseCommand}" CommandParameter="{Binding ElementName=m_window}"/>
             </MenuItem>
