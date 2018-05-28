@@ -17,7 +17,7 @@
         <ex:BindingProxy x:Key="EntityControl" Data="{Binding ElementName=m_entityControl}"/>
     </UserControl.Resources>
 
-    <Expander>
+    <Expander PreviewMouseRightButtonDown="Expander_PreviewMouseRightButtonDown">
         
         <Expander.Header>
             <StackPanel Orientation="Horizontal">
@@ -54,8 +54,14 @@
         
         <StackPanel>
 
-            <Expander Header="Events" Background="LightYellow" Visibility="{Binding ElementName=m_entityControl, Path=ShowEvents, Converter={StaticResource boolVis}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
-                <ListBox ItemsSource="{Binding ElementName=m_entityControl, Path=Entity.Events, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+            <Expander Header="Events" Visibility="{Binding ElementName=m_entityControl, Path=ShowEvents, Converter={StaticResource boolVis}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                <DockPanel>
+                    <DockPanel DockPanel.Dock="Bottom">
+                        <Button DockPanel.Dock="Right" Content="Dispatch Event" Click="DispatchButton_Click"/>
+                        <TextBox Text="{Binding ElementName=m_entityControl, Path=EventToDispatch, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Background="White" HorizontalAlignment="Stretch"/>
+                    </DockPanel>
+                    <ListBox ItemsSource="{Binding ElementName=m_entityControl, Path=Entity.Events, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                </DockPanel>
             </Expander>
 
             <GroupBox Header="Components">

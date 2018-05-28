@@ -82,18 +82,20 @@ namespace Event_ECS_WPF.SystemObjects
                 {
                     handledIDs.Add(entityID);
 
+                    if (entity != null && compNames.Any())
+                    {
+                        var deadComps = entity.Components.Where(comp => !compNames.Contains(comp.Name));
+                        foreach (var deadComp in deadComps.ToList().AsReadOnly())
+                        {
+                            entity.Components.Remove(deadComp);
+                        }
+                    }
+                    compNames.Clear();
+                    
                     entity = Entities.FirstOrDefault(e => e.ID == entityID);
                     if (entity != null)
                     {
                         entity.Name = enData[1];
-                        if (entity != null && compNames.Any())
-                        {
-                            var deadComps = entity.Components.Where(comp => !compNames.Contains(comp.Name));
-                            foreach (var deadComp in deadComps)
-                            {
-                                entity.Components.Remove(deadComp);
-                            }
-                        }
                     }
                     else
                     {
@@ -103,7 +105,7 @@ namespace Event_ECS_WPF.SystemObjects
                             ID = entityID
                         };
                     }
-                    
+
                     List<string> events = new List<string>();
                     for (int i = 2; i < enData.Length; ++i)
                     {
@@ -168,7 +170,7 @@ namespace Event_ECS_WPF.SystemObjects
                     }
                     else
                     {
-                        foreach(var tempVar in tempVars)
+                        foreach (var tempVar in tempVars)
                         {
                             oldComp[tempVar.Name] = tempVar.Value;
                         }
@@ -183,6 +185,7 @@ namespace Event_ECS_WPF.SystemObjects
                 {
                     entity.Components.Remove(deadComp);
                 }
+                compNames.Clear();
             }
 
             Entity[] temp = new Entity[Entities.Count];

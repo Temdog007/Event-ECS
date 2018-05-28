@@ -26,6 +26,10 @@ namespace Event_ECS_WPF.Controls
            DependencyProperty.Register("Project", typeof(Project), typeof(EntityComponentSystemControl));
 
         private IActionCommand m_addEntityCommand;
+        
+        private ActionCommand<string> m_dispatchEventCommand;
+
+        private ActionCommand<string> m_broadcastEventCommand;
 
         private IActionCommand m_serializeCommand;
 
@@ -34,7 +38,7 @@ namespace Event_ECS_WPF.Controls
             InitializeComponent();
 
             ECS.DeserializeRequested += ECS_DeserializeRequested;
-            
+
             Timer.Elapsed += Timer_Elapsed;
         }
 
@@ -51,6 +55,10 @@ namespace Event_ECS_WPF.Controls
                 OnPropertyChanged("AutoUpdate");
             }
         }
+        
+        public IActionCommand DispatchEventCommand => m_dispatchEventCommand ?? (m_dispatchEventCommand = new ActionCommand<string>(DispatchEvent));
+
+        public IActionCommand BroadcastEventCommand => m_broadcastEventCommand ?? (m_broadcastEventCommand = new ActionCommand<string>(BroadcastEvent));
 
         public string ClassName => ECS.Instance.UseWrapper(GetClassName, out string classname) ? classname : EntityComponentSystem.Name;
 
@@ -104,6 +112,24 @@ namespace Event_ECS_WPF.Controls
         {
             return ecs.AddEntity(EntityComponentSystem.Name);
         }
+        
+        private void DispatchEvent(string ev)
+        {
+            if (!ev.StartsWith("event", StringComparison.OrdinalIgnoreCase))
+            {
+                ev = "event" + ev;
+            }
+            ECS.Instance.UseWrapper(ecs => ecs.DispatchEvent(EntityComponentSystem.Name, ev));
+        }
+
+        private void BroadcastEvent(string ev)
+        {
+            if (!ev.StartsWith("event", StringComparison.OrdinalIgnoreCase))
+            {
+                ev = "event" + ev;
+            }
+            ECS.Instance.UseWrapper(ecs => ecs.BroadcastEvent(ev));
+        }
 
         private void Deserialize()
         {
@@ -151,6 +177,12 @@ namespace Event_ECS_WPF.Controls
         private void Timer_Elapsed(object sender, ElapsedEventArgs e)
         {
             Deserialize();
+        }
+
+        private void EventText_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            DispatchEventCommand.UpdateCanExecute(sender, e);
+            BroadcastEventCommand.UpdateCanExecute(sender, e);
         }
     }
 }

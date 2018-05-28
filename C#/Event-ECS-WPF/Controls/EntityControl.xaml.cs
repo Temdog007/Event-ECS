@@ -3,6 +3,7 @@ using Event_ECS_WPF.Logger;
 using Event_ECS_WPF.Projects;
 using Event_ECS_WPF.SystemObjects;
 using EventECSWrapper;
+using System;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows;
@@ -27,6 +28,7 @@ namespace Event_ECS_WPF.Controls
         private IActionCommand m_removeEntityCommand;
 
         private bool m_showEvents = false;
+
         public EntityControl()
         {
             InitializeComponent();
@@ -47,6 +49,9 @@ namespace Event_ECS_WPF.Controls
             get { return (Project)GetValue(ProjectProperty); }
             set { SetValue(ProjectProperty, value); }
         }
+
+        public string EventToDispatch { get; set; }
+
         public ICommand RemoveCommand => m_removeEntityCommand ?? (m_removeEntityCommand = new ActionCommand(Remove));
 
         public bool ShowEvents
@@ -82,6 +87,27 @@ namespace Event_ECS_WPF.Controls
         private bool RemoveFunc(ECSWrapper ecs)
         {
             return ecs.RemoveEntity(Entity.System.Name, Entity.ID);
+        }
+
+        private void DispatchButton_Click(object sender, RoutedEventArgs e)
+        {
+            string ev = EventToDispatch;
+            if (!ev.StartsWith("event", StringComparison.OrdinalIgnoreCase))
+            {
+                ev = "event" + ev;
+            }
+            if (ECS.Instance.UseWrapper(ecs => ecs.DispatchEvent(Entity.System.Name, Entity.ID, ev), out int rval))
+            {
+                LogManager.Instance.Add("Entity #{0} '{1}' had {2} component(s) handle the event {3}", Entity.ID, Entity.Name, rval, ev);
+            }
+        }
+
+        private void Expander_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if(sender is Expander expander)
+            {
+                expander.IsExpanded = true;
+            }
         }
     }
 }

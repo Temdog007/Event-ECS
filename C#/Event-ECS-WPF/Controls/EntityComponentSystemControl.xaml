@@ -20,7 +20,7 @@
         <ex:BindingProxy x:Key="SystemControl" Data="{Binding ElementName=m_system}"/>
     </UserControl.Resources>
 
-    <GroupBox ToolTip="{Binding ElementName=m_system, Path=ClassName, UpdateSourceTrigger=PropertyChanged}">
+    <GroupBox Header="Entities" ToolTip="{Binding ElementName=m_system, Path=ClassName, UpdateSourceTrigger=PropertyChanged}">
 
         <GroupBox.ContextMenu>
             <ContextMenu>
@@ -39,9 +39,20 @@
             </ContextMenu>
         </GroupBox.ContextMenu>
 
-        <Expander Header="Entities" IsExpanded="True">
+        <DockPanel>
+            <Expander Header="Dispatch Events" DockPanel.Dock="Bottom">
+                <DockPanel>
+                    <UniformGrid Columns="2" DockPanel.Dock="Bottom" Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                        <Button Content="Dispatch Event to All Entities" Margin="1"
+                            Command="{Binding ElementName=m_system, Path=DispatchEventCommand}" CommandParameter="{Binding ElementName=eventText, Path=Text}"/>
+                        <Button Content="Broadcast Event to All Systems" Margin="1"
+                            Command="{Binding ElementName=m_system, Path=BroadcastEventCommand}" CommandParameter="{Binding ElementName=eventText, Path=Text}"/>
+                    </UniformGrid>
+                    <TextBox x:Name="eventText" Margin="5" MinHeight="25" PreviewTextInput="EventText_PreviewTextInput"/>
+                </DockPanel>
+            </Expander>
 
-            <ItemsControl ItemsSource="{Binding Source={StaticResource entitiesSrc}}" AlternationCount="5">
+            <ItemsControl ItemsSource="{Binding Source={StaticResource entitiesSrc}, UpdateSourceTrigger=PropertyChanged}" AlternationCount="5" Background="Transparent">
 
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -54,7 +65,7 @@
                         <Border Name="Border">
                             <controls:EntityControl Entity="{Binding}" Project="{Binding Source={StaticResource SystemControl}, Path=Data.Project}"/>
                         </Border>
-                    
+
                         <DataTemplate.Triggers>
                             <Trigger Property="ItemsControl.AlternationIndex" Value="0">
                                 <Setter Property="Background" Value="LightBlue" TargetName="Border"/>
@@ -76,7 +87,6 @@
                 </ItemsControl.ItemTemplate>
 
             </ItemsControl>
-
-        </Expander>
+        </DockPanel>
     </GroupBox>
 </UserControl>

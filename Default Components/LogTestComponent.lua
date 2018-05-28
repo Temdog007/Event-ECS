@@ -9,6 +9,9 @@ function LogTest:__init(entity)
   self.text = "This string is unused. Only set for testing"
   self.x = 0
   self.y = 0
+  self.rotation = 0
+  self.scaleX = 1
+  self.scaleY = 1
   self.space = 10
 end
 
@@ -22,8 +25,8 @@ function LogTest:eventDraw(args)
 local color = self:getEntity().ColorComponent
 if not color then color = defaultColor end
 love.graphics.setColor(color.r, color.g, color.b, color.a)
-love.graphics.print(love.timer.getFPS(), self.x, self.y)
-love.graphics.print(self.text, self.x, self.y + self.space)
+love.graphics.print(love.timer.getFPS(), self.x, self.y, self.rotation, self.scaleX, self.scaleY)
+love.graphics.print(self.text, self.x, self.y + self.space, self.rotation, self.scaleX, self.scaleY)
 end
 
 function LogTest:eventBroadcast(args)

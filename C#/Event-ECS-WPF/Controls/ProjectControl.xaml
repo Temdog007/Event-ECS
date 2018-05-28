@@ -3,7 +3,6 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:sys="clr-namespace:System;assembly=mscorlib"
              mc:Ignorable="d" 
              d:DesignHeight="400" d:DesignWidth="400"
              x:Name="m_project">
@@ -42,20 +41,6 @@
                 <Button Command="{Binding ElementName=m_project, Path=GetPathCommand}" CommandParameter="LibraryPath" Margin="5" MinHeight="20"
                         HorizontalAlignment="Stretch"
                         Content="{Binding ElementName=m_project, Path=Project.LibraryPath, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
-            </GroupBox>
-
-            <GroupBox Header="Commands">
-                <Grid>
-
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" MinWidth="20"/>
-                        <ColumnDefinition Width="auto" MinWidth="20"/>
-                    </Grid.ColumnDefinitions>
-
-                    <TextBox Grid.Column="0" x:Name="eventText" Margin="5" PreviewKeyDown="EventText_PreviewKeyDown" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-                    <Button Content="Broadcast&#xA;Event"  Grid.Column="1"
-                    Command="{Binding ElementName=m_project, Path=BroadcastEventCommand}" CommandParameter="{Binding ElementName=eventText, Path=Text}"/>
-                </Grid>
             </GroupBox>
 
             <Expander Header="Events To Ignore Log">

@@ -45,6 +45,9 @@ namespace EventECS
 		int DispatchEvent(const char* eventName);
 		int DispatchEvent(const char* eventName, int argRef);
 
+		int DispatchEvent(int entityID, const char* eventName);
+		int DispatchEvent(int entityID, const char* eventName, int argRef);
+
 		void AddComponent(int entityID, const char* componentName);
 		void AddComponents(int entityID, const std::list<std::string>& componentNames);
 

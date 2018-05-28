@@ -73,14 +73,14 @@
             </MenuItem>
 
             <MenuItem Header="Shortcuts">
-                <StackPanel Orientation="Horizontal">
-                    <Label Margin="5">Manual Update</Label>
+                <DockPanel>
+                    <Label DockPanel.Dock="Right" Margin="5">Manual Update</Label>
                     <ComboBox Margin="5" ItemsSource="{Binding Source={ex:EnumBindingSource {x:Type forms:Keys}}}" SelectedItem="{Binding Source={x:Static properties:Settings.Default}, Mode=TwoWay, Path=ManualUpdateKey}"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal">
-                    <Label Margin="5">Start/Stop</Label>
+                </DockPanel>
+                <DockPanel>
+                    <Label DockPanel.Dock="Right" Margin="5">Start/Stop</Label>
                     <ComboBox Margin="5" ItemsSource="{Binding Source={ex:EnumBindingSource {x:Type forms:Keys}}}" SelectedItem="{Binding Source={x:Static properties:Settings.Default}, Mode=TwoWay, Path=ToggleStart}"/>
-                </StackPanel>
+                </DockPanel>
             </MenuItem>
 
             <MenuItem Header="Project" Visibility="{Binding HasProject, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource boolVis}}" 
@@ -114,7 +114,7 @@
             <DataGrid ItemsSource="{Binding Source={x:Static logger:LogManager.Instance}, UpdateSourceTrigger=PropertyChanged}"
                           AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" CanUserDeleteRows="False"
                           CanUserReorderColumns="False" CanUserResizeRows="False" CanUserSortColumns="False"
-                          misc:DataGridBehaviour.ScrollOnNewItem="True">
+                          misc:DataGridBehaviour.ScrollOnNewItem="True" Margin="5">
 
                 <DataGrid.Resources>
                     <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Transparent"/>
