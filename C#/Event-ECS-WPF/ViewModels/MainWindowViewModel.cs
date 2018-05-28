@@ -21,12 +21,6 @@ namespace Event_ECS_WPF
 {
     public class MainWindowViewModel : INotifyPropertyChanged
     {
-        public const string DefaultFilterFormat = "{0} files (*.{0})|*.{0}|All files (*.*)|*.*";
-        public static string GetFileFilter(string ext)
-        {
-            return string.Format(DefaultFilterFormat, ext);
-        }
-
         public const string ComponentFormat =
 @"local Component = require('component')
 local class = require('classlib')
@@ -38,24 +32,40 @@ function {0}:__init(entity)
 end
 
 return {0}";
-        
 
+        public const string DefaultFilterFormat = "{0} files (*.{0})|*.{0}|All files (*.*)|*.*";
         private string m_arguments = string.Empty;
+
         private ICommand m_clearLogCommand;
+
         private ActionCommand<Window> m_closeCommand;
+
         private ICommand m_createComponentCommand;
+
         private ECSSystem m_currentSystem;
+
         private ICommand m_editComponentCommand;
-        private ICommand m_setComponentSettingsCommand;
+
         private ActionCommand m_manualUpdateCommand;
+
         private ActionCommand<ProjectType> m_newProjectCommand;
+
         private ActionCommand m_openProjectCommand;
+
         private Project m_project;
+
         private ActionCommand m_saveProjectCommand;
+
+        private ICommand m_setComponentSettingsCommand;
+
         private ActionCommand m_startProjectCommand;
+
         private ActionCommand m_stopProjectCommand;
+
         private ObservableCollection<ECSSystem> m_systems = new ObservableCollection<ECSSystem>();
+
         private ActionCommand m_toggleProjectCommand;
+
         private ActionCommand m_toggleProjectModeCommand;
 
         public MainWindowViewModel()
@@ -93,8 +103,6 @@ return {0}";
         }
 
         public ICommand EditComponentCommand => m_editComponentCommand ?? (m_editComponentCommand = new ActionCommand(EditComponent));
-
-        public ICommand SetComponentSettingsCommand => m_setComponentSettingsCommand ?? (m_setComponentSettingsCommand = new ActionCommand(SetComponentSettings));
 
         public bool HasProject => Project != null;
 
@@ -146,6 +154,8 @@ return {0}";
 
         public ICommand SaveProjectCommand => m_saveProjectCommand ?? (m_saveProjectCommand = new ActionCommand(SaveProject));
 
+        public ICommand SetComponentSettingsCommand => m_setComponentSettingsCommand ?? (m_setComponentSettingsCommand = new ActionCommand(SetComponentSettings));
+
         public ICommand StartProjectCommand => m_startProjectCommand ?? (m_startProjectCommand = new ActionCommand(StartProject));
 
         public ICommand StopProjectCommand => m_stopProjectCommand ?? (m_stopProjectCommand = new ActionCommand(StopProject));
@@ -164,6 +174,10 @@ return {0}";
 
         public ICommand ToggleProjectModeCommand => m_toggleProjectModeCommand ?? (m_toggleProjectModeCommand = new ActionCommand(ToggleProjectMode));
 
+        public static string GetFileFilter(string ext)
+        {
+            return string.Format(DefaultFilterFormat, ext);
+        }
         protected void OnPropertyChanged(string propName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
@@ -216,28 +230,6 @@ return {0}";
             }
         }
 
-        private void SetComponentSettings()
-        {
-            try
-            {
-                using (Forms.OpenFileDialog dialog = new Forms.OpenFileDialog
-                {
-                    Filter = GetFileFilter("exe"),
-                    InitialDirectory = Path.GetDirectoryName(Settings.Default.ComponentEditor)
-                })
-                {
-                    if (dialog.ShowDialog() == Forms.DialogResult.OK)
-                    {
-                        Settings.Default.ComponentEditor = dialog.FileName;
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                LogManager.Instance.Add(e);
-            }
-        }
-
         private void ECS_OnAutoUpdateChanged(object sender, EventArgs e)
         {
             OnPropertyChanged("ProjectBackground");
@@ -263,6 +255,7 @@ return {0}";
                 LogManager.Instance.Add(e);
             }
         }
+
         private void ManualUpdate()
         {
             ECS.Instance.Update();
@@ -318,6 +311,28 @@ return {0}";
         private string[] Serialize(ECSWrapper ecs)
         {
             return ecs.Serialize();
+        }
+
+        private void SetComponentSettings()
+        {
+            try
+            {
+                using (Forms.OpenFileDialog dialog = new Forms.OpenFileDialog
+                {
+                    Filter = GetFileFilter("exe"),
+                    InitialDirectory = Path.GetDirectoryName(Settings.Default.ComponentEditor)
+                })
+                {
+                    if (dialog.ShowDialog() == Forms.DialogResult.OK)
+                    {
+                        Settings.Default.ComponentEditor = dialog.FileName;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                LogManager.Instance.Add(e);
+            }
         }
 
         private void StartProject()
