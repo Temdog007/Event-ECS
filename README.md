@@ -16,3 +16,5 @@ The WPF C# application will be designed to give a visual representation of the E
 The WPF C# application will be reading the serilalized ECS state to update the GUI.
 
 The WPF C# application will be able to change the ECS state including (adding, removing, or editing the system, its entities, and its components)
+
+![Alt text](Images/screenshot1.png?raw=true "Screenshot")
