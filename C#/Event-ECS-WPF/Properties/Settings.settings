@@ -17,5 +17,8 @@
     <Setting Name="RefreshRate" Type="System.UInt32" Scope="User">
       <Value Profile="(Default)">1000</Value>
     </Setting>
+    <Setting Name="ComponentEditor" Type="System.String" Scope="User">
+      <Value Profile="(Default)">C:\Windows\System32\notepad.exe</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

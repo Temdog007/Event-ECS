@@ -1,12 +1,15 @@
 ﻿using Event_ECS_WPF.Commands;
 using Event_ECS_WPF.Logger;
 using Event_ECS_WPF.Projects;
+using Event_ECS_WPF.Properties;
 using Event_ECS_WPF.SystemObjects;
 using EventECSWrapper;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -18,11 +21,32 @@ namespace Event_ECS_WPF
 {
     public class MainWindowViewModel : INotifyPropertyChanged
     {
-        public const string FileFilter = "xml files (*.xml)|*.xml|All files (*.*)|*.*";
+        public const string DefaultFilterFormat = "{0} files (*.{0})|*.{0}|All files (*.*)|*.*";
+        public static string GetFileFilter(string ext)
+        {
+            return string.Format(DefaultFilterFormat, ext);
+        }
+
+        public const string ComponentFormat =
+@"local Component = require('component')
+local class = require('classlib')
+
+local {0} = class('{0}Component', Component)
+
+function {0}:__init(entity)
+  self.Component:__init(entity, self)
+end
+
+return {0}";
+        
 
         private string m_arguments = string.Empty;
         private ICommand m_clearLogCommand;
         private ActionCommand<Window> m_closeCommand;
+        private ICommand m_createComponentCommand;
+        private ECSSystem m_currentSystem;
+        private ICommand m_editComponentCommand;
+        private ICommand m_setComponentSettingsCommand;
         private ActionCommand m_manualUpdateCommand;
         private ActionCommand<ProjectType> m_newProjectCommand;
         private ActionCommand m_openProjectCommand;
@@ -41,6 +65,7 @@ namespace Event_ECS_WPF
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
+
         public string Arguments
         {
             get => m_arguments;
@@ -54,6 +79,22 @@ namespace Event_ECS_WPF
         public ICommand ClearLogCommand => m_clearLogCommand ?? (m_clearLogCommand = new ActionCommand(ClearLogs));
 
         public ActionCommand<Window> CloseCommand => m_closeCommand ?? (m_closeCommand = new ActionCommand<Window>(CloseWindow));
+
+        public ICommand CreateComponentCommand => m_createComponentCommand ?? (m_createComponentCommand = new ActionCommand(CreateComponent));
+
+        public ECSSystem CurrentSystem
+        {
+            get => m_currentSystem;
+            set
+            {
+                m_currentSystem = value;
+                OnPropertyChanged("CurrentSystem");
+            }
+        }
+
+        public ICommand EditComponentCommand => m_editComponentCommand ?? (m_editComponentCommand = new ActionCommand(EditComponent));
+
+        public ICommand SetComponentSettingsCommand => m_setComponentSettingsCommand ?? (m_setComponentSettingsCommand = new ActionCommand(SetComponentSettings));
 
         public bool HasProject => Project != null;
 
@@ -109,16 +150,6 @@ namespace Event_ECS_WPF
 
         public ICommand StopProjectCommand => m_stopProjectCommand ?? (m_stopProjectCommand = new ActionCommand(StopProject));
 
-        public ECSSystem CurrentSystem
-        {
-            get => m_currentSystem;
-            set
-            {
-                m_currentSystem = value;
-                OnPropertyChanged("CurrentSystem");
-            }
-        }private ECSSystem m_currentSystem;
-
         public ObservableCollection<ECSSystem> Systems
         {
             get => m_systems;
@@ -155,9 +186,82 @@ namespace Event_ECS_WPF
             window.Close();
         }
 
+        private void CreateComponent()
+        {
+            try
+            {
+                using (Forms.SaveFileDialog dialog = new Forms.SaveFileDialog()
+                {
+                    Filter = GetFileFilter("lua")
+                })
+                {
+                    if (dialog.ShowDialog() == Forms.DialogResult.OK)
+                    {
+                        string compName = Path.GetFileNameWithoutExtension(dialog.FileName);
+                        if (string.IsNullOrWhiteSpace(compName) || char.IsDigit(compName[0]) || compName.Any(c => !char.IsLetterOrDigit(c)))
+                        {
+                            MessageBox.Show("Invalid component name", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
+                        else
+                        {
+                            File.WriteAllText(dialog.FileName, string.Format(ComponentFormat, compName));
+                            Process.Start(Settings.Default.ComponentEditor, dialog.FileName);
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                LogManager.Instance.Add(e);
+            }
+        }
+
+        private void SetComponentSettings()
+        {
+            try
+            {
+                using (Forms.OpenFileDialog dialog = new Forms.OpenFileDialog
+                {
+                    Filter = GetFileFilter("exe"),
+                    InitialDirectory = Path.GetDirectoryName(Settings.Default.ComponentEditor)
+                })
+                {
+                    if (dialog.ShowDialog() == Forms.DialogResult.OK)
+                    {
+                        Settings.Default.ComponentEditor = dialog.FileName;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                LogManager.Instance.Add(e);
+            }
+        }
+
         private void ECS_OnAutoUpdateChanged(object sender, EventArgs e)
         {
             OnPropertyChanged("ProjectBackground");
+        }
+
+        private void EditComponent()
+        {
+            try
+            {
+                using (Forms.OpenFileDialog dialog = new Forms.OpenFileDialog
+                {
+                    Filter = GetFileFilter("lua")
+                })
+                {
+                    if (dialog.ShowDialog() == Forms.DialogResult.OK)
+                    {
+                        Process.Start(Settings.Default.ComponentEditor, dialog.FileName);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                LogManager.Instance.Add(e);
+            }
         }
         private void ManualUpdate()
         {
@@ -173,7 +277,7 @@ namespace Event_ECS_WPF
         {
             using (var dialog = new Forms.OpenFileDialog())
             {
-                dialog.Filter = FileFilter;
+                dialog.Filter = GetFileFilter("xml");
                 dialog.RestoreDirectory = true;
                 switch (dialog.ShowDialog())
                 {
@@ -194,7 +298,7 @@ namespace Event_ECS_WPF
         {
             using (var dialog = new Forms.SaveFileDialog())
             {
-                dialog.Filter = FileFilter;
+                dialog.Filter = GetFileFilter("xml");
                 dialog.RestoreDirectory = true;
                 switch (dialog.ShowDialog())
                 {

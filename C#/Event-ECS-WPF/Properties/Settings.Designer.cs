@@ -82,5 +82,17 @@ namespace Event_ECS_WPF.Properties {
                 this["RefreshRate"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Windows\\System32\\notepad.exe")]
+        public string ComponentEditor {
+            get {
+                return ((string)(this["ComponentEditor"]));
+            }
+            set {
+                this["ComponentEditor"] = value;
+            }
+        }
     }
 }

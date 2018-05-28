@@ -43,6 +43,10 @@
                 <MenuItem Header="Open Project" InputGestureText="Ctrl+O" Command="{Binding OpenProjectCommand}"/>
                 <MenuItem Header="Save Project" InputGestureText="Ctrl+S" Command="{Binding SaveProjectCommand}" IsEnabled="{Binding HasProject, UpdateSourceTrigger=PropertyChanged}"/>
                 <Separator/>
+                <MenuItem Header="Create Component" InputGestureText="Ctrl+Q" Command="{Binding CreateComponentCommand}"/>
+                <MenuItem Header="Edit Component" InputGestureText="Ctrl+E" Command="{Binding EditComponentCommand}"/>
+                <MenuItem Header="Component Settings" InputGestureText="Ctrl+W" Command="{Binding SetComponentSettingsCommand}"/>
+                <Separator/>
                 <MenuItem Header="Exit" InputGestureText="Alt+F4" Command="{Binding CloseCommand}" CommandParameter="{Binding ElementName=m_window}"/>
             </MenuItem>
 
