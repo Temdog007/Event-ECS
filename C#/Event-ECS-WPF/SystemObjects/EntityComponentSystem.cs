@@ -179,7 +179,7 @@ namespace Event_ECS_WPF.SystemObjects
             if (entity != null && compNames.Any())
             {
                 var deadComps = entity.Components.Where(comp => !compNames.Contains(comp.Name));
-                foreach(var deadComp in deadComps)
+                foreach(var deadComp in deadComps.ToList().AsReadOnly())
                 {
                     entity.Components.Remove(deadComp);
                 }

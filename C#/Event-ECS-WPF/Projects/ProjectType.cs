@@ -13,7 +13,7 @@
             switch (type)
             {
                 case ProjectType.LOVE:
-                    return new LoveProject();
+                    return new LoveProject(true);
                 default:
                     return new Project();
             }

@@ -1,9 +1,11 @@
 ﻿using Event_ECS_WPF.Logger;
+using Event_ECS_WPF.Misc;
 using Event_ECS_WPF.SystemObjects;
 using EventECSWrapper;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -26,6 +28,7 @@ namespace Event_ECS_WPF.Projects
 
         private string _componentPath;
 
+        private ObservableCollection<ValueContainer<string>> _eventsToIgnore;
         private string _initializer;
 
         private string _name;
@@ -40,6 +43,8 @@ namespace Event_ECS_WPF.Projects
         }
 
         public static event ProjectStateChangeEvent ProjectStateChange;
+
+        public static string Location => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
         /// <summary>
         /// Directory containing all of the lua component files
@@ -71,6 +76,18 @@ namespace Event_ECS_WPF.Projects
             }
         }
 
+        [XmlArray("EventsToIgnore")]
+        [XmlArrayItem("Event")]
+        public ObservableCollection<ValueContainer<string>> EventsToIgnore
+        {
+            get => _eventsToIgnore ?? (_eventsToIgnore = new ObservableCollection<ValueContainer<string>>());
+            set
+            {
+                _eventsToIgnore = new ObservableCollection<ValueContainer<string>>(value);
+                OnPropertyChanged();
+            }
+        }
+
         public IEnumerable<string> Files
         {
             get
@@ -97,7 +114,6 @@ namespace Event_ECS_WPF.Projects
         }
 
         public bool IsStarted => ECS.Instance.ProjectStarted;
-
         [XmlElement]
         public string LibraryPath
         {
@@ -108,8 +124,6 @@ namespace Event_ECS_WPF.Projects
                 OnPropertyChanged("LibraryPath");
             }
         }
-
-        public static string Location => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
         [XmlAttribute]
         public string Name
@@ -125,6 +139,22 @@ namespace Event_ECS_WPF.Projects
         public virtual ProjectType Type
         {
             get => ProjectType.NORMAL;
+        }
+        
+        public void CopyComponentsToOutputPath()
+        {
+            foreach (string file in Files)
+            {
+                string dest = Path.Combine(Location, Path.GetFileName(file));
+                if (!File.Exists(dest) || File.GetLastWriteTimeUtc(dest) != (File.GetLastWriteTimeUtc(file)))
+                {
+                    File.Copy(file, dest, true);
+                    var now = DateTime.Now;
+                    File.SetLastWriteTimeUtc(file, now);
+                    File.SetLastWriteTimeUtc(dest, now);
+                    LogManager.Instance.Add(LogLevel.Medium, "Copied {0} to {1}", file, dest);
+                }
+            }
         }
 
         public virtual bool Start()
@@ -180,6 +210,7 @@ namespace Event_ECS_WPF.Projects
                 CopyComponentsToOutputPath();
 
                 CreateInstance();
+                ECS.Instance.UseWrapper(SetEventsToIgnore);
                 return true;
             }
             catch (Exception e)
@@ -199,36 +230,10 @@ namespace Event_ECS_WPF.Projects
             FileAttributes attr = File.GetAttributes(path);
             return ((attr & FileAttributes.Hidden) == FileAttributes.Hidden);
         }
-
-        public void CopyComponentsToOutputPath()
+        
+        private void SetEventsToIgnore(ECSWrapper ecs)
         {
-            foreach (string file in Files)
-            {
-                string dest = Path.Combine(Location, Path.GetFileName(file));
-                if (!File.Exists(dest) || File.GetLastWriteTimeUtc(dest) != (File.GetLastWriteTimeUtc(file)))
-                {
-                    File.Copy(file, dest, true);
-                    var now = DateTime.Now;
-                    File.SetLastWriteTimeUtc(file, now);
-                    File.SetLastWriteTimeUtc(dest, now);
-                    LogManager.Instance.Add(LogLevel.Medium, "Copied {0} to {1}", file, dest);
-                }
-            }
-        }
-    }
-
-    public class StringWrapper
-    {
-        public string Value { get; set; }
-
-        public static implicit operator string(StringWrapper w)
-        {
-            return w.Value;
-        }
-
-        public static implicit operator StringWrapper(string str)
-        {
-            return new StringWrapper() { Value = str };
+            ecs.SetEventsToIgnore(EventsToIgnore.Select(s => s.Value).ToArray());
         }
     }
 }

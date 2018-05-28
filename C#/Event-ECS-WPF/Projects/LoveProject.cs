@@ -1,5 +1,8 @@
-﻿using Event_ECS_WPF.SystemObjects;
+﻿using Event_ECS_WPF.Misc;
+using Event_ECS_WPF.SystemObjects;
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Reflection;
 using System.Xml.Serialization;
@@ -51,9 +54,22 @@ namespace Event_ECS_WPF.Projects
 end";
         private LoveProjectSettings _settings;
 
-        public LoveProject()
+        private static readonly ValueContainer<string>[] DefaultEventsToIgnore = 
+        {
+            "eventupdate", "eventdraw", "eventfocus", "eventunfocus", "eventtextedited", "eventvisible", "eventmousemoved",
+            "eventmousefocus", "eventkeypressed", "eventkeyreleased", "eventmousepressed", "eventmousereleased", "eventtextinput",
+            "eventwheelmoved"
+        };
+
+        public LoveProject() : this(false) { }
+
+        public LoveProject(bool setDefaults)
         {
             Settings = new LoveProjectSettings();
+            if(setDefaults)
+            {
+                EventsToIgnore = new ObservableCollection<ValueContainer<string>>(DefaultEventsToIgnore);
+            }
         }
 
         [XmlElement("Settings")]
