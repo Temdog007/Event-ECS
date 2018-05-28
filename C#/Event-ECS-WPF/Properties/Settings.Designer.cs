@@ -49,18 +49,6 @@ namespace Event_ECS_WPF.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool OnlyShowComponentWhenMouse {
-            get {
-                return ((bool)(this["OnlyShowComponentWhenMouse"]));
-            }
-            set {
-                this["OnlyShowComponentWhenMouse"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("F1")]
         public global::System.Windows.Forms.Keys ManualUpdateKey {
             get {
