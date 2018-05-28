@@ -82,6 +82,8 @@ namespace EventECS
 
 		std::string GetClassname(const char* systemName) const;
 
+		bool HasSystem(const char * name) const;
+
 		bool UpdateLove();
 
 		lua_Number DrawLove(bool skipSleep = false);

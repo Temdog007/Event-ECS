@@ -26,6 +26,10 @@ namespace EventECS
 	{
 		lua_settop(L, 0);
 		lua_rawgeti(L, LUA_REGISTRYINDEX, idx); // push system
+		if (lua_isnil(L, -1))
+		{
+			throw std::exception("System was not found");
+		}
 	}
 
 	void ECS::SetFunction(const char* funcName) const
@@ -57,6 +61,12 @@ namespace EventECS
 		SetFunction("findEntity"); // stack has function
 		lua_pushnumber(L, entityID); // push number
 		luax_call(L, 2, 1); // call function (entity)
+		if (lua_isnil(L, -1))
+		{
+			char buffer[100];
+			sprintf_s(buffer, "Entity with ID '%d' was not found", entityID);
+			throw std::exception(buffer);
+		}
 	}
 
 	void ECS::FindComponent(int entityID, int componentID) const
@@ -67,6 +77,12 @@ namespace EventECS
 		lua_remove(L, -3); // remove first entity (function entity)
 		lua_pushnumber(L, componentID); // push number
 		luax_call(L, 2, 1); // call function component
+		if (lua_isnil(L, -1))
+		{
+			char buffer[100];
+			sprintf_s(buffer, "Component with ID '%d' in entity with ID '%d' was not found", componentID, entityID);
+			throw std::exception(buffer);
+		}
 	}
 
 	std::string ECS::AddEntity()

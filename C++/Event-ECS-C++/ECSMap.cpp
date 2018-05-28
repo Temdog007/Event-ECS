@@ -137,13 +137,30 @@ namespace EventECS
 		}
 	}
 
+	bool ECSMap::HasSystem(const char* name) const 
+	{
+		return map.find(name) != map.end();
+	}
+
 	ECS& ECSMap::operator[](const char* name)
 	{
-		return map.at(name);
+		if (!HasSystem(name))
+		{
+			char buffer[100];
+			sprintf_s(buffer, "System '%s' not found", name);
+			throw std::exception(buffer);
+		}
+		return map[name];
 	}
 
 	const ECS& ECSMap::operator[](const char* name) const
 	{
+		if (!HasSystem(name))
+		{
+			char buffer[100];
+			sprintf_s(buffer, "System '%s' not found", name);
+			throw std::exception(buffer);
+		}
 		return map.at(name);
 	}
 

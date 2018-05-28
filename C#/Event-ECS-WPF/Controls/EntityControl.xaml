@@ -58,7 +58,7 @@
                 <DockPanel>
                     <DockPanel DockPanel.Dock="Bottom">
                         <Button DockPanel.Dock="Right" Content="Dispatch Event" Click="DispatchButton_Click"/>
-                        <TextBox Text="{Binding ElementName=m_entityControl, Path=EventToDispatch, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Background="White" HorizontalAlignment="Stretch"/>
+                        <TextBox Text="{Binding ElementName=m_entityControl, Path=EventToDispatch, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MinWidth="100" Background="White" HorizontalAlignment="Stretch"/>
                     </DockPanel>
                     <ListBox ItemsSource="{Binding ElementName=m_entityControl, Path=Entity.Events, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                 </DockPanel>
