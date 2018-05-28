@@ -30,6 +30,7 @@
         <KeyBinding Key="Q" Modifiers="Ctrl" Command="{Binding CreateComponentCommand}"/>
         <KeyBinding Key="W" Modifiers="Ctrl" Command="{Binding SetComponentSettingsCommand}"/>
         <KeyBinding Key="E" Modifiers="Ctrl" Command="{Binding EditComponentCommand}"/>
+        <KeyBinding Key="R" Modifiers="Ctrl" Command="{Binding CopyComponentsCommand}"/>
         <KeyBinding Key="F1" Command="{Binding ManualUpdateCommand}"/>
         <KeyBinding Key="F2" Command="{Binding ToggleProjectModeCommand}"/>
         <KeyBinding Key="F5" Command="{Binding ToggleProjectCommand}"/>
@@ -44,13 +45,18 @@
                     <MenuItem Header="Love2D" InputGestureText="Ctrl+L" Command="{Binding NewProjectCommand}" CommandParameter="{x:Static proj:ProjectType.LOVE}"/>
                 </MenuItem>
                 <MenuItem Header="Open Project" InputGestureText="Ctrl+O" Command="{Binding OpenProjectCommand}"/>
-                <MenuItem Header="Save Project" InputGestureText="Ctrl+S" Command="{Binding SaveProjectCommand}" IsEnabled="{Binding HasProject, UpdateSourceTrigger=PropertyChanged}"/>
+                <MenuItem Header="Save Project" InputGestureText="Ctrl+S" Command="{Binding SaveProjectCommand}"/>
                 <Separator/>
                 <MenuItem Header="Create Component" InputGestureText="Ctrl+Q" Command="{Binding CreateComponentCommand}"/>
                 <MenuItem Header="Edit Component" InputGestureText="Ctrl+E" Command="{Binding EditComponentCommand}"/>
                 <MenuItem Header="Change Component Editor" InputGestureText="Ctrl+W" Command="{Binding SetComponentSettingsCommand}"/>
+                <MenuItem Header="Reload Components" InputGestureText="Ctrl+R" Command="{Binding CopyComponentsCommand}"/>
                 <Separator/>
                 <MenuItem Header="Exit" InputGestureText="Alt+F4" Command="{Binding CloseCommand}" CommandParameter="{Binding ElementName=m_window}"/>
+            </MenuItem>
+
+            <MenuItem Header="Settings">
+                <MenuItem Header="Log Events" IsCheckable="True" IsChecked="{Binding Source={x:Static properties:Settings.Default}, Mode=TwoWay, Path=LogEvents}"/>
             </MenuItem>
 
             <MenuItem Header="View">

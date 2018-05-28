@@ -5,6 +5,7 @@ using System;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Threading;
 
@@ -21,7 +22,7 @@ namespace Event_ECS_WPF.Windows
         {
             InitializeComponent();
             m_viewmodel = (MainWindowViewModel)DataContext;
-            Application.Current.DispatcherUnhandledException += Current_DispatcherUnhandledException;
+            Application.Current.DispatcherUnhandledException += Current_DispatcherUnhandledException; 
         }
 
         private static void LogException(Exception e)

@@ -58,6 +58,8 @@ namespace EventECS
 		};
 		std::queue<Event> queue;
 
+		std::set<std::string> eventsToIgnore;
+
 	public:
 		virtual ~ECSMap();
 
@@ -71,6 +73,9 @@ namespace EventECS
 
 		void SetLogEvents(bool value);
 		bool IsLoggingEvents() const;
+
+		void SetEventsToIgnore(const std::set<std::string>& events);
+		bool IsIgnored(const std::string& ev) const;
 
 		void BroadcastEventWithArgs(const char* eventName);
 		void BroadcastEvent(const char* eventName, int argRef = LUA_REFNIL);

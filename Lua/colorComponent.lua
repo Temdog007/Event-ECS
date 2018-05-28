@@ -11,23 +11,39 @@ function ColorComponent:__init(entity)
   self.a = 1
 end
 
-function ColorComponent:set(r, g, b, a)
-  if r then
-    assert(type(r) == "number")
+function ColorComponent:eventSetColor(args)
+  if args.r then
+    if not (type(args.r) == "number") then
+      return
+    end
   end
-  if g then
-    assert(type(g) == "number") end
-  if b then
-    assert(type(b) == "number") end
-  if a then
-    assert(type(a) == "number")
+  if args.g then
+    if not assert(type(args.g) == "number") then
+      return
+    end
+  end
+  if args.b then
+    if not assert(type(args.b) == "number") then
+      return
+    end
+  end
+  if args.a then
+    if not assert(type(args.a) == "number")then
+      return
+    end
   end
 
-	self.r = r or self.r
-  self.g = g or self.g
-  self.b = b or self.b
-  self.a = a or self.a
+	self.r = args.r or self.r
+  self.g = args.g or self.g
+  self.b = args.b or self.b
+  self.a = args.a or self.a
   self:getEntity():dispatchEvent("eventColorChanged", {color = self, entity = self:getEntity()})
+end
+
+function ColorComponent:eventUpdateBackground(args)
+  local color = self:getEntity().ColorComponent
+  if not color then return end
+  love.graphics.setBackgroundColor(color.r, color.g, color.b, color.a)
 end
 
 return ColorComponent

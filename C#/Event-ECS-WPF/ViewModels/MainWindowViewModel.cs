@@ -7,6 +7,7 @@ using EventECSWrapper;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -25,20 +26,27 @@ namespace Event_ECS_WPF
 @"local Component = require('component')
 local class = require('classlib')
 
-local {0} = class('{0}Component', Component)
+local {0} = class('{0}', Component)
 
 function {0}:__init(entity)
   self.Component:__init(entity, self)
 end
 
+function {0}:eventUpdate(args)
+end
+
+function {0}:eventDraw(args)
+end
+
 return {0}";
 
         public const string DefaultFilterFormat = "{0} files (*.{0})|*.{0}|All files (*.*)|*.*";
-        private string m_arguments = string.Empty;
 
         private ICommand m_clearLogCommand;
 
         private ActionCommand<Window> m_closeCommand;
+
+        private IActionCommand m_copyComponentsCommand;
 
         private ICommand m_createComponentCommand;
 
@@ -54,7 +62,7 @@ return {0}";
 
         private Project m_project;
 
-        private ActionCommand m_saveProjectCommand;
+        private IActionCommand m_saveProjectCommand;
 
         private ICommand m_setComponentSettingsCommand;
 
@@ -72,23 +80,24 @@ return {0}";
         {
             Project.ProjectStateChange += ECS_OnAutoUpdateChanged;
             ECS.OnAutoUpdateChanged += ECS_OnAutoUpdateChanged;
+            Settings.Default.SettingChanging += Default_SettingChanging;
         }
+
+        private void SetLogEvents(ECSWrapper ecs)
+        {
+            ecs.SetLoggingEvents(Settings.Default.LogEvents);
+            ecs.SetEventsToIgnore(Settings.Default.EventsToNotLog.Cast<string>().ToArray());
+        }
+
+        private void Default_SettingChanging(object sender, SettingChangingEventArgs e) => ECS.Instance.UseWrapper(SetLogEvents);
 
         public event PropertyChangedEventHandler PropertyChanged;
-
-        public string Arguments
-        {
-            get => m_arguments;
-            set
-            {
-                m_arguments = value;
-                OnPropertyChanged("Arguments");
-            }
-        }
 
         public ICommand ClearLogCommand => m_clearLogCommand ?? (m_clearLogCommand = new ActionCommand(ClearLogs));
 
         public ActionCommand<Window> CloseCommand => m_closeCommand ?? (m_closeCommand = new ActionCommand<Window>(CloseWindow));
+
+        public IActionCommand CopyComponentsCommand => m_copyComponentsCommand ?? (m_copyComponentsCommand = new ActionCommand(CopyComponents, () => HasProject));
 
         public ICommand CreateComponentCommand => m_createComponentCommand ?? (m_createComponentCommand = new ActionCommand(CreateComponent));
 
@@ -123,6 +132,8 @@ return {0}";
                     OnPropertyChanged("Project");
                     OnPropertyChanged("HasProject");
                     OnPropertyChanged("ProjectBackground");
+                    SaveProjectCommand.UpdateCanExecute(this, EventArgs.Empty);
+                    CopyComponentsCommand.UpdateCanExecute(this, EventArgs.Empty);
                 }
             }
         }
@@ -152,7 +163,7 @@ return {0}";
             }
         }
 
-        public ICommand SaveProjectCommand => m_saveProjectCommand ?? (m_saveProjectCommand = new ActionCommand(SaveProject));
+        public IActionCommand SaveProjectCommand => m_saveProjectCommand ?? (m_saveProjectCommand = new ActionCommand(SaveProject, () => HasProject));
 
         public ICommand SetComponentSettingsCommand => m_setComponentSettingsCommand ?? (m_setComponentSettingsCommand = new ActionCommand(SetComponentSettings));
 
@@ -178,6 +189,7 @@ return {0}";
         {
             return string.Format(DefaultFilterFormat, ext);
         }
+
         protected void OnPropertyChanged(string propName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
@@ -199,6 +211,8 @@ return {0}";
         {
             window.Close();
         }
+
+        private void CopyComponents() => Project?.CopyComponentsToOutputPath();
 
         private void CreateComponent()
         {
@@ -341,8 +355,12 @@ return {0}";
 
             try
             {
-                Project.Start();
-                if(ECS.Instance.UseWrapper(Serialize, out string[] data))
+                if (!Project.Start())
+                {
+                    throw new Exception("Failed to start project");
+                }
+                ECS.Instance.UseWrapper(SetLogEvents);
+                if (ECS.Instance.UseWrapper(Serialize, out string[] data))
                 {
                     if (data.Length > 0)
                     {
@@ -358,7 +376,7 @@ return {0}";
             catch(Exception e)
             {
                 StopProject();
-                LogManager.Instance.Add(LogLevel.High, e.Message);
+                LogManager.Instance.Add(e);
             }
         }
 

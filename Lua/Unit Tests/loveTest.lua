@@ -44,7 +44,7 @@ loveFuncs.updateLove()
 local entity = system:createEntity()
 entity:addComponent(TestComponent)
 local color = entity:addComponent("ColorComponent")
-color:set(1,0.5,0,1)
+entity:dispatchEvent("eventSetColor", {r = 1, g = 0.5, b = 0, a = 1})
 
 repeat loveFuncs.drawLove() until not loveFuncs.updateLove()
 
