@@ -1,12 +1,16 @@
 ﻿using Event_ECS_WPF.Commands;
 using Event_ECS_WPF.Logger;
 using Event_ECS_WPF.Projects;
+using Event_ECS_WPF.Properties;
 using Event_ECS_WPF.SystemObjects;
 using EventECSWrapper;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Configuration;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -18,42 +22,96 @@ namespace Event_ECS_WPF
 {
     public class MainWindowViewModel : INotifyPropertyChanged
     {
-        public const string FileFilter = "xml files (*.xml)|*.xml|All files (*.*)|*.*";
+        public const string ComponentFormat =
+@"local Component = require('component')
+local class = require('classlib')
 
-        private string m_arguments = string.Empty;
+local {0} = class('{0}', Component)
+
+function {0}:__init(entity)
+  self.Component:__init(entity, self)
+end
+
+function {0}:eventUpdate(args)
+end
+
+function {0}:eventDraw(args)
+end
+
+return {0}";
+
+        public const string DefaultFilterFormat = "{0} files (*.{0})|*.{0}|All files (*.*)|*.*";
+
         private ICommand m_clearLogCommand;
+
         private ActionCommand<Window> m_closeCommand;
+
+        private IActionCommand m_copyComponentsCommand;
+
+        private ICommand m_createComponentCommand;
+
+        private ECSSystem m_currentSystem;
+
+        private ICommand m_editComponentCommand;
+
         private ActionCommand m_manualUpdateCommand;
+
         private ActionCommand<ProjectType> m_newProjectCommand;
+
         private ActionCommand m_openProjectCommand;
+
         private Project m_project;
-        private ActionCommand m_saveProjectCommand;
+
+        private IActionCommand m_saveProjectCommand;
+
+        private ICommand m_setComponentSettingsCommand;
+
         private ActionCommand m_startProjectCommand;
+
         private ActionCommand m_stopProjectCommand;
+
         private ObservableCollection<ECSSystem> m_systems = new ObservableCollection<ECSSystem>();
+
         private ActionCommand m_toggleProjectCommand;
+
         private ActionCommand m_toggleProjectModeCommand;
 
         public MainWindowViewModel()
         {
             Project.ProjectStateChange += ECS_OnAutoUpdateChanged;
             ECS.OnAutoUpdateChanged += ECS_OnAutoUpdateChanged;
+            Settings.Default.SettingChanging += Default_SettingChanging;
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-        public string Arguments
+        private void SetLogEvents(ECSWrapper ecs)
         {
-            get => m_arguments;
-            set
-            {
-                m_arguments = value;
-                OnPropertyChanged("Arguments");
-            }
+            ecs.SetLoggingEvents(Settings.Default.LogEvents);
+            ecs.SetEventsToIgnore(Settings.Default.EventsToNotLog.Cast<string>().ToArray());
         }
+
+        private void Default_SettingChanging(object sender, SettingChangingEventArgs e) => ECS.Instance.UseWrapper(SetLogEvents);
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public ICommand ClearLogCommand => m_clearLogCommand ?? (m_clearLogCommand = new ActionCommand(ClearLogs));
 
         public ActionCommand<Window> CloseCommand => m_closeCommand ?? (m_closeCommand = new ActionCommand<Window>(CloseWindow));
+
+        public IActionCommand CopyComponentsCommand => m_copyComponentsCommand ?? (m_copyComponentsCommand = new ActionCommand(CopyComponents, () => HasProject));
+
+        public ICommand CreateComponentCommand => m_createComponentCommand ?? (m_createComponentCommand = new ActionCommand(CreateComponent));
+
+        public ECSSystem CurrentSystem
+        {
+            get => m_currentSystem;
+            set
+            {
+                m_currentSystem = value;
+                OnPropertyChanged("CurrentSystem");
+            }
+        }
+
+        public ICommand EditComponentCommand => m_editComponentCommand ?? (m_editComponentCommand = new ActionCommand(EditComponent));
 
         public bool HasProject => Project != null;
 
@@ -74,6 +132,8 @@ namespace Event_ECS_WPF
                     OnPropertyChanged("Project");
                     OnPropertyChanged("HasProject");
                     OnPropertyChanged("ProjectBackground");
+                    SaveProjectCommand.UpdateCanExecute(this, EventArgs.Empty);
+                    CopyComponentsCommand.UpdateCanExecute(this, EventArgs.Empty);
                 }
             }
         }
@@ -103,21 +163,13 @@ namespace Event_ECS_WPF
             }
         }
 
-        public ICommand SaveProjectCommand => m_saveProjectCommand ?? (m_saveProjectCommand = new ActionCommand(SaveProject));
+        public IActionCommand SaveProjectCommand => m_saveProjectCommand ?? (m_saveProjectCommand = new ActionCommand(SaveProject, () => HasProject));
+
+        public ICommand SetComponentSettingsCommand => m_setComponentSettingsCommand ?? (m_setComponentSettingsCommand = new ActionCommand(SetComponentSettings));
 
         public ICommand StartProjectCommand => m_startProjectCommand ?? (m_startProjectCommand = new ActionCommand(StartProject));
 
         public ICommand StopProjectCommand => m_stopProjectCommand ?? (m_stopProjectCommand = new ActionCommand(StopProject));
-
-        public ECSSystem CurrentSystem
-        {
-            get => m_currentSystem;
-            set
-            {
-                m_currentSystem = value;
-                OnPropertyChanged("CurrentSystem");
-            }
-        }private ECSSystem m_currentSystem;
 
         public ObservableCollection<ECSSystem> Systems
         {
@@ -132,6 +184,11 @@ namespace Event_ECS_WPF
         public ICommand ToggleProjectCommand => m_toggleProjectCommand ?? (m_toggleProjectCommand = new ActionCommand(ToggleProject));
 
         public ICommand ToggleProjectModeCommand => m_toggleProjectModeCommand ?? (m_toggleProjectModeCommand = new ActionCommand(ToggleProjectMode));
+
+        public static string GetFileFilter(string ext)
+        {
+            return string.Format(DefaultFilterFormat, ext);
+        }
 
         protected void OnPropertyChanged(string propName)
         {
@@ -155,10 +212,64 @@ namespace Event_ECS_WPF
             window.Close();
         }
 
+        private void CopyComponents() => Project?.CopyComponentsToOutputPath();
+
+        private void CreateComponent()
+        {
+            try
+            {
+                using (Forms.SaveFileDialog dialog = new Forms.SaveFileDialog()
+                {
+                    Filter = GetFileFilter("lua")
+                })
+                {
+                    if (dialog.ShowDialog() == Forms.DialogResult.OK)
+                    {
+                        string compName = Path.GetFileNameWithoutExtension(dialog.FileName);
+                        if (string.IsNullOrWhiteSpace(compName) || char.IsDigit(compName[0]) || compName.Any(c => !char.IsLetterOrDigit(c)))
+                        {
+                            MessageBox.Show("Invalid component name", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
+                        else
+                        {
+                            File.WriteAllText(dialog.FileName, string.Format(ComponentFormat, compName));
+                            Process.Start(Settings.Default.ComponentEditor, dialog.FileName);
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                LogManager.Instance.Add(e);
+            }
+        }
+
         private void ECS_OnAutoUpdateChanged(object sender, EventArgs e)
         {
             OnPropertyChanged("ProjectBackground");
         }
+
+        private void EditComponent()
+        {
+            try
+            {
+                using (Forms.OpenFileDialog dialog = new Forms.OpenFileDialog
+                {
+                    Filter = GetFileFilter("lua")
+                })
+                {
+                    if (dialog.ShowDialog() == Forms.DialogResult.OK)
+                    {
+                        Process.Start(Settings.Default.ComponentEditor, dialog.FileName);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                LogManager.Instance.Add(e);
+            }
+        }
+
         private void ManualUpdate()
         {
             ECS.Instance.Update();
@@ -173,7 +284,7 @@ namespace Event_ECS_WPF
         {
             using (var dialog = new Forms.OpenFileDialog())
             {
-                dialog.Filter = FileFilter;
+                dialog.Filter = GetFileFilter("xml");
                 dialog.RestoreDirectory = true;
                 switch (dialog.ShowDialog())
                 {
@@ -194,7 +305,7 @@ namespace Event_ECS_WPF
         {
             using (var dialog = new Forms.SaveFileDialog())
             {
-                dialog.Filter = FileFilter;
+                dialog.Filter = GetFileFilter("xml");
                 dialog.RestoreDirectory = true;
                 switch (dialog.ShowDialog())
                 {
@@ -216,14 +327,40 @@ namespace Event_ECS_WPF
             return ecs.Serialize();
         }
 
+        private void SetComponentSettings()
+        {
+            try
+            {
+                using (Forms.OpenFileDialog dialog = new Forms.OpenFileDialog
+                {
+                    Filter = GetFileFilter("exe"),
+                    InitialDirectory = Path.GetDirectoryName(Settings.Default.ComponentEditor)
+                })
+                {
+                    if (dialog.ShowDialog() == Forms.DialogResult.OK)
+                    {
+                        Settings.Default.ComponentEditor = dialog.FileName;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                LogManager.Instance.Add(e);
+            }
+        }
+
         private void StartProject()
         {
             StopProject();
 
             try
             {
-                Project.Start();
-                if(ECS.Instance.UseWrapper(Serialize, out string[] data))
+                if (!Project.Start())
+                {
+                    throw new Exception("Failed to start project");
+                }
+                ECS.Instance.UseWrapper(SetLogEvents);
+                if (ECS.Instance.UseWrapper(Serialize, out string[] data))
                 {
                     if (data.Length > 0)
                     {
@@ -239,7 +376,7 @@ namespace Event_ECS_WPF
             catch(Exception e)
             {
                 StopProject();
-                LogManager.Instance.Add(LogLevel.High, e.Message);
+                LogManager.Instance.Add(e);
             }
         }
 

@@ -19,6 +19,10 @@ namespace Event_ECS_WPF.TemplateSelectors
                 {
                     return app.FindResource("colorComponentVariable") as DataTemplate;
                 }
+                else if(variable.Type == typeof(bool))
+                {
+                    return app.FindResource("boolComponentVariable") as DataTemplate;
+                }
                 return app.FindResource("defaultComponentVariable") as DataTemplate;
             }
             return null;

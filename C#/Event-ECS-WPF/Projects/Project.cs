@@ -26,6 +26,8 @@ namespace Event_ECS_WPF.Projects
 
         private string _componentPath;
 
+        private string _initializer;
+
         private string _name;
 
         private string m_libraryPath;
@@ -54,20 +56,6 @@ namespace Event_ECS_WPF.Projects
             }
         }
 
-        public IEnumerable<string> Files
-        {
-            get
-            {
-                if (!IsHidden(ComponentPath) && Directory.Exists(ComponentPath))
-                {
-                    foreach (var file in Directory.GetFiles(ComponentPath).Where(f => !IsHidden(f) && Path.GetExtension(f) == ".lua"))
-                    {
-                        yield return file;
-                    }
-                }
-            }
-        }
-
         public IEnumerable<string> Components
         {
             get
@@ -83,25 +71,17 @@ namespace Event_ECS_WPF.Projects
             }
         }
 
-        [XmlElement]
-        public string LibraryPath
+        public IEnumerable<string> Files
         {
-            get => m_libraryPath;
-            set
+            get
             {
-                m_libraryPath = value;
-                OnPropertyChanged("LibraryPath");
-            }
-        } 
-
-        [XmlAttribute]
-        public string Name
-        {
-            get => _name;
-            set
-            {
-                _name = value;
-                OnPropertyChanged("Name");
+                if (!IsHidden(ComponentPath) && Directory.Exists(ComponentPath))
+                {
+                    foreach (var file in Directory.GetFiles(ComponentPath).Where(f => !IsHidden(f) && Path.GetExtension(f) == ".lua"))
+                    {
+                        yield return file;
+                    }
+                }
             }
         }
 
@@ -114,28 +94,65 @@ namespace Event_ECS_WPF.Projects
                 _initializer = value;
                 OnPropertyChanged("InitializerScript");
             }
-        }private string _initializer;
+        }
+
+        public bool IsStarted => ECS.Instance.ProjectStarted;
+
+        [XmlElement]
+        public string LibraryPath
+        {
+            get => m_libraryPath;
+            set
+            {
+                m_libraryPath = value;
+                OnPropertyChanged("LibraryPath");
+            }
+        }
+
+        public static string Location => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
+        [XmlAttribute]
+        public string Name
+        {
+            get => _name;
+            set
+            {
+                _name = value;
+                OnPropertyChanged("Name");
+            }
+        }
 
         public virtual ProjectType Type
         {
             get => ProjectType.NORMAL;
         }
 
-        public bool IsStarted => ECS.Instance.ProjectStarted;
-
-        protected void DispatchProjectStateChange(ProjectStateChangeArgs args)
-        {
-            ProjectStateChange?.Invoke(this, args);
-        }
-        
         public virtual bool Start()
         {
-            if(Setup())
+            if (Setup())
             {
                 DispatchProjectStateChange(ProjectStateChangeArgs.Started);
                 return true;
             }
             return false;
+        }
+
+        public virtual void Stop()
+        {
+            ECS.Instance.Dispose();
+            ProjectStateChange?.Invoke(this, ProjectStateChangeArgs.Stopped);
+            OnPropertyChanged("IsStarted");
+        }
+
+        protected virtual void CreateInstance()
+        {
+            string code = File.ReadAllText(InitializerScript);
+            ECS.Instance.CreateInstance(code);
+        }
+
+        protected void DispatchProjectStateChange(ProjectStateChangeArgs args)
+        {
+            ProjectStateChange?.Invoke(this, args);
         }
 
         protected bool Setup()
@@ -147,13 +164,11 @@ namespace Event_ECS_WPF.Projects
                     throw new ArgumentNullException(nameof(InitializerScript));
                 }
 
-                string location = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-
                 if (!IsHidden(LibraryPath) && Directory.Exists(LibraryPath))
                 {
                     foreach (var file in Directory.GetFiles(LibraryPath).Where(f => !IsHidden(f) && Path.GetExtension(f) == ".dll"))
                     {
-                        string dest = Path.Combine(location, Path.GetFileName(file));
+                        string dest = Path.Combine(Location, Path.GetFileName(file));
                         if (!File.Exists(dest))
                         {
                             File.Copy(file, dest);
@@ -162,18 +177,7 @@ namespace Event_ECS_WPF.Projects
                     }
                 }
 
-                foreach (string file in Files)
-                {
-                    string dest = Path.Combine(location, Path.GetFileName(file));
-                    if (!File.Exists(dest) || File.GetLastWriteTimeUtc(dest) != (File.GetLastWriteTimeUtc(file)))
-                    {
-                        File.Copy(file, dest, true);
-                        var now = DateTime.Now;
-                        File.SetLastWriteTimeUtc(file, now);
-                        File.SetLastWriteTimeUtc(dest, now);
-                        LogManager.Instance.Add(LogLevel.Medium, "Copied {0} to {1}", file, dest);
-                    }
-                }
+                CopyComponentsToOutputPath();
 
                 CreateInstance();
                 return true;
@@ -190,23 +194,26 @@ namespace Event_ECS_WPF.Projects
             }
         }
 
-        public virtual void Stop()
-        {
-            ECS.Instance.Dispose();
-            ProjectStateChange?.Invoke(this, ProjectStateChangeArgs.Stopped);
-            OnPropertyChanged("IsStarted");
-        }
-
         private static bool IsHidden(string path)
         {
             FileAttributes attr = File.GetAttributes(path);
             return ((attr & FileAttributes.Hidden) == FileAttributes.Hidden);
         }
 
-        protected virtual void CreateInstance()
+        public void CopyComponentsToOutputPath()
         {
-            string code = File.ReadAllText(InitializerScript);
-            ECS.Instance.CreateInstance(code);
+            foreach (string file in Files)
+            {
+                string dest = Path.Combine(Location, Path.GetFileName(file));
+                if (!File.Exists(dest) || File.GetLastWriteTimeUtc(dest) != (File.GetLastWriteTimeUtc(file)))
+                {
+                    File.Copy(file, dest, true);
+                    var now = DateTime.Now;
+                    File.SetLastWriteTimeUtc(file, now);
+                    File.SetLastWriteTimeUtc(dest, now);
+                    LogManager.Instance.Add(LogLevel.Medium, "Copied {0} to {1}", file, dest);
+                }
+            }
         }
     }
 

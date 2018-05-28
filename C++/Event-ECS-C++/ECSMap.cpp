@@ -258,14 +258,14 @@ namespace EventECS
 				}
 				else 
 				{
-					if (logEvents) 
+					if (logEvents && !IsIgnored(ev.name))
 					{
 						Log("Event '%s' will be called with ref '%d.'", ev.name, ev.ref);
 					}
 					handlers += iter->second.DispatchEvent(ev.name, ev.ref);
 				}
 			}
-			if (logEvents) 
+			if (logEvents && !IsIgnored(ev.name))
 			{
 				Log("Event '%s' was handled by '%d' components", ev.name, handlers);
 			}
@@ -334,6 +334,27 @@ namespace EventECS
 	void ECSMap::SetLogHandler(void(*func)(const char*))
 	{
 		ECSMap::logHandler = func;
+	}
+
+	std::string tolower(const std::string& s)
+	{
+		std::string rval = s;
+		std::transform(rval.begin(), rval.end(), rval.begin(), ::tolower);
+		return rval;
+	}
+
+	void ECSMap::SetEventsToIgnore(const std::set<std::string>& events)
+	{
+		eventsToIgnore.clear();
+		for (auto iter = events.begin(); iter != events.end(); ++iter)
+		{
+			eventsToIgnore.emplace(tolower(*iter));
+		}
+	}
+
+	bool ECSMap::IsIgnored(const std::string& ev) const 
+	{
+		return eventsToIgnore.find(tolower(ev)) != eventsToIgnore.end();
 	}
 
 	void ECSMap::Log(const char* format, ...)

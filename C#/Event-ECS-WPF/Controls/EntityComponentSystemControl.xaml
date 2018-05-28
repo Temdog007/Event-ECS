@@ -39,7 +39,7 @@
             </ContextMenu>
         </GroupBox.ContextMenu>
 
-        <Expander Header="Entities" Grid.Row="1" IsExpanded="True">
+        <Expander Header="Entities" IsExpanded="True">
 
             <ItemsControl ItemsSource="{Binding Source={StaticResource entitiesSrc}}" AlternationCount="5">
 

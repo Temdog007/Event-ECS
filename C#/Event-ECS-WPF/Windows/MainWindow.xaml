@@ -27,6 +27,10 @@
         <KeyBinding Key="O" Modifiers="Ctrl" Command="{Binding OpenProjectCommand}"/>
         <KeyBinding Key="S" Modifiers="Ctrl" Command="{Binding SaveProjectCommand}"/>
         <KeyBinding Key="C" Modifiers="Ctrl" Command="{Binding ClearLogCommand}"/>
+        <KeyBinding Key="Q" Modifiers="Ctrl" Command="{Binding CreateComponentCommand}"/>
+        <KeyBinding Key="W" Modifiers="Ctrl" Command="{Binding SetComponentSettingsCommand}"/>
+        <KeyBinding Key="E" Modifiers="Ctrl" Command="{Binding EditComponentCommand}"/>
+        <KeyBinding Key="R" Modifiers="Ctrl" Command="{Binding CopyComponentsCommand}"/>
         <KeyBinding Key="F1" Command="{Binding ManualUpdateCommand}"/>
         <KeyBinding Key="F2" Command="{Binding ToggleProjectModeCommand}"/>
         <KeyBinding Key="F5" Command="{Binding ToggleProjectCommand}"/>
@@ -34,18 +38,27 @@
 
     <DockPanel>
         <Menu DockPanel.Dock="Top">
-            
+
             <MenuItem Header="File">
                 <MenuItem Header="New Project">
                     <MenuItem Header="Normal" InputGestureText="Ctrl+N" Command="{Binding NewProjectCommand}" CommandParameter="{x:Static proj:ProjectType.NORMAL}"/>
                     <MenuItem Header="Love2D" InputGestureText="Ctrl+L" Command="{Binding NewProjectCommand}" CommandParameter="{x:Static proj:ProjectType.LOVE}"/>
                 </MenuItem>
                 <MenuItem Header="Open Project" InputGestureText="Ctrl+O" Command="{Binding OpenProjectCommand}"/>
-                <MenuItem Header="Save Project" InputGestureText="Ctrl+S" Command="{Binding SaveProjectCommand}" IsEnabled="{Binding HasProject, UpdateSourceTrigger=PropertyChanged}"/>
+                <MenuItem Header="Save Project" InputGestureText="Ctrl+S" Command="{Binding SaveProjectCommand}"/>
+                <Separator/>
+                <MenuItem Header="Create Component" InputGestureText="Ctrl+Q" Command="{Binding CreateComponentCommand}"/>
+                <MenuItem Header="Edit Component" InputGestureText="Ctrl+E" Command="{Binding EditComponentCommand}"/>
+                <MenuItem Header="Change Component Editor" InputGestureText="Ctrl+W" Command="{Binding SetComponentSettingsCommand}"/>
+                <MenuItem Header="Reload Components" InputGestureText="Ctrl+R" Command="{Binding CopyComponentsCommand}"/>
                 <Separator/>
                 <MenuItem Header="Exit" InputGestureText="Alt+F4" Command="{Binding CloseCommand}" CommandParameter="{Binding ElementName=m_window}"/>
             </MenuItem>
-            
+
+            <MenuItem Header="Settings">
+                <MenuItem Header="Log Events" IsCheckable="True" IsChecked="{Binding Source={x:Static properties:Settings.Default}, Mode=TwoWay, Path=LogEvents}"/>
+            </MenuItem>
+
             <MenuItem Header="View">
                 <MenuItem Header="Multi-Line Log" IsCheckable="True" IsChecked="{Binding Source={x:Static properties:Settings.Default}, Mode=TwoWay, Path=MultilineLog}"/>
                 <MenuItem Visibility="{Binding Source={x:Static properties:Settings.Default}, Converter={StaticResource boolVis}, Path=MultilineLog}">
@@ -56,7 +69,6 @@
                         </StackPanel>
                     </MenuItem.Header>
                 </MenuItem>
-                <MenuItem Header="Hide Component" IsCheckable="True" IsChecked="{Binding Source={x:Static properties:Settings.Default}, Mode=TwoWay, Path=OnlyShowComponentWhenMouse}"/>
                 <MenuItem Header="Clear Logs" Command="{Binding ClearLogCommand}"/>
             </MenuItem>
 
@@ -79,86 +91,70 @@
             </MenuItem>
         </Menu>
 
-        <Grid Margin="0,10,0,0">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="3*"/>
-                <RowDefinition Height="1*"/>
-            </Grid.RowDefinitions>
-
-            <Grid Grid.Row="0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="auto"/>
-                </Grid.ColumnDefinitions>
-
-                <TabControl Grid.Column="0"
-                            ItemsSource="{Binding Systems, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                            SelectedItem="{Binding CurrentSystem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
-                    <TabControl.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding Name}"/>
-                        </DataTemplate>
-                    </TabControl.ItemTemplate>
-                    <TabControl.ContentTemplate>
-                        <DataTemplate>
-                            <ScrollViewer PreviewMouseWheel="ScrollViewer_PreviewMouseWheel">
-                                <controls:EntityComponentSystemControl EntityComponentSystem="{Binding}" Project="{Binding ElementName=viewmodel, Path=Project, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                            </ScrollViewer>
-                        </DataTemplate>
-                    </TabControl.ContentTemplate>
-                </TabControl>
-                
-                <Expander Grid.Column="1" ExpandDirection="Left">
-                <GroupBox
-                          Header="Project Settings" Visibility="{Binding HasProject, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource boolVis}}" 
-                          Content="{Binding Project, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ContentTemplateSelector="{StaticResource projectSelector}"/>
-                </Expander>
-
-            </Grid>
-            
-            <Expander Header="Logs" Grid.Row="1" ExpandDirection="Up" IsExpanded="True">
-                <Expander.ContextMenu>
-                    <ContextMenu>
-                        <MenuItem Header="Clear Logs" Command="{Binding ClearLogCommand}"/>
-                        <MenuItem Header="Filter">
-                            <MenuItem.Resources>
-                                <Style TargetType="RadioButton">
-                                    <Setter Property="GroupName" Value="GR"/>
-                                </Style>
-                            </MenuItem.Resources>
-                            <RadioButton Content="High" IsChecked="{Binding Source={x:Static logger:LogManager.Instance}, Path=Filter, Mode=TwoWay, 
+        <Expander Header="Logs" ExpandDirection="Up" IsExpanded="True" DockPanel.Dock="Bottom" MaxHeight="200">
+            <Expander.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Clear Logs" Command="{Binding ClearLogCommand}"/>
+                    <MenuItem Header="Filter">
+                        <MenuItem.Resources>
+                            <Style TargetType="RadioButton">
+                                <Setter Property="GroupName" Value="GR"/>
+                            </Style>
+                        </MenuItem.Resources>
+                        <RadioButton Content="High" IsChecked="{Binding Source={x:Static logger:LogManager.Instance}, Path=Filter, Mode=TwoWay, 
                                 UpdateSourceTrigger=PropertyChanged, Converter={StaticResource enumConv}, ConverterParameter=High}"/>
-                            <RadioButton Content="Medium" IsChecked="{Binding Source={x:Static logger:LogManager.Instance}, Path=Filter, Mode=TwoWay, 
+                        <RadioButton Content="Medium" IsChecked="{Binding Source={x:Static logger:LogManager.Instance}, Path=Filter, Mode=TwoWay, 
                                 UpdateSourceTrigger=PropertyChanged, Converter={StaticResource enumConv}, ConverterParameter=Medium}"/>
-                            <RadioButton Content="Low" IsChecked="{Binding Source={x:Static logger:LogManager.Instance}, Path=Filter, Mode=TwoWay, 
+                        <RadioButton Content="Low" IsChecked="{Binding Source={x:Static logger:LogManager.Instance}, Path=Filter, Mode=TwoWay, 
                                 UpdateSourceTrigger=PropertyChanged, Converter={StaticResource enumConv}, ConverterParameter=Low}"/>
-                        </MenuItem>
-                    </ContextMenu>
-                </Expander.ContextMenu>
-                
-                <DataGrid ItemsSource="{Binding Source={x:Static logger:LogManager.Instance}, UpdateSourceTrigger=PropertyChanged}"
+                    </MenuItem>
+                </ContextMenu>
+            </Expander.ContextMenu>
+
+            <DataGrid ItemsSource="{Binding Source={x:Static logger:LogManager.Instance}, UpdateSourceTrigger=PropertyChanged}"
                           AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" CanUserDeleteRows="False"
                           CanUserReorderColumns="False" CanUserResizeRows="False" CanUserSortColumns="False"
                           misc:DataGridBehaviour.ScrollOnNewItem="True">
-                    
-                    <DataGrid.Resources>
-                        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Transparent"/>
-                        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="Black"/>
-                    </DataGrid.Resources>
-                    
-                    <DataGrid.RowStyle>
-                        <Style TargetType="DataGridRow">
-                            <Setter Property="Background" Value="{Binding Level, Converter={StaticResource logToColor}}"/>
-                        </Style>
-                    </DataGrid.RowStyle>
-                    
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="Time" Binding="{Binding DateTime}" Width="auto" IsReadOnly="True"/>
-                        <DataGridTextColumn Header="Message" Binding="{Binding Message}" Width="*" IsReadOnly="True"/>
-                    </DataGrid.Columns>
-                    
-                </DataGrid>
-            </Expander>
-        </Grid>
+
+                <DataGrid.Resources>
+                    <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Transparent"/>
+                    <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="Black"/>
+                </DataGrid.Resources>
+
+                <DataGrid.RowStyle>
+                    <Style TargetType="DataGridRow">
+                        <Setter Property="Background" Value="{Binding Level, Converter={StaticResource logToColor}}"/>
+                    </Style>
+                </DataGrid.RowStyle>
+
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Time" Binding="{Binding DateTime}" Width="auto" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="Message" Binding="{Binding Message}" Width="*" IsReadOnly="True"/>
+                </DataGrid.Columns>
+
+            </DataGrid>
+        </Expander>
+
+        <Expander DockPanel.Dock="Right" ExpandDirection="Left">
+            <GroupBox
+                Header="Project Settings" Visibility="{Binding HasProject, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource boolVis}}" 
+                Content="{Binding Project, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ContentTemplateSelector="{StaticResource projectSelector}"/>
+        </Expander>
+
+        <TabControl ItemsSource="{Binding Systems, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    SelectedItem="{Binding CurrentSystem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+            <TabControl.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Name}"/>
+                </DataTemplate>
+            </TabControl.ItemTemplate>
+            <TabControl.ContentTemplate>
+                <DataTemplate>
+                    <ScrollViewer PreviewMouseWheel="ScrollViewer_PreviewMouseWheel">
+                        <controls:EntityComponentSystemControl EntityComponentSystem="{Binding}" Project="{Binding ElementName=viewmodel, Path=Project, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    </ScrollViewer>
+                </DataTemplate>
+            </TabControl.ContentTemplate>
+        </TabControl>
     </DockPanel>
 </Window>

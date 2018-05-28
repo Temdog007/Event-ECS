@@ -19,7 +19,6 @@ namespace Event_ECS_WPF.SystemObjects
 
     public class ComponentVariable<T> : NotifyPropertyChanged, IEquatable<ComponentVariable<T>>, IComponentVariable, IComponentVariableSetter
     {
-        private readonly string m_name;
         private T m_value;
 
         public ComponentVariable(string name, T value)
@@ -33,11 +32,11 @@ namespace Event_ECS_WPF.SystemObjects
             {
                 throw new ArgumentException("Invalid variable type", nameof(T));
             }
-            this.m_name = name;
+            this.Name = name;
             this.m_value = value;
         }
 
-        public string Name => m_name;
+        public string Name { get; }
 
         public Type Type => typeof(T);
 
