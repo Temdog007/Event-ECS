@@ -86,7 +86,6 @@ return {0}";
         private void SetLogEvents(ECSWrapper ecs)
         {
             ecs.SetLoggingEvents(Settings.Default.LogEvents);
-            ecs.SetEventsToIgnore(Settings.Default.EventsToNotLog.Cast<string>().ToArray());
         }
 
         private void Default_SettingChanging(object sender, SettingChangingEventArgs e) => ECS.Instance.UseWrapper(SetLogEvents);

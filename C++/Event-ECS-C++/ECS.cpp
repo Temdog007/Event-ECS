@@ -114,6 +114,27 @@ namespace EventECS
 		return handles;
 	}
 
+	int ECS::DispatchEvent(int entityID, const char* eventName)
+	{
+		SetEntityFunction(entityID, "dispatchEvent");
+		lua_pushstring(L, eventName);
+		luax_call(L, 2, 1);
+		int handles = static_cast<int>(lua_tonumber(L, -1));
+		lua_pop(L, 1);
+		return handles;
+	}
+
+	int ECS::DispatchEvent(int entityID, const char* eventName, int argRef)
+	{
+		SetEntityFunction(entityID, "dispatchEvent");
+		lua_pushstring(L, eventName);
+		lua_rawgeti(L, LUA_REGISTRYINDEX, argRef);
+		luax_call(L, 3, 1);
+		int handles = static_cast<int>(lua_tonumber(L, -1));
+		lua_pop(L, 1);
+		return handles;
+	}
+
 	void ECS::AddComponent(int entityID, const char* componentName)
 	{
 		SetEntityFunction(entityID, "addComponent");

@@ -36,27 +36,25 @@
                         HorizontalAlignment="Stretch"
                     Content="{Binding ElementName=m_project, Path=Project.ComponentPath, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
             </GroupBox>
-            
+
             <GroupBox Margin="5" Header="Path to Library Files">
                 <Button Command="{Binding ElementName=m_project, Path=GetPathCommand}" CommandParameter="LibraryPath" Margin="5" MinHeight="20"
                         HorizontalAlignment="Stretch"
                         Content="{Binding ElementName=m_project, Path=Project.LibraryPath, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
             </GroupBox>
 
-            <GroupBox Header="Commands">
-                <Grid>
+            <Expander Header="Events To Ignore Log">
+                <DataGrid ItemsSource="{Binding ElementName=m_project, Path=Project.EventsToIgnore, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
 
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" MinWidth="20"/>
-                        <ColumnDefinition Width="auto" MinWidth="20"/>
-                    </Grid.ColumnDefinitions>
+                    <DataGrid.ItemTemplate>
+                        <DataTemplate>
+                            <TextBox Text="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}"/>
+                        </DataTemplate>
+                    </DataGrid.ItemTemplate>
 
-                    <TextBox Grid.Column="0" x:Name="eventText" Margin="5" PreviewKeyDown="EventText_PreviewKeyDown" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-                    <Button Content="Broadcast&#xA;Event"  Grid.Column="1"
-                    Command="{Binding ElementName=m_project, Path=BroadcastEventCommand}" CommandParameter="{Binding ElementName=eventText, Path=Text}"/>
-                </Grid>
-            </GroupBox>
-            
+                </DataGrid>
+            </Expander>
+
         </StackPanel>
     </GroupBox>
 </UserControl>

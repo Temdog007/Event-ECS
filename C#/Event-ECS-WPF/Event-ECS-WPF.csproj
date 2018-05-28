@@ -90,6 +90,7 @@
     <Compile Include="Converters\LogLevelToColor.cs" />
     <Compile Include="Extensions\BindingProxy.cs" />
     <Compile Include="Misc\ComponentVariableValidation.cs" />
+    <Compile Include="Misc\ValueContainer.cs" />
     <Compile Include="Projects\FullscreenType.cs" />
     <Compile Include="Projects\UpdateType.cs" />
     <Compile Include="SystemObjects\ComponentVariable.cs" />
