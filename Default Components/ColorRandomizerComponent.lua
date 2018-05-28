@@ -20,7 +20,7 @@ function ColorRandomizer:eventUpdate(args)
 		color.g = love.math.random()
 		color.b = love.math.random()
 		if self.changeAlpha then
-			self.color.a = love.math.random()
+			color.a = love.math.random()
 		end
 		self.current = 0
 	end

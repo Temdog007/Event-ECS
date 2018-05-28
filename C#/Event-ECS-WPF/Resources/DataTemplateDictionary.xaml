@@ -36,6 +36,10 @@
         </DockPanel>
     </DataTemplate>
 
+    <DataTemplate x:Key="boolComponentVariable">
+        <CheckBox IsChecked="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Content="{Binding Name}"/>
+    </DataTemplate>
+
     <selector:ProjectDataTemplateSelector x:Key="projectSelector"/>
     <selector:ProjectMenuDataTemplateSelector x:Key="projectMenuSelector"/>
     <selector:ComponentTemplateSelector x:Key="componentTemplateSelector"/>

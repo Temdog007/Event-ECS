@@ -52,7 +52,7 @@ namespace Event_ECS_WPF.Controls
             }
         }
 
-        public string ClassName => ECS.Instance.UseWrapper(GetClassName, out string classname) ? classname : string.Empty;
+        public string ClassName => ECS.Instance.UseWrapper(GetClassName, out string classname) ? classname : EntityComponentSystem.Name;
 
         public EntityComponentSystem EntityComponentSystem
         {

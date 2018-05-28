@@ -1,9 +1,8 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:converter="clr-namespace:Event_ECS_WPF.Converters">
-    
+
     <converter:BoolToVisibilityConverter x:Key="boolVis"/>
-    <converter:NotConverter x:Key="notConv"/>
     <converter:EnumToBoolConverter x:Key="enumConv"/>
     <converter:NullCheckVisibilityConverter x:Key="nullCheck"/>
     <converter:LogLevelToColor x:Key="logToColor"/>

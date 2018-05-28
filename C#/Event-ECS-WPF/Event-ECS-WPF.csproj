@@ -174,7 +174,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Converters\EnumToBoolConverter.cs" />
-    <Compile Include="Converters\NotConverter.cs" />
     <Compile Include="Converters\NullCheckVisibilityConverter.cs" />
     <Compile Include="Converters\NullCheckConverter.cs" />
     <Compile Include="Windows\MainWindow.xaml.cs">
