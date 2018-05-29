@@ -37,7 +37,7 @@
     </Window.InputBindings>
 
     <DockPanel>
-        <Menu DockPanel.Dock="Top">
+        <Menu DockPanel.Dock="Top" IsMainMenu="True">
 
             <MenuItem Header="File">
                 <MenuItem Header="New Project">
@@ -51,6 +51,14 @@
                 <MenuItem Header="Edit Component" InputGestureText="Ctrl+E" Command="{Binding EditComponentCommand}"/>
                 <MenuItem Header="Change Component Editor" InputGestureText="Ctrl+W" Command="{Binding SetComponentSettingsCommand}"/>
                 <MenuItem Header="Reload Components" InputGestureText="Ctrl+R" Command="{Binding CopyComponentsCommand}"/>
+                <Separator/>
+                <MenuItem Header="Recent Projects" ItemsSource="{Binding Source={x:Static properties:Settings.Default}, Path=RecentProjects, Mode=TwoWay}" MouseEnter="MenuItem_MouseEnter">
+                    <MenuItem.ItemTemplate>
+                        <DataTemplate>
+                            <MenuItem Header="{Binding}" CommandParameter="{Binding}" Command="{Binding ElementName=viewmodel, Path=OpenRecentProjectCommand}"/>
+                        </DataTemplate>
+                    </MenuItem.ItemTemplate>
+                </MenuItem>
                 <Separator/>
                 <MenuItem Header="Exit" InputGestureText="Alt+F4" Command="{Binding CloseCommand}" CommandParameter="{Binding ElementName=m_window}"/>
             </MenuItem>

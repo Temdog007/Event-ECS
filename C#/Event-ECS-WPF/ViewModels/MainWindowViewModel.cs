@@ -5,7 +5,9 @@ using Event_ECS_WPF.Properties;
 using Event_ECS_WPF.SystemObjects;
 using EventECSWrapper;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Configuration;
 using System.Diagnostics;
@@ -59,6 +61,8 @@ return {0}";
         private ActionCommand<ProjectType> m_newProjectCommand;
 
         private ActionCommand m_openProjectCommand;
+
+        private ActionCommand<string> m_openRecentProjectCommand;
 
         private Project m_project;
 
@@ -119,6 +123,8 @@ return {0}";
         public ActionCommand<ProjectType> NewProjectCommand => m_newProjectCommand ?? (m_newProjectCommand = new ActionCommand<ProjectType>(NewProject));
 
         public ICommand OpenProjectCommand => m_openProjectCommand ?? (m_openProjectCommand = new ActionCommand(OpenProject));
+
+        public IActionCommand OpenRecentProjectCommand => m_openRecentProjectCommand ?? (m_openRecentProjectCommand = new ActionCommand<string>(OpenProject));
 
         public Project Project
         {
@@ -279,6 +285,19 @@ return {0}";
             Project = type.CreateProject();
         }
 
+        private void UpdateRecentProjects(string filename)
+        {
+            if (Settings.Default.RecentProjects == null)
+            {
+                Settings.Default.RecentProjects = new ObservableCollection<string>();
+            }
+            Settings.Default.RecentProjects.Add(filename);
+            while (Settings.Default.RecentProjects.Count > 10)
+            {
+                Settings.Default.RecentProjects.RemoveAt(9);
+            }
+        }
+
         private void OpenProject()
         {
             using (var dialog = new Forms.OpenFileDialog())
@@ -293,10 +312,20 @@ return {0}";
                             var serializer = new XmlSerializer(typeof(Project));
                             Project = (Project)serializer.Deserialize(s);
                         }
+                        UpdateRecentProjects(dialog.FileName);
                         break;
                     default:
                         break;
                 }
+            }
+        }
+
+        private void OpenProject(string projectName)
+        {
+            using (Stream s = new FileStream(projectName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            {
+                var serializer = new XmlSerializer(typeof(Project));
+                Project = (Project)serializer.Deserialize(s);
             }
         }
 
@@ -314,6 +343,7 @@ return {0}";
                             var serializer = new XmlSerializer(typeof(Project));
                             serializer.Serialize(s, Project);
                         }
+                        UpdateRecentProjects(dialog.FileName);
                         break;
                     default:
                         break;
