@@ -54,15 +54,13 @@
         
         <StackPanel>
 
-            <Expander Header="Events" Visibility="{Binding ElementName=m_entityControl, Path=ShowEvents, Converter={StaticResource boolVis}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+            <GroupBox Header="Events" Visibility="{Binding ElementName=m_entityControl, Path=ShowEvents, Converter={StaticResource boolVis}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
                 <DockPanel>
-                    <DockPanel DockPanel.Dock="Bottom">
-                        <Button DockPanel.Dock="Right" Content="Dispatch Event" Click="DispatchButton_Click"/>
-                        <TextBox Text="{Binding ElementName=m_entityControl, Path=EventToDispatch, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Background="White" HorizontalAlignment="Stretch"/>
-                    </DockPanel>
-                    <ListBox ItemsSource="{Binding ElementName=m_entityControl, Path=Entity.Events, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <Button DockPanel.Dock="Bottom" Content="Dispatch Event" Click="DispatchButton_Click"/>
+                    <ListBox ItemsSource="{Binding ElementName=m_entityControl, Path=Entity.Events, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             SelectedItem="{Binding ElementName=m_entityControl, Path=SelectedEvent, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                 </DockPanel>
-            </Expander>
+            </GroupBox>
 
             <GroupBox Header="Components">
                 <ListBox ItemsSource="{Binding ElementName=m_entityControl, Path=Entity.Components, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">

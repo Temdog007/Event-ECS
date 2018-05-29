@@ -81,6 +81,10 @@ namespace Event_ECS_WPF.SystemObjects
             set
             {
                 m_name = value;
+                if(ECS.Instance.ProjectStarted && ID != 0) // Entity ID is never 0
+                {
+                    ECS.Instance.UseWrapper(ecs => ecs.SetEntityString(System.Name, ID, "name", value));
+                }
                 OnPropertyChanged("Name");
             }
         }

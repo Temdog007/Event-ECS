@@ -1,7 +1,6 @@
 ﻿using Event_ECS_WPF.Misc;
 using Event_ECS_WPF.SystemObjects;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Reflection;

@@ -5,7 +5,6 @@ using Event_ECS_WPF.SystemObjects;
 using EventECSWrapper;
 using System;
 using System.ComponentModel;
-using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -26,6 +25,8 @@ namespace Event_ECS_WPF.Controls
         private IActionCommand m_addComponentCommand;
 
         private IActionCommand m_removeEntityCommand;
+
+        private string m_selectedEvent = string.Empty;
 
         private bool m_showEvents = false;
 
@@ -50,9 +51,17 @@ namespace Event_ECS_WPF.Controls
             set { SetValue(ProjectProperty, value); }
         }
 
-        public string EventToDispatch { get; set; }
-
         public ICommand RemoveCommand => m_removeEntityCommand ?? (m_removeEntityCommand = new ActionCommand(Remove));
+
+        public string SelectedEvent
+        {
+            get => m_selectedEvent;
+            set
+            {
+                m_selectedEvent = value;
+                OnPropertyChanged("SelectedEvent");
+            }
+        } 
 
         public bool ShowEvents
         {
@@ -74,24 +83,14 @@ namespace Event_ECS_WPF.Controls
             ECS.Instance.UseWrapper(ecs => ecs.AddComponent(Entity.System.Name, Entity.ID, compName));
             Entity.System.Deserialize();
         }
-        
-        private void Remove()
-        {
-            if (ECS.Instance.UseWrapper(RemoveFunc, out bool rval))
-            {
-                LogManager.Instance.Add("Removed entity: {0}", rval);
-                Entity.System.Deserialize();
-            }
-        }
-
-        private bool RemoveFunc(ECSWrapper ecs)
-        {
-            return ecs.RemoveEntity(Entity.System.Name, Entity.ID);
-        }
 
         private void DispatchButton_Click(object sender, RoutedEventArgs e)
         {
-            string ev = EventToDispatch;
+            if(string.IsNullOrWhiteSpace(SelectedEvent))
+            {
+                return;
+            }
+            string ev = SelectedEvent;
             if (!ev.StartsWith("event", StringComparison.OrdinalIgnoreCase))
             {
                 ev = "event" + ev;
@@ -104,10 +103,24 @@ namespace Event_ECS_WPF.Controls
 
         private void Expander_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if(sender is Expander expander)
+            if (sender is Expander expander)
             {
                 expander.IsExpanded = true;
             }
+        }
+
+        private void Remove()
+        {
+            if (ECS.Instance.UseWrapper(RemoveFunc, out bool rval))
+            {
+                LogManager.Instance.Add("Removed entity: {0}", rval);
+                Entity.System.Deserialize();
+            }
+        }
+
+        private bool RemoveFunc(ECSWrapper ecs)
+        {
+            return ecs.RemoveEntity(Entity.System.Name, Entity.ID);
         }
     }
 }
