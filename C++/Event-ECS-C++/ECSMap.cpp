@@ -91,11 +91,12 @@ namespace EventECS
 #endif
 		luax_call(L, 1, LUA_MULTRET); // call initializer function
 
+		Log("%d system(s) in initalizer script", lua_gettop(L));
+
 		std::list<int> refs;
 		while (lua_gettop(L) > 0) // get all systems
 		{
 			refs.push_back(luaL_ref(L, LUA_REGISTRYINDEX));
-			lua_pop(L, 1);
 		}
 
 		for (int ref : refs)

@@ -52,7 +52,8 @@
                 <MenuItem Header="Change Component Editor" InputGestureText="Ctrl+W" Command="{Binding SetComponentSettingsCommand}"/>
                 <MenuItem Header="Reload Components" InputGestureText="Ctrl+R" Command="{Binding CopyComponentsCommand}"/>
                 <Separator/>
-                <MenuItem Header="Recent Projects" ItemsSource="{Binding Source={x:Static properties:Settings.Default}, Path=RecentProjects, Mode=TwoWay}" MouseEnter="MenuItem_MouseEnter">
+                <MenuItem Header="Recent Projects" ItemsSource="{Binding Source={x:Static properties:Settings.Default}, Path=RecentProjects, Mode=TwoWay}" 
+                          MouseEnter="MenuItem_MouseEnter" MouseLeave="MenuItem_MouseEnter">
                     <MenuItem.ItemTemplate>
                         <DataTemplate>
                             <MenuItem Header="{Binding}" CommandParameter="{Binding}" Command="{Binding ElementName=viewmodel, Path=OpenRecentProjectCommand}"/>
