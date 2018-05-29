@@ -12,6 +12,7 @@ function ColorComponent:__init(entity)
 end
 
 function ColorComponent:eventSetColor(args)
+  if not args then return end
   if args.r then
     if not (type(args.r) == "number") then
       return

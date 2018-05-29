@@ -5,7 +5,6 @@ using EventECSWrapper;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -22,8 +21,8 @@ namespace Event_ECS_WPF.Projects
         // Components that are compiled in the lua code
         public static readonly string[] DefaultComponents = 
         {
-            "colorComponent",
-            "finalizerComponent"
+            "ColorComponent",
+            "FinalizerComponent"
         };
 
         private string _componentPath;
@@ -216,7 +215,7 @@ namespace Event_ECS_WPF.Projects
             catch (Exception e)
             {
                 ECS.Instance.Dispose();
-                LogManager.Instance.Add(LogLevel.High, e.Message);
+                LogManager.Instance.Add(e);
                 return false;
             }
             finally
