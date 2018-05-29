@@ -52,13 +52,15 @@ return {0}";
 
         private ECSSystem m_currentSystem;
 
-        private ICommand m_editComponentCommand;
+        private IActionCommand m_editComponentCommand;
 
         private ActionCommand m_manualUpdateCommand;
 
         private ActionCommand<ProjectType> m_newProjectCommand;
 
         private ActionCommand m_openProjectCommand;
+
+        private ActionCommand<string> m_openRecentProjectCommand;
 
         private Project m_project;
 
@@ -88,7 +90,22 @@ return {0}";
             ecs.SetLoggingEvents(Settings.Default.LogEvents);
         }
 
-        private void Default_SettingChanging(object sender, SettingChangingEventArgs e) => ECS.Instance.UseWrapper(SetLogEvents);
+        private delegate void SettingsUpdateDelegate(object sender, EventArgs e);
+
+        private void DoSettingsUpdate(object sender, EventArgs e)
+        {
+            if (ECS.Instance.ProjectStarted)
+            {
+                ECS.Instance.UseWrapper(SetLogEvents);
+            }
+            EditComponentCommand.UpdateCanExecute(sender, e);
+        }
+
+        private void Default_SettingChanging(object sender, SettingChangingEventArgs e)
+        {
+            SettingsUpdateDelegate d = DoSettingsUpdate;
+            Application.Current.Dispatcher.BeginInvoke(d, sender, e);
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -110,7 +127,7 @@ return {0}";
             }
         }
 
-        public ICommand EditComponentCommand => m_editComponentCommand ?? (m_editComponentCommand = new ActionCommand(EditComponent));
+        public IActionCommand EditComponentCommand => m_editComponentCommand ?? (m_editComponentCommand = new ActionCommand(EditComponent, () => Settings.Default.LoadComponentEditor));
 
         public bool HasProject => Project != null;
 
@@ -119,6 +136,8 @@ return {0}";
         public ActionCommand<ProjectType> NewProjectCommand => m_newProjectCommand ?? (m_newProjectCommand = new ActionCommand<ProjectType>(NewProject));
 
         public ICommand OpenProjectCommand => m_openProjectCommand ?? (m_openProjectCommand = new ActionCommand(OpenProject));
+
+        public IActionCommand OpenRecentProjectCommand => m_openRecentProjectCommand ?? (m_openRecentProjectCommand = new ActionCommand<string>(OpenProject));
 
         public Project Project
         {
@@ -232,7 +251,10 @@ return {0}";
                         else
                         {
                             File.WriteAllText(dialog.FileName, string.Format(ComponentFormat, compName));
-                            Process.Start(Settings.Default.ComponentEditor, dialog.FileName);
+                            if (Settings.Default.LoadComponentEditor)
+                            {
+                                Process.Start(Settings.Default.ComponentEditor, dialog.FileName);
+                            }
                         }
                     }
                 }
@@ -257,7 +279,7 @@ return {0}";
                     Filter = GetFileFilter("lua")
                 })
                 {
-                    if (dialog.ShowDialog() == Forms.DialogResult.OK)
+                    if (dialog.ShowDialog() == Forms.DialogResult.OK &&Settings.Default.LoadComponentEditor)
                     {
                         Process.Start(Settings.Default.ComponentEditor, dialog.FileName);
                     }
@@ -279,6 +301,19 @@ return {0}";
             Project = type.CreateProject();
         }
 
+        private void UpdateRecentProjects(string filename)
+        {
+            if (Settings.Default.RecentProjects == null)
+            {
+                Settings.Default.RecentProjects = new ObservableCollection<string>();
+            }
+            Settings.Default.RecentProjects.Add(filename);
+            while (Settings.Default.RecentProjects.Count > 10)
+            {
+                Settings.Default.RecentProjects.RemoveAt(9);
+            }
+        }
+
         private void OpenProject()
         {
             using (var dialog = new Forms.OpenFileDialog())
@@ -293,10 +328,20 @@ return {0}";
                             var serializer = new XmlSerializer(typeof(Project));
                             Project = (Project)serializer.Deserialize(s);
                         }
+                        UpdateRecentProjects(dialog.FileName);
                         break;
                     default:
                         break;
                 }
+            }
+        }
+
+        private void OpenProject(string projectName)
+        {
+            using (Stream s = new FileStream(projectName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            {
+                var serializer = new XmlSerializer(typeof(Project));
+                Project = (Project)serializer.Deserialize(s);
             }
         }
 
@@ -314,6 +359,7 @@ return {0}";
                             var serializer = new XmlSerializer(typeof(Project));
                             serializer.Serialize(s, Project);
                         }
+                        UpdateRecentProjects(dialog.FileName);
                         break;
                     default:
                         break;

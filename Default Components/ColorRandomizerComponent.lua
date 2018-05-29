@@ -11,9 +11,9 @@ function ColorRandomizer:__init(entity)
 end
 
 function ColorRandomizer:eventUpdate(args)
-	local color = self:getEntity().ColorComponent
+	local color = self:getComponent("ColorComponent")
 	if not color then return end
-	
+
 	self.current = self.current + args.dt
 	if self.current > self.interval then
 		color.r = love.math.random()

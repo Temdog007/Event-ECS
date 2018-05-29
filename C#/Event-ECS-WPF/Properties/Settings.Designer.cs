@@ -106,5 +106,43 @@ namespace Event_ECS_WPF.Properties {
                 this["LogEvents"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool LoadComponentEditor {
+            get {
+                return ((bool)(this["LoadComponentEditor"]));
+            }
+            set {
+                this["LoadComponentEditor"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string Setting {
+            get {
+                return ((string)(this["Setting"]));
+            }
+            set {
+                this["Setting"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        public global::System.Collections.ObjectModel.ObservableCollection<string> RecentProjects
+        {
+            get
+            {
+                return ((global::System.Collections.ObjectModel.ObservableCollection<string>)(this["RecentProjects"]));
+            }
+            set
+            {
+                this["RecentProjects"] = value;
+            }
+        }
     }
 }

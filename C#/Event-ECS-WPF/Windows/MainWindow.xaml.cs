@@ -63,5 +63,10 @@ namespace Event_ECS_WPF.Windows
                 e.Handled = true;
             }
         }
+
+        private void MenuItem_MouseEnter(object sender, MouseEventArgs e)
+        {
+            viewmodel.OpenRecentProjectCommand.UpdateCanExecute(sender, e);
+        }
     }
 }

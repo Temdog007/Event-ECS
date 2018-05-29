@@ -79,7 +79,7 @@ function system:removeEntity(entity)
       end
     end
   else
-    assert(entity and string.match(entity:getName(), "Entity"), "Must enter a entity to remove")
+    assert(entity, "Must enter a entity to remove")
     for k, en in pairs(self.entities) do
       if en == entity then
         self:dispatchEvent("eventRemovingEntity", {entity = entity, system = self})
