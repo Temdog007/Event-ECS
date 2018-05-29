@@ -47,11 +47,6 @@
                 <MenuItem Header="Open Project" InputGestureText="Ctrl+O" Command="{Binding OpenProjectCommand}"/>
                 <MenuItem Header="Save Project" InputGestureText="Ctrl+S" Command="{Binding SaveProjectCommand}"/>
                 <Separator/>
-                <MenuItem Header="Create Component" InputGestureText="Ctrl+Q" Command="{Binding CreateComponentCommand}"/>
-                <MenuItem Header="Edit Component" InputGestureText="Ctrl+E" Command="{Binding EditComponentCommand}"/>
-                <MenuItem Header="Change Component Editor" InputGestureText="Ctrl+W" Command="{Binding SetComponentSettingsCommand}"/>
-                <MenuItem Header="Reload Components" InputGestureText="Ctrl+R" Command="{Binding CopyComponentsCommand}"/>
-                <Separator/>
                 <MenuItem Header="Recent Projects" ItemsSource="{Binding Source={x:Static properties:Settings.Default}, Path=RecentProjects, Mode=TwoWay}" 
                           MouseEnter="MenuItem_MouseEnter" MouseLeave="MenuItem_MouseEnter">
                     <MenuItem.ItemTemplate>
@@ -66,6 +61,14 @@
 
             <MenuItem Header="Settings">
                 <MenuItem Header="Log Events" IsCheckable="True" IsChecked="{Binding Source={x:Static properties:Settings.Default}, Mode=TwoWay, Path=LogEvents}"/>
+            </MenuItem>
+
+            <MenuItem Header="Components">
+                <MenuItem Header="Create Component" InputGestureText="Ctrl+Q" Command="{Binding CreateComponentCommand}"/>
+                <MenuItem Header="Open Component Editor" IsCheckable="True" IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=LoadComponentEditor, Mode=TwoWay}"/>
+                <MenuItem Header="Edit Component" InputGestureText="Ctrl+E" Command="{Binding EditComponentCommand}"/>
+                <MenuItem Header="Change Component Editor" InputGestureText="Ctrl+W" Command="{Binding SetComponentSettingsCommand}"/>
+                <MenuItem Header="Reload Components" InputGestureText="Ctrl+R" Command="{Binding CopyComponentsCommand}"/>
             </MenuItem>
 
             <MenuItem Header="View">

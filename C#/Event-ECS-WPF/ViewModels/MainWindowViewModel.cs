@@ -5,9 +5,7 @@ using Event_ECS_WPF.Properties;
 using Event_ECS_WPF.SystemObjects;
 using EventECSWrapper;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Configuration;
 using System.Diagnostics;
@@ -54,7 +52,7 @@ return {0}";
 
         private ECSSystem m_currentSystem;
 
-        private ICommand m_editComponentCommand;
+        private IActionCommand m_editComponentCommand;
 
         private ActionCommand m_manualUpdateCommand;
 
@@ -92,7 +90,22 @@ return {0}";
             ecs.SetLoggingEvents(Settings.Default.LogEvents);
         }
 
-        private void Default_SettingChanging(object sender, SettingChangingEventArgs e) => ECS.Instance.UseWrapper(SetLogEvents);
+        private delegate void SettingsUpdateDelegate(object sender, EventArgs e);
+
+        private void DoSettingsUpdate(object sender, EventArgs e)
+        {
+            if (ECS.Instance.ProjectStarted)
+            {
+                ECS.Instance.UseWrapper(SetLogEvents);
+            }
+            EditComponentCommand.UpdateCanExecute(sender, e);
+        }
+
+        private void Default_SettingChanging(object sender, SettingChangingEventArgs e)
+        {
+            SettingsUpdateDelegate d = DoSettingsUpdate;
+            Application.Current.Dispatcher.BeginInvoke(d, sender, e);
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -114,7 +127,7 @@ return {0}";
             }
         }
 
-        public ICommand EditComponentCommand => m_editComponentCommand ?? (m_editComponentCommand = new ActionCommand(EditComponent));
+        public IActionCommand EditComponentCommand => m_editComponentCommand ?? (m_editComponentCommand = new ActionCommand(EditComponent, () => Settings.Default.LoadComponentEditor));
 
         public bool HasProject => Project != null;
 
@@ -238,7 +251,10 @@ return {0}";
                         else
                         {
                             File.WriteAllText(dialog.FileName, string.Format(ComponentFormat, compName));
-                            Process.Start(Settings.Default.ComponentEditor, dialog.FileName);
+                            if (Settings.Default.LoadComponentEditor)
+                            {
+                                Process.Start(Settings.Default.ComponentEditor, dialog.FileName);
+                            }
                         }
                     }
                 }
@@ -263,7 +279,7 @@ return {0}";
                     Filter = GetFileFilter("lua")
                 })
                 {
-                    if (dialog.ShowDialog() == Forms.DialogResult.OK)
+                    if (dialog.ShowDialog() == Forms.DialogResult.OK &&Settings.Default.LoadComponentEditor)
                     {
                         Process.Start(Settings.Default.ComponentEditor, dialog.FileName);
                     }

@@ -23,7 +23,10 @@
     <Setting Name="LogEvents" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
-    <Setting Name="RecentProjects" Type="System.Collections.Specialized.StringCollection" Scope="User">
+    <Setting Name="LoadComponentEditor" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="Setting" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
   </Settings>

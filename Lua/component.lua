@@ -58,6 +58,11 @@ function component:getSystem()
   return self:getEntity().system
 end
 
+function component:getComponent(compName)
+  assert(type(compName) == "string", "Must enter a component name to find")
+  return self.entity[compName]
+end
+
 function component:setEnabled(enabled)
   assert(type(enabled) == "boolean", "Must set enabled to a boolean value")
   if self.enabled ~= enabled then

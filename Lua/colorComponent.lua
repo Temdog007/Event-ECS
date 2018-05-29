@@ -42,9 +42,7 @@ function ColorComponent:eventSetColor(args)
 end
 
 function ColorComponent:eventSetBackground(args)
-  local color = self:getEntity().ColorComponent
-  if not color then return end
-  love.graphics.setBackgroundColor(color.r, color.g, color.b, color.a)
+  love.graphics.setBackgroundColor(self.r, self.g, self.b, self.a)
 end
 
 return ColorComponent

@@ -23,7 +23,7 @@ function LogTest:eventAddedComponent(args)
 end
 
 function LogTest:eventDraw(args)
-	local color = self:getEntity().ColorComponent
+	local color = self:getComponent("ColorComponent")
 	if not color then color = defaultColor end
 	love.graphics.setColor(color.r, color.g, color.b, color.a)
 	if self.showFps then
