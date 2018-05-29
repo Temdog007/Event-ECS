@@ -23,7 +23,7 @@ local component = class("Component")
 
 local id = 1
 function component:__init(entity, parent)
-  assert(entity and string.match(entity:getName(), "Entity"), "Cannot create component without an entity")
+  assert(entity, "Cannot create component without an entity")
   self.entity = entity
 
   local name = classname(parent or self)

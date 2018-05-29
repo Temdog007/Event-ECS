@@ -46,6 +46,7 @@ entity:addComponent(TestComponent)
 local color = entity:addComponent("ColorComponent")
 --entity:dispatchEvent("eventSetColor", {r = 1, g = 0.5, b = 0, a = 1})
 entity:dispatchEvent("eventSetColor", {color = "orange"})
+print(color.getColor("purple"))
 
 repeat loveFuncs.drawLove() until not loveFuncs.updateLove()
 repeat until not loveFuncs.updateLove()

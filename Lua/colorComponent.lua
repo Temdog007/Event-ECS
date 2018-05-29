@@ -13,13 +13,17 @@ function ColorComponent:__init(entity)
   self.a = 1
 end
 
+function ColorComponent.getColor(name)
+  return colors[name]
+end
+
 function ColorComponent:eventSetColor(args)
   if not args then return end
   if args.color then
     if type(args.color) ~= "string" then
       return
     end
-    local color = colors[args.color:lower()]
+    color = self.getColor(args.color)
     if not color then
       error(string.format("Color '%s' was not found", args.color))
     end
