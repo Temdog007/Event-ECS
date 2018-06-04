@@ -77,6 +77,8 @@ namespace EventECS
 		void SetEventsToIgnore(const std::set<std::string>& events);
 		bool IsIgnored(const std::string& ev) const;
 
+		void Unregister(const char* modName);
+
 		void BroadcastEventWithArgs(const char* eventName);
 		void BroadcastEvent(const char* eventName, int argRef = LUA_REFNIL);
 

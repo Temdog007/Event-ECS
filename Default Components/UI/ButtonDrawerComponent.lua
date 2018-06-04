@@ -22,7 +22,7 @@ function ButtonDrawerComponent:eventDraw(args)
 
   if self.drawBG then
     if button.isMouseOver then
-      local c = ColorComponent.getColor(love.mouse.isDown(1) and self.pressedColor or self.highlightColor)
+      local c = ColorComponent.getColor(button.isClicked and self.pressedColor or self.highlightColor)
       if c then
         love.graphics.setColor(c)
         local width, height = button.width * self.highlightScale, button.height * self.highlightScale

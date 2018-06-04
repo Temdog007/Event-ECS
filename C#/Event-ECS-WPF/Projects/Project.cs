@@ -148,8 +148,13 @@ namespace Event_ECS_WPF.Projects
         {
             get => ProjectType.NORMAL;
         }
+
+        private void Unregister(ECSWrapper ecs, string modName)
+        {
+            ecs.Unregister(modName);
+        }
         
-        public void CopyComponentsToOutputPath()
+        public void CopyComponentsToOutputPath(bool unregister = true)
         {
             foreach (string file in Files)
             {
@@ -161,6 +166,18 @@ namespace Event_ECS_WPF.Projects
                     File.SetLastWriteTimeUtc(file, now);
                     File.SetLastWriteTimeUtc(dest, now);
                     LogManager.Instance.Add(LogLevel.Medium, "Copied {0} to {1}", file, dest);
+                    if (unregister && ECS.Instance.ProjectStarted)
+                    {
+                        string modName = Path.GetFileNameWithoutExtension(file);
+                        if (ECS.Instance.UseWrapper(Unregister, modName))
+                        {
+                            LogManager.Instance.Add(LogLevel.Medium, "Unloaded {0} from cache", modName);
+                        }
+                        else
+                        {
+                            LogManager.Instance.Add(LogLevel.Medium, "Failed to unloaded {0} from cache", modName);
+                        }
+                    }
                 }
             }
         }

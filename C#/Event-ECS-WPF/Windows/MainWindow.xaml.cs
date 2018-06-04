@@ -55,15 +55,6 @@ namespace Event_ECS_WPF.Windows
             }
         }
 
-        private void ScrollViewer_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
-        {
-            if(sender is ScrollViewer scv)
-            {
-                scv.ScrollToVerticalOffset(scv.VerticalOffset - e.Delta);
-                e.Handled = true;
-            }
-        }
-
         private void MenuItem_MouseEnter(object sender, MouseEventArgs e)
         {
             viewmodel.OpenRecentProjectCommand.UpdateCanExecute(sender, e);
