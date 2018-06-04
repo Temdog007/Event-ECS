@@ -5,7 +5,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" 
              d:DesignHeight="400" d:DesignWidth="400"
-             x:Name="m_project">
+             x:Name="m_project" MouseEnter="Project_MouseEnter">
 
     <UserControl.Resources>
         <Style TargetType="Button">
@@ -31,19 +31,40 @@
                         HorizontalAlignment="Stretch" Margin="5" MinHeight="20" Click="Button_Click"/>
             </GroupBox>
 
-            <GroupBox Margin="5" Header="Path to Component Files">
-                <Button Command="{Binding ElementName=m_project, Path=GetPathCommand}" CommandParameter="ComponentPath" Margin="5" MinHeight="20"
-                        HorizontalAlignment="Stretch"
-                    Content="{Binding ElementName=m_project, Path=Project.ComponentPath, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
-            </GroupBox>
-
             <GroupBox Margin="5" Header="Path to Library Files">
                 <Button Command="{Binding ElementName=m_project, Path=GetPathCommand}" CommandParameter="LibraryPath" Margin="5" MinHeight="20"
                         HorizontalAlignment="Stretch"
                         Content="{Binding ElementName=m_project, Path=Project.LibraryPath, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
             </GroupBox>
 
-            <Expander Header="Events To Ignore Log">
+            <Expander Margin="5" Header="Path to Component Files" IsExpanded="True" Background="AntiqueWhite">
+                <DockPanel>
+                    <Button DockPanel.Dock="Bottom" Command="{Binding ElementName=m_project, Path=AddPathCommand}" Margin="5" MinHeight="20"
+                            HorizontalAlignment="Stretch" Content="Add Path"/>
+                    <ItemsControl ItemsSource="{Binding ElementName=m_project, Path=Project.ComponentPaths, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}">
+                        
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="Black" BorderThickness="1">
+                                    <DockPanel>
+                                        <Button Content="Remove" Command="{Binding ElementName=m_project, Path=RemovePathCommand}" CommandParameter="{Binding Value}" DockPanel.Dock="Right"/>
+                                        <TextBlock Text="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                    </DockPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                        
+                    </ItemsControl>
+                </DockPanel>
+            </Expander>
+
+            <Expander Header="Events To Ignore Log" Background="Beige">
                 <DataGrid ItemsSource="{Binding ElementName=m_project, Path=Project.EventsToIgnore, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
 
                     <DataGrid.ItemTemplate>

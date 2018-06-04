@@ -184,5 +184,14 @@ namespace Event_ECS_WPF.Controls
             DispatchEventCommand.UpdateCanExecute(sender, e);
             BroadcastEventCommand.UpdateCanExecute(sender, e);
         }
+
+        private void ScrollViewer_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            if (sender is ScrollViewer scv)
+            {
+                scv.ScrollToVerticalOffset(scv.VerticalOffset - e.Delta);
+                e.Handled = true;
+            }
+        }
     }
 }

@@ -162,9 +162,7 @@
             </TabControl.ItemTemplate>
             <TabControl.ContentTemplate>
                 <DataTemplate>
-                    <ScrollViewer PreviewMouseWheel="ScrollViewer_PreviewMouseWheel">
-                        <controls:EntityComponentSystemControl EntityComponentSystem="{Binding}" Project="{Binding ElementName=viewmodel, Path=Project, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                    </ScrollViewer>
+                    <controls:EntityComponentSystemControl EntityComponentSystem="{Binding}" Project="{Binding ElementName=viewmodel, Path=Project, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                 </DataTemplate>
             </TabControl.ContentTemplate>
         </TabControl>

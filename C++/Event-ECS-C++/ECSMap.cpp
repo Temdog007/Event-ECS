@@ -244,6 +244,17 @@ namespace EventECS
 		}
 	}
 
+	void ECSMap::Unregister(const char* modName)
+	{
+		lua_settop(L, 0);
+		lua_getglobal(L, "package");
+		lua_getfield(L, -1, "loaded");
+		lua_pushstring(L, modName);
+		lua_pushnil(L);
+		lua_settable(L, -3);
+		lua_settop(L, 0);
+	}
+
 	void ECSMap::BroadcastEventWithArgs(const char* eventName)
 	{
 		lua_newtable(L);

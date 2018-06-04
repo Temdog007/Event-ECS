@@ -40,7 +40,7 @@
         </GroupBox.ContextMenu>
 
         <DockPanel>
-            <Expander Header="Dispatch Events" DockPanel.Dock="Bottom">
+            <Expander Header="Dispatch Events" DockPanel.Dock="Bottom" Background="LightSeaGreen">
                 <DockPanel>
                     <UniformGrid Columns="2" DockPanel.Dock="Bottom" Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                         <Button Content="Dispatch Event to All Entities" Margin="1"
@@ -52,41 +52,43 @@
                 </DockPanel>
             </Expander>
 
-            <ItemsControl ItemsSource="{Binding Source={StaticResource entitiesSrc}, UpdateSourceTrigger=PropertyChanged}" AlternationCount="5" Background="Transparent">
+            <ScrollViewer PreviewMouseWheel="ScrollViewer_PreviewMouseWheel">
+                <ItemsControl ItemsSource="{Binding Source={StaticResource entitiesSrc}, UpdateSourceTrigger=PropertyChanged}" AlternationCount="5" Background="Transparent">
 
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <WrapPanel/>
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
 
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Border Name="Border">
-                            <controls:EntityControl Entity="{Binding}" Project="{Binding Source={StaticResource SystemControl}, Path=Data.Project}"/>
-                        </Border>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Name="Border">
+                                <controls:EntityControl Entity="{Binding}" Project="{Binding Source={StaticResource SystemControl}, Path=Data.Project}"/>
+                            </Border>
 
-                        <DataTemplate.Triggers>
-                            <Trigger Property="ItemsControl.AlternationIndex" Value="0">
-                                <Setter Property="Background" Value="LightBlue" TargetName="Border"/>
-                            </Trigger>
-                            <Trigger Property="ItemsControl.AlternationIndex" Value="1">
-                                <Setter Property="Background" Value="LightYellow" TargetName="Border"/>
-                            </Trigger>
-                            <Trigger Property="ItemsControl.AlternationIndex" Value="2">
-                                <Setter Property="Background" Value="LightPink" TargetName="Border"/>
-                            </Trigger>
-                            <Trigger Property="ItemsControl.AlternationIndex" Value="3">
-                                <Setter Property="Background" Value="LightCyan" TargetName="Border"/>
-                            </Trigger>
-                            <Trigger Property="ItemsControl.AlternationIndex" Value="4">
-                                <Setter Property="Background" Value="Snow" TargetName="Border"/>
-                            </Trigger>
-                        </DataTemplate.Triggers>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
+                            <DataTemplate.Triggers>
+                                <Trigger Property="ItemsControl.AlternationIndex" Value="0">
+                                    <Setter Property="Background" Value="LightBlue" TargetName="Border"/>
+                                </Trigger>
+                                <Trigger Property="ItemsControl.AlternationIndex" Value="1">
+                                    <Setter Property="Background" Value="LightYellow" TargetName="Border"/>
+                                </Trigger>
+                                <Trigger Property="ItemsControl.AlternationIndex" Value="2">
+                                    <Setter Property="Background" Value="LightPink" TargetName="Border"/>
+                                </Trigger>
+                                <Trigger Property="ItemsControl.AlternationIndex" Value="3">
+                                    <Setter Property="Background" Value="LightCyan" TargetName="Border"/>
+                                </Trigger>
+                                <Trigger Property="ItemsControl.AlternationIndex" Value="4">
+                                    <Setter Property="Background" Value="Snow" TargetName="Border"/>
+                                </Trigger>
+                            </DataTemplate.Triggers>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
 
-            </ItemsControl>
+                </ItemsControl>
+            </ScrollViewer>
         </DockPanel>
     </GroupBox>
 </UserControl>
