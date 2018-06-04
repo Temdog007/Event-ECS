@@ -27,9 +27,9 @@ function ColorComponent:eventSetColor(args)
     if not color then
       error(string.format("Color '%s' was not found", args.color))
     end
-    args.r = color[1] / 255
-    args.g = color[2] / 255
-    args.b = color[3] / 255
+    args.r = color[1]
+    args.g = color[2]
+    args.b = color[3]
     args.a = nil -- don't change
   else
     if args.r then
@@ -54,7 +54,7 @@ function ColorComponent:eventSetColor(args)
     end
   end
 
-	self.r = args.r or self.r
+  self.r = args.r or self.r
   self.g = args.g or self.g
   self.b = args.b or self.b
   self.a = args.a or self.a
@@ -65,7 +65,7 @@ function ColorComponent:eventSetBackground(args)
   love.graphics.setBackgroundColor(self.r, self.g, self.b, self.a)
 end
 
-colors =
+colors = setmetatable(
 {
 	black = {0,0,0},
 	white = {255,255,255},
@@ -229,6 +229,20 @@ colors =
 	gainsboro = {220,220,220},
 	whitesmoke = {245,245,245},
 	white = {255,255,255}
-}
+},
+{
+	__index = function(t, k)
+		if type(k) ~= "string" then
+			error("This table only takes string keys")
+		end
+		return rawget(t, k:lower())
+	end
+})
+
+for _,color in pairs(colors) do
+	for k,v in pairs(color) do
+		color[k] = color[k] / 255
+	end
+end
 
 return ColorComponent

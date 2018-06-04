@@ -17,7 +17,7 @@ function ButtonDrawerComponent:__init(entity)
 end
 
 function ButtonDrawerComponent:eventDraw(args)
-  local button = self:getEntity().ButtonComponent
+  local button = self:getComponent("ButtonComponent")
   if not button then return end
 
   if self.drawBG then
