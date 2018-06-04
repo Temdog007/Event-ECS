@@ -62,7 +62,7 @@ end";
 
         public LoveProject() : this(false) { }
 
-        public LoveProject(bool setDefaults)
+        public LoveProject(bool setDefaults) : base(setDefaults)
         {
             Settings = new LoveProjectSettings();
             if(setDefaults)

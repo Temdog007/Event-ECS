@@ -25,19 +25,25 @@ namespace Event_ECS_WPF.Projects
             "FinalizerComponent"
         };
 
-        private string _componentPath;
+        private ObservableCollection<ValueContainer<string>> _componentPath;
 
         private ObservableCollection<ValueContainer<string>> _eventsToIgnore;
+
         private string _initializer;
 
         private string _name;
 
         private string m_libraryPath;
 
-        public Project()
+        public Project() : this(false) { }
+
+        public Project(bool setDefaults)
         {
             Name = "New Project";
-            ComponentPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            if(setDefaults)
+            {
+                ComponentPaths.Add(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
+            }
             LibraryPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
         }
 
@@ -49,13 +55,13 @@ namespace Event_ECS_WPF.Projects
         /// Directory containing all of the lua component files
         /// </summary>
         [XmlElement]
-        public string ComponentPath
+        public ObservableCollection<ValueContainer<string>> ComponentPaths
         {
-            get => _componentPath;
+            get => _componentPath ?? (_componentPath = new ObservableCollection<ValueContainer<string>>());
             set
             {
                 _componentPath = value;
-                OnPropertyChanged("ComponentPath");
+                OnPropertyChanged("ComponentPaths");
                 OnPropertyChanged("Components");
             }
         }
@@ -91,11 +97,14 @@ namespace Event_ECS_WPF.Projects
         {
             get
             {
-                if (!IsHidden(ComponentPath) && Directory.Exists(ComponentPath))
+                foreach (var componentPath in ComponentPaths)
                 {
-                    foreach (var file in Directory.GetFiles(ComponentPath).Where(f => !IsHidden(f) && Path.GetExtension(f) == ".lua"))
+                    if (!IsHidden(componentPath) && Directory.Exists(componentPath))
                     {
-                        yield return file;
+                        foreach (var file in Directory.GetFiles(componentPath).Where(f => !IsHidden(f) && Path.GetExtension(f) == ".lua"))
+                        {
+                            yield return file;
+                        }
                     }
                 }
             }

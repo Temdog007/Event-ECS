@@ -1,16 +1,7 @@
 ﻿using Event_ECS_WPF.Commands;
 using Event_ECS_WPF.Extensions;
-using Event_ECS_WPF.Logger;
-using Event_ECS_WPF.Misc;
 using Event_ECS_WPF.Projects;
-using Event_ECS_WPF.Properties;
-using Event_ECS_WPF.SystemObjects;
-using System;
-using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Configuration;
-using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -26,7 +17,11 @@ namespace Event_ECS_WPF.Controls
         public static readonly DependencyProperty ProjectProperty =
             DependencyProperty.Register("Project", typeof(Project), typeof(ProjectControl));
 
+        private IActionCommand m_addPathCommand;
+
         private ActionCommand<string> m_getPathCommand;
+
+        private IActionCommand m_removePathCommand;
 
         public ProjectControl()
         {
@@ -35,12 +30,37 @@ namespace Event_ECS_WPF.Controls
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        public IActionCommand AddPathCommand => m_addPathCommand ?? (m_addPathCommand = new ActionCommand(AddPath));
+
         public IActionCommand GetPathCommand => m_getPathCommand ?? (m_getPathCommand = new ActionCommand<string>(GetPath));
 
         public Project Project
         {
             get { return (Project)GetValue(ProjectProperty); }
             set { SetValue(ProjectProperty, value); }
+        }
+
+        public IActionCommand RemovePathCommand => m_removePathCommand ?? (m_removePathCommand = new ActionCommand<string>(RemovePath));
+
+        private void AddPath()
+        {
+            using (var dialog = new Forms.FolderBrowserDialog())
+            {
+                switch (dialog.ShowDialog())
+                {
+                    case Forms.DialogResult.OK:
+                        if (!string.IsNullOrWhiteSpace(dialog.SelectedPath))
+                        {
+                            if (!Project.ComponentPaths.Contains(dialog.SelectedPath))
+                            {
+                                Project.ComponentPaths.Add(dialog.SelectedPath);
+                            }
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
@@ -76,6 +96,16 @@ namespace Event_ECS_WPF.Controls
         private void OnPropertyChanged(string propName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
+        }
+
+        private void Project_MouseEnter(object sender, MouseEventArgs e)
+        {
+            RemovePathCommand.UpdateCanExecute(sender, e);
+        }
+
+        private void RemovePath(string path)
+        {
+            Project.ComponentPaths.Remove(path);
         }
     }
 }

@@ -15,7 +15,7 @@
                 case ProjectType.LOVE:
                     return new LoveProject(true);
                 default:
-                    return new Project();
+                    return new Project(true);
             }
         }
     }
