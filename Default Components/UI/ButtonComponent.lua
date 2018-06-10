@@ -1,6 +1,6 @@
 local Component = require('component')
 local class = require('classlib')
-
+local ColorComponent = require("ColorComponent")
 local ButtonComponent = class('ButtonComponent', Component)
 
 function ButtonComponent:__init(entity)
@@ -45,10 +45,41 @@ function ButtonComponent:eventMouseReleased(args)
   if not args then return end
   local b = args[3]
   if not b then return end
-  
+
   if b == 1 then
     self.isClicked = false
   end
+end
+
+function ButtonComponent:drawHighlight(scale, pressedColor, highlightColor)
+  scale = scale or 1.1
+  local c = ColorComponent.getColor(self.isClicked and (pressedColor or "red") or (highlightColor or "yellow"))
+  if c then
+    love.graphics.setColor(c)
+    local width, height = self.width * scale, self.height * scale
+    love.graphics.rectangle("fill", self.x - (width - self.width)*0.5, self.y - (height - self.height)*0.5, width, height)
+  end
+end
+
+function ButtonComponent:drawButton(color)
+  local color = color or self:getComponent("ColorComponent")
+  if color then
+    love.graphics.setColor(color)
+  end
+  love.graphics.rectangle("fill", self.x, self.y, self.width, self.height)
+end
+
+function ButtonComponent:drawText(color, alignment, scaleX, scaleY)
+  if color then love.graphics.setColor(color) end
+  love.graphics.printf(self.text, self.x, self.y, self.width, alignment or "center", 0, scaleX or 1, scaleY or 1)
+end
+
+function ButtonComponent:draw(fontColor)
+  if self.isMouseOver then
+    self:drawHighlight()
+  end
+  self:drawButton()
+  self:drawText(fontColor)
 end
 
 return ButtonComponent

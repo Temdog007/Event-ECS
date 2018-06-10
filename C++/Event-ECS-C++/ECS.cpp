@@ -319,6 +319,14 @@ namespace EventECS
 		lua_setfield(L, -2, key);
 	}
 
+	void ECS::SetComponentNumber(int entityID, int componentID, int key, lua_Number value)
+	{
+		FindComponent(entityID, componentID);
+		lua_pushnumber(L, key);
+		lua_pushnumber(L, value);
+		lua_settable(L, -3);
+	}
+
 	void ECS::SetComponentString(int entityID, int componentID, const char* key, const char* value)
 	{
 		FindComponent(entityID, componentID);
@@ -367,6 +375,16 @@ namespace EventECS
 		FindComponent(entityID, componentID);
 		lua_getfield(L, -1, key);
 		return lua_tonumber(L, -1);
+	}
+
+	lua_Number ECS::GetComponentNumber(int entityID, int componentID, int key) const
+	{
+		FindComponent(entityID, componentID);
+		lua_pushnumber(L, key);
+		lua_gettable(L, -2);
+		lua_Number num = lua_tonumber(L, -1);
+		lua_settop(L, 0);
+		return num;
 	}
 
 	std::string ECS::GetComponentString(int entityID, int componentID, const char* key) const

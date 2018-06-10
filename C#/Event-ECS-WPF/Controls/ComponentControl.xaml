@@ -26,7 +26,9 @@
             <ContextMenu>
                 <MenuItem Header="Is Enabled" IsCheckable="True" IsChecked="{Binding Source={StaticResource ComponentControl}, Path=Data.Component.IsEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                 <Separator/>
-                <MenuItem Header="Remove Component" Command="{Binding Source={StaticResource ComponentControl}, Path=Data.RemoveComponentCommand}"/>
+                <MenuItem Header="Reload" Command="{Binding Source={StaticResource ComponentControl}, Path=Data.ReloadComponentCommand}"/>
+                <Separator/>
+                <MenuItem Header="Remove" Command="{Binding Source={StaticResource ComponentControl}, Path=Data.RemoveComponentCommand}"/>
             </ContextMenu>
         </Expander.ContextMenu>
         <Grid>

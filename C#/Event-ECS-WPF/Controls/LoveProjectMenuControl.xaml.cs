@@ -23,7 +23,7 @@ namespace Event_ECS_WPF.Controls
             InitializeComponent();
 
             Project.ProjectStateChange += Value_ProjectStateChange;
-            ECS.OnAutoUpdateChanged += OnAutoUpdateChanged;
+            ECS.Instance.OnAutoUpdateChanged += OnAutoUpdateChanged;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

@@ -21,7 +21,17 @@
         
         <Expander.Header>
             <StackPanel Orientation="Horizontal">
-                <TextBox Text="{Binding ElementName=m_entityControl, Path=Entity.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                <TextBox Text="{Binding ElementName=m_entityControl, Path=Entity.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                    <TextBox.Style>
+                        <Style TargetType="TextBox">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ElementName=m_entityControl, Path=Entity.IsEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Value="False">
+                                    <Setter Property="Foreground" Value="Red"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBox.Style>
+                </TextBox>
                 <TextBlock Margin="5,0,0,0">
                     <TextBlock.Text>
                         <MultiBinding StringFormat="{}ID #{0}">

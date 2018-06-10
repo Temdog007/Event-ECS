@@ -16,11 +16,11 @@ function ColorRandomizer:eventUpdate(args)
 
 	self.current = self.current + args.dt
 	if self.current > self.interval then
-		color.r = love.math.random()
-		color.g = love.math.random()
-		color.b = love.math.random()
+		color[1] = love.math.random()
+		color[2] = love.math.random()
+		color[3] = love.math.random()
 		if self.changeAlpha then
-			color.a = love.math.random()
+			color[4] = love.math.random()
 		end
 		self.current = 0
 	end

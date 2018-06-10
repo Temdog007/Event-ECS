@@ -7,10 +7,10 @@ local colors
 
 function ColorComponent:__init(entity)
   self.Component:__init(entity, self)
-  self.r = 1
-  self.g = 1
-  self.b = 1
-  self.a = 1
+  self[1] = 1
+  self[2] = 1
+  self[3] = 1
+  self[4] = 1
 end
 
 function ColorComponent.getColor(name)
@@ -27,42 +27,42 @@ function ColorComponent:eventSetColor(args)
     if not color then
       error(string.format("Color '%s' was not found", args.color))
     end
-    args.r = color[1]
-    args.g = color[2]
-    args.b = color[3]
-    args.a = nil -- don't change
+    args[1] = color[1]
+    args[2] = color[2]
+    args[3] = color[3]
+    args[4] = nil -- don't change
   else
-    if args.r then
-      if type(args.r) ~= "number" then
-        args.r = nil
+    if args[1] then
+      if type(args[1]) ~= "number" then
+        args[1] = nil
       end
     end
-    if args.g then
-      if type(args.g) ~= "number" then
-        args.g = nil
+    if args[2] then
+      if type(args[2]) ~= "number" then
+        args[2] = nil
       end
     end
-    if args.b then
-      if type(args.b) ~= "number" then
-        args.b = nil
+    if args[3] then
+      if type(args[3]) ~= "number" then
+        args[3] = nil
       end
     end
-    if args.a then
-      if type(args.a) ~= "number" then
-        args.a = nil
+    if args[4] then
+      if type(args[4]) ~= "number" then
+        args[4] = nil
       end
     end
   end
 
-  self.r = args.r or self.r
-  self.g = args.g or self.g
-  self.b = args.b or self.b
-  self.a = args.a or self.a
+  self[1] = args[1] or self[1]
+  self[2] = args[2] or self[2]
+  self[3] = args[3] or self[3]
+  self[4] = args[4] or self[4]
   self:getEntity():dispatchEvent("eventColorChanged", {color = self, entity = self:getEntity()})
 end
 
 function ColorComponent:eventSetBackground(args)
-  love.graphics.setBackgroundColor(self.r, self.g, self.b, self.a)
+  love.graphics.setBackgroundColor(self)
 end
 
 colors = setmetatable(

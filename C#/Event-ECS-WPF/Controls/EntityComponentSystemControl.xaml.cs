@@ -6,11 +6,13 @@ using Event_ECS_WPF.SystemObjects;
 using EventECSWrapper;
 using System;
 using System.ComponentModel;
+using System.IO;
 using System.Threading;
 using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using Forms = System.Windows.Forms;
 
 namespace Event_ECS_WPF.Controls
 {
@@ -32,6 +34,7 @@ namespace Event_ECS_WPF.Controls
         private ActionCommand<string> m_broadcastEventCommand;
 
         private IActionCommand m_serializeCommand;
+        private ActionCommand m_executeCodeCommand;
 
         public EntityComponentSystemControl()
         {
@@ -59,6 +62,26 @@ namespace Event_ECS_WPF.Controls
         public IActionCommand DispatchEventCommand => m_dispatchEventCommand ?? (m_dispatchEventCommand = new ActionCommand<string>(DispatchEvent));
 
         public IActionCommand BroadcastEventCommand => m_broadcastEventCommand ?? (m_broadcastEventCommand = new ActionCommand<string>(BroadcastEvent));
+
+        public IActionCommand ExecuteCodeCommand => m_executeCodeCommand ?? (m_executeCodeCommand = new ActionCommand(ExecuteCode));
+
+        private void ExecuteCodeFunc(ECSWrapper ecs, string code)
+        {
+            ecs.Execute(code, EntityComponentSystem.Name);
+        }
+
+        private void ExecuteCode()
+        {
+            var dialog = new Forms.OpenFileDialog
+            {
+                Filter = string.Format(MainWindowViewModel.DefaultFilterFormat, "lua")
+            };
+            if (dialog.ShowDialog() == Forms.DialogResult.OK)
+            {
+                string code = File.ReadAllText(dialog.FileName);
+                ECS.Instance.UseWrapper(ExecuteCodeFunc, code);
+            }
+        }
 
         public string ClassName => ECS.Instance.UseWrapper(GetClassName, out string classname) ? classname : EntityComponentSystem.Name;
 

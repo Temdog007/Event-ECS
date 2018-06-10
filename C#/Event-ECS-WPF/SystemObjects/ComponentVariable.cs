@@ -56,7 +56,14 @@ namespace Event_ECS_WPF.SystemObjects
             int compID = (int)Convert.ChangeType(Component.ID, typeof(int));
             if (typeof(T) == typeof(float))
             {
-                ecs.SetComponentNumber(systemName, entityID, compID, Name, (float)Convert.ChangeType(Value, typeof(T)));
+                if (int.TryParse(Name, out int result))
+                {
+                    ecs.SetComponentNumber(systemName, entityID, compID, result, (float)Convert.ChangeType(Value, typeof(T)));
+                }
+                else
+                {
+                    ecs.SetComponentNumber(systemName, entityID, compID, Name, (float)Convert.ChangeType(Value, typeof(T)));
+                }
             }
             else if (typeof(T) == typeof(string))
             {

@@ -10,6 +10,7 @@
         xmlns:misc="clr-namespace:Event_ECS_WPF.Misc"
         xmlns:proj="clr-namespace:Event_ECS_WPF.Projects"
         xmlns:properties="clr-namespace:Event_ECS_WPF.Properties"
+        xmlns:sysObj="clr-namespace:Event_ECS_WPF.SystemObjects"
         xmlns:forms="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
         mc:Ignorable="d"
         Title="Entity Component System Viewer" 
@@ -31,6 +32,7 @@
         <KeyBinding Key="W" Modifiers="Ctrl" Command="{Binding SetComponentSettingsCommand}"/>
         <KeyBinding Key="E" Modifiers="Ctrl" Command="{Binding EditComponentCommand}"/>
         <KeyBinding Key="R" Modifiers="Ctrl" Command="{Binding CopyComponentsCommand}"/>
+        <KeyBinding Key="F2" Modifiers="Alt" Command="{Binding Source={x:Static sysObj:ECS.Instance}, Path=ResetProjectCommand}"/>
         <KeyBinding Key="F1" Command="{Binding ManualUpdateCommand}"/>
         <KeyBinding Key="F2" Command="{Binding ToggleProjectModeCommand}"/>
         <KeyBinding Key="F5" Command="{Binding ToggleProjectCommand}"/>
