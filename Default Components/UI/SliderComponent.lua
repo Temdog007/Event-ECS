@@ -1,6 +1,6 @@
 local Component = require('component')
 local class = require('classlib')
-
+local ColorComponent = require("ColorComponent")
 local SliderComponent = class('SliderComponent', Component)
 
 function SliderComponent:__init(entity)
@@ -81,6 +81,48 @@ function SliderComponent:eventMouseReleased(args)
   if b == 1 then
     self.isClicked = false
   end
+end
+
+function SliderComponent:drawHighlight(scale, pressedColor, highlightColor)
+  scale = scale or 1.1
+  local c = ColorComponent.getColor((self.isClicked or self.isClicked) and (pressedColor or "red") or (highlightColor or "yellow"))
+  if c then
+    love.graphics.setColor(c)
+    local width, height = self.width * scale, self.height * scale
+    love.graphics.rectangle("fill", self.x - (width - self.width)*0.5, self.y - (height - self.height)*0.5, width, height)
+  end
+end
+
+function SliderComponent:drawSlider()
+  local color = self:getComponent("ColorComponent")
+  if color then love.graphics.setColor(color) end
+  love.graphics.rectangle("fill", self.x, self.y, self.width, self.height)
+end
+
+function SliderComponent:drawCursor(color, scale)
+  scale = scale or 0.1
+  if color then
+    love.graphics.setColor(color)
+  end
+  if self.vertical then
+    love.graphics.rectangle("fill", self.x, self.y + self.height * self:getPercentage(), self.width, self.height * scale)
+  else
+    love.graphics.rectangle("fill", self.x + self.width * self:getPercentage(), self.y, self.width * scale, self.height)
+  end
+end
+
+function SliderComponent:drawText(color, alignment, scaleX, scaleY)
+  if color then love.graphics.setColor(color) end
+  love.graphics.printf(self.text, self.x, self.y, self.width, alignment or "center", 0, scaleX or 1, scaleY or 1)
+end
+
+function SliderComponent:draw(color)
+  if self.isClicked or self.isMouseOver then
+    self:drawHighlight()
+  end
+  self:drawSlider()
+  self:drawCursor(color)
+  self:drawText(color)
 end
 
 return SliderComponent

@@ -9,11 +9,11 @@ function LabelComponent:__init(entity)
   self.x = 0
   self.y = 0
   self.width = 100
+  self.height = love.graphics.getFont():getHeight()
   self.text = ""
 end
 
-function LabelComponent:eventDraw(args)
-  local color = self:getComponent("ColorComponent")
+function LabelComponent:draw(color)
   if color then
     love.graphics.setColor(color)
   end
