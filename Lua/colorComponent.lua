@@ -17,6 +17,10 @@ function ColorComponent.getColor(name)
   return colors[name]
 end
 
+function ColorComponent:getValues()
+  return self.r, self.g, self.b, self.a
+end
+
 function ColorComponent:eventSetColor(args)
   if not args then return end
   if args.color then

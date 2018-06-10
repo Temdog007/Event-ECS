@@ -14,6 +14,7 @@ function ButtonDrawerComponent:__init(entity)
   self.highlightScale = 1.1
   self.scaleX = 1
   self.scaleY = 1
+  self.alignment = "center"
 end
 
 function ButtonDrawerComponent:eventDraw(args)
@@ -22,24 +23,13 @@ function ButtonDrawerComponent:eventDraw(args)
 
   if self.drawBG then
     if button.isMouseOver then
-      local c = ColorComponent.getColor(button.isClicked and self.pressedColor or self.highlightColor)
-      if c then
-        love.graphics.setColor(c)
-        local width, height = button.width * self.highlightScale, button.height * self.highlightScale
-        love.graphics.rectangle("fill", button.x - (width - button.width)*0.5, button.y - (height - button.height)*0.5, width, height)
-      end
+      button:drawHighlight(self.highlightScale, self.pressedColor, self.highlightColor)
     end
-    local color = self:getComponent("ColorComponent")
-    if color then
-      love.graphics.setColor(color.r, color.g, color.b, color.a)
-    end
-    love.graphics.rectangle("fill", button.x, button.y, button.width, button.height)
+    button:drawButton()
   end
 
   if self.drawText then
-    local c = ColorComponent.getColor(self.fontColor)
-    if c then love.graphics.setColor(c) end
-    love.graphics.printf(button.text, button.x, button.y, button.width, "center", 0, self.scaleX, self.scaleY)
+    button:drawText(ColorComponent.getColor(self.fontColor), self.alignment, self.scaleX, self.scaleY)
   end
 end
 

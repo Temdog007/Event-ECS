@@ -67,8 +67,16 @@ function component:setEnabled(enabled)
   assert(type(enabled) == "boolean", "Must set enabled to a boolean value")
   if self.enabled ~= enabled then
     self.enabled = enabled
-    self.entity.system:dispatchEvent("eventEnabledChanged", self, enabled)
+    self:dispatchEvent("eventEnabledChanged", {component = self, enabled = enabled})
   end
+end
+
+function component:dispatchEventLocal(eventName, args)
+  self.entity:dispatchEvent(eventName, args)
+end
+
+function component:dispatchEvent(eventName, args)
+  self.entity.system:dispatchEvent(eventName, args)
 end
 
 function component:eventRemovingComponent(args)
