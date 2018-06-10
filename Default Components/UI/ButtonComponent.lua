@@ -52,7 +52,7 @@ function ButtonComponent:eventMouseReleased(args)
 end
 
 function ButtonComponent:drawHighlight(scale, pressedColor, highlightColor)
-  scale = scale or 1
+  scale = scale or 1.1
   local c = ColorComponent.getColor(self.isClicked and (pressedColor or "red") or (highlightColor or "yellow"))
   if c then
     love.graphics.setColor(c)
@@ -76,12 +76,9 @@ end
 
 function ButtonComponent:draw(fontColor)
   if self.isMouseOver then
-    self:drawHighlight(self.highlightScale, self.pressedColor, self.highlightColor)
+    self:drawHighlight()
   end
   self:drawButton()
-  if type(fontColor) == "string" then
-    fontColor = ColorComponent.getColor(fontColor)
-  end
   self:drawText(fontColor)
 end
 
