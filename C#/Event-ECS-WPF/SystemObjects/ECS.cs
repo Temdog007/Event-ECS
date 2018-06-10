@@ -1,9 +1,9 @@
-﻿using Event_ECS_WPF.Logger;
+﻿using Event_ECS_WPF.Commands;
+using Event_ECS_WPF.Logger;
 using EventECSWrapper;
 using System;
-using System.IO;
-using System.Reflection;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Media;
 
 namespace Event_ECS_WPF.SystemObjects
@@ -15,6 +15,7 @@ namespace Event_ECS_WPF.SystemObjects
     public delegate void DoActionOnMainThreadDelegate(Action action);
 
     public delegate void LogDelegate(string message);
+
     public class AutoUpdateChangedArgs : EventArgs
     {
         public AutoUpdateChangedArgs(bool autoUpdate)
@@ -37,6 +38,8 @@ namespace Event_ECS_WPF.SystemObjects
 
         private ECSWrapper m_ecs;
 
+        private ActionCommand m_resetProjectCommand;
+
         static ECS()
         {
             ECSWrapper.LogEvent = HandleLogFromECS;
@@ -44,23 +47,18 @@ namespace Event_ECS_WPF.SystemObjects
         
         internal ECS(){}
 
-        private double LoveDraw(ECSWrapper ecs)
-        {
-            return ecs.LoveDraw(true);
-        }
-
-        private void CompositionTarget_Rendering(object sender, EventArgs e)
-        {
-            UseWrapper(LoveDraw, out double sleepMilliseconds);
-        }
-
         public static event Action DeserializeRequested;
-        public static event AutoUpdateChanged OnAutoUpdateChanged;
+
+        public event Action ProjectRestarted;
+
+        public event AutoUpdateChanged OnAutoUpdateChanged;
 
         public static ECS Instance => s_instance ?? (s_instance = new ECS());
 
         public bool ProjectStarted => m_ecs != null;
-        
+
+        public ICommand ResetProjectCommand => m_resetProjectCommand ?? (m_resetProjectCommand = new ActionCommand(ResetProject));
+
         public void CreateInstance(string code)
         {
             lock (m_lock)
@@ -100,6 +98,15 @@ namespace Event_ECS_WPF.SystemObjects
             lock (m_lock)
             {
                 return m_ecs?.GetAutoUpdate() ?? false;
+            }
+        }
+
+        public void ResetProject()
+        {
+            if (UseWrapper(ResetProjectFunc))
+            {
+                ProjectRestarted?.Invoke();
+                LogManager.Instance.Add("Project restarted", LogLevel.Medium);
             }
         }
 
@@ -204,11 +211,16 @@ namespace Event_ECS_WPF.SystemObjects
             }
         }
 
-        private static void UpdateAction(ECSWrapper ecs)
+        private void UpdateAction(ECSWrapper ecs)
         {
             ecs.LoveUpdate();
         }
-        
+
+        private void CompositionTarget_Rendering(object sender, EventArgs e)
+        {
+            UseWrapper(LoveDraw, out double sleepMilliseconds);
+        }
+
         private void DoDispose()
         {
             lock (m_lock)
@@ -217,6 +229,17 @@ namespace Event_ECS_WPF.SystemObjects
                 m_ecs = null;
                 LogManager.Instance.Add(LogLevel.Medium, "Project Stopped");
             }
+        }
+
+        private double LoveDraw(ECSWrapper ecs)
+        {
+            return ecs.LoveDraw(true);
+        }
+
+        private void ResetProjectFunc(ECSWrapper ecs)
+        {
+            ecs.Reset();
+            ProjectRestarted?.Invoke();
         }
     }
 }

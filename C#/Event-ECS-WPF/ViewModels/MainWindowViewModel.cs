@@ -81,31 +81,12 @@ return {0}";
         public MainWindowViewModel()
         {
             Project.ProjectStateChange += ECS_OnAutoUpdateChanged;
-            ECS.OnAutoUpdateChanged += ECS_OnAutoUpdateChanged;
+            ECS.Instance.OnAutoUpdateChanged += ECS_OnAutoUpdateChanged;
+            ECS.Instance.ProjectRestarted += SetSystems;
             Settings.Default.SettingChanging += Default_SettingChanging;
         }
 
-        private void SetLogEvents(ECSWrapper ecs)
-        {
-            ecs.SetLoggingEvents(Settings.Default.LogEvents);
-        }
-
         private delegate void SettingsUpdateDelegate(object sender, EventArgs e);
-
-        private void DoSettingsUpdate(object sender, EventArgs e)
-        {
-            if (ECS.Instance.ProjectStarted)
-            {
-                ECS.Instance.UseWrapper(SetLogEvents);
-            }
-            EditComponentCommand.UpdateCanExecute(sender, e);
-        }
-
-        private void Default_SettingChanging(object sender, SettingChangingEventArgs e)
-        {
-            SettingsUpdateDelegate d = DoSettingsUpdate;
-            Application.Current.Dispatcher.BeginInvoke(d, sender, e);
-        }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -265,6 +246,21 @@ return {0}";
             }
         }
 
+        private void Default_SettingChanging(object sender, SettingChangingEventArgs e)
+        {
+            SettingsUpdateDelegate d = DoSettingsUpdate;
+            Application.Current.Dispatcher.BeginInvoke(d, sender, e);
+        }
+
+        private void DoSettingsUpdate(object sender, EventArgs e)
+        {
+            if (ECS.Instance.ProjectStarted)
+            {
+                ECS.Instance.UseWrapper(SetLogEvents);
+            }
+            EditComponentCommand.UpdateCanExecute(sender, e);
+        }
+
         private void ECS_OnAutoUpdateChanged(object sender, EventArgs e)
         {
             OnPropertyChanged("ProjectBackground");
@@ -279,7 +275,7 @@ return {0}";
                     Filter = GetFileFilter("lua")
                 })
                 {
-                    if (dialog.ShowDialog() == Forms.DialogResult.OK &&Settings.Default.LoadComponentEditor)
+                    if (dialog.ShowDialog() == Forms.DialogResult.OK && Settings.Default.LoadComponentEditor)
                     {
                         Process.Start(Settings.Default.ComponentEditor, dialog.FileName);
                     }
@@ -299,19 +295,6 @@ return {0}";
         private void NewProject(ProjectType type)
         {
             Project = type.CreateProject();
-        }
-
-        private void UpdateRecentProjects(string filename)
-        {
-            if (Settings.Default.RecentProjects == null)
-            {
-                Settings.Default.RecentProjects = new ObservableCollection<string>();
-            }
-            Settings.Default.RecentProjects.Insert(0, filename);
-            while (Settings.Default.RecentProjects.Count > 10)
-            {
-                Settings.Default.RecentProjects.RemoveAt(9);
-            }
         }
 
         private void OpenProject()
@@ -394,6 +377,29 @@ return {0}";
             }
         }
 
+        private void SetLogEvents(ECSWrapper ecs)
+        {
+            ecs.SetLoggingEvents(Settings.Default.LogEvents);
+        }
+
+        private void SetSystems()
+        {
+            ECS.Instance.UseWrapper(SetLogEvents);
+            if (ECS.Instance.UseWrapper(Serialize, out string[] data))
+            {
+                Systems.Clear();
+                if (data.Length > 0)
+                {
+                    foreach (string line in data)
+                    {
+                        Systems.Add(new ECSSystem(line.Split('\n')));
+                    }
+                    CurrentSystem = Systems[0];
+                }
+            }
+            OnPropertyChanged("ProjectBackground");
+        }
+
         private void StartProject()
         {
             StopProject();
@@ -404,21 +410,9 @@ return {0}";
                 {
                     throw new Exception("Failed to start project");
                 }
-                ECS.Instance.UseWrapper(SetLogEvents);
-                if (ECS.Instance.UseWrapper(Serialize, out string[] data))
-                {
-                    if (data.Length > 0)
-                    {
-                        foreach (string line in data)
-                        {
-                            Systems.Add(new ECSSystem(line.Split('\n')));
-                        }
-                        CurrentSystem = Systems[0];
-                    }
-                }
-                OnPropertyChanged("ProjectBackground");
+                SetSystems();
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 StopProject();
                 LogManager.Instance.Add(e);
@@ -434,9 +428,9 @@ return {0}";
 
         private void ToggleProject()
         {
-            if(Project != null)
+            if (Project != null)
             {
-                if(Project.IsStarted)
+                if (Project.IsStarted)
                 {
                     StopProject();
                 }
@@ -450,6 +444,20 @@ return {0}";
         private void ToggleProjectMode()
         {
             ECS.Instance.SetAutoUpdate(!ECS.Instance.GetAutoUpdate());
+        }
+
+        private void UpdateRecentProjects(string filename)
+        {
+            if (Settings.Default.RecentProjects == null)
+            {
+                Settings.Default.RecentProjects = new ObservableCollection<string>();
+            }
+            Settings.Default.RecentProjects.Insert(0, filename);
+            Settings.Default.RecentProjects = new ObservableCollection<string>(Settings.Default.RecentProjects.Distinct());
+            while (Settings.Default.RecentProjects.Count > 10)
+            {
+                Settings.Default.RecentProjects.RemoveAt(9);
+            }
         }
     }
 }
