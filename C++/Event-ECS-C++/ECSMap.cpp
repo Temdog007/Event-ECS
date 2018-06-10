@@ -75,6 +75,27 @@ namespace EventECS
 		luaL_unref(L, LUA_REGISTRYINDEX, bufferRef); // remove from registry
 	}
 
+	void ECSMap::Execute(const char* code)
+	{
+		if (luaL_loadstring(L, code) != 0)
+		{
+			throw std::exception(lua_tostring(L, -1));
+		}
+
+		luax_call(L, 0, 0);
+	}
+
+	void ECSMap::Execute(const char* code, const char* systemName)
+	{
+		if (luaL_loadstring(L, code) != 0)
+		{
+			throw std::exception(lua_tostring(L, -1));
+		}
+
+		lua_rawgeti(L, LUA_REGISTRYINDEX, map[systemName].GetIDX());
+		luax_call(L, 1, 0);
+	}
+
 	void ECSMap::Reset()
 	{
 		map.clear();

@@ -68,6 +68,9 @@ namespace EventECS
 
 		void Reset();
 
+		void Execute(const char* code);
+		void Execute(const char* code, const char* systemName);
+
 		ECS& operator[](const char* name);
 		const ECS& operator[](const char* name) const;
 
