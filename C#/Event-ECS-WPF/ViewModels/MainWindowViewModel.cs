@@ -307,7 +307,7 @@ return {0}";
             {
                 Settings.Default.RecentProjects = new ObservableCollection<string>();
             }
-            Settings.Default.RecentProjects.Add(filename);
+            Settings.Default.RecentProjects.Insert(0, filename);
             while (Settings.Default.RecentProjects.Count > 10)
             {
                 Settings.Default.RecentProjects.RemoveAt(9);
