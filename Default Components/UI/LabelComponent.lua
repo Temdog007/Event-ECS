@@ -15,7 +15,7 @@ end
 function LabelComponent:eventDraw(args)
   local color = self:getComponent("ColorComponent")
   if color then
-    love.graphics.setColor(color.r, color.g, color.b, color.a)
+    love.graphics.setColor(color)
   end
   love.graphics.printf(self.text, self.x, self.y, self.width, "center")
 end

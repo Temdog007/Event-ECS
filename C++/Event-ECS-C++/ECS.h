@@ -72,6 +72,7 @@ namespace EventECS
 
 		void SetComponentBool(int entityID, int componentID, const char* key, bool value);
 		void SetComponentNumber(int entityID, int componentID, const char* key, lua_Number value);
+		void SetComponentNumber(int entityID, int componentID, int key, lua_Number value);
 		void SetComponentString(int entityID, int componentID, const char* key, const char* value);
 
 		bool GetSystemBool(const char* key) const;
@@ -84,6 +85,7 @@ namespace EventECS
 
 		bool GetComponentBool(int entityID, int componentID, const char* key) const;
 		lua_Number GetComponentNumber(int entityID, int componentID, const char* key) const;
+		lua_Number GetComponentNumber(int entityID, int componentID, int key) const;
 		std::string GetComponentString(int entityID, int componentID, const char* key) const;
 
 		std::string Serialize() const;

@@ -15,7 +15,7 @@ end
 function FPSDisplayerComponent:eventDraw(args)
   local color = self:getComponent("ColorComponent")
   if color then
-    love.graphics.setColor(color.r, color.g, color.b, color.a)
+    love.graphics.setColor(color)
   end
   love.graphics.print(love.timer.getFPS(), self.x, self.y, 0, self.scaleX, self.scaleY)
 end

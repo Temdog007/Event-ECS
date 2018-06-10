@@ -43,7 +43,7 @@ end
 function TestComponent:eventDraw(args)
   local color = self:getEntity().ColorComponent
   if color then
-    love.graphics.setColor(color.r, color.g, color.b, color.a)
+    love.graphics.setColor(color)
     love.graphics.print(love.timer.getFPS(), self.x, self.y)
     love.graphics.print(love.timer.getDelta(), self.x, self.y + self.space)
     love.graphics.print(self.text, self.x, self.y + self.space * 2)

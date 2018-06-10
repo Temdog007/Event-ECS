@@ -36,7 +36,7 @@ function SliderDrawerComponent:eventDraw(args)
     end
     local color = self:getComponent("ColorComponent")
     if color then
-      love.graphics.setColor(color.r, color.g, color.b, color.a)
+      love.graphics.setColor(color)
     end
     love.graphics.rectangle("fill", slider.x, slider.y, slider.width, slider.height)
   end

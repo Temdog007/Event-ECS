@@ -25,7 +25,7 @@ end
 function LogTest:eventDraw(args)
 	local color = self:getComponent("ColorComponent")
 	if not color then color = defaultColor end
-	love.graphics.setColor(color.r, color.g, color.b, color.a)
+	love.graphics.setColor(color)
 	if self.showFps then
 		love.graphics.print(love.timer.getFPS(), self.x, self.y, self.rotation, self.scaleX, self.scaleY)
 		love.graphics.print(self.text, self.x, self.y + self.space, self.rotation, self.scaleX, self.scaleY)

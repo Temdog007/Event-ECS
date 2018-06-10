@@ -8,6 +8,8 @@ function StackWidgetComponent:__init(entity)
   self.items = {}
   self.x = 0
   self.y = 0
+  self.width = 0
+  self.height = 0
   self.space = 100
   self.vertical = true
   self.currentInterval = 0
@@ -63,24 +65,30 @@ end
 
 function StackWidgetComponent:layoutItemsVertically()
   local x, y, space = self.x, self.y, self.space
+  self.width = 0
   for i, item in ipairs(self.items) do
     if item:isEnabled() then
       item.x = x
       item.y = y
       y = y + space + item.height
+      self.width = math.max(self.width, item.width)
     end
   end
+  self.height = y - self.y
 end
 
 function StackWidgetComponent:layoutItemsHorizontally()
   local x, y, space = self.x, self.y, self.space
+  self.height = 0
   for i, item in ipairs(self.items) do
     if item:isEnabled() then
       item.x = x
       item.y = y
       x = x + space + item.width
+      self.height = math.max(self.height, item.height)
     end
   end
+  self.width = x - self.x
 end
 
 function StackWidgetComponent:eventUpdate(args)
@@ -93,11 +101,8 @@ function StackWidgetComponent:eventUpdate(args)
   end
 end
 
-local defaultFontColor = {0,0,0}
 function StackWidgetComponent:eventDraw(args)
   local color = self:getComponent("ColorComponent")
-  if color then color = {color:getValues()}
-  else color = defaultFontColor end
 
   for i, item in ipairs(self.items) do
     if item:isEnabled() then

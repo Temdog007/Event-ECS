@@ -7,7 +7,7 @@ namespace Event_ECS_WPF.TemplateSelectors
 {
     public class ComponentTemplateSelector : DataTemplateSelector
     {
-        private static readonly string[] colors = { "r", "g", "b", "a" };
+        private static readonly string[] colors = { "1", "2", "3", "4" };
 
         public override DataTemplate SelectTemplate(object item, DependencyObject container)
         {

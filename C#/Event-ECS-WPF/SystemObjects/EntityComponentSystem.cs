@@ -154,8 +154,11 @@ namespace Event_ECS_WPF.SystemObjects
                             }
                             data.RemoveFirst();
 
-                            Type generic = typeof(ComponentVariable<>).MakeGenericType(type);
-                            tempVars.Add((IComponentVariable)Activator.CreateInstance(generic, new object[] { name, Convert.ChangeType(data.First.Value, type) }));
+                            if (!tempVars.Any(v => v.Name == name))
+                            {
+                                Type generic = typeof(ComponentVariable<>).MakeGenericType(type);
+                                tempVars.Add((IComponentVariable)Activator.CreateInstance(generic, new object[] { name, Convert.ChangeType(data.First.Value, type) }));
+                            }
                         }
                         data.RemoveFirst();
                     }

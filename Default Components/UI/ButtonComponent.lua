@@ -64,7 +64,7 @@ end
 function ButtonComponent:drawButton(color)
   local color = color or self:getComponent("ColorComponent")
   if color then
-    love.graphics.setColor(color.r, color.g, color.b, color.a)
+    love.graphics.setColor(color)
   end
   love.graphics.rectangle("fill", self.x, self.y, self.width, self.height)
 end
