@@ -4,8 +4,6 @@ using Event_ECS_WPF.SystemObjects;
 using System;
 using System.ComponentModel;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Threading;
 
@@ -22,13 +20,13 @@ namespace Event_ECS_WPF.Windows
         {
             InitializeComponent();
             m_viewmodel = (MainWindowViewModel)DataContext;
-            Application.Current.DispatcherUnhandledException += Current_DispatcherUnhandledException; 
+            Application.Current.DispatcherUnhandledException += Current_DispatcherUnhandledException;
         }
 
         private static void LogException(Exception e)
         {
             LogManager.Instance.Add(LogLevel.High, e.Message);
-            if(e.InnerException != null)
+            if (e.InnerException != null)
             {
                 LogException(e.InnerException);
             }
@@ -55,9 +53,15 @@ namespace Event_ECS_WPF.Windows
             }
         }
 
-        private void MenuItem_MouseEnter(object sender, MouseEventArgs e)
+        private void UpdateCommands(object sender, EventArgs e)
         {
             viewmodel.OpenRecentProjectCommand.UpdateCanExecute(sender, e);
+            viewmodel.OpenProjectAtIndexCommand.UpdateCanExecute(sender, e);
+        }
+
+        private void UpdateCommands(object sender, MouseButtonEventArgs e)
+        {
+            UpdateCommands(sender, (EventArgs)e);
         }
     }
 }

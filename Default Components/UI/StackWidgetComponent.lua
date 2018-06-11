@@ -10,7 +10,11 @@ function StackWidgetComponent:__init(entity)
   self.y = 0
   self.width = 0
   self.height = 0
-  self.space = 100
+  self.space = 10
+
+  self.sx = 0
+  self.sy = 0
+  self.autoSize = true
   self.vertical = true
   self.currentInterval = 0
   self.updateInterval = 1
@@ -65,30 +69,42 @@ end
 
 function StackWidgetComponent:layoutItemsVertically()
   local x, y, space = self.x, self.y, self.space
-  self.width = 0
+  if self.autoSize then
+    self.width = 0
+  end
   for i, item in ipairs(self.items) do
     if item:isEnabled() then
       item.x = x
       item.y = y
       y = y + space + item.height
-      self.width = math.max(self.width, item.width)
+      if self.autoSize then
+        self.width = math.max(self.width, item.width)
+      end
     end
   end
-  self.height = y - self.y
+  if self.autoSize then
+    self.height = y - self.y
+  end
 end
 
 function StackWidgetComponent:layoutItemsHorizontally()
   local x, y, space = self.x, self.y, self.space
-  self.height = 0
+  if self.autoSize then
+    self.height = 0
+  end
   for i, item in ipairs(self.items) do
     if item:isEnabled() then
       item.x = x
       item.y = y
       x = x + space + item.width
-      self.height = math.max(self.height, item.height)
+      if self.autoSize then
+        self.height = math.max(self.height, item.height)
+      end
     end
   end
-  self.width = x - self.x
+  if self.autoSize then
+    self.width = x - self.x
+  end
 end
 
 function StackWidgetComponent:eventUpdate(args)
@@ -104,11 +120,15 @@ end
 function StackWidgetComponent:eventDraw(args)
   local color = self:getComponent("ColorComponent")
 
+  if not self.autoSize then
+    love.graphics.setScissor(self.sx, self.sy, self.width, self.height)
+  end
   for i, item in ipairs(self.items) do
     if item:isEnabled() then
       item:draw(color)
     end
   end
+  love.graphics.setScissor()
 end
 
 return StackWidgetComponent
