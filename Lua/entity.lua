@@ -178,9 +178,9 @@ function entity:serialize()
   local events = self:getEventList()
   local tab = {}
   if string.len(events) > 0 then
-    table.insert(tab, string.format("%d|%s|%s", self:getID(), self:getName(), self:getEventList()))
+    table.insert(tab, string.format("%d|%s|%s|%s", self:getID(), self:getName(), tostring(self:isEnabled()), self:getEventList()))
   else
-    table.insert(tab, string.format("%d|%s", self:getID(), self:getName()))
+    table.insert(tab, string.format("%d|%s|%s", self:getID(), self:getName(), tostring(self:isEnabled())))
   end
 
   for k,v in pairs(self.components) do

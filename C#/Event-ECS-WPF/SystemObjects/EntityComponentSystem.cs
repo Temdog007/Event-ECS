@@ -106,8 +106,10 @@ namespace Event_ECS_WPF.SystemObjects
                         };
                     }
 
+                    entity.IsEnabled = (bool)Convert.ChangeType(enData[2], typeof(bool));
+
                     List<string> events = new List<string>();
-                    for (int i = 2; i < enData.Length; ++i)
+                    for (int i = 3; i < enData.Length; ++i)
                     {
                         events.Add(enData[i]);
                     }

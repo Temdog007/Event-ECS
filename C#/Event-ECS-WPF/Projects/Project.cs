@@ -235,8 +235,7 @@ namespace Event_ECS_WPF.Projects
                 CopyComponentsToOutputPath();
 
                 CreateInstance();
-                ECS.Instance.UseWrapper(SetEventsToIgnore);
-                return true;
+                return ECS.Instance.UseWrapper(SetEventsToIgnore);
             }
             catch (Exception e)
             {
