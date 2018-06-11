@@ -85,7 +85,13 @@ return {0}";
             Project.ProjectStateChange += ECS_OnAutoUpdateChanged;
             ECS.Instance.OnAutoUpdateChanged += ECS_OnAutoUpdateChanged;
             ECS.Instance.ProjectRestarted += SetSystems;
+            ECS.ProjectEnded += ECS_ProjectEnded;
             Settings.Default.SettingChanging += Default_SettingChanging;
+        }
+
+        private void ECS_ProjectEnded()
+        {
+            Application.Current.Dispatcher.BeginInvoke(new Action(StopProject));
         }
 
         private delegate void SettingsUpdateDelegate(object sender, EventArgs e);

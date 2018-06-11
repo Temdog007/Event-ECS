@@ -35,7 +35,7 @@ namespace Event_ECS_WPF.Logger
     public class LogManager : INotifyPropertyChanged, INotifyCollectionChanged, IEnumerable<Log>
     {
         private static LogManager m_instance;
-        private object m_lock = new object();
+        private readonly object m_lock = new object();
 
         private ObservableCollection<Log> m_logs;
 
@@ -110,11 +110,11 @@ namespace Event_ECS_WPF.Logger
                         strList.Add(str);
                     }
                 }
-                LogManager.Instance.Add(new Log(string.Join(Environment.NewLine, strList), level));
+                Add(new Log(string.Join(Environment.NewLine, strList), level));
             }
             else
             {
-                LogManager.Instance.Add(new Log(message, level));
+                Add(new Log(message, level));
             }
         }
 

@@ -30,6 +30,8 @@ namespace Event_ECS_WPF.SystemObjects
     {
         private const string DeserializeLog = "Deserialize";
 
+        private const string EventQuit = "eventquit";
+
         private static readonly TimeSpan WaitTimeSpan = TimeSpan.FromMilliseconds(10);
 
         private static ECS s_instance;
@@ -48,6 +50,8 @@ namespace Event_ECS_WPF.SystemObjects
         internal ECS(){}
 
         public static event Action DeserializeRequested;
+
+        public static event Action ProjectEnded;
 
         public event Action ProjectRestarted;
 
@@ -208,6 +212,10 @@ namespace Event_ECS_WPF.SystemObjects
             if (message == DeserializeLog)
             {
                 DeserializeRequested?.Invoke();
+            }
+            else if(message.Contains(EventQuit))
+            {
+                ProjectEnded?.Invoke();
             }
         }
 
