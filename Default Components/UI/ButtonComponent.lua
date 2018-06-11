@@ -11,13 +11,17 @@ function ButtonComponent:__init(entity)
   self.isClicked = false
   self.x = 0
   self.y = 0
+  self.alignment = "center"
+  self.rotation = 0
+  self.scaleX = 1
+  self.scaleY = 1
   self.width = 100
   self.height = 25
 end
 
 function ButtonComponent:isOver(x, y)
-  return self.x < x and x < self.x + self.width and
-          self.y < y and y < self.y + self.height
+  return self.x < x and x < self.x + self.width * self.scaleX and
+          self.y < y and y < self.y + self.height * self.scaleY
 end
 
 function ButtonComponent:eventMouseMoved(args)
@@ -43,10 +47,13 @@ end
 
 function ButtonComponent:eventMouseReleased(args)
   if not args then return end
-  local b = args[3]
-  if not b then return end
+  local x, y, b = args[1], args[2], args[3]
+  if not x or not y or not b then return end
 
   if b == 1 then
+    if self.isClicked and self:isOver(x, y) then
+      BroadcastEvent("eventbuttonclicked", {button = self})
+    end
     self.isClicked = false
   end
 end
@@ -69,17 +76,18 @@ function ButtonComponent:drawButton(color)
   love.graphics.rectangle("fill", self.x, self.y, self.width, self.height)
 end
 
-function ButtonComponent:drawText(color, alignment, scaleX, scaleY)
+function ButtonComponent:drawText(color)
   if color then love.graphics.setColor(color) end
-  love.graphics.printf(self.text, self.x, self.y, self.width, alignment or "center", 0, scaleX or 1, scaleY or 1)
+  love.graphics.printf(self.text, self.x, self.y, self.width, self.alignment, self.rotation, self.scaleX, self.scaleY)
 end
 
-function ButtonComponent:draw(fontColor)
+function ButtonComponent:draw(color)
+
   if self.isMouseOver then
     self:drawHighlight()
   end
   self:drawButton()
-  self:drawText(fontColor)
+  self:drawText(color)
 end
 
 return ButtonComponent

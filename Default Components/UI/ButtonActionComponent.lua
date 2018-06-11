@@ -7,20 +7,20 @@ function ButtonActionComponent:__init(entity)
   self.Component:__init(entity, self)
 end
 
-function ButtonActionComponent:eventMouseReleased(args)
+function ButtonActionComponent:eventButtonClicked(args)
   if not args then return end
-  local x, y = args[1], args[2]
-  if not x or not y then return end
 
-  local button = self:getComponent("ButtonComponent")
+  local button = args.button
   if not button then return end
 
-  if button.isClicked and button:isOver(x, y) then
-    if self.action then
-      self.action()
-    elseif Log then
-      Log("Button was clicked but has not action defined")
-    end
+  if button ~= self:getComponent("ButtonComponent") then
+    return
+  end
+
+  if self.action then
+    self.action()
+  elseif Log then
+    Log("Button was clicked but an action has not been defined")
   end
 end
 

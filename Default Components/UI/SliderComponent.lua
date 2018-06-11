@@ -10,13 +10,17 @@ function SliderComponent:__init(entity)
   self.value = 0
 
   self.text = ""
+  self.alignment = "center"
   self.isMouseOver = false
   self.isClicked = false
   self.vertical = false
   self.x = 0
   self.y = 0
+  self.rotation = 0
+  self.scaleX = 1
+  self.scaleY = 1
   self.width = 100
-  self.height = 100
+  self.height = 25
 end
 
 function SliderComponent:isOver(x, y)
@@ -35,6 +39,7 @@ function SliderComponent:updatePosition(x, y)
       else
         self.value = self.min + (self.max - self.min) * (x - minX) / (maxX - minX)
       end
+      BroadcastEvent("eventSliderUpdated", {slider = self})
     else
       love.mouse.setPosition(math.min(maxX, math.max(minX, x)), math.min(maxY, math.max(minY, y)))
     end
@@ -111,12 +116,13 @@ function SliderComponent:drawCursor(color, scale)
   end
 end
 
-function SliderComponent:drawText(color, alignment, scaleX, scaleY)
+function SliderComponent:drawText(color)
   if color then love.graphics.setColor(color) end
-  love.graphics.printf(self.text, self.x, self.y, self.width, alignment or "center", 0, scaleX or 1, scaleY or 1)
+  love.graphics.printf(self.text, self.x, self.y, self.width, self.alignment, self.rotation, self.scaleX, self.scaleY)
 end
 
 function SliderComponent:draw(color)
+
   if self.isClicked or self.isMouseOver then
     self:drawHighlight()
   end
