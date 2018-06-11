@@ -11,6 +11,9 @@ function StackWidgetComponent:__init(entity)
   self.width = 0
   self.height = 0
   self.space = 10
+
+  self.sx = 0
+  self.sy = 0
   self.autoSize = true
   self.vertical = true
   self.currentInterval = 0
@@ -118,7 +121,7 @@ function StackWidgetComponent:eventDraw(args)
   local color = self:getComponent("ColorComponent")
 
   if not self.autoSize then
-    love.graphics.setScissor(self.x, self.y, self.width, self.height)
+    love.graphics.setScissor(self.sx, self.sy, self.width, self.height)
   end
   for i, item in ipairs(self.items) do
     if item:isEnabled() then
