@@ -2,6 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Event_ECS_WPF"
         xmlns:controls="clr-namespace:Event_ECS_WPF.Controls"
@@ -25,6 +26,7 @@
     <Window.InputBindings>
         <KeyBinding Key="N" Modifiers="Ctrl" Command="{Binding NewProjectCommand}" CommandParameter="{x:Static proj:ProjectType.NORMAL}"/>
         <KeyBinding Key="L" Modifiers="Ctrl" Command="{Binding NewProjectCommand}" CommandParameter="{x:Static proj:ProjectType.LOVE}"/>
+        
         <KeyBinding Key="O" Modifiers="Ctrl" Command="{Binding OpenProjectCommand}"/>
         <KeyBinding Key="S" Modifiers="Ctrl" Command="{Binding SaveProjectCommand}"/>
         <KeyBinding Key="C" Modifiers="Ctrl" Command="{Binding ClearLogCommand}"/>
@@ -32,10 +34,63 @@
         <KeyBinding Key="W" Modifiers="Ctrl" Command="{Binding SetComponentSettingsCommand}"/>
         <KeyBinding Key="E" Modifiers="Ctrl" Command="{Binding EditComponentCommand}"/>
         <KeyBinding Key="R" Modifiers="Ctrl" Command="{Binding CopyComponentsCommand}"/>
+        
         <KeyBinding Key="F2" Modifiers="Alt" Command="{Binding Source={x:Static sysObj:ECS.Instance}, Path=ResetProjectCommand}"/>
+        
         <KeyBinding Key="F1" Command="{Binding ManualUpdateCommand}"/>
         <KeyBinding Key="F2" Command="{Binding ToggleProjectModeCommand}"/>
         <KeyBinding Key="F5" Command="{Binding ToggleProjectCommand}"/>
+
+        <KeyBinding Key="D1" Modifiers="Ctrl" Command="{Binding OpenProjectAtIndexCommand}">
+            <KeyBinding.CommandParameter>
+                <sys:Int32>0</sys:Int32>
+            </KeyBinding.CommandParameter>
+        </KeyBinding>
+        <KeyBinding Key="D2" Modifiers="Ctrl" Command="{Binding OpenProjectAtIndexCommand}">
+            <KeyBinding.CommandParameter>
+                <sys:Int32>1</sys:Int32>
+            </KeyBinding.CommandParameter>
+        </KeyBinding>
+        <KeyBinding Key="D3" Modifiers="Ctrl" Command="{Binding OpenProjectAtIndexCommand}">
+            <KeyBinding.CommandParameter>
+                <sys:Int32>2</sys:Int32>
+            </KeyBinding.CommandParameter>
+        </KeyBinding>
+        <KeyBinding Key="D4" Modifiers="Ctrl" Command="{Binding OpenProjectAtIndexCommand}">
+            <KeyBinding.CommandParameter>
+                <sys:Int32>3</sys:Int32>
+            </KeyBinding.CommandParameter>
+        </KeyBinding>
+        <KeyBinding Key="D5" Modifiers="Ctrl" Command="{Binding OpenProjectAtIndexCommand}">
+            <KeyBinding.CommandParameter>
+                <sys:Int32>4</sys:Int32>
+            </KeyBinding.CommandParameter>
+        </KeyBinding>
+        <KeyBinding Key="D6" Modifiers="Ctrl" Command="{Binding OpenProjectAtIndexCommand}">
+            <KeyBinding.CommandParameter>
+                <sys:Int32>5</sys:Int32>
+            </KeyBinding.CommandParameter>
+        </KeyBinding>
+        <KeyBinding Key="D7" Modifiers="Ctrl" Command="{Binding OpenProjectAtIndexCommand}">
+            <KeyBinding.CommandParameter>
+                <sys:Int32>6</sys:Int32>
+            </KeyBinding.CommandParameter>
+        </KeyBinding>
+        <KeyBinding Key="D8" Modifiers="Ctrl" Command="{Binding OpenProjectAtIndexCommand}">
+            <KeyBinding.CommandParameter>
+                <sys:Int32>7</sys:Int32>
+            </KeyBinding.CommandParameter>
+        </KeyBinding>
+        <KeyBinding Key="D9" Modifiers="Ctrl" Command="{Binding OpenProjectAtIndexCommand}">
+            <KeyBinding.CommandParameter>
+                <sys:Int32>8</sys:Int32>
+            </KeyBinding.CommandParameter>
+        </KeyBinding>
+        <KeyBinding Key="D0" Modifiers="Ctrl" Command="{Binding OpenProjectAtIndexCommand}">
+            <KeyBinding.CommandParameter>
+                <sys:Int32>9</sys:Int32>
+            </KeyBinding.CommandParameter>
+        </KeyBinding>
     </Window.InputBindings>
 
     <DockPanel>
@@ -49,11 +104,25 @@
                 <MenuItem Header="Open Project" InputGestureText="Ctrl+O" Command="{Binding OpenProjectCommand}"/>
                 <MenuItem Header="Save Project" InputGestureText="Ctrl+S" Command="{Binding SaveProjectCommand}"/>
                 <Separator/>
-                <MenuItem Header="Recent Projects" ItemsSource="{Binding Source={x:Static properties:Settings.Default}, Path=RecentProjects, Mode=TwoWay}" 
-                          MouseEnter="MenuItem_MouseEnter" MouseLeave="MenuItem_MouseEnter">
+                <MenuItem Header="Recent Projects" ItemsSource="{Binding Source={x:Static properties:Settings.Default}, Path=RecentProjects, Mode=TwoWay}">
                     <MenuItem.ItemTemplate>
                         <DataTemplate>
-                            <MenuItem Header="{Binding}" CommandParameter="{Binding}" Command="{Binding ElementName=viewmodel, Path=OpenRecentProjectCommand}"/>
+                            <Border Background="Transparent" MouseEnter="UpdateCommands">
+                                <MenuItem Header="{Binding}" CommandParameter="{Binding}" Command="{Binding ElementName=viewmodel, Path=OpenRecentProjectCommand}">
+                                    <MenuItem.InputGestureText>
+                                        <MultiBinding Converter="{StaticResource itemListConv}">
+                                            <MultiBinding.ConverterParameter>
+                                                <x:Array Type="sys:Object">
+                                                    <sys:Int32>1</sys:Int32>
+                                                    <sys:String>Ctrl+{0}</sys:String>
+                                                </x:Array>
+                                            </MultiBinding.ConverterParameter>
+                                            <Binding Source="{x:Static properties:Settings.Default}" Path="RecentProjects"/>
+                                            <Binding Path="."/>
+                                        </MultiBinding>
+                                    </MenuItem.InputGestureText>
+                                </MenuItem>
+                            </Border>
                         </DataTemplate>
                     </MenuItem.ItemTemplate>
                 </MenuItem>

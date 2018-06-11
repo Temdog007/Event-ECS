@@ -58,6 +58,8 @@ return {0}";
 
         private ActionCommand<ProjectType> m_newProjectCommand;
 
+        private ActionCommand<int> m_openProjectAtIndexCommand;
+
         private ActionCommand m_openProjectCommand;
 
         private ActionCommand<string> m_openRecentProjectCommand;
@@ -115,6 +117,8 @@ return {0}";
         public ICommand ManualUpdateCommand => m_manualUpdateCommand ?? (m_manualUpdateCommand = new ActionCommand(ManualUpdate));
 
         public ActionCommand<ProjectType> NewProjectCommand => m_newProjectCommand ?? (m_newProjectCommand = new ActionCommand<ProjectType>(NewProject));
+
+        public IActionCommand OpenProjectAtIndexCommand => m_openProjectAtIndexCommand ?? (m_openProjectAtIndexCommand = new ActionCommand<int>(OpenProject));
 
         public ICommand OpenProjectCommand => m_openProjectCommand ?? (m_openProjectCommand = new ActionCommand(OpenProject));
 
@@ -306,12 +310,7 @@ return {0}";
                 switch (dialog.ShowDialog())
                 {
                     case Forms.DialogResult.OK:
-                        using (Stream s = dialog.OpenFile())
-                        {
-                            var serializer = new XmlSerializer(typeof(Project));
-                            Project = (Project)serializer.Deserialize(s);
-                        }
-                        UpdateRecentProjects(dialog.FileName);
+                        OpenProject(dialog.FileName);
                         break;
                     default:
                         break;
@@ -326,6 +325,18 @@ return {0}";
                 var serializer = new XmlSerializer(typeof(Project));
                 Project = (Project)serializer.Deserialize(s);
             }
+            UpdateRecentProjects(projectName);
+        }
+
+        private void OpenProject(int index)
+        {
+            if(index >= Settings.Default.RecentProjects.Count)
+            {
+                LogManager.Instance.Add(LogLevel.High, "Cannot open project at index: {0}", index);
+                return;
+            }
+
+            OpenProject(Settings.Default.RecentProjects[index]);
         }
 
         private void SaveProject()

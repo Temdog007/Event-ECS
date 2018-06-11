@@ -7,4 +7,5 @@
     <converter:NullCheckVisibilityConverter x:Key="nullCheck"/>
     <converter:LogLevelToColor x:Key="logToColor"/>
     <converter:EnabledToColor x:Key="enToCol"/>
+    <converter:ItemToItemIndexConverter x:Key="itemListConv"/>
 </ResourceDictionary>
