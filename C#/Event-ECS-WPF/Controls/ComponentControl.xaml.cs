@@ -1,7 +1,7 @@
-﻿using Event_ECS_WPF.Commands;
+﻿using Event_ECS_Lib;
+using Event_ECS_WPF.Commands;
 using Event_ECS_WPF.Logger;
 using Event_ECS_WPF.SystemObjects;
-using EventECSWrapper;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -49,7 +49,7 @@ namespace Event_ECS_WPF.Controls
             }
         }
 
-        private bool ReloadComponentFunc(ECSWrapper ecs)
+        private bool ReloadComponentFunc(IECSWrapper ecs)
         {
             bool val;
             if (val = RemoveComponentFunc(ecs))
@@ -73,7 +73,7 @@ namespace Event_ECS_WPF.Controls
             }
         }
 
-        private bool RemoveComponentFunc(ECSWrapper ecs)
+        private bool RemoveComponentFunc(IECSWrapper ecs)
         {
             return ecs.RemoveComponent(Component.Entity.System.Name, Component.Entity.ID, Component.ID);
         }

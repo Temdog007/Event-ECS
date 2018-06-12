@@ -1,8 +1,8 @@
-﻿using Event_ECS_WPF.Commands;
+﻿using Event_ECS_Lib;
+using Event_ECS_WPF.Commands;
 using Event_ECS_WPF.Logger;
 using Event_ECS_WPF.Projects;
 using Event_ECS_WPF.SystemObjects;
-using EventECSWrapper;
 using System;
 using System.ComponentModel;
 using System.Windows;
@@ -118,7 +118,7 @@ namespace Event_ECS_WPF.Controls
             }
         }
 
-        private bool RemoveFunc(ECSWrapper ecs)
+        private bool RemoveFunc(IECSWrapper ecs)
         {
             return ecs.RemoveEntity(Entity.System.Name, Entity.ID);
         }

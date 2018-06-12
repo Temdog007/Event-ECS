@@ -1,4 +1,4 @@
-﻿using EventECSWrapper;
+﻿using Event_ECS_Lib;
 using System;
 using System.Collections.Generic;
 
@@ -44,7 +44,7 @@ namespace Event_ECS_WPF.SystemObjects
 
         public Component Component { get; private set; }
 
-        private void UpdateValue(ECSWrapper ecs)
+        private void UpdateValue(IECSWrapper ecs)
         {
             if(Component == null)
             {

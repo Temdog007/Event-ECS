@@ -58,6 +58,7 @@
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Data" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
@@ -238,9 +239,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\CLI\Event-ECS-Wrapper\Event-ECS-Wrapper.vcxproj">
-      <Project>{85b1aed7-d0cf-4e7c-9557-c9be1cece62f}</Project>
-      <Name>Event-ECS-Wrapper</Name>
+    <ProjectReference Include="..\Event-ECS-Lib\Event-ECS-Lib.csproj">
+      <Project>{e876a0a5-c2fe-46b5-9be2-baf2249f7f22}</Project>
+      <Name>Event-ECS-Lib</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -63,16 +63,11 @@ namespace EventECS
 			throw std::exception(lua_tostring(L, -1));
 		}
 
-		int bufferRef = luaL_ref(L, LUA_REGISTRYINDEX); // store function in registry
-		lua_pop(L, 1); // remove function from stack
-
 		lua_getglobal(L, "package");
 		lua_getfield(L, -1, "preload");
-		lua_rawgeti(L, LUA_REGISTRYINDEX, bufferRef); // put function in initializer in preload table
+		lua_pushvalue(L, -3); // put function in initializer in preload table
 		lua_setfield(L, -2, "initializer");
-		lua_pop(L, 2);
-
-		luaL_unref(L, LUA_REGISTRYINDEX, bufferRef); // remove from registry
+		lua_pop(L, 3);
 	}
 
 	void ECSMap::Execute(const char* code)
@@ -233,19 +228,36 @@ namespace EventECS
 		if (!loveInitialized)
 		{
 			Require("love", "love");
-			Require("loveBoot", "loveInitializerFunctions");
 
-			lua_settop(L, 0);
-			lua_getglobal(L, "loveInitializerFunctions");
-			lua_getfield(L, -1, "bootLove");
 			lua_pushcfunction(L, lua_broadcastEvent);
+			lua_setglobal(L, "BroadcastEvent");
+
 			lua_pushstring(L, identity);
+			lua_setglobal(L, "identity");
+
 			lua_pushstring(L, executablePath);
-			luax_call(L, 3, 0);
+			lua_setglobal(L, "executablePath");
+
+			lua_getglobal(L, "require");
+			lua_pushstring(L, "loveBoot");
+			lua_call(L, 1, 1);
+			updateRefs[0] = luaL_ref(L, LUA_REGISTRYINDEX);
+
+			lua_newthread(L);
+			updateRefs[1] = luaL_ref(L, LUA_REGISTRYINDEX);
+
 			Log("Created a LOVE2D Entity Component System");
 			loveInitialized = true;
 		}
 		return loveInitialized;
+	}
+
+	int ECSMap::UpdateLove()
+	{
+		lua_settop(L, 0);
+		lua_rawgeti(L, LUA_REGISTRYINDEX, updateRefs[1]); // get thread
+		lua_rawgeti(L, LUA_REGISTRYINDEX, updateRefs[0]); // get function
+		return lua_resume(L, 0);
 	}
 
 	void ECSMap::Require(const char* modName, const char* globalName)
@@ -322,43 +334,6 @@ namespace EventECS
 			queue.pop();
 		}
 		dispatchingEvent = false;
-	}
-
-	bool ECSMap::UpdateLove()
-	{
-		lua_settop(L, 0);
-		lua_getglobal(L, "loveInitializerFunctions");
-		lua_getfield(L, -1, "updateLove");
-		luax_call(L, 0, 2);
-		bool rval = luax_toboolean(L, -1);
-		if (!rval)
-		{
-			if (lua_isstring(L, -2))
-			{
-				const char* message = lua_tostring(L, -2);
-				Log(message);
-			}
-		}
-		lua_settop(L, 0);
-		return rval;
-	}
-
-	lua_Number ECSMap::DrawLove(bool skipSleep)
-	{
-		lua_settop(L, 0);
-		lua_getglobal(L, "loveInitializerFunctions");
-		lua_getfield(L, -1, "drawLove");
-		luax_pushboolean(L, skipSleep);
-		luax_call(L, 1, 2);
-
-		lua_Number sleep = lua_tonumber(L, -1);
-		if (lua_isstring(L, -2))
-		{
-			const char* message = lua_tostring(L, -2);
-			Log(message);
-		}
-		lua_settop(L, 0);
-		return sleep;
 	}
 
 	std::list<std::string> ECSMap::Serialize() const

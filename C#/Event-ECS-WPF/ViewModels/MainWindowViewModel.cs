@@ -1,9 +1,9 @@
-﻿using Event_ECS_WPF.Commands;
+﻿using Event_ECS_Lib;
+using Event_ECS_WPF.Commands;
 using Event_ECS_WPF.Logger;
 using Event_ECS_WPF.Projects;
 using Event_ECS_WPF.Properties;
 using Event_ECS_WPF.SystemObjects;
-using EventECSWrapper;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -367,7 +367,7 @@ return {0}";
             }
         }
 
-        private string[] Serialize(ECSWrapper ecs)
+        private string[] Serialize(IECSWrapper ecs)
         {
             return ecs.Serialize();
         }
@@ -394,7 +394,7 @@ return {0}";
             }
         }
 
-        private void SetLogEvents(ECSWrapper ecs)
+        private void SetLogEvents(IECSWrapper ecs)
         {
             ecs.SetLoggingEvents(Settings.Default.LogEvents);
         }

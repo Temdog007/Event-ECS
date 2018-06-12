@@ -1,7 +1,7 @@
-﻿using Event_ECS_WPF.Logger;
+﻿using Event_ECS_Lib;
+using Event_ECS_WPF.Logger;
 using Event_ECS_WPF.Misc;
 using Event_ECS_WPF.SystemObjects;
-using EventECSWrapper;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -149,7 +149,7 @@ namespace Event_ECS_WPF.Projects
             get => ProjectType.NORMAL;
         }
 
-        private void Unregister(ECSWrapper ecs, string modName)
+        private void Unregister(IECSWrapper ecs, string modName)
         {
             ecs.Unregister(modName);
         }
@@ -255,7 +255,7 @@ namespace Event_ECS_WPF.Projects
             return ((attr & FileAttributes.Hidden) == FileAttributes.Hidden);
         }
         
-        private void SetEventsToIgnore(ECSWrapper ecs)
+        private void SetEventsToIgnore(IECSWrapper ecs)
         {
             ecs.SetEventsToIgnore(EventsToIgnore.Select(s => s.Value).ToArray());
         }

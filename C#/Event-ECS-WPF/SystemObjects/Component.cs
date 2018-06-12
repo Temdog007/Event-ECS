@@ -1,5 +1,5 @@
-﻿using Event_ECS_WPF.Misc;
-using EventECSWrapper;
+﻿using Event_ECS_Lib;
+using Event_ECS_WPF.Misc;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -127,12 +127,12 @@ namespace Event_ECS_WPF.SystemObjects
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
         }
 
-        private bool IsEnabledFunc(ECSWrapper ecs)
+        private bool IsEnabledFunc(IECSWrapper ecs)
         {
             return ecs.IsComponentEnabled(Entity.System.Name, Entity.ID, ID);
         }
 
-        private void SetEnabledFunc(ECSWrapper ecs, bool value)
+        private void SetEnabledFunc(IECSWrapper ecs, bool value)
         {
             ecs.SetComponentEnabled(Entity.System.Name, Entity.ID, ID, value);
         }

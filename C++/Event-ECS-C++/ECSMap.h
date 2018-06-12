@@ -19,6 +19,8 @@ namespace EventECS
 
 		lua_State *const L;
 
+		int updateRefs[2];
+
 		bool disposed;
 
 		bool dispatchingEvent;
@@ -66,6 +68,8 @@ namespace EventECS
 		ECSMap(const ECSMap&) = delete;
 		ECSMap& operator=(const ECSMap&) = delete;
 
+		int UpdateLove();
+
 		void Reset();
 
 		void Execute(const char* code);
@@ -88,10 +92,6 @@ namespace EventECS
 		std::string GetClassname(const char* systemName) const;
 
 		bool HasSystem(const char * name) const;
-
-		bool UpdateLove();
-
-		lua_Number DrawLove(bool skipSleep = false);
 
 		std::list<std::string> Serialize() const;
 

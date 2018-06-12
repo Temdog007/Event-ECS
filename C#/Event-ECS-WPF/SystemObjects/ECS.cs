@@ -1,10 +1,14 @@
-﻿using Event_ECS_WPF.Commands;
+﻿using Event_ECS_Lib;
+using Event_ECS_WPF.Commands;
 using Event_ECS_WPF.Logger;
-using EventECSWrapper;
 using System;
+using System.Diagnostics;
+using System.Linq;
+using System.ServiceModel;
+using System.ServiceModel.Channels;
+using System.Threading;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Media;
 
 namespace Event_ECS_WPF.SystemObjects
 {
@@ -26,49 +30,103 @@ namespace Event_ECS_WPF.SystemObjects
         public bool AutoUpdate { get; private set; }
     }
 
-    public class ECS : NotifyPropertyChanged, IDisposable
+    public class ECS : NotifyPropertyChanged, IDisposable, IECSWrapperCallback
     {
         private const string DeserializeLog = "Deserialize";
 
         private const string EventQuit = "eventquit";
 
-        private static readonly TimeSpan WaitTimeSpan = TimeSpan.FromMilliseconds(10);
+        private static readonly TimeSpan Timeout = TimeSpan.FromSeconds(5);
 
         private static ECS s_instance;
 
         private readonly object m_lock = new object();
 
-        private ECSWrapper m_ecs;
+        private IECSWrapper m_channel;
 
         private ActionCommand m_resetProjectCommand;
 
-        static ECS()
-        {
-            ECSWrapper.LogEvent = HandleLogFromECS;
-        }
-        
-        internal ECS(){}
+        internal ECS() { }
 
         public static event Action DeserializeRequested;
 
         public static event Action ProjectEnded;
 
-        public event Action ProjectRestarted;
-
         public event AutoUpdateChanged OnAutoUpdateChanged;
+
+        public event Action ProjectRestarted;
 
         public static ECS Instance => s_instance ?? (s_instance = new ECS());
 
-        public bool ProjectStarted => m_ecs != null;
+        public bool ProjectStarted => Channel != null && Channel.IsStarted();
 
         public ICommand ResetProjectCommand => m_resetProjectCommand ?? (m_resetProjectCommand = new ActionCommand(ResetProject));
+
+        private static NetNamedPipeBinding Binding => new NetNamedPipeBinding(NetNamedPipeSecurityMode.None)
+        {
+            OpenTimeout = Timeout,
+            CloseTimeout = Timeout,
+            ReceiveTimeout = Timeout,
+            SendTimeout = Timeout
+        };
+
+        private static EndpointAddress Endpoint => new EndpointAddress(ECSWrapperValues.ECSAddress);
+
+        private IECSWrapper Channel
+        {
+            get
+            {
+                try
+                {
+                    if (m_channel == null)
+                    {
+                        StartECSApp();
+                        Thread.Sleep(100);
+
+                        m_channel = DuplexChannelFactory<IECSWrapper>.CreateChannel(Context, Binding, Endpoint);
+
+                        var channel = m_channel as IChannelFactory;
+
+                        channel.Closed += (o, e) =>
+                        {
+                            LogManager.Instance.Add("Channel is closed", LogLevel.High);
+                            m_channel = null;
+                        };
+
+                        channel.Faulted += (o, e) => 
+                        {
+                            LogManager.Instance.Add("Channel is faulted", LogLevel.High);
+                            m_channel = null;
+                        };
+
+                        channel.Closing += (o, e) =>
+                        {
+                            LogManager.Instance.Add("Channel is closing", LogLevel.High);
+                            m_channel = null;
+                        };
+
+                        channel.Opened += (o, e) => LogManager.Instance.Add("Channel is opened", LogLevel.High);
+                        channel.Opening += (o, e) => LogManager.Instance.Add("Channel is opening", LogLevel.High);
+
+                        LogManager.Instance.Add("Connected to ECS application", LogLevel.Medium);
+                    }
+                }
+                catch (Exception e)
+                {
+                    LogManager.Instance.Add(e);
+                }
+                return m_channel;
+            }
+        }
+
+        private InstanceContext Context => new InstanceContext(this);
 
         public void CreateInstance(string code)
         {
             lock (m_lock)
             {
                 Dispose();
-                m_ecs = new ECSWrapper(code);
+                Channel.Initialize(code);
                 LogManager.Instance.Add(LogLevel.Medium, "Project Started");
             }
         }
@@ -78,8 +136,7 @@ namespace Event_ECS_WPF.SystemObjects
             lock (m_lock)
             {
                 Dispose();
-                m_ecs = new ECSWrapper(code, path, name);
-                CompositionTarget.Rendering += CompositionTarget_Rendering;
+                Channel.Initialize(code, path, name);
                 LogManager.Instance.Add(LogLevel.Medium, "Project Started");
             }
         }
@@ -88,8 +145,7 @@ namespace Event_ECS_WPF.SystemObjects
         {
             lock (m_lock)
             {
-                CompositionTarget.Rendering -= CompositionTarget_Rendering;
-                if (m_ecs != null)
+                if (Channel != null)
                 {
                     DisposeDelegate d = DoDispose;
                     Application.Current.Dispatcher.BeginInvoke(d);
@@ -101,7 +157,20 @@ namespace Event_ECS_WPF.SystemObjects
         {
             lock (m_lock)
             {
-                return m_ecs?.GetAutoUpdate() ?? false;
+                return Channel?.GetAutoUpdate() ?? false;
+            }
+        }
+
+        public void LogEvent(string message)
+        {
+            LogManager.Instance.Add(message);
+            if (message == DeserializeLog)
+            {
+                DeserializeRequested?.Invoke();
+            }
+            else if (message.Contains(EventQuit))
+            {
+                ProjectEnded?.Invoke();
             }
         }
 
@@ -118,7 +187,7 @@ namespace Event_ECS_WPF.SystemObjects
         {
             lock (m_lock)
             {
-                m_ecs?.SetAutoUpdate(value);
+                Channel?.SetAutoUpdate(value);
                 OnAutoUpdateChanged?.Invoke(this, new AutoUpdateChangedArgs(value));
             }
         }
@@ -127,7 +196,7 @@ namespace Event_ECS_WPF.SystemObjects
         {
             lock (m_lock)
             {
-                if (m_ecs == null)
+                if (Channel == null)
                 {
                     return;
                 }
@@ -136,11 +205,11 @@ namespace Event_ECS_WPF.SystemObjects
             }
         }
 
-        public bool UseWrapper<T>(Func<ECSWrapper, T> action, out T t)
+        public bool UseWrapper<T>(Func<IECSWrapper, T> action, out T t)
         {
             lock (m_lock)
             {
-                if (m_ecs == null)
+                if (Channel == null)
                 {
                     LogManager.Instance.Add(LogLevel.High, "Project has not been started. Cannot run function");
                     t = default(T);
@@ -148,34 +217,34 @@ namespace Event_ECS_WPF.SystemObjects
                 }
                 else
                 {
-                    t = action(m_ecs);
+                    t = action(Channel);
                     return true;
                 }
             }
         }
 
-        public bool UseWrapper<K>(Action<ECSWrapper, K> action, K argument)
+        public bool UseWrapper<K>(Action<IECSWrapper, K> action, K argument)
         {
             lock (m_lock)
             {
-                if (m_ecs == null)
+                if (Channel == null)
                 {
                     LogManager.Instance.Add(LogLevel.High, "Project has not been started. Cannot run function");
                     return false;
                 }
                 else
                 {
-                    action(m_ecs, argument);
+                    action(Channel, argument);
                     return true;
                 }
             }
         }
 
-        public bool UseWrapper<T, K>(Func<ECSWrapper, K, T> action, K argument, out T t)
+        public bool UseWrapper<T, K>(Func<IECSWrapper, K, T> action, K argument, out T t)
         {
             lock (m_lock)
             {
-                if (m_ecs == null)
+                if (Channel == null)
                 {
                     LogManager.Instance.Add(LogLevel.High, "Project has not been started. Cannot run function");
                     t = default(T);
@@ -183,71 +252,55 @@ namespace Event_ECS_WPF.SystemObjects
                 }
                 else
                 {
-                    t = action(m_ecs, argument);
+                    t = action(Channel, argument);
                     return true;
                 }
             }
         }
 
-        public bool UseWrapper(Action<ECSWrapper> action)
+        public bool UseWrapper(Action<IECSWrapper> action)
         {
             lock (m_lock)
             {
-                if (m_ecs == null)
+                if (Channel == null)
                 {
                     LogManager.Instance.Add(LogLevel.High, "Project has not been started. Cannot run function");
                     return false;
                 }
                 else
                 {
-                    action(m_ecs);
+                    action(Channel);
                     return true;
                 }
             }
-        }
-
-        private static void HandleLogFromECS(string message)
-        {
-            LogManager.Instance.Add(message);
-            if (message == DeserializeLog)
-            {
-                DeserializeRequested?.Invoke();
-            }
-            else if(message.Contains(EventQuit))
-            {
-                ProjectEnded?.Invoke();
-            }
-        }
-
-        private void UpdateAction(ECSWrapper ecs)
-        {
-            ecs.LoveUpdate();
-        }
-
-        private void CompositionTarget_Rendering(object sender, EventArgs e)
-        {
-            UseWrapper(LoveDraw, out double sleepMilliseconds);
         }
 
         private void DoDispose()
         {
             lock (m_lock)
             {
-                m_ecs?.Dispose();
-                m_ecs = null;
+                Channel.Dispose();
                 LogManager.Instance.Add(LogLevel.Medium, "Project Stopped");
             }
         }
 
-        private double LoveDraw(ECSWrapper ecs)
-        {
-            return ecs.LoveDraw(true);
-        }
-
-        private void ResetProjectFunc(ECSWrapper ecs)
+        private void ResetProjectFunc(IECSWrapper ecs)
         {
             ecs.Reset();
             ProjectRestarted?.Invoke();
+        }
+
+        private void StartECSApp()
+        {
+            if(!Process.GetProcessesByName("Event-ECS-App").Any())
+            {
+                Process.Start("Event-ECS-App.exe");
+            }
+        }
+
+        private void UpdateAction(IECSWrapper ecs)
+        {
+            ecs.Update();
         }
     }
 }

@@ -1,9 +1,9 @@
-﻿using Event_ECS_WPF.Commands;
+﻿using Event_ECS_Lib;
+using Event_ECS_WPF.Commands;
 using Event_ECS_WPF.Logger;
 using Event_ECS_WPF.Projects;
 using Event_ECS_WPF.Properties;
 using Event_ECS_WPF.SystemObjects;
-using EventECSWrapper;
 using System;
 using System.ComponentModel;
 using System.IO;
@@ -65,7 +65,7 @@ namespace Event_ECS_WPF.Controls
 
         public IActionCommand ExecuteCodeCommand => m_executeCodeCommand ?? (m_executeCodeCommand = new ActionCommand(ExecuteCode));
 
-        private void ExecuteCodeFunc(ECSWrapper ecs, string code)
+        private void ExecuteCodeFunc(IECSWrapper ecs, string code)
         {
             ecs.Execute(code, EntityComponentSystem.Name);
         }
@@ -131,7 +131,7 @@ namespace Event_ECS_WPF.Controls
             }
         }
 
-        private string AddEntityFunc(ECSWrapper ecs)
+        private string AddEntityFunc(IECSWrapper ecs)
         {
             return ecs.AddEntity(EntityComponentSystem.Name);
         }
@@ -164,12 +164,12 @@ namespace Event_ECS_WPF.Controls
             Deserialize();
         }
 
-        private string GetClassName(ECSWrapper ecs)
+        private string GetClassName(IECSWrapper ecs)
         {
             return EntityComponentSystem == null ? string.Empty : ecs.GetClassName(EntityComponentSystem.Name);
         }
 
-        private bool RemoveEntityFunc(ECSWrapper ecs, int entityID)
+        private bool RemoveEntityFunc(IECSWrapper ecs, int entityID)
         {
             try
             {

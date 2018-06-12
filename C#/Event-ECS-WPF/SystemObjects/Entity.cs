@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.ObjectModel;
+﻿using Event_ECS_Lib;
 using Event_ECS_WPF.Misc;
-using EventECSWrapper;
+using System;
+using System.Collections.ObjectModel;
 
 namespace Event_ECS_WPF.SystemObjects
 {
@@ -41,12 +41,12 @@ namespace Event_ECS_WPF.SystemObjects
             }
         }
 
-        private bool GetIsEnabled(ECSWrapper ecs)
+        private bool GetIsEnabled(IECSWrapper ecs)
         {
             return ecs.GetEntityBool(System.Name, ID, "enabled");
         }
 
-        private void SetIsEnabled(ECSWrapper ecs, bool value)
+        private void SetIsEnabled(IECSWrapper ecs, bool value)
         {
             ecs.SetEntityBool(System.Name, ID, "enabled", value);
         }

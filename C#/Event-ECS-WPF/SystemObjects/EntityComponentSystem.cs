@@ -1,6 +1,6 @@
-﻿using Event_ECS_WPF.Extensions;
+﻿using Event_ECS_Lib;
+using Event_ECS_WPF.Extensions;
 using Event_ECS_WPF.Misc;
-using EventECSWrapper;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -204,17 +204,17 @@ namespace Event_ECS_WPF.SystemObjects
             }
         }
 
-        private string[] DeserializeFunc(ECSWrapper ecs)
+        private string[] DeserializeFunc(IECSWrapper ecs)
         {
             return ecs.SerializeSystem(Name).Split('\n');
         }
 
-        private bool IsEnabledFunc(ECSWrapper ecs)
+        private bool IsEnabledFunc(IECSWrapper ecs)
         {
             return ecs.IsSystemEnabled(Name);
         }
 
-        private void SetEnabledFunc(ECSWrapper ecs, bool value)
+        private void SetEnabledFunc(IECSWrapper ecs, bool value)
         {
             ecs.SetSystemEnabled(Name, value);
         }

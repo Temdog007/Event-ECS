@@ -33,6 +33,13 @@ function TestComponent:__init(entity)
   self.space = 10
 end
 
+function TestComponent:eventLoad(args)
+  print("Handled event load")
+  for k,v in pairs(args) do
+    print(tostring(k), tostring(v))
+  end
+end
+
 function TestComponent:eventAddedComponent(args)
   if args.component == self then
     self.added = true

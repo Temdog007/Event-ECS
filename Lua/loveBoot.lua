@@ -30,14 +30,10 @@ function getFrameRate()
   return frameRate
 end
 
-local function bootLove(broadcastEventFunc, identity, executablePath)
-
-  assert(type(broadcastEventFunc) == "function", "Must enter a broadcast event function")
-
-  BroadcastEvent = broadcastEventFunc
+local function boot()
 
   executablePath = executablePath or os.execute('cd')
-  assert(type(identity) == "string", "Must enter a name for the game")
+  assert(type(identity) == "string", "Must set a global 'identity' as the name for the game")
 
   -- Make sure love exists.
   local love = require("love")
@@ -213,10 +209,17 @@ end
 
 local function run()
 
-  BroadcastEvent("eventload")
+  if not BroadcastEvent then
+    error("global 'BroadcastEvent' function must be defined")
+  end
 
-  local updateArgs = {dt = 0}
+  BroadcastEvent("eventload", arg)
 
+	-- We don't want the first frame's dt to include time taken by love.load.
+  local nextTime = 0
+	if love.timer then love.timer.step() end
+
+	local updateArgs = {dt = 0}
   local quitArgs = {handled = false}
 
 	-- Main loop time.
@@ -226,60 +229,42 @@ local function run()
 			love.event.pump()
 			for name, a,b,c,d,e,f in love.event.poll() do
 				if name == "quit" then
-          quitArgs.handled = false
-					BroadcastEvent("eventquit", quitArgs)
-          if not quitArgs.handled then
+          BroadcastEvent("eventquit", quitArgs)
+					if not quitArgs.handled then
 						return a or 0
 					end
-				else
-          BroadcastEvent("event"..name, {a,b,c,d,ef})
-        end
+				end
+        BroadcastEvent("event"..name, {a,b,c,d,e,f})
 			end
 		end
 
-    -- Update dt, as we'll be passing it to update
-    if love.timer then
-      updateArgs.dt = love.timer.step()
-    else
-      updateArgs.dt = 0
-    end
+		-- Update dt, as we'll be passing it to update
+		if love.timer then updateArgs.dt = love.timer.step() end
 
-    -- Call update and draw
-    BroadcastEvent("eventupdate", updateArgs) -- will pass 0 if love.timer is disabled
+		-- Call update and draw
+		BroadcastEvent("eventupdate", updateArgs) -- will pass 0 if love.timer is disabled
 
-  end
-end
+		if love.graphics and love.graphics.isActive() then
+			love.graphics.origin()
+			love.graphics.clear(love.graphics.getBackgroundColor())
 
-local function draw()
-  local nextTime
-  if love.timer then
-    love.timer.step()
-    nextTime = love.timer.getTime()
-  end
+			BroadcastEvent("eventdraw")
 
-  return function()
+			love.graphics.present()
 
-    if love.graphics and love.graphics.isActive() then
-      love.graphics.origin()
-      love.graphics.clear(love.graphics.getBackgroundColor())
-
-      BroadcastEvent("eventdraw")
-
-      love.graphics.present()
-    end
-
-    if love.timer then
-      nextTime = nextTime + (1 / frameRate)
-      local curTime = love.timer.getTime()
-      if nextTime <= curTime then
-        nextTime = curTime
-      else
-        -- love.timer.sleep(nextTime - curTime)
-        return nextTime - curTime
+      if love.timer then
+        nextTime = nextTime + (1 / frameRate)
+        local curTime = love.timer.getTime()
+        if nextTime <= curTime then
+          nextTime = curTime
+        else
+          love.timer.sleep(nextTime - curTime)
+        end
       end
-    end
 
-  end
+		end
+	end
+
 end
 
 local debug, print, error = debug, print, error
@@ -292,97 +277,43 @@ local function error_printer(msg, layer)
    end
 end
 
+
 -----------------------------------------------------------
 -- The root of all calls.
 -----------------------------------------------------------
 
-local function runCoroutine()
-  local func
+return function()
+	local func
+	local inerror = false
 
-  local function deferErrhand(...)
-    func = error_printer(...)
-  end
+	local function deferErrhand(...)
+		local errhand = love.errorhandler or love.errhand
+		local handler = (not inerror and errhand) or error_printer
+		inerror = true
+		func = handler(...)
+	end
 
-  local function earlyinit()
-    -- NOTE: We can't assign to func directly, as we'd
-    -- overwrite the result of deferErrhand with nil on error
-    local result, main = xpcall(run, deferErrhand)
-    if result then
-      func = main
-    end
-  end
+	local function earlyinit()
+		-- If boot fails, return 1 and finish immediately
+		local result = xpcall(boot, error_printer)
+		if not result then return 1 end
 
-  func = earlyinit
+		-- NOTE: We can't assign to func directly, as we'd
+		-- overwrite the result of deferErrhand with nil on error
+		local main
+		result, main = xpcall(run, deferErrhand)
+		if result then
+			func = main
+		end
+	end
 
-  while func do
-    local _, retval = xpcall(func, deferErrhand)
-    if retval then return retval end
-    coroutine.yield()
-  end
+	func = earlyinit
 
-  return 1
+	while func do
+		local _, retval = xpcall(func, deferErrhand)
+		if retval then return retval end
+		coroutine.yield()
+	end
+
+	return 1
 end
-
-local function drawCoroutine()
-
-  local func
-
-  local function earlyinit()
-    -- NOTE: We can't assign to func directly, as we'd
-    -- overwrite the result of deferErrhand with nil on error
-    local result, main = pcall(draw)
-    if result then
-      func = main
-    end
-  end
-
-  func = earlyinit
-
-  while func do
-    local _, retval = pcall(func)
-    coroutine.yield(retval)
-  end
-
-  return 1
-end
-
-local runCo = coroutine.create(runCoroutine)
-local drawCo = coroutine.create(drawCoroutine)
-
-local function updateLove()
-
-	local rval, result = coroutine.resume(runCo)
-
-  if result then
-    if Log then
-      Log(tostring(result))
-    else
-      print(result)
-    end
-  end
-
-  return rval, result
-end
-
-local function drawLove(skipSleep)
-
-  local rval, result = coroutine.resume(drawCo)
-
-  if result then
-    if type(result) == "number" then
-      if not skipSleep then
-        love.timer.sleep(result)
-      end
-    else
-      if Log then
-        Log(tostring(result))
-      else
-        print(result)
-      end
-    end
-  end
-
-  return rval, result
-end
-
-return {bootLove = bootLove, updateLove = updateLove, drawLove = drawLove}
