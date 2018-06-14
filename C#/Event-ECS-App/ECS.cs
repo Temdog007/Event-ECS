@@ -5,7 +5,7 @@ using System.ServiceModel;
 
 namespace Event_ECS_App
 {
-    [ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Reentrant, InstanceContextMode = InstanceContextMode.Single)]
+    [ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Single, InstanceContextMode = InstanceContextMode.Single)]
     public class ECS : IECSWrapper
     {
         private ECSWrapper ecs;
@@ -14,6 +14,12 @@ namespace Event_ECS_App
         {
             ECSWrapper.LogEvent += Log;
         }
+
+        public event Action Disposing;
+
+        public event Action Starting;
+
+        public event Action<int> Updated;
 
         public IECSWrapperCallback Callback => OperationContext.Current?.GetCallbackChannel<IECSWrapperCallback>();
 
@@ -27,7 +33,7 @@ namespace Event_ECS_App
             }
             catch (Exception e)
             {
-                Log(e.Message);
+                Log(e);
             }
         }
 
@@ -39,20 +45,20 @@ namespace Event_ECS_App
             }
             catch (Exception e)
             {
-                Log(e.Message);
+                Log(e);
             }
         }
 
-        public string AddEntity(string systemName)
+        public void AddEntity(string systemName)
         {
             try
             {
-                return ecs.AddEntity(systemName);
+                string value = ecs.AddEntity(systemName);
+                Callback?.AddEntity(value);
             }
             catch (Exception e)
             {
-                Log(e.Message);
-                return string.Empty;
+                Log(e);
             }
         }
 
@@ -64,33 +70,33 @@ namespace Event_ECS_App
             }
             catch (Exception e)
             {
-                Log(e.Message);
+                Log(e);
             }
         }
 
-        public int DispatchEvent(string systemName, string eventName)
+        public void DispatchEvent(string systemName, string eventName)
         {
             try
             {
-                return ecs.DispatchEvent(systemName, eventName);
+                var value = ecs.DispatchEvent(systemName, eventName);
+                Callback?.DispatchEvent(value);
             }
             catch (Exception e)
             {
-                Log(e.Message);
-                return -1;
+                Log(e);
             }
         }
 
-        public int DispatchEvent(string systemName, int entityID, string eventName)
+        public void DispatchEvent(string systemName, int entityID, string eventName)
         {
             try
             {
-                return ecs.DispatchEvent(systemName, entityID, eventName);
+                var value = ecs.DispatchEvent(systemName, entityID, eventName);
+                Callback?.DispatchEvent(value);
             }
             catch (Exception e)
             {
-                Log(e.Message);
-                return -1;
+                Log(e);
             }
         }
 
@@ -100,10 +106,11 @@ namespace Event_ECS_App
             {
                 ecs?.Dispose();
                 ecs = null;
+                Disposing?.Invoke();
             }
             catch (Exception e)
             {
-                Log(e.Message);
+                Log(e);
             }
         }
 
@@ -115,7 +122,7 @@ namespace Event_ECS_App
             }
             catch (Exception e)
             {
-                Log(e.Message);
+                Log(e);
             }
         }
 
@@ -127,155 +134,155 @@ namespace Event_ECS_App
             }
             catch (Exception e)
             {
-                Log(e.Message);
+                Log(e);
             }
         }
 
-        public bool GetAutoUpdate()
+        public void GetAutoUpdate()
         {
-            return CanUpdate;
+            Callback?.GetAutoUpdate(CanUpdate);
         }
 
-        public string GetClassName(string systemName)
-        {
-            try
-            {
-                return ecs.GetClassName(systemName);
-            }
-            catch (Exception e)
-            {
-                Log(e.Message);
-                return string.Empty;
-            }
-        }
-
-        public bool GetComponentBool(string systemName, int entityID, int componentID, string key)
+        public void GetClassName(string systemName)
         {
             try
             {
-                return ecs.GetComponentBool(systemName, entityID, componentID, key);
+                var value = ecs.GetClassName(systemName);
+                Callback?.GetClassName(value);
             }
             catch (Exception e)
             {
-                Log(e.Message);
-                return false;
+                Log(e);
             }
         }
 
-        public double GetComponentNumber(string systemName, int entityID, int componentID, string key)
+        public void GetComponentBool(string systemName, int entityID, int componentID, string key)
         {
             try
             {
-                return ecs.GetComponentNumber(systemName, entityID, componentID, key);
+                var value = ecs.GetComponentBool(systemName, entityID, componentID, key);
+                Callback?.GetComponentBool(value);
             }
             catch (Exception e)
             {
-                Log(e.Message);
-                return 0;
+                Log(e);
             }
         }
 
-        public double GetComponentNumber(string systemName, int entityID, int componentID, int key)
+        public void GetComponentNumber(string systemName, int entityID, int componentID, string key)
         {
             try
             {
-                return ecs.GetComponentNumber(systemName, entityID, componentID, key);
+                var value = ecs.GetComponentNumber(systemName, entityID, componentID, key);
+                Callback?.GetComponentNumber(value);
             }
             catch (Exception e)
             {
-                Log(e.Message);
-                return 0;
+                Log(e);
             }
         }
 
-        public string GetComponentString(string systemName, int entityID, int componentID, string key)
+        public void GetComponentNumber(string systemName, int entityID, int componentID, int key)
         {
             try
             {
-                return ecs.GetComponentString(systemName, entityID, componentID, key);
+                var value = ecs.GetComponentNumber(systemName, entityID, componentID, key);
+                Callback?.GetComponentNumber(value);
             }
             catch (Exception e)
             {
-                Log(e.Message);
-                return string.Empty;
+                Log(e);
             }
         }
 
-        public bool GetEntityBool(string systemName, int entityID, string key)
+        public void GetComponentString(string systemName, int entityID, int componentID, string key)
         {
             try
             {
-                return ecs.GetEntityBool(systemName, entityID, key);
+                var value = ecs.GetComponentString(systemName, entityID, componentID, key);
+                Callback?.GetComponentString(value);
             }
             catch (Exception e)
             {
-                Log(e.Message);
-                return false;
+                Log(e);
             }
         }
 
-        public double GetEntityNumber(string systemName, int entityID, string key)
+        public void GetEntityBool(string systemName, int entityID, string key)
         {
             try
             {
-                return ecs.GetEntityNumber(systemName, entityID, key);
+                var value = ecs.GetEntityBool(systemName, entityID, key);
+                Callback?.GetEntityBool(value);
             }
             catch (Exception e)
             {
-                Log(e.Message);
-                return 0;
+                Log(e);
             }
         }
 
-        public string GetEntityString(string systemName, int entityID, string key)
+        public void GetEntityNumber(string systemName, int entityID, string key)
         {
             try
             {
-                return ecs.GetEntityString(systemName, entityID, key);
+                var value = ecs.GetEntityNumber(systemName, entityID, key);
+                Callback?.GetEntityNumber(value);
             }
             catch (Exception e)
             {
-                Log(e.Message);
-                return string.Empty;
+                Log(e);
             }
         }
 
-        public bool GetSystemBool(string systemName, string key)
+        public void GetEntityString(string systemName, int entityID, string key)
         {
             try
             {
-                return ecs.GetSystemBool(systemName, key);
+                var value = ecs.GetEntityString(systemName, entityID, key);
+                Callback?.GetEntityString(value);
             }
             catch (Exception e)
             {
-                Log(e.Message);
-                return false;
+                Log(e);
             }
         }
 
-        public double GetSystemNumber(string systemName, string key)
+        public void GetSystemBool(string systemName, string key)
         {
             try
             {
-                return ecs.GetSystemNumber(systemName, key);
+                var value = ecs.GetSystemBool(systemName, key);
+                Callback?.GetSystemBool(value);
             }
             catch (Exception e)
             {
-                Log(e.Message);
-                return 0;
+                Log(e);
             }
         }
 
-        public string GetSystemString(string systemName, string key)
+        public void GetSystemNumber(string systemName, string key)
         {
             try
             {
-                return ecs.GetSystemString(systemName, key);
+                var value = ecs.GetSystemNumber(systemName, key);
+                Callback?.GetSystemNumber(value);
             }
             catch (Exception e)
             {
-                Log(e.Message);
-                return string.Empty;
+                Log(e);
+            }
+        }
+
+        public void GetSystemString(string systemName, string key)
+        {
+            try
+            {
+                var value = ecs.GetSystemString(systemName, key);
+                Callback?.GetSystemString(value);
+            }
+            catch (Exception e)
+            {
+                Log(e);
             }
         }
 
@@ -284,10 +291,11 @@ namespace Event_ECS_App
             try
             {
                 ecs = new ECSWrapper(initializerCode);
+                Starting?.Invoke();
             }
             catch (Exception e)
             {
-                Log(e.Message);
+                Log(e);
             }
         }
 
@@ -296,114 +304,114 @@ namespace Event_ECS_App
             try
             {
                 ecs = new ECSWrapper(initializerCode, executablePath, identity);
+                Starting?.Invoke();
             }
             catch (Exception e)
             {
-                Log(e.Message);
+                Log(e);
             }
         }
 
-        public bool IsComponentEnabled(string systemName, int entityID, int componentID)
+        public void IsComponentEnabled(string systemName, int entityID, int componentID)
         {
             try
             {
-                return ecs.IsComponentEnabled(systemName, entityID, componentID);
+                var value = ecs.IsComponentEnabled(systemName, entityID, componentID);
+                Callback?.IsComponentEnabled(value);
             }
             catch (Exception e)
             {
-                Log(e.Message);
-                return false;
+                Log(e);
             }
         }
 
-        public bool IsDisposing()
+        public void IsDisposing()
         {
             try
             {
-                return ecs.IsDisposing();
+                var value = ecs.IsDisposing();
+                Callback?.IsDisposing(value);
             }
             catch (Exception e)
             {
-                Log(e.Message);
-                return true;
+                Log(e);
             }
         }
 
-        public bool IsEntityEnabled(string systemName, int entityID)
+        public void IsEntityEnabled(string systemName, int entityID)
         {
             try
             {
-                return ecs.IsEntityEnabled(systemName, entityID);
+                var value = ecs.IsEntityEnabled(systemName, entityID);
+                Callback?.IsEntityEnabled(value);
             }
             catch (Exception e)
             {
-                Log(e.Message);
-                return false;
+                Log(e);
             }
         }
 
-        public bool IsLoggingEvents()
+        public void IsLoggingEvents()
         {
             try
             {
-                return ecs.IsLoggingEvents();
+                var value = ecs.IsLoggingEvents();
+                Callback?.IsLoggingEvents(value);
             }
             catch (Exception e)
             {
-                Log(e.Message);
-                return false;
+                Log(e);
             }
         }
 
-        public bool IsStarted()
+        public void IsStarted()
         {
             try
             {
-                return ecs != null;
+                Callback?.IsStarted(ecs != null);
             }
             catch (Exception e)
             {
-                Log(e.Message);
-                return false;
+                Log(e);
             }
         }
 
-        public bool IsSystemEnabled(string systemName)
+        public void IsSystemEnabled(string systemName)
         {
             try
             {
-                return ecs.IsSystemEnabled(systemName);
+                var value = ecs.IsSystemEnabled(systemName);
+                Callback?.IsSystemEnabled(value);
             }
             catch (Exception e)
             {
-                Log(e.Message);
-                return false;
+                Log(e);
             }
         }
 
-        public bool RemoveComponent(string systemName, int entityID, int componentID)
+        public void RemoveComponent(string systemName, int entityID, int componentID)
         {
             try
             {
-                return ecs.RemoveComponent(systemName, entityID, componentID);
+                var value = ecs.RemoveComponent(systemName, entityID, componentID);
+                Callback?.RemoveComponent(value);
             }
             catch (Exception e)
             {
-                Log(e.Message);
-                return false;
+                Log(e);
             }
         }
 
-        public bool RemoveEntity(string systemName, int entityID)
+        public void RemoveEntity(string systemName, int entityID)
         {
             try
             {
-                return ecs.RemoveEntity(systemName, entityID);
+                var value = ecs.RemoveEntity(systemName, entityID);
+                Callback?.RemoveEntity(value);
             }
             catch (Exception e)
             {
-                Log(e.Message);
-                return false;
+                Log(e);
             }
         }
 
@@ -415,59 +423,59 @@ namespace Event_ECS_App
             }
             catch (Exception e)
             {
-                Log(e.Message);
+                Log(e);
             }
         }
 
-        public string[] Serialize()
+        public void Serialize()
         {
             try
             {
-                return ecs.Serialize();
+                var value = ecs.Serialize();
+                Callback?.Serialize(value);
             }
             catch (Exception e)
             {
-                Log(e.Message);
-                return string.Empty.Split('\n');
+                Log(e);
             }
         }
 
-        public string SerializeComponent(string systemName, int entityID, int componentID)
+        public void SerializeComponent(string systemName, int entityID, int componentID)
         {
             try
             {
-                return ecs.SerializeComponent(systemName, entityID, componentID);
+                var value = ecs.SerializeComponent(systemName, entityID, componentID);
+                Callback?.SerializeComponent(value);
             }
             catch (Exception e)
             {
-                Log(e.Message);
-                return string.Empty;
+                Log(e);
             }
         }
 
-        public string SerializeEntity(string systemName, int entityID)
+        public void SerializeEntity(string systemName, int entityID)
         {
             try
             {
-                return ecs.SerializeEntity(systemName, entityID);
+                var value = ecs.SerializeEntity(systemName, entityID);
+                Callback?.SerializeEntity(value);
             }
             catch (Exception e)
             {
-                Log(e.Message);
-                return string.Empty;
+                Log(e);
             }
         }
 
-        public string SerializeSystem(string systemName)
+        public void SerializeSystem(string systemName)
         {
             try
             {
-                return ecs.SerializeSystem(systemName);
+                var value = ecs.SerializeSystem(systemName);
+                Callback?.SerializeSystem(value);
             }
             catch (Exception e)
             {
-                Log(e.Message);
-                return string.Empty;
+                Log(e);
             }
         }
 
@@ -484,7 +492,7 @@ namespace Event_ECS_App
             }
             catch (Exception e)
             {
-                Log(e.Message);
+                Log(e);
             }
         }
 
@@ -496,7 +504,7 @@ namespace Event_ECS_App
             }
             catch (Exception e)
             {
-                Log(e.Message);
+                Log(e);
             }
         }
 
@@ -508,7 +516,7 @@ namespace Event_ECS_App
             }
             catch (Exception e)
             {
-                Log(e.Message);
+                Log(e);
             }
         }
 
@@ -520,7 +528,7 @@ namespace Event_ECS_App
             }
             catch (Exception e)
             {
-                Log(e.Message);
+                Log(e);
             }
         }
 
@@ -532,7 +540,7 @@ namespace Event_ECS_App
             }
             catch (Exception e)
             {
-                Log(e.Message);
+                Log(e);
             }
         }
 
@@ -544,7 +552,7 @@ namespace Event_ECS_App
             }
             catch (Exception e)
             {
-                Log(e.Message);
+                Log(e);
             }
         }
 
@@ -556,7 +564,7 @@ namespace Event_ECS_App
             }
             catch (Exception e)
             {
-                Log(e.Message);
+                Log(e);
             }
         }
 
@@ -568,7 +576,7 @@ namespace Event_ECS_App
             }
             catch (Exception e)
             {
-                Log(e.Message);
+                Log(e);
             }
         }
 
@@ -580,7 +588,7 @@ namespace Event_ECS_App
             }
             catch (Exception e)
             {
-                Log(e.Message);
+                Log(e);
             }
         }
 
@@ -592,7 +600,7 @@ namespace Event_ECS_App
             }
             catch (Exception e)
             {
-                Log(e.Message);
+                Log(e);
             }
         }
 
@@ -604,7 +612,7 @@ namespace Event_ECS_App
             }
             catch (Exception e)
             {
-                Log(e.Message);
+                Log(e);
             }
         }
 
@@ -616,7 +624,7 @@ namespace Event_ECS_App
             }
             catch (Exception e)
             {
-                Log(e.Message);
+                Log(e);
             }
         }
 
@@ -628,7 +636,7 @@ namespace Event_ECS_App
             }
             catch (Exception e)
             {
-                Log(e.Message);
+                Log(e);
             }
         }
 
@@ -640,7 +648,7 @@ namespace Event_ECS_App
             }
             catch (Exception e)
             {
-                Log(e.Message);
+                Log(e);
             }
         }
 
@@ -652,7 +660,7 @@ namespace Event_ECS_App
             }
             catch (Exception e)
             {
-                Log(e.Message);
+                Log(e);
             }
         }
 
@@ -664,33 +672,46 @@ namespace Event_ECS_App
             }
             catch (Exception e)
             {
-                Log(e.Message);
+                Log(e);
             }
         }
 
-        public int Update()
+        public void Update()
         {
             try
             {
-                return ecs.UpdateLove();
+                var value = ecs.UpdateLove();
+                Callback?.Update(value);
+                Updated?.Invoke(value);
             }
             catch (Exception e)
             {
-                Log(e.Message);
-                return -2;
+                Log(e);
             }
         }
 
         private void Log(string message)
         {
-            Console.WriteLine(message);
-            try
+            lock (this)
             {
-                Callback?.LogEvent(message);
+                Console.WriteLine(message);
+                try
+                {
+                    Callback?.LogEvent(message);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
             }
-            catch (Exception e)
+        }
+
+        private void Log(Exception e)
+        {
+            Log(e.Message);
+            if(e.InnerException != null)
             {
-                Console.WriteLine(e);
+                Log(e.InnerException);
             }
         }
     }

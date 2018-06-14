@@ -12,17 +12,17 @@ namespace Event_ECS_Lib
         [OperationContract(IsOneWay = true)]
         void AddComponents(string systemName, int entityID, string[] componentNames);
 
-        [OperationContract]
-        string AddEntity(string systemName);
+        [OperationContract(IsOneWay = true)]
+        void AddEntity(string systemName);
 
         [OperationContract(IsOneWay = true)]
         void BroadcastEvent(string eventName);
 
-        [OperationContract(Name = "DispatchEvent1")]
-        int DispatchEvent(string systemName, string eventName);
+        [OperationContract(Name = "DispatchEvent1", IsOneWay = true)]
+        void DispatchEvent(string systemName, string eventName);
 
-        [OperationContract(Name = "DispatchEvent2")]
-        int DispatchEvent(string systemName, int entityID, string eventName);
+        [OperationContract(Name = "DispatchEvent2", IsOneWay =true)]
+        void DispatchEvent(string systemName, int entityID, string eventName);
 
         [OperationContract(Name = "Execute1", IsOneWay = true)]
         void Execute(string code);
@@ -30,41 +30,41 @@ namespace Event_ECS_Lib
         [OperationContract(Name = "Execute2", IsOneWay = true)]
         void Execute(string code, string systemName);
 
-        [OperationContract]
-        bool GetAutoUpdate();
+        [OperationContract(IsOneWay = true)]
+        void GetAutoUpdate();
 
-        [OperationContract]
-        string GetClassName(string systemName);
+        [OperationContract(IsOneWay = true)]
+        void GetClassName(string systemName);
 
-        [OperationContract]
-        bool GetComponentBool(string systemName, int entityID, int componentID, string key);
+        [OperationContract(IsOneWay = true)]
+        void GetComponentBool(string systemName, int entityID, int componentID, string key);
 
         [OperationContract(Name = "GetComponentNumber1")]
-        double GetComponentNumber(string systemName, int entityID, int componentID, string key);
+        void GetComponentNumber(string systemName, int entityID, int componentID, string key);
 
         [OperationContract(Name = "GetComponentNumber2")]
-        double GetComponentNumber(string systemName, int entityID, int componentID, int key);
+        void GetComponentNumber(string systemName, int entityID, int componentID, int key);
 
-        [OperationContract]
-        string GetComponentString(string systemName, int entityID, int componentID, string key);
+        [OperationContract(IsOneWay = true)]
+        void GetComponentString(string systemName, int entityID, int componentID, string key);
 
-        [OperationContract]
-        bool GetEntityBool(string systemName, int entityID, string key);
+        [OperationContract(IsOneWay = true)]
+        void GetEntityBool(string systemName, int entityID, string key);
 
-        [OperationContract]
-        double GetEntityNumber(string systemName, int entityID, string key);
+        [OperationContract(IsOneWay = true)]
+        void GetEntityNumber(string systemName, int entityID, string key);
 
-        [OperationContract]
-        string GetEntityString(string systemName, int entityID, string key);
+        [OperationContract(IsOneWay = true)]
+        void GetEntityString(string systemName, int entityID, string key);
 
-        [OperationContract]
-        bool GetSystemBool(string systemName, string key);
+        [OperationContract(IsOneWay = true)]
+        void GetSystemBool(string systemName, string key);
 
-        [OperationContract]
-        double GetSystemNumber(string systemName, string key);
+        [OperationContract(IsOneWay = true)]
+        void GetSystemNumber(string systemName, string key);
 
-        [OperationContract]
-        string GetSystemString(string systemName, string key);
+        [OperationContract(IsOneWay = true)]
+        void GetSystemString(string systemName, string key);
 
         [OperationContract(Name = "Initialize1", IsOneWay = true)]
         void Initialize(string initializerCode);
@@ -72,44 +72,44 @@ namespace Event_ECS_Lib
         [OperationContract(Name = "Initialize2", IsOneWay = true)]
         void Initialize(string initializerCode, string executablePath, string identity);
 
-        [OperationContract]
-        bool IsComponentEnabled(string systemName, int entityID, int componentID);
+        [OperationContract(IsOneWay = true)]
+        void IsComponentEnabled(string systemName, int entityID, int componentID);
 
-        [OperationContract]
-        bool IsDisposing();
+        [OperationContract(IsOneWay = true)]
+        void IsDisposing();
 
-        [OperationContract]
-        bool IsEntityEnabled(string systemName, int entityID);
+        [OperationContract(IsOneWay = true)]
+        void IsEntityEnabled(string systemName, int entityID);
 
-        [OperationContract]
-        bool IsLoggingEvents();
+        [OperationContract(IsOneWay = true)]
+        void IsLoggingEvents();
 
-        [OperationContract]
-        bool IsStarted();
+        [OperationContract(IsOneWay = true)]
+        void IsStarted();
 
-        [OperationContract]
-        bool IsSystemEnabled(string systemName);
+        [OperationContract(IsOneWay = true)]
+        void IsSystemEnabled(string systemName);
         
-        [OperationContract]
-        bool RemoveComponent(string systemName, int entityID, int componentID);
+        [OperationContract(IsOneWay = true)]
+        void RemoveComponent(string systemName, int entityID, int componentID);
 
-        [OperationContract]
-        bool RemoveEntity(string systemName, int entityID);
+        [OperationContract(IsOneWay = true)]
+        void RemoveEntity(string systemName, int entityID);
 
-        [OperationContract]
+        [OperationContract(IsOneWay = true)]
         void Reset();
 
-        [OperationContract]
-        string[] Serialize();
+        [OperationContract(IsOneWay = true)]
+        void Serialize();
 
-        [OperationContract]
-        string SerializeComponent(string systemName, int entityID, int componentID);
+        [OperationContract(IsOneWay = true)]
+        void SerializeComponent(string systemName, int entityID, int componentID);
 
-        [OperationContract]
-        string SerializeEntity(string systemName, int entityID);
+        [OperationContract(IsOneWay = true)]
+        void SerializeEntity(string systemName, int entityID);
 
-        [OperationContract]
-        string SerializeSystem(string systemName);
+        [OperationContract(IsOneWay = true)]
+        void SerializeSystem(string systemName);
 
         [OperationContract(IsOneWay = true)]
         void SetAutoUpdate(bool value);
@@ -162,7 +162,7 @@ namespace Event_ECS_Lib
         [OperationContract(IsOneWay = true)]
         void Unregister(string modName);
 
-        [OperationContract]
-        int Update();
+        [OperationContract(IsOneWay = true)]
+        void Update();
     }
 }

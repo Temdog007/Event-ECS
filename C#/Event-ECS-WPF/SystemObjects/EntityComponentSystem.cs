@@ -25,16 +25,26 @@ namespace Event_ECS_WPF.SystemObjects
             Deserialize(list);
         }
 
+        private bool m_isEnabled = false;
+
         public bool IsEnabled
         {
-            get => ECS.Instance.UseWrapper(IsEnabledFunc, out bool rval) ? rval : false;
+            get => m_isEnabled;
             set
             {
-                if (ECS.Instance.UseWrapper(SetEnabledFunc, value))
-                {
-                    OnPropertyChanged("IsEnabled");
-                }
+                m_isEnabled = value;
+                ECS.Instance.UseWrapper(SetEnabledFunc, value);
+                OnPropertyChanged("IsEnabled");
             }
+        }
+
+        private bool IsEnabledResponse(string funcName, object result)
+        {
+            if(funcName == "SetSystemEnabled" && result is bool enabled)
+            {
+                return true;
+            }
+            return false;
         }
 
         public ObservableCollection<Entity> Entities
@@ -59,10 +69,17 @@ namespace Event_ECS_WPF.SystemObjects
 
         public void Deserialize()
         {
-            if (ECS.Instance.UseWrapper(DeserializeFunc, out string[] data))
+            ECS.Instance.UseWrapper(DeserializeFunc, DeserializeResponse);
+        }
+
+        public bool DeserializeResponse(string funcName, object result)
+        {
+            if(funcName == "Deserialize" && result is string data)
             {
-                Deserialize(data);
+                Deserialize(data.Split('\n'));
+                return true;
             }
+            return false;
         }
 
         public void Deserialize(IList<string> list)
@@ -204,14 +221,14 @@ namespace Event_ECS_WPF.SystemObjects
             }
         }
 
-        private string[] DeserializeFunc(IECSWrapper ecs)
+        private void DeserializeFunc(IECSWrapper ecs)
         {
-            return ecs.SerializeSystem(Name).Split('\n');
+            ecs.SerializeSystem(Name);
         }
 
-        private bool IsEnabledFunc(IECSWrapper ecs)
+        private void IsEnabledFunc(IECSWrapper ecs)
         {
-            return ecs.IsSystemEnabled(Name);
+            ecs.IsSystemEnabled(Name);
         }
 
         private void SetEnabledFunc(IECSWrapper ecs, bool value)

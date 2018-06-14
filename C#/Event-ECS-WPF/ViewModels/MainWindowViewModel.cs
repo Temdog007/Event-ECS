@@ -367,9 +367,9 @@ return {0}";
             }
         }
 
-        private string[] Serialize(IECSWrapper ecs)
+        private void Serialize(IECSWrapper ecs)
         {
-            return ecs.Serialize();
+            ecs.Serialize();
         }
 
         private void SetComponentSettings()
@@ -402,7 +402,13 @@ return {0}";
         private void SetSystems()
         {
             ECS.Instance.UseWrapper(SetLogEvents);
-            if (ECS.Instance.UseWrapper(Serialize, out string[] data))
+            ECS.Instance.UseWrapper(Serialize, SerializeResponse);
+            OnPropertyChanged("ProjectBackground");
+        }
+
+        private bool SerializeResponse(string funcName, object result)
+        {
+            if(funcName == "Serialize" && result is string[] data)
             {
                 Systems.Clear();
                 if (data.Length > 0)
@@ -413,8 +419,9 @@ return {0}";
                     }
                     CurrentSystem = Systems[0];
                 }
+                return true;
             }
-            OnPropertyChanged("ProjectBackground");
+            return false;
         }
 
         private void StartProject()

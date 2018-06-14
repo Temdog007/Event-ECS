@@ -41,16 +41,26 @@ namespace Event_ECS_WPF.SystemObjects
 
         public int ID { get; }
 
+        private bool m_isEnabled = false;
         public bool IsEnabled
         {
-            get => ECS.Instance.UseWrapper(IsEnabledFunc, out bool rval) ? rval : false;
+            get => m_isEnabled;
             set
             {
-                if (ECS.Instance.UseWrapper(SetEnabledFunc, value))
-                {
-                    OnPropertyChanged("IsEnabled");
-                }
+                m_isEnabled = value;
+                ECS.Instance.UseWrapper(SetEnabledFunc, value);
+                OnPropertyChanged("IsEnabled");
             }
+        }
+
+        private bool IsEnabledResponse(string funcName, object result)
+        {
+            if(funcName == "IsComponentEnabled" && result is bool enabled)
+            {
+                IsEnabled = enabled;
+                return true;
+            }
+            return false;
         }
 
         public bool IsReadOnly => ((ICollection<IComponentVariable>)Variables).IsReadOnly;
@@ -127,9 +137,9 @@ namespace Event_ECS_WPF.SystemObjects
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
         }
 
-        private bool IsEnabledFunc(IECSWrapper ecs)
+        private void IsEnabledFunc(IECSWrapper ecs)
         {
-            return ecs.IsComponentEnabled(Entity.System.Name, Entity.ID, ID);
+            ecs.IsComponentEnabled(Entity.System.Name, Entity.ID, ID);
         }
 
         private void SetEnabledFunc(IECSWrapper ecs, bool value)

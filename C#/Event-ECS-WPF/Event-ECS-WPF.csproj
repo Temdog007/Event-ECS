@@ -96,6 +96,7 @@
     <Compile Include="Projects\FullscreenType.cs" />
     <Compile Include="Projects\UpdateType.cs" />
     <Compile Include="SystemObjects\ComponentVariable.cs" />
+    <Compile Include="SystemObjects\ECS_Callback.cs" />
     <Compile Include="TemplateSelectors\ComponentTemplateSelector.cs" />
     <Compile Include="TemplateSelectors\ProjectMenuDataTemplateSelctor.cs" />
     <Page Include="Controls\AddComponentControl.xaml">

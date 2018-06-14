@@ -41,25 +41,20 @@ namespace Event_ECS_WPF.SystemObjects
             }
         }
 
-        private bool GetIsEnabled(IECSWrapper ecs)
-        {
-            return ecs.GetEntityBool(System.Name, ID, "enabled");
-        }
-
         private void SetIsEnabled(IECSWrapper ecs, bool value)
         {
             ecs.SetEntityBool(System.Name, ID, "enabled", value);
         }
 
+        private bool m_isEnabled = false;
         public bool IsEnabled
         {
-            get => ECS.Instance.UseWrapper(GetIsEnabled, out bool enabled) ? enabled : false;
+            get => m_isEnabled;
             set
             {
-                if (ECS.Instance.UseWrapper(SetIsEnabled, value))
-                {
-                    OnPropertyChanged("IsEnabled");
-                }
+                m_isEnabled = value;
+                ECS.Instance.UseWrapper(SetIsEnabled, value);
+                OnPropertyChanged("IsEnabled");
             }
         }
 

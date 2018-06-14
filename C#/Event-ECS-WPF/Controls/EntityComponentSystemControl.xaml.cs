@@ -28,13 +28,16 @@ namespace Event_ECS_WPF.Controls
            DependencyProperty.Register("Project", typeof(Project), typeof(EntityComponentSystemControl));
 
         private IActionCommand m_addEntityCommand;
-        
-        private ActionCommand<string> m_dispatchEventCommand;
 
         private ActionCommand<string> m_broadcastEventCommand;
 
-        private IActionCommand m_serializeCommand;
+        private string m_classname = string.Empty;
+
+        private ActionCommand<string> m_dispatchEventCommand;
+
         private ActionCommand m_executeCodeCommand;
+
+        private IActionCommand m_serializeCommand;
 
         public EntityComponentSystemControl()
         {
@@ -58,38 +61,28 @@ namespace Event_ECS_WPF.Controls
                 OnPropertyChanged("AutoUpdate");
             }
         }
-        
-        public IActionCommand DispatchEventCommand => m_dispatchEventCommand ?? (m_dispatchEventCommand = new ActionCommand<string>(DispatchEvent));
 
         public IActionCommand BroadcastEventCommand => m_broadcastEventCommand ?? (m_broadcastEventCommand = new ActionCommand<string>(BroadcastEvent));
 
-        public IActionCommand ExecuteCodeCommand => m_executeCodeCommand ?? (m_executeCodeCommand = new ActionCommand(ExecuteCode));
-
-        private void ExecuteCodeFunc(IECSWrapper ecs, string code)
+        public string ClassName
         {
-            ecs.Execute(code, EntityComponentSystem.Name);
-        }
-
-        private void ExecuteCode()
-        {
-            var dialog = new Forms.OpenFileDialog
+            get => m_classname;
+            set
             {
-                Filter = string.Format(MainWindowViewModel.DefaultFilterFormat, "lua")
-            };
-            if (dialog.ShowDialog() == Forms.DialogResult.OK)
-            {
-                string code = File.ReadAllText(dialog.FileName);
-                ECS.Instance.UseWrapper(ExecuteCodeFunc, code);
+                m_classname = value ?? string.Empty;
+                OnPropertyChanged("ClassName");
             }
         }
 
-        public string ClassName => ECS.Instance.UseWrapper(GetClassName, out string classname) ? classname : EntityComponentSystem.Name;
+        public IActionCommand DispatchEventCommand => m_dispatchEventCommand ?? (m_dispatchEventCommand = new ActionCommand<string>(DispatchEvent));
 
         public EntityComponentSystem EntityComponentSystem
         {
             get { return (EntityComponentSystem)GetValue(EntityProperty); }
             set { SetValue(EntityProperty, value); }
         }
+
+        public IActionCommand ExecuteCodeCommand => m_executeCodeCommand ?? (m_executeCodeCommand = new ActionCommand(ExecuteCode));
 
         public Project Project
         {
@@ -124,25 +117,23 @@ namespace Event_ECS_WPF.Controls
 
         private void AddEntity()
         {
-            if (ECS.Instance.UseWrapper(AddEntityFunc, out string str))
-            {
-                LogManager.Instance.Add("Added entity: {0}", str);
-                EntityComponentSystem.Deserialize();
-            }
+            ECS.Instance.UseWrapper(AddEntityFunc, AddEntityResponse);
         }
 
-        private string AddEntityFunc(IECSWrapper ecs)
+        private void AddEntityFunc(IECSWrapper ecs)
         {
-            return ecs.AddEntity(EntityComponentSystem.Name);
+            ecs.AddEntity(EntityComponentSystem.Name);
         }
-        
-        private void DispatchEvent(string ev)
+
+        private bool AddEntityResponse(string func, object result)
         {
-            if (!ev.StartsWith("event", StringComparison.OrdinalIgnoreCase))
+            if (func == "AddEntity")
             {
-                ev = "event" + ev;
+                LogManager.Instance.Add("Added entity: {0}", result);
+                EntityComponentSystem.Deserialize();
+                return true;
             }
-            ECS.Instance.UseWrapper(ecs => ecs.DispatchEvent(EntityComponentSystem.Name, ev));
+            return false;
         }
 
         private void BroadcastEvent(string ev)
@@ -154,50 +145,31 @@ namespace Event_ECS_WPF.Controls
             ECS.Instance.UseWrapper(ecs => ecs.BroadcastEvent(ev));
         }
 
+        private bool ClassNameResponse(string funcName, object result)
+        {
+            if (funcName == "GetClassName")
+            {
+                ClassName = result as string;
+                return true;
+            }
+            return false;
+        }
+
         private void Deserialize()
         {
             Dispatcher.BeginInvoke(new Action(() => EntityComponentSystem?.Deserialize()));
         }
 
+        private void DispatchEvent(string ev)
+        {
+            if (!ev.StartsWith("event", StringComparison.OrdinalIgnoreCase))
+            {
+                ev = "event" + ev;
+            }
+            ECS.Instance.UseWrapper(ecs => ecs.DispatchEvent(EntityComponentSystem.Name, ev));
+        }
+
         private void ECS_DeserializeRequested()
-        {
-            Deserialize();
-        }
-
-        private string GetClassName(IECSWrapper ecs)
-        {
-            return EntityComponentSystem == null ? string.Empty : ecs.GetClassName(EntityComponentSystem.Name);
-        }
-
-        private bool RemoveEntityFunc(IECSWrapper ecs, int entityID)
-        {
-            try
-            {
-                return ecs.RemoveEntity(EntityComponentSystem.Name, entityID);
-            }
-            catch (Exception e)
-            {
-                LogManager.Instance.Add(LogLevel.High, "Cannot remove entity: {0}", e.Message);
-                return false;
-            }
-        }
-
-        private void Serialize()
-        {
-            OnPropertyChanged("ClassName");
-            if (ECS.Instance.UseWrapper(ecs => ecs.SerializeSystem(EntityComponentSystem.Name), out string data))
-            {
-                EntityComponentSystem.Deserialize(data.Split('\n'));
-                LogManager.Instance.Add(data, LogLevel.Low);
-            }
-        }
-
-        private void System_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            AddEntityCommand.UpdateCanExecute(this, e);
-        }
-
-        private void Timer_Elapsed(object sender, ElapsedEventArgs e)
         {
             Deserialize();
         }
@@ -208,6 +180,32 @@ namespace Event_ECS_WPF.Controls
             BroadcastEventCommand.UpdateCanExecute(sender, e);
         }
 
+        private void ExecuteCode()
+        {
+            var dialog = new Forms.OpenFileDialog
+            {
+                Filter = string.Format(MainWindowViewModel.DefaultFilterFormat, "lua")
+            };
+            if (dialog.ShowDialog() == Forms.DialogResult.OK)
+            {
+                string code = File.ReadAllText(dialog.FileName);
+                ECS.Instance.UseWrapper(ExecuteCodeFunc, code);
+            }
+        }
+
+        private void ExecuteCodeFunc(IECSWrapper ecs, string code)
+        {
+            ecs.Execute(code, EntityComponentSystem.Name);
+        }
+
+        private void GetClassName(IECSWrapper ecs)
+        {
+            if (EntityComponentSystem != null)
+            {
+                ecs.GetClassName(EntityComponentSystem.Name);
+            }
+        }
+        
         private void ScrollViewer_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
         {
             if (sender is ScrollViewer scv)
@@ -215,6 +213,33 @@ namespace Event_ECS_WPF.Controls
                 scv.ScrollToVerticalOffset(scv.VerticalOffset - e.Delta);
                 e.Handled = true;
             }
+        }
+
+        private void Serialize()
+        {
+            ECS.Instance.UseWrapper(GetClassName, ClassNameResponse);
+            ECS.Instance.UseWrapper(ecs => ecs.SerializeSystem(EntityComponentSystem.Name), SerializeResponse);
+        }
+
+        private bool SerializeResponse(string funcName, object result)
+        {
+            if(funcName == "Serialize" && result is string data)
+            {
+                EntityComponentSystem.Deserialize(data.Split('\n'));
+                LogManager.Instance.Add(data, LogLevel.Low);
+                return true;
+            }
+            return false;
+        }
+
+        private void System_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            AddEntityCommand.UpdateCanExecute(this, e);
+        }
+
+        private void Timer_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            Deserialize();
         }
     }
 }

@@ -52,17 +52,13 @@ namespace Event_ECS_WPF.Controls
 
         public ICommand UpdateCommand => m_updateCommand ?? (m_updateCommand = new ActionCommand(Update));
 
+        private UpdateType m_updateType = UpdateType.Manual;
         public UpdateType UpdateType
         {
-            get => ECS.Instance.GetAutoUpdate() ? UpdateType.Automatic : UpdateType.Manual;
+            get => m_updateType;
             set
             {
-                if (ECS.Instance == null)
-                {
-                    return;
-                }
-
-                if ((value == UpdateType.Automatic && ECS.Instance.GetAutoUpdate()) || (value == UpdateType.Manual && !ECS.Instance.GetAutoUpdate()))
+                if (value == m_updateType)
                 {
                     return;
                 }
@@ -77,6 +73,7 @@ namespace Event_ECS_WPF.Controls
                         break;
                 }
 
+                m_updateType = value;
                 OnPropertyChanged("UpdateType");
                 OnPropertyChanged("CanUpdate");
             }
