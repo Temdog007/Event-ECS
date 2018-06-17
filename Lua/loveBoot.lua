@@ -37,9 +37,20 @@ local function boot()
 
   -- Make sure love exists.
   local love = require("love")
+
+  if love.filesystem then
+    package.loaded["love.filesystem"] = nil
+    love.filesystem = nil --force gc
+    collectgarbage()
+  end
+
   require("love.filesystem")
 
-  love.filesystem.init(executablePath)
+  local status, err = pcall(love.filesystem.init, executablePath)
+  if not status then
+    if Log then Log(err)
+    else print(err) end
+  end
 
   local exepath = love.filesystem.getExecutablePath()
   love.filesystem.setFused(false)

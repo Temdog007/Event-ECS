@@ -45,7 +45,12 @@ local color = entity:addComponent("ColorComponent")
 entity:dispatchEvent("eventSetColor", {color = "orange"})
 
 identity = "Love Unit Test"
-local co = coroutine.create(runRoutine)
+local co
+
+co = coroutine.create(runRoutine)
+repeat until not coroutine.resume(co)
+
+co = coroutine.create(runRoutine)
 repeat until not coroutine.resume(co)
 
 print("Corutine ended")
