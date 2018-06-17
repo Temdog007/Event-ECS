@@ -2,13 +2,10 @@
 using Event_ECS_WPF.Commands;
 using Event_ECS_WPF.Logger;
 using Event_ECS_WPF.Projects;
-using Event_ECS_WPF.Properties;
 using Event_ECS_WPF.SystemObjects;
 using System;
 using System.ComponentModel;
 using System.IO;
-using System.Threading;
-using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -44,23 +41,11 @@ namespace Event_ECS_WPF.Controls
             InitializeComponent();
 
             ECS.DeserializeRequested += ECS_DeserializeRequested;
-
-            Timer.Elapsed += Timer_Elapsed;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
         public IActionCommand AddEntityCommand => m_addEntityCommand ?? (m_addEntityCommand = new ActionCommand(AddEntity));
-
-        public bool AutoUpdate
-        {
-            get => Timer.Enabled;
-            set
-            {
-                Timer.Enabled = value;
-                OnPropertyChanged("AutoUpdate");
-            }
-        }
 
         public IActionCommand BroadcastEventCommand => m_broadcastEventCommand ?? (m_broadcastEventCommand = new ActionCommand<string>(BroadcastEvent));
 
@@ -91,24 +76,6 @@ namespace Event_ECS_WPF.Controls
         }
 
         public IActionCommand SerializeCommand => m_serializeCommand ?? (m_serializeCommand = new ActionCommand(Serialize));
-
-        public System.Timers.Timer Timer { get; } = new System.Timers.Timer
-        {
-            AutoReset = true,
-            Enabled = true,
-            Interval = Settings.Default.RefreshRate
-        };
-
-        public double UpdateInterval
-        {
-            get => Timer.Interval;
-            set
-            {
-                Timer.Interval = value;
-                Settings.Default.RefreshRate = Convert.ToUInt32(value);
-                OnPropertyChanged("UpdateInterval");
-            }
-        }
 
         protected void OnPropertyChanged(string propName)
         {
@@ -235,11 +202,6 @@ namespace Event_ECS_WPF.Controls
         private void System_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
             AddEntityCommand.UpdateCanExecute(this, e);
-        }
-
-        private void Timer_Elapsed(object sender, ElapsedEventArgs e)
-        {
-            Deserialize();
         }
     }
 }

@@ -82,16 +82,23 @@ return {0}";
 
         public MainWindowViewModel()
         {
-            Project.ProjectStateChange += ECS_OnAutoUpdateChanged;
-            ECS.Instance.OnAutoUpdateChanged += ECS_OnAutoUpdateChanged;
-            ECS.Instance.ProjectRestarted += SetSystems;
-            ECS.ProjectEnded += ECS_ProjectEnded;
+            ECS.Instance.PropertyChanged += Instance_PropertyChanged;
             Settings.Default.SettingChanging += Default_SettingChanging;
         }
 
-        private void ECS_ProjectEnded()
+        private void Instance_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            Application.Current.Dispatcher.BeginInvoke(new Action(StopProject));
+            Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                if (ECS.Instance.IsApplicationRunning && Systems.Count == 0)
+                {
+                    StartProject();
+                }
+                else if (!ECS.Instance.IsApplicationRunning && Systems.Count > 0)
+                {
+                    StopProject();
+                }
+            }));
         }
 
         private delegate void SettingsUpdateDelegate(object sender, EventArgs e);
@@ -158,16 +165,16 @@ return {0}";
                 switch (Project.Type)
                 {
                     case ProjectType.LOVE:
-                        if (Project.IsStarted)
+                        if (ECS.Instance.IsApplicationRunning)
                         {
-                            return ECS.Instance.GetAutoUpdate() ? Brushes.Lime : Brushes.LightYellow;
+                            return ECS.Instance.IsUpdatingAutomaticallyProperty ? Brushes.Lime : Brushes.LightYellow;
                         }
                         else
                         {
                             return Brushes.LightPink;
                         }
                     default:
-                        return Project.IsStarted ? Brushes.Lime : Brushes.LightPink;
+                        return ECS.Instance.IsApplicationRunning ? Brushes.Lime : Brushes.LightPink;
                 }
             }
         }
@@ -264,7 +271,7 @@ return {0}";
 
         private void DoSettingsUpdate(object sender, EventArgs e)
         {
-            if (ECS.Instance.ProjectStarted)
+            if (ECS.Instance.IsApplicationRunning)
             {
                 ECS.Instance.UseWrapper(SetLogEvents);
             }
@@ -454,7 +461,7 @@ return {0}";
         {
             if (Project != null)
             {
-                if (Project.IsStarted)
+                if (ECS.Instance.IsApplicationRunning)
                 {
                     StopProject();
                 }
@@ -467,7 +474,7 @@ return {0}";
 
         private void ToggleProjectMode()
         {
-            ECS.Instance.SetAutoUpdate(!ECS.Instance.GetAutoUpdate());
+            ECS.Instance.SetAutoUpdate(!ECS.Instance.IsUpdatingAutomaticallyProperty);
         }
 
         private void UpdateRecentProjects(string filename)

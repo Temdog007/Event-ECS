@@ -18,17 +18,18 @@ namespace Event_ECS_WPF.Controls
 
         private ICommand m_updateCommand;
 
+        private UpdateType m_updateType = UpdateType.Automatic;
+
         public LoveProjectMenuControl()
         {
             InitializeComponent();
 
-            Project.ProjectStateChange += Value_ProjectStateChange;
-            ECS.Instance.OnAutoUpdateChanged += OnAutoUpdateChanged;
+            ECS.Instance.PropertyChanged += Instance_PropertyChanged;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public bool CanUpdate => UpdateType == UpdateType.Automatic;
+        public bool CanUpdate => UpdateType == UpdateType.Manual;
 
         public LoveProject LoveProject
         {
@@ -36,23 +37,8 @@ namespace Event_ECS_WPF.Controls
             set { SetValue(LoveProjectProperty, value); }
         }
 
-        private void Value_ProjectStateChange(object sender, ProjectStateChangeArgs args)
-        {
-            if(args.IsStarted && UpdateType == UpdateType.Automatic)
-            {
-                ECS.Instance.SetAutoUpdate(true);
-            }
-        }
-
-        private void OnAutoUpdateChanged(object sender, AutoUpdateChangedArgs e)
-        {
-            OnPropertyChanged("UpdateType");
-            OnPropertyChanged("CanUpdate");
-        }
-
         public ICommand UpdateCommand => m_updateCommand ?? (m_updateCommand = new ActionCommand(Update));
 
-        private UpdateType m_updateType = UpdateType.Manual;
         public UpdateType UpdateType
         {
             get => m_updateType;
@@ -62,7 +48,7 @@ namespace Event_ECS_WPF.Controls
                 {
                     return;
                 }
-                
+
                 switch (value)
                 {
                     case UpdateType.Manual:
@@ -78,6 +64,7 @@ namespace Event_ECS_WPF.Controls
                 OnPropertyChanged("CanUpdate");
             }
         }
+
         public void Update()
         {
             switch (UpdateType)
@@ -94,6 +81,11 @@ namespace Event_ECS_WPF.Controls
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
-        
+
+        private void Instance_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            OnPropertyChanged("UpdateType");
+            OnPropertyChanged("CanUpdate");
+        }
     }
 }

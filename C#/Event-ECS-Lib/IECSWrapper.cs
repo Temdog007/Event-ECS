@@ -31,9 +31,6 @@ namespace Event_ECS_Lib
         void Execute(string code, string systemName);
 
         [OperationContract(IsOneWay = true)]
-        void GetAutoUpdate();
-
-        [OperationContract(IsOneWay = true)]
         void GetClassName(string systemName);
 
         [OperationContract(IsOneWay = true)]

@@ -12,8 +12,6 @@ using System.Xml.Serialization;
 
 namespace Event_ECS_WPF.Projects
 {
-    public delegate void ProjectStateChangeEvent(object sender, ProjectStateChangeArgs args);
-
     [XmlInclude(typeof(LoveProject))]
     [XmlRoot("Project")]
     public class Project : NotifyPropertyChanged
@@ -46,8 +44,6 @@ namespace Event_ECS_WPF.Projects
             }
             LibraryPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
         }
-
-        public static event ProjectStateChangeEvent ProjectStateChange;
 
         public static string Location => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
@@ -120,8 +116,7 @@ namespace Event_ECS_WPF.Projects
                 OnPropertyChanged("InitializerScript");
             }
         }
-
-        public bool IsStarted => ECS.Instance.ProjectStarted;
+        
         [XmlElement]
         public string LibraryPath
         {
@@ -166,7 +161,7 @@ namespace Event_ECS_WPF.Projects
                     File.SetLastWriteTimeUtc(file, now);
                     File.SetLastWriteTimeUtc(dest, now);
                     LogManager.Instance.Add(LogLevel.Medium, "Copied {0} to {1}", file, dest);
-                    if (unregister && ECS.Instance.ProjectStarted)
+                    if (unregister)
                     {
                         string modName = Path.GetFileNameWithoutExtension(file);
                         if (ECS.Instance.UseWrapper(Unregister, modName))
@@ -184,18 +179,12 @@ namespace Event_ECS_WPF.Projects
 
         public virtual bool Start()
         {
-            if (Setup())
-            {
-                DispatchProjectStateChange(ProjectStateChangeArgs.Started);
-                return true;
-            }
-            return false;
+            return Setup();
         }
 
         public virtual void Stop()
         {
             ECS.Instance.Dispose();
-            ProjectStateChange?.Invoke(this, ProjectStateChangeArgs.Stopped);
             OnPropertyChanged("IsStarted");
         }
 
@@ -203,11 +192,6 @@ namespace Event_ECS_WPF.Projects
         {
             string code = File.ReadAllText(InitializerScript);
             ECS.Instance.CreateInstance(code);
-        }
-
-        protected void DispatchProjectStateChange(ProjectStateChangeArgs args)
-        {
-            ProjectStateChange?.Invoke(this, args);
         }
 
         protected bool Setup()

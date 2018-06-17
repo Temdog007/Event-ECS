@@ -1,18 +1,17 @@
 ﻿using Event_ECS_Lib;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Windows;
 
 namespace Event_ECS_WPF.SystemObjects
 {
-    public abstract class ECS_Callback : NotifyPropertyChanged, IDisposable, IECSWrapperCallback
+    public abstract class ECS_Callback : NotifyPropertyChanged, IECSWrapperCallback
     {
+        internal ECS_Callback() { }
+
         delegate void InvokeDelegate(string funcName, object response);
 
         public List<Func<string, object, bool>> Listeners { get; } = new List<Func<string, object, bool>>();
-
-        internal ECS_Callback() { }
 
         public void AddEntity(string value)
         {
@@ -30,11 +29,6 @@ namespace Event_ECS_WPF.SystemObjects
         }
 
         public abstract void Dispose();
-
-        public void GetAutoUpdate(bool value)
-        {
-            Invoke("GetAutoUpdate", value);
-        }
 
         public void GetClassName(string value)
         {
@@ -109,6 +103,11 @@ namespace Event_ECS_WPF.SystemObjects
         public void IsStarted(bool value)
         {
             Invoke("IsStarted", value);
+        }
+
+        public void IsUpdatingAutomatically(bool value)
+        {
+            Invoke("IsUpdatingAutomatically", value);
         }
 
         public void IsSystemEnabled(bool value)

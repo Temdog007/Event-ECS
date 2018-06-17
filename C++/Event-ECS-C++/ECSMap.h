@@ -69,6 +69,7 @@ namespace EventECS
 		ECSMap& operator=(const ECSMap&) = delete;
 
 		int UpdateLove();
+		void QuitLove();
 
 		void Reset();
 

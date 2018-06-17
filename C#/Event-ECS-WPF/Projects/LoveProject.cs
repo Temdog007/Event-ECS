@@ -89,12 +89,7 @@ end";
             text = text.Replace("True", "true").Replace("False", "false");
             File.WriteAllText(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "conf.lua"), text);
 
-            if (Setup())
-            {
-                DispatchProjectStateChange(ProjectStateChangeArgs.Started);
-                return true;
-            }
-            return false;
+            return base.Start();
         }
 
         protected override void CreateInstance()
@@ -228,17 +223,5 @@ end";
         public bool Touch { get => _touch; set { _touch = value; OnPropertyChanged(); } }
         public bool Video { get => _video; set { _video = value; OnPropertyChanged(); } }
         public bool Window { get => _window; set { _window = value; OnPropertyChanged(); } }
-    }
-
-    public class ProjectStateChangeArgs : EventArgs
-    {
-        public ProjectStateChangeArgs(bool started)
-        {
-            IsStarted = started;
-        }
-        public static ProjectStateChangeArgs Started { get; } = new ProjectStateChangeArgs(true);
-        public static ProjectStateChangeArgs Stopped { get; } = new ProjectStateChangeArgs(false);
-
-        public bool IsStarted { get; }
     }
 }

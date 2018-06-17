@@ -5,15 +5,12 @@ using System.ServiceModel;
 
 namespace Event_ECS_App
 {
-    [ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Single, InstanceContextMode = InstanceContextMode.Single)]
+    [ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Reentrant, InstanceContextMode = InstanceContextMode.Single)]
     public class ECS : IECSWrapper
     {
-        private ECSWrapper ecs;
+        private static ECSWrapper ecs;
 
-        public ECS()
-        {
-            ECSWrapper.LogEvent += Log;
-        }
+        private IECSWrapperCallback m_callback;
 
         public event Action Disposing;
 
@@ -21,12 +18,30 @@ namespace Event_ECS_App
 
         public event Action<int> Updated;
 
-        public IECSWrapperCallback Callback => OperationContext.Current?.GetCallbackChannel<IECSWrapperCallback>();
+        public IECSWrapperCallback Callback
+        {
+            get
+            {
+                if(m_callback is ICommunicationObject obj)
+                {
+                    switch(obj.State)
+                    {
+                        case CommunicationState.Faulted:
+                        case CommunicationState.Closed:
+                        case CommunicationState.Closing:
+                            m_callback = null;
+                            break;
+                    }
+                }
+                return m_callback ?? (m_callback = OperationContext.Current?.GetCallbackChannel<IECSWrapperCallback>());
+            }
+        }
 
         public bool CanUpdate { get; set; } = true;
 
         public void AddComponent(string systemName, int entityID, string componentName)
         {
+            if (ecs == null) { return; }
             try
             {
                 ecs.AddComponent(systemName, entityID, componentName);
@@ -39,6 +54,7 @@ namespace Event_ECS_App
 
         public void AddComponents(string systemName, int entityID, string[] componentNames)
         {
+            if (ecs == null) { return; }
             try
             {
                 ecs.AddComponents(systemName, entityID, componentNames);
@@ -51,6 +67,7 @@ namespace Event_ECS_App
 
         public void AddEntity(string systemName)
         {
+            if (ecs == null) { return; }
             try
             {
                 string value = ecs.AddEntity(systemName);
@@ -64,6 +81,7 @@ namespace Event_ECS_App
 
         public void BroadcastEvent(string eventName)
         {
+            if (ecs == null) { return; }
             try
             {
                 ecs.BroadcastEvent(eventName);
@@ -76,6 +94,7 @@ namespace Event_ECS_App
 
         public void DispatchEvent(string systemName, string eventName)
         {
+            if (ecs == null) { return; }
             try
             {
                 var value = ecs.DispatchEvent(systemName, eventName);
@@ -89,6 +108,7 @@ namespace Event_ECS_App
 
         public void DispatchEvent(string systemName, int entityID, string eventName)
         {
+            if (ecs == null) { return; }
             try
             {
                 var value = ecs.DispatchEvent(systemName, entityID, eventName);
@@ -102,11 +122,14 @@ namespace Event_ECS_App
 
         public void Dispose()
         {
+            if (ecs == null) { return; }
             try
             {
                 ecs?.Dispose();
                 ecs = null;
+                ECSWrapper.LogEvent -= Log;
                 Disposing?.Invoke();
+                Callback?.Dispose();
             }
             catch (Exception e)
             {
@@ -116,6 +139,7 @@ namespace Event_ECS_App
 
         public void Execute(string code)
         {
+            if (ecs == null) { return; }
             try
             {
                 ecs.Execute(code);
@@ -128,6 +152,7 @@ namespace Event_ECS_App
 
         public void Execute(string code, string systemName)
         {
+            if (ecs == null) { return; }
             try
             {
                 ecs.Execute(code, systemName);
@@ -138,13 +163,9 @@ namespace Event_ECS_App
             }
         }
 
-        public void GetAutoUpdate()
-        {
-            Callback?.GetAutoUpdate(CanUpdate);
-        }
-
         public void GetClassName(string systemName)
         {
+            if (ecs == null) { return; }
             try
             {
                 var value = ecs.GetClassName(systemName);
@@ -158,6 +179,7 @@ namespace Event_ECS_App
 
         public void GetComponentBool(string systemName, int entityID, int componentID, string key)
         {
+            if (ecs == null) { return; }
             try
             {
                 var value = ecs.GetComponentBool(systemName, entityID, componentID, key);
@@ -171,6 +193,7 @@ namespace Event_ECS_App
 
         public void GetComponentNumber(string systemName, int entityID, int componentID, string key)
         {
+            if (ecs == null) { return; }
             try
             {
                 var value = ecs.GetComponentNumber(systemName, entityID, componentID, key);
@@ -184,6 +207,7 @@ namespace Event_ECS_App
 
         public void GetComponentNumber(string systemName, int entityID, int componentID, int key)
         {
+            if (ecs == null) { return; }
             try
             {
                 var value = ecs.GetComponentNumber(systemName, entityID, componentID, key);
@@ -197,6 +221,7 @@ namespace Event_ECS_App
 
         public void GetComponentString(string systemName, int entityID, int componentID, string key)
         {
+            if (ecs == null) { return; }
             try
             {
                 var value = ecs.GetComponentString(systemName, entityID, componentID, key);
@@ -210,6 +235,7 @@ namespace Event_ECS_App
 
         public void GetEntityBool(string systemName, int entityID, string key)
         {
+            if (ecs == null) { return; }
             try
             {
                 var value = ecs.GetEntityBool(systemName, entityID, key);
@@ -223,6 +249,7 @@ namespace Event_ECS_App
 
         public void GetEntityNumber(string systemName, int entityID, string key)
         {
+            if (ecs == null) { return; }
             try
             {
                 var value = ecs.GetEntityNumber(systemName, entityID, key);
@@ -236,6 +263,7 @@ namespace Event_ECS_App
 
         public void GetEntityString(string systemName, int entityID, string key)
         {
+            if (ecs == null) { return; }
             try
             {
                 var value = ecs.GetEntityString(systemName, entityID, key);
@@ -249,6 +277,7 @@ namespace Event_ECS_App
 
         public void GetSystemBool(string systemName, string key)
         {
+            if (ecs == null) { return; }
             try
             {
                 var value = ecs.GetSystemBool(systemName, key);
@@ -262,6 +291,7 @@ namespace Event_ECS_App
 
         public void GetSystemNumber(string systemName, string key)
         {
+            if (ecs == null) { return; }
             try
             {
                 var value = ecs.GetSystemNumber(systemName, key);
@@ -275,6 +305,7 @@ namespace Event_ECS_App
 
         public void GetSystemString(string systemName, string key)
         {
+            if (ecs == null) { return; }
             try
             {
                 var value = ecs.GetSystemString(systemName, key);
@@ -288,8 +319,10 @@ namespace Event_ECS_App
 
         public void Initialize(string initializerCode)
         {
+            if (ecs != null) { return; }
             try
             {
+                ECSWrapper.LogEvent += Log;
                 ecs = new ECSWrapper(initializerCode);
                 Starting?.Invoke();
             }
@@ -301,8 +334,10 @@ namespace Event_ECS_App
 
         public void Initialize(string initializerCode, string executablePath, string identity)
         {
+            if (ecs != null) { return; }
             try
             {
+                ECSWrapper.LogEvent += Log;
                 ecs = new ECSWrapper(initializerCode, executablePath, identity);
                 Starting?.Invoke();
             }
@@ -314,6 +349,7 @@ namespace Event_ECS_App
 
         public void IsComponentEnabled(string systemName, int entityID, int componentID)
         {
+            if (ecs == null) { return; }
             try
             {
                 var value = ecs.IsComponentEnabled(systemName, entityID, componentID);
@@ -327,6 +363,7 @@ namespace Event_ECS_App
 
         public void IsDisposing()
         {
+            if (ecs == null) { return; }
             try
             {
                 var value = ecs.IsDisposing();
@@ -340,6 +377,7 @@ namespace Event_ECS_App
 
         public void IsEntityEnabled(string systemName, int entityID)
         {
+            if (ecs == null) { return; }
             try
             {
                 var value = ecs.IsEntityEnabled(systemName, entityID);
@@ -353,6 +391,7 @@ namespace Event_ECS_App
 
         public void IsLoggingEvents()
         {
+            if (ecs == null) { return; }
             try
             {
                 var value = ecs.IsLoggingEvents();
@@ -366,6 +405,7 @@ namespace Event_ECS_App
 
         public void IsStarted()
         {
+            if (ecs == null) { return; }
             try
             {
                 Callback?.IsStarted(ecs != null);
@@ -378,6 +418,7 @@ namespace Event_ECS_App
 
         public void IsSystemEnabled(string systemName)
         {
+            if (ecs == null) { return; }
             try
             {
                 var value = ecs.IsSystemEnabled(systemName);
@@ -391,6 +432,7 @@ namespace Event_ECS_App
 
         public void RemoveComponent(string systemName, int entityID, int componentID)
         {
+            if (ecs == null) { return; }
             try
             {
                 var value = ecs.RemoveComponent(systemName, entityID, componentID);
@@ -404,6 +446,7 @@ namespace Event_ECS_App
 
         public void RemoveEntity(string systemName, int entityID)
         {
+            if (ecs == null) { return; }
             try
             {
                 var value = ecs.RemoveEntity(systemName, entityID);
@@ -417,6 +460,7 @@ namespace Event_ECS_App
 
         public void Reset()
         {
+            if (ecs == null) { return; }
             try
             {
                 ecs.Reset();
@@ -429,6 +473,7 @@ namespace Event_ECS_App
 
         public void Serialize()
         {
+            if (ecs == null) { return; }
             try
             {
                 var value = ecs.Serialize();
@@ -442,6 +487,7 @@ namespace Event_ECS_App
 
         public void SerializeComponent(string systemName, int entityID, int componentID)
         {
+            if (ecs == null) { return; }
             try
             {
                 var value = ecs.SerializeComponent(systemName, entityID, componentID);
@@ -455,6 +501,7 @@ namespace Event_ECS_App
 
         public void SerializeEntity(string systemName, int entityID)
         {
+            if (ecs == null) { return; }
             try
             {
                 var value = ecs.SerializeEntity(systemName, entityID);
@@ -468,6 +515,7 @@ namespace Event_ECS_App
 
         public void SerializeSystem(string systemName)
         {
+            if (ecs == null) { return; }
             try
             {
                 var value = ecs.SerializeSystem(systemName);
@@ -481,11 +529,20 @@ namespace Event_ECS_App
 
         public void SetAutoUpdate(bool value)
         {
-            CanUpdate = value;
+            try
+            {
+                CanUpdate = value;
+                Callback?.IsUpdatingAutomatically(value);
+            }
+            catch(Exception e)
+            {
+                Log(e);
+            }
         }
 
         public void SetComponentBool(string systemName, int entityID, int componentID, string key, bool value)
         {
+            if (ecs == null) { return; }
             try
             {
                 ecs.SetComponentBool(systemName, entityID, componentID, key, value);
@@ -498,6 +555,7 @@ namespace Event_ECS_App
 
         public void SetComponentEnabled(string systemName, int entityID, int componentID, bool value)
         {
+            if (ecs == null) { return; }
             try
             {
                 ecs.SetComponentEnabled(systemName, entityID, componentID, value);
@@ -510,6 +568,7 @@ namespace Event_ECS_App
 
         public void SetComponentNumber(string systemName, int entityID, int componentID, int key, double value)
         {
+            if (ecs == null) { return; }
             try
             {
                 ecs.SetComponentNumber(systemName, entityID, componentID, key, value);
@@ -522,6 +581,7 @@ namespace Event_ECS_App
 
         public void SetComponentNumber(string systemName, int entityID, int componentID, string key, double value)
         {
+            if (ecs == null) { return; }
             try
             {
                 ecs.SetComponentNumber(systemName, entityID, componentID, key, value);
@@ -534,6 +594,7 @@ namespace Event_ECS_App
 
         public void SetComponentString(string systemName, int entityID, int componentID, string key, string value)
         {
+            if (ecs == null) { return; }
             try
             {
                 ecs.SetComponentString(systemName, entityID, componentID, key, value);
@@ -546,6 +607,7 @@ namespace Event_ECS_App
 
         public void SetEntityBool(string systemName, int entityID, string key, bool value)
         {
+            if (ecs == null) { return; }
             try
             {
                 ecs.SetEntityBool(systemName, entityID, key, value);
@@ -558,6 +620,7 @@ namespace Event_ECS_App
 
         public void SetEntityEnabled(string systemName, int entityID, bool value)
         {
+            if (ecs == null) { return; }
             try
             {
                 ecs.SetEntityEnabled(systemName, entityID, value);
@@ -570,6 +633,7 @@ namespace Event_ECS_App
 
         public void SetEntityNumber(string systemName, int entityID, string key, double value)
         {
+            if (ecs == null) { return; }
             try
             {
                 ecs.SetEntityNumber(systemName, entityID, key, value);
@@ -582,6 +646,7 @@ namespace Event_ECS_App
 
         public void SetEntityString(string systemName, int entityID, string key, string value)
         {
+            if (ecs == null) { return; }
             try
             {
                 ecs.SetEntityString(systemName, entityID, key, value);
@@ -594,6 +659,7 @@ namespace Event_ECS_App
 
         public void SetEventsToIgnore(string[] args)
         {
+            if (ecs == null) { return; }
             try
             {
                 ecs.SetEventsToIgnore(args);
@@ -606,6 +672,7 @@ namespace Event_ECS_App
 
         public void SetLoggingEvents(bool value)
         {
+            if (ecs == null) { return; }
             try
             {
                 ecs.SetLoggingEvents(value);
@@ -618,6 +685,7 @@ namespace Event_ECS_App
 
         public void SetSystemBool(string systemName, string key, bool value)
         {
+            if (ecs == null) { return; }
             try
             {
                 ecs.SetSystemBool(systemName, key, value);
@@ -630,6 +698,7 @@ namespace Event_ECS_App
 
         public void SetSystemEnabled(string systemName, bool value)
         {
+            if (ecs == null) { return; }
             try
             {
                 ecs.SetSystemEnabled(systemName, value);
@@ -642,6 +711,7 @@ namespace Event_ECS_App
 
         public void SetSystemNumber(string systemName, string key, double value)
         {
+            if (ecs == null) { return; }
             try
             {
                 ecs.SetSystemNumber(systemName, key, value);
@@ -654,6 +724,7 @@ namespace Event_ECS_App
 
         public void SetSystemString(string systemName, string key, string value)
         {
+            if (ecs == null) { return; }
             try
             {
                 ecs.SetSystemString(systemName, key, value);
@@ -666,6 +737,7 @@ namespace Event_ECS_App
 
         public void Unregister(string modName)
         {
+            if (ecs == null) { return; }
             try
             {
                 ecs.Unregister(modName);
@@ -678,10 +750,10 @@ namespace Event_ECS_App
 
         public void Update()
         {
+            if (ecs == null) { return; }
             try
             {
                 var value = ecs.UpdateLove();
-                Callback?.Update(value);
                 Updated?.Invoke(value);
             }
             catch (Exception e)
@@ -690,11 +762,30 @@ namespace Event_ECS_App
             }
         }
 
+        internal void UpdateClient()
+        {
+            lock (this)
+            {
+                try
+                {
+                    IECSWrapperCallback callback = Callback;
+                    callback?.IsUpdatingAutomatically(CanUpdate);
+                    callback?.IsStarted(ecs != null);
+                    Serialize();
+                }
+                catch (Exception e)
+                {
+                    Log(e);
+                }
+            }
+        }
+
         private void Log(string message)
         {
             lock (this)
             {
                 Console.WriteLine(message);
+
                 try
                 {
                     Callback?.LogEvent(message);

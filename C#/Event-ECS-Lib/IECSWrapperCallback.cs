@@ -14,8 +14,7 @@ namespace Event_ECS_Lib
         void DispatchEvent(int value);
 
         [OperationContract(IsOneWay = true)]
-        void GetAutoUpdate(bool value);
-
+        void Dispose();
         [OperationContract(IsOneWay = true)]
         void GetClassName(string value);
 
@@ -65,6 +64,9 @@ namespace Event_ECS_Lib
         void IsSystemEnabled(bool value);
 
         [OperationContract(IsOneWay = true)]
+        void IsUpdatingAutomatically(bool value);
+
+        [OperationContract(IsOneWay = true)]
         void LogEvent(string log);
 
         [OperationContract(IsOneWay = true)]
@@ -84,8 +86,5 @@ namespace Event_ECS_Lib
 
         [OperationContract(IsOneWay = true)]
         void SerializeSystem(string value);
-
-        [OperationContract(IsOneWay = true)]
-        void Update(int value);
     }
 }

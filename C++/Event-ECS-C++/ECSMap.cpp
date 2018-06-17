@@ -254,10 +254,29 @@ namespace EventECS
 
 	int ECSMap::UpdateLove()
 	{
+		if (!loveInitialized) 
+		{
+			throw std::exception("Cannot update LOVE when not initialized");
+		}
 		lua_settop(L, 0);
-		lua_rawgeti(L, LUA_REGISTRYINDEX, updateRefs[1]); // get thread
-		lua_rawgeti(L, LUA_REGISTRYINDEX, updateRefs[0]); // get function
-		return lua_resume(L, 0);
+		lua_rawgeti(L, LUA_REGISTRYINDEX, updateRefs[1]); // thread
+		lua_rawgeti(L, LUA_REGISTRYINDEX, updateRefs[0]); // update function
+		int rval = lua_resume(L, 0);
+		lua_settop(L, 0);
+		return rval;
+	}
+
+	void ECSMap::QuitLove()
+	{
+		if (!loveInitialized)
+		{
+			throw std::exception("Cannot quit LOVE when not initialized");
+		}
+		lua_settop(L, 0);
+		lua_getglobal(L, "love");
+		lua_getfield(L, -1, "event");
+		lua_getfield(L, -1, "quit");
+		luax_call(L, 0, 0);
 	}
 
 	void ECSMap::Require(const char* modName, const char* globalName)

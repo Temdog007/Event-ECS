@@ -6,6 +6,7 @@
              xmlns:controls="clr-namespace:Event_ECS_WPF.Controls"
              xmlns:ex="clr-namespace:Event_ECS_WPF.Extensions"
              xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
+             xmlns:ecs="clr-namespace:Event_ECS_WPF.SystemObjects"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
              x:Name="m_system"
@@ -32,7 +33,7 @@
                 <Separator/>
                 <MenuItem Header="Update System">
                     <MenuItem Header="Manual Update" Command="{Binding Source={StaticResource SystemControl}, Path=Data.SerializeCommand}"/>
-                    <MenuItem Header="Update Automatically" IsCheckable="True" IsChecked="{Binding Source={StaticResource SystemControl}, Path=Data.AutoUpdate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <MenuItem Header="Update Automatically" IsCheckable="True" IsChecked="{Binding Source={x:Static ecs:ECS.Instance}, Path=IsUpdatingAutomaticallyProperty, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     <DockPanel>
                         <Label DockPanel.Dock="Left">Update Interval in Milliseconds</Label>
                         <TextBox Text="{Binding Source={StaticResource SystemControl}, Path=Data.UpdateInterval, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>

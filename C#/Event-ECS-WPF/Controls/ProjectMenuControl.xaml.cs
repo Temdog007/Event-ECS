@@ -1,5 +1,6 @@
 ﻿using Event_ECS_WPF.Commands;
 using Event_ECS_WPF.Projects;
+using Event_ECS_WPF.SystemObjects;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
@@ -15,11 +16,13 @@ namespace Event_ECS_WPF.Controls
 
         public static readonly DependencyProperty ProjectProperty =
                             DependencyProperty.Register("Project", typeof(Project), typeof(ProjectMenuControl));
+
         private ICommand m_projectCommand;
+
         public ProjectMenuControl()
         {
             InitializeComponent();
-            Project.ProjectStateChange += Project_ProjectStateChange;
+            ECS.Instance.PropertyChanged += Instance_PropertyChanged;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -30,21 +33,23 @@ namespace Event_ECS_WPF.Controls
             set { SetValue(ProjectProperty, value); }
         }
 
-        private void Project_ProjectStateChange(object sender, ProjectStateChangeArgs args)
+        public ICommand ProjectActionCommand => m_projectCommand ?? (m_projectCommand = new ActionCommand(ProjectAction));
+
+        public bool ProjectStarted => ECS.Instance.IsApplicationRunning;
+
+        public string ProjectText => ProjectStarted ? " Stop" : "Start";
+
+        protected void OnPropertyChanged(string name)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+
+        private void Instance_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             OnPropertyChanged("ProjectStarted");
             OnPropertyChanged("ProjectText");
         }
 
-        public ICommand ProjectActionCommand => m_projectCommand ?? (m_projectCommand = new ActionCommand(ProjectAction));
-
-        public bool ProjectStarted => Project?.IsStarted ?? false;
-
-        public string ProjectText => ProjectStarted ? " Stop" : "Start";
-        protected void OnPropertyChanged(string name)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
         private void ProjectAction()
         {
             if (ProjectStarted)
