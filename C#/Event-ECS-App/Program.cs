@@ -8,30 +8,11 @@ namespace Event_ECS_App
 {
     class Program : IDisposable
     {
-        readonly ECS ecs;
-
-        readonly Timer timer;
-
-        Program()
-        {
-            ecs = new ECS();
-            ecs.Starting += Ecs_Starting;
-            ecs.Disposing += Ecs_Disposing;
-            ecs.Updated += Ecs_Updated;
-
-            timer = new Timer(OnTimer, ecs, 0, 1000);
-        }
-
-        public ManualResetEvent DisposeEvent { get; } = new ManualResetEvent(false);
-
-        public ManualResetEvent StartEvent { get; } = new ManualResetEvent(false);
-
-        public AutoResetEvent UpdateEvent { get; } = new AutoResetEvent(false);
+        readonly ECS ecs = new ECS();
 
         public void Dispose()
         {
-            ecs.Dispose();
-            timer.Dispose();
+            ecs.Uninitialize();
         }
 
         [STAThread]
@@ -55,34 +36,6 @@ namespace Event_ECS_App
             Console.ReadKey();
         }
 
-        private void Ecs_Disposing()
-        {
-            DisposeEvent.Set();
-            StartEvent.Reset();
-        }
-
-        private void Ecs_Starting()
-        {
-            StartEvent.Set();
-            DisposeEvent.Reset();
-        }
-
-        private void Ecs_Updated(int obj)
-        {
-            if (obj == 1)
-            {
-                UpdateEvent.Set();
-            }
-        }
-
-        private static void OnTimer(object state)
-        {
-            if (state is ECS ecs)
-            {
-                ecs.UpdateClient();
-            }
-        }
-
         void Start()
         {
             using (ServiceHost serviceHost = new ServiceHost(ecs))
@@ -103,19 +56,23 @@ namespace Event_ECS_App
                     serviceHost.AddServiceEndpoint(typeof(IECSWrapper), binding, ECSWrapperValues.ECSAddress);
                     serviceHost.Open();
 
+                    int update = 0;
                     while (true)
                     {
-                        if (StartEvent.WaitOne(100))
+                        if (ecs.HasStarted)
                         {
                             if (ecs.CanUpdate)
                             {
-                                ecs.Update();
-                                if (!UpdateEvent.WaitOne(100) || DisposeEvent.WaitOne(1))
+                                ecs.LoveUpdate(out update);
+                                if (update != 1 || ecs.DisposeRequested)
                                 {
-                                    ecs.Dispose();
-                                    continue;
+                                    ecs.Stop();
                                 }
                             }
+                        }
+                        else
+                        {
+                            Thread.Sleep(100);
                         }
                     }
                 }

@@ -52,7 +52,7 @@ namespace EventECS
 		struct Event
 		{
 			lua_State*const L;
-			int ref;
+			const int ref;
 			const char* name;
 
 			Event(lua_State* pL, const char* pName, int pRef);

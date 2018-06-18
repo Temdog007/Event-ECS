@@ -8,15 +8,11 @@ namespace Event_ECS_App
     [ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Reentrant, InstanceContextMode = InstanceContextMode.Single)]
     public class ECS : IECSWrapper
     {
+        private const string DeserializeLog = "Deserialize";
+
         private static ECSWrapper ecs;
 
         private IECSWrapperCallback m_callback;
-
-        public event Action Disposing;
-
-        public event Action Starting;
-
-        public event Action<int> Updated;
 
         public IECSWrapperCallback Callback
         {
@@ -37,7 +33,13 @@ namespace Event_ECS_App
             }
         }
 
+        private static readonly object s_lock = new object();
+
         public bool CanUpdate { get; set; } = true;
+
+        public bool DisposeRequested { get; set; } = false;
+
+        public bool HasStarted => ecs != null;
 
         public void AddComponent(string systemName, int entityID, string componentName)
         {
@@ -120,20 +122,28 @@ namespace Event_ECS_App
             }
         }
 
-        public void Dispose()
+        public void Uninitialize()
+        {
+            DisposeRequested = true;
+        }
+
+        internal void Stop()
         {
             if (ecs == null) { return; }
             try
             {
                 ecs?.Dispose();
                 ecs = null;
-                ECSWrapper.LogEvent -= Log;
-                Disposing?.Invoke();
-                Callback?.Dispose();
+                DisposeRequested = false;
+                Log("Project stopped");
             }
             catch (Exception e)
             {
                 Log(e);
+            }
+            finally
+            {
+                ECSWrapper.LogEvent -= Log;
             }
         }
 
@@ -324,7 +334,6 @@ namespace Event_ECS_App
             {
                 ECSWrapper.LogEvent += Log;
                 ecs = new ECSWrapper(initializerCode);
-                Starting?.Invoke();
             }
             catch (Exception e)
             {
@@ -339,7 +348,6 @@ namespace Event_ECS_App
             {
                 ECSWrapper.LogEvent += Log;
                 ecs = new ECSWrapper(initializerCode, executablePath, identity);
-                Starting?.Invoke();
             }
             catch (Exception e)
             {
@@ -354,20 +362,6 @@ namespace Event_ECS_App
             {
                 var value = ecs.IsComponentEnabled(systemName, entityID, componentID);
                 Callback?.IsComponentEnabled(value);
-            }
-            catch (Exception e)
-            {
-                Log(e);
-            }
-        }
-
-        public void IsDisposing()
-        {
-            if (ecs == null) { return; }
-            try
-            {
-                var value = ecs.IsDisposing();
-                Callback?.IsDisposing(value);
             }
             catch (Exception e)
             {
@@ -748,13 +742,12 @@ namespace Event_ECS_App
             }
         }
 
-        public void Update()
+        public void LoveUpdate()
         {
             if (ecs == null) { return; }
             try
             {
-                var value = ecs.UpdateLove();
-                Updated?.Invoke(value);
+                ecs.UpdateLove();
             }
             catch (Exception e)
             {
@@ -762,37 +755,55 @@ namespace Event_ECS_App
             }
         }
 
-        internal void UpdateClient()
+        public void LoveUpdate(out int returnValue)
         {
-            lock (this)
+            returnValue = -1;
+            if (ecs == null) { return; }
+            try
             {
-                try
-                {
-                    IECSWrapperCallback callback = Callback;
-                    callback?.IsUpdatingAutomatically(CanUpdate);
-                    callback?.IsStarted(ecs != null);
-                    Serialize();
-                }
-                catch (Exception e)
-                {
-                    Log(e);
-                }
+                returnValue =  ecs.UpdateLove();
+            }
+            catch (Exception e)
+            {
+                Log(e);
+            }
+        }
+
+        public void Update()
+        {
+            try
+            {
+                IECSWrapperCallback callback = Callback;
+                callback?.IsUpdatingAutomatically(CanUpdate);
+                callback?.IsStarted(ecs != null);
+                Serialize();
+            }
+            catch (Exception e)
+            {
+                Log(e);
             }
         }
 
         private void Log(string message)
         {
-            lock (this)
+            lock (s_lock)
             {
-                Console.WriteLine(message);
-
-                try
+                if (message == DeserializeLog)
                 {
-                    Callback?.LogEvent(message);
+                    Serialize();
                 }
-                catch (Exception e)
+                else
                 {
-                    Console.WriteLine(e);
+                    Console.WriteLine(message);
+
+                    try
+                    {
+                        Callback?.LogEvent(message);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                    }
                 }
             }
         }

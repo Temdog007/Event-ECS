@@ -13,7 +13,6 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Media;
 using System.Xml.Serialization;
 using ECSSystem = Event_ECS_WPF.SystemObjects.EntityComponentSystem;
 using Forms = System.Windows.Forms;
@@ -147,34 +146,8 @@ return {0}";
                     m_project = value;
                     OnPropertyChanged("Project");
                     OnPropertyChanged("HasProject");
-                    OnPropertyChanged("ProjectBackground");
                     SaveProjectCommand.UpdateCanExecute(this, EventArgs.Empty);
                     CopyComponentsCommand.UpdateCanExecute(this, EventArgs.Empty);
-                }
-            }
-        }
-
-        public SolidColorBrush ProjectBackground
-        {
-            get
-            {
-                if (Project == null)
-                {
-                    return Brushes.Red;
-                }
-                switch (Project.Type)
-                {
-                    case ProjectType.LOVE:
-                        if (ECS.Instance.IsApplicationRunning)
-                        {
-                            return ECS.Instance.IsUpdatingAutomaticallyProperty ? Brushes.Lime : Brushes.LightYellow;
-                        }
-                        else
-                        {
-                            return Brushes.LightPink;
-                        }
-                    default:
-                        return ECS.Instance.IsApplicationRunning ? Brushes.Lime : Brushes.LightPink;
                 }
             }
         }
@@ -277,12 +250,7 @@ return {0}";
             }
             EditComponentCommand.UpdateCanExecute(sender, e);
         }
-
-        private void ECS_OnAutoUpdateChanged(object sender, EventArgs e)
-        {
-            OnPropertyChanged("ProjectBackground");
-        }
-
+        
         private void EditComponent()
         {
             try
@@ -410,7 +378,6 @@ return {0}";
         {
             ECS.Instance.UseWrapper(SetLogEvents);
             ECS.Instance.UseWrapper(Serialize, SerializeResponse);
-            OnPropertyChanged("ProjectBackground");
         }
 
         private bool SerializeResponse(string funcName, object result)
@@ -455,6 +422,7 @@ return {0}";
             Systems.Clear();
             CurrentSystem = null;
             Project.Stop();
+            ECS.Instance.Uninitialize();
         }
 
         private void ToggleProject()

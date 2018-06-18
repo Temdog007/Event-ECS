@@ -210,6 +210,7 @@ namespace EventECS
 				lua_getglobal(L, "love");
 				lua_getfield(L, -1, "event");
 				lua_getfield(L, -1, "quit");
+				luax_call(L, 0, 0);
 				loveInitialized = false;
 			}
 			catch (const std::exception& e)

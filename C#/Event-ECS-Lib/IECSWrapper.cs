@@ -4,7 +4,7 @@ using System.ServiceModel;
 namespace Event_ECS_Lib
 {
     [ServiceContract(CallbackContract = typeof(IECSWrapperCallback), SessionMode = SessionMode.Allowed)]
-    public interface IECSWrapper : IDisposable
+    public interface IECSWrapper
     {
         [OperationContract(IsOneWay = true)]
         void AddComponent(string systemName, int entityID, string componentName);
@@ -73,9 +73,6 @@ namespace Event_ECS_Lib
         void IsComponentEnabled(string systemName, int entityID, int componentID);
 
         [OperationContract(IsOneWay = true)]
-        void IsDisposing();
-
-        [OperationContract(IsOneWay = true)]
         void IsEntityEnabled(string systemName, int entityID);
 
         [OperationContract(IsOneWay = true)]
@@ -86,6 +83,9 @@ namespace Event_ECS_Lib
 
         [OperationContract(IsOneWay = true)]
         void IsSystemEnabled(string systemName);
+
+        [OperationContract(IsOneWay = true)]
+        void LoveUpdate();
         
         [OperationContract(IsOneWay = true)]
         void RemoveComponent(string systemName, int entityID, int componentID);
@@ -161,5 +161,8 @@ namespace Event_ECS_Lib
 
         [OperationContract(IsOneWay = true)]
         void Update();
+
+        [OperationContract(IsOneWay = true)]
+        void Uninitialize();
     }
 }

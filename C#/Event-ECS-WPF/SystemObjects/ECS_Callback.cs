@@ -28,8 +28,6 @@ namespace Event_ECS_WPF.SystemObjects
             Invoke("DispatchEvent", value);
         }
 
-        public abstract void Dispose();
-
         public void GetClassName(string value)
         {
             Invoke("GetClassName", value);

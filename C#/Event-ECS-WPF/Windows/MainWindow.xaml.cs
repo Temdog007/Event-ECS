@@ -38,12 +38,6 @@ namespace Event_ECS_WPF.Windows
             e.Handled = true;
         }
 
-        private void Window_Closing(object sender, CancelEventArgs e)
-        {
-            ECS.Instance.Dispose();
-            Settings.Default.Save();
-        }
-        
         private void UpdateCommands(object sender, EventArgs e)
         {
             viewmodel.OpenRecentProjectCommand.UpdateCanExecute(sender, e);
@@ -53,6 +47,11 @@ namespace Event_ECS_WPF.Windows
         private void UpdateCommands(object sender, MouseButtonEventArgs e)
         {
             UpdateCommands(sender, (EventArgs)e);
+        }
+
+        private void Window_Closing(object sender, CancelEventArgs e)
+        {
+            Settings.Default.Save();
         }
     }
 }

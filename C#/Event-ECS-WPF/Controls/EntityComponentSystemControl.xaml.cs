@@ -39,8 +39,6 @@ namespace Event_ECS_WPF.Controls
         public EntityComponentSystemControl()
         {
             InitializeComponent();
-
-            ECS.DeserializeRequested += ECS_DeserializeRequested;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -134,11 +132,6 @@ namespace Event_ECS_WPF.Controls
                 ev = "event" + ev;
             }
             ECS.Instance.UseWrapper(ecs => ecs.DispatchEvent(EntityComponentSystem.Name, ev));
-        }
-
-        private void ECS_DeserializeRequested()
-        {
-            Deserialize();
         }
 
         private void EventText_PreviewTextInput(object sender, TextCompositionEventArgs e)

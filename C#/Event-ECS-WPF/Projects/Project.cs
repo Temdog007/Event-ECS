@@ -182,9 +182,8 @@ namespace Event_ECS_WPF.Projects
             return Setup();
         }
 
-        public virtual void Stop()
+        public void Stop()
         {
-            ECS.Instance.Dispose();
             OnPropertyChanged("IsStarted");
         }
 
@@ -223,7 +222,6 @@ namespace Event_ECS_WPF.Projects
             }
             catch (Exception e)
             {
-                ECS.Instance.Dispose();
                 LogManager.Instance.Add(e);
                 return false;
             }

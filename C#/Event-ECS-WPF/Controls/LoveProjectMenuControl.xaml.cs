@@ -17,19 +17,13 @@ namespace Event_ECS_WPF.Controls
             DependencyProperty.Register("LoveProject", typeof(LoveProject), typeof(LoveProjectMenuControl));
 
         private ICommand m_updateCommand;
-
-        private UpdateType m_updateType = UpdateType.Automatic;
-
+        
         public LoveProjectMenuControl()
         {
             InitializeComponent();
-
-            ECS.Instance.PropertyChanged += Instance_PropertyChanged;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
-
-        public bool CanUpdate => UpdateType == UpdateType.Manual;
 
         public LoveProject LoveProject
         {
@@ -39,53 +33,17 @@ namespace Event_ECS_WPF.Controls
 
         public ICommand UpdateCommand => m_updateCommand ?? (m_updateCommand = new ActionCommand(Update));
 
-        public UpdateType UpdateType
-        {
-            get => m_updateType;
-            set
-            {
-                if (value == m_updateType)
-                {
-                    return;
-                }
-
-                switch (value)
-                {
-                    case UpdateType.Manual:
-                        ECS.Instance.SetAutoUpdate(false);
-                        break;
-                    case UpdateType.Automatic:
-                        ECS.Instance.SetAutoUpdate(true);
-                        break;
-                }
-
-                m_updateType = value;
-                OnPropertyChanged("UpdateType");
-                OnPropertyChanged("CanUpdate");
-            }
-        }
-
         public void Update()
         {
-            switch (UpdateType)
+            if (ECS.Instance.IsApplicationRunning && ECS.Instance.IsUpdatingAutomaticallyProperty)
             {
-                case UpdateType.Manual:
-                    ECS.Instance.Update();
-                    break;
-                default:
-                    break;
+                ECS.Instance.LoveUpdate();
             }
         }
 
         protected void OnPropertyChanged(string name)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
-
-        private void Instance_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            OnPropertyChanged("UpdateType");
-            OnPropertyChanged("CanUpdate");
         }
     }
 }

@@ -166,13 +166,26 @@
                 </DockPanel>
             </MenuItem>
 
-            <MenuItem Header="Project" Visibility="{Binding HasProject, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource boolVis}}" 
-                      Background="{Binding ProjectBackground, UpdateSourceTrigger=PropertyChanged}">
-
+            <MenuItem Header="Project" Visibility="{Binding HasProject, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource boolVis}}">
                 <ContentPresenter Content="{Binding Project, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                             ContentTemplateSelector="{StaticResource projectMenuSelector}"/>
             </MenuItem>
         </Menu>
+
+        <TextBlock DockPanel.Dock="Bottom" Margin="5">
+            <TextBlock.Style>
+                <Style TargetType="TextBlock">
+                    <Setter Property="Text" Value="Project is not Running"/>
+                    <Setter Property="Background" Value="LightPink"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Source={x:Static sysObj:ECS.Instance}, Path=IsApplicationRunning, UpdateSourceTrigger=PropertyChanged}" Value="True">
+                            <Setter Property="Text" Value="Project Running"/>
+                            <Setter Property="Background" Value="LightGreen"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBlock.Style>
+        </TextBlock>
 
         <Expander Header="Logs" ExpandDirection="Up" IsExpanded="True" DockPanel.Dock="Bottom" MaxHeight="200">
             <Expander.ContextMenu>

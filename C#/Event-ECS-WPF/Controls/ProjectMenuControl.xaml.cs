@@ -35,9 +35,7 @@ namespace Event_ECS_WPF.Controls
 
         public ICommand ProjectActionCommand => m_projectCommand ?? (m_projectCommand = new ActionCommand(ProjectAction));
 
-        public bool ProjectStarted => ECS.Instance.IsApplicationRunning;
-
-        public string ProjectText => ProjectStarted ? " Stop" : "Start";
+        public string ProjectText => ECS.Instance.IsApplicationRunning ? " Stop" : "Start";
 
         protected void OnPropertyChanged(string name)
         {
@@ -46,13 +44,12 @@ namespace Event_ECS_WPF.Controls
 
         private void Instance_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            OnPropertyChanged("ProjectStarted");
             OnPropertyChanged("ProjectText");
         }
 
         private void ProjectAction()
         {
-            if (ProjectStarted)
+            if (ECS.Instance.IsApplicationRunning)
             {
                 Project.Stop();
             }

@@ -7,9 +7,9 @@
              d:DesignHeight="100" d:DesignWidth="200"
              x:Name="m_menu">
 
-
     <Button Content="{Binding ElementName=m_menu, Path=ProjectText, UpdateSourceTrigger=PropertyChanged}"
             Command="{Binding ElementName=m_menu, Path=ProjectActionCommand}"/>
+    
 </UserControl>
 
     

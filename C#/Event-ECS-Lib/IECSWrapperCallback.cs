@@ -12,9 +12,7 @@ namespace Event_ECS_Lib
 
         [OperationContract(IsOneWay = true)]
         void DispatchEvent(int value);
-
-        [OperationContract(IsOneWay = true)]
-        void Dispose();
+        
         [OperationContract(IsOneWay = true)]
         void GetClassName(string value);
 
@@ -47,9 +45,6 @@ namespace Event_ECS_Lib
 
         [OperationContract(IsOneWay = true)]
         void IsComponentEnabled(bool value);
-
-        [OperationContract(IsOneWay = true)]
-        void IsDisposing(bool value);
 
         [OperationContract(IsOneWay = true)]
         void IsEntityEnabled(bool value);
