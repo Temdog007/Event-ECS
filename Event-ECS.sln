@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Event-ECS-WPF", "C#\Event-E
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "eventecs", "C++\eventecs\eventecs.vcxproj", "{E3DF66FC-E85B-4976-981E-60EC78325F9E}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "eventecsserver", "C++\eventecscommunication\eventecscommunication\eventecscommunication.vcxproj", "{0BCE94CF-26FA-496A-924D-463AB96ADC67}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "eventecsserver", "C++\eventecscommunication\eventecscommunication.vcxproj", "{0BCE94CF-26FA-496A-924D-463AB96ADC67}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
