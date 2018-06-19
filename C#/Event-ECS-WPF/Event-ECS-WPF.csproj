@@ -237,12 +237,6 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\CLI\Event-ECS-Wrapper\Event-ECS-Wrapper.vcxproj">
-      <Project>{85b1aed7-d0cf-4e7c-9557-c9be1cece62f}</Project>
-      <Name>Event-ECS-Wrapper</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>
