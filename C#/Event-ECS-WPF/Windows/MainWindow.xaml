@@ -189,7 +189,7 @@
                 </MenuItem.Style>
 
                 <ContentPresenter Content="{Binding Project, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                            ContentTemplateSelector="{StaticResource projectMenuSelector}"/>
+                            ContentTemplate="{StaticResource projectMenuTemplate}"/>
             </MenuItem>
         </Menu>
 

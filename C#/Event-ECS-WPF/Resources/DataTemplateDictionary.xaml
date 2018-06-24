@@ -17,12 +17,6 @@
         <controls:ProjectMenuControl Project="{Binding}"/>
     </DataTemplate>
 
-    <DataTemplate x:Key="loveProjectMenuTemplate">
-        <ScrollViewer>
-            <controls:LoveProjectMenuControl LoveProject="{Binding}"/>
-        </ScrollViewer>
-    </DataTemplate>
-
     <DataTemplate x:Key="defaultComponentVariable">
         <controls:ComponentVariableControl ComponentVariable="{Binding}"/>
     </DataTemplate>
@@ -42,6 +36,5 @@
     </DataTemplate>
 
     <selector:ProjectDataTemplateSelector x:Key="projectSelector"/>
-    <selector:ProjectMenuDataTemplateSelector x:Key="projectMenuSelector"/>
     <selector:ComponentTemplateSelector x:Key="componentTemplateSelector"/>
 </ResourceDictionary>

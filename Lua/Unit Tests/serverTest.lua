@@ -20,20 +20,30 @@
 
 UNIT_TEST = true
 
-local DebugSystem = require("debugSystem")
-local system = DebugSystem("Server Test System")
+local System = require("system")
+local system = System("Server Test System")
 local ServerComponent = require("Server/ServerComponent")
 local socket = require("socket")
 
 local entity = system:createEntity()
-entity:addComponent(ServerComponent)
+local server = entity:addComponent(ServerComponent)
+function forEachSystem(serializeFunc)
+  if server.client then
+    server.client:send("Test message")
+  end
+end
 
 print("Starting Server test")
 
 local sleepLength = 1 / 1000
-for i = 1, 1000 do
-  system:dispatchEvent("eventupdate")
-  socket.sleep(sleepLength)
+local args = {dt = 1 / 60}
+local start = os.time()
+local current = start
+while current - start < 5 do
+  system:dispatchEvent("eventupdate", args)
+  socket.sleep(args.dt)
+  current = os.time()
 end
 
+system:dispatchEvent("eventquit")
 print("Server test complete")

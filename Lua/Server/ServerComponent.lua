@@ -35,8 +35,13 @@ function ServerComponent:__init(entity)
   self.current = 0
 end
 
-function ServerComponent:connect()
+function ServerComponent:close()
+  if self.client then self.client:close() end
   if self.server then self.server:close() end
+end
+
+function ServerComponent:connect()
+  self:close()
 
   self.client = nil
   self.messages = {}
@@ -87,10 +92,11 @@ function ServerComponent:eventUpdate(args)
     local err
     self.client, err = self.server:accept()
     if self.client then
+      self.client:settimeout(self.timeout)
       print("Found client")
     else
       if err ~= "timeout" then
-        print(client, err)
+        print(err)
       end
     end
   end
@@ -102,18 +108,31 @@ function ServerComponent:eventUpdate(args)
     self.messages = {}
 
     local l,e = self.client:receive()
-    parseMessage(l)
+    if l then
+      parseMessage(l)
+    else
+      if e ~= "timeout" then
+        print(e)
+      end
+    end
   end
 
   if not args or not args.dt then return end
 
-  self.current = self.currnet + args.dt
+  self.current = self.current + args.dt
   if self.current > self.rate then
     forEachSystem(serialize)
+    self.current = 0
   end
+
 end
 
-parseMessage = function()
+function ServerComponent:eventQuit(args)
+  self:close()
+end
+
+parseMessage = function(l)
+  print(l)
 end
 
 return ServerComponent

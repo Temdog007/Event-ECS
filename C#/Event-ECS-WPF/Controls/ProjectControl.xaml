@@ -42,13 +42,13 @@
                     <Button DockPanel.Dock="Bottom" Command="{Binding ElementName=m_project, Path=AddPathCommand}" Margin="5" MinHeight="20"
                             HorizontalAlignment="Stretch" Content="Add Path"/>
                     <ItemsControl ItemsSource="{Binding ElementName=m_project, Path=Project.ComponentPaths, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}">
-                        
+
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <StackPanel/>
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
-                        
+
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Border BorderBrush="Black" BorderThickness="1">
@@ -59,21 +59,9 @@
                                 </Border>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
-                        
+
                     </ItemsControl>
                 </DockPanel>
-            </Expander>
-
-            <Expander Header="Events To Ignore Log" Background="Beige">
-                <DataGrid ItemsSource="{Binding ElementName=m_project, Path=Project.EventsToIgnore, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
-
-                    <DataGrid.ItemTemplate>
-                        <DataTemplate>
-                            <TextBox Text="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}"/>
-                        </DataTemplate>
-                    </DataGrid.ItemTemplate>
-
-                </DataGrid>
             </Expander>
 
         </StackPanel>

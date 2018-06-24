@@ -83,9 +83,6 @@
     <Compile Include="Controls\ComponentVariableControl.xaml.cs">
       <DependentUpon>ComponentVariableControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controls\LoveProjectMenuControl.xaml.cs">
-      <DependentUpon>LoveProjectMenuControl.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Converters\EnabledToColor.cs" />
     <Compile Include="Converters\ItemToItemIndexConverter.cs" />
     <Compile Include="Converters\LogLevelToColor.cs" />
@@ -97,7 +94,6 @@
     <Compile Include="SystemObjects\ComponentVariable.cs" />
     <Compile Include="SystemObjects\IECS.cs" />
     <Compile Include="TemplateSelectors\ComponentTemplateSelector.cs" />
-    <Compile Include="TemplateSelectors\ProjectMenuDataTemplateSelctor.cs" />
     <Page Include="Controls\AddComponentControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -119,10 +115,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\LoveProjectControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Controls\LoveProjectMenuControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

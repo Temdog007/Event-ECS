@@ -5,6 +5,9 @@ using System.IO;
 using System.Reflection;
 using System.Xml.Serialization;
 using Event_ECS_WPF.Extensions;
+using System.Diagnostics;
+using System.Linq;
+
 namespace Event_ECS_WPF.Projects
 {
     [XmlRoot("LoveProject")]
@@ -51,6 +54,9 @@ return function(t)
     t.modules.video = {32}-- Enable the video module (boolean)
     t.modules.window = {33}-- Enable the window module (boolean)
 end";
+
+        public const string Love2D = "love.exe";
+
         private LoveProjectSettings _settings;
 
         public LoveProject() : this(false) { }
@@ -76,7 +82,7 @@ end";
             Settings.Modules.Touch, Settings.Modules.Video, Settings.Modules.Window);
 
             text = text.Replace("True", "true").Replace("False", "false");
-            File.WriteAllText(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "conf.lua"), "Event_ECS_WPF.Lua.systems.lua".GetResourceFileContents() + text);
+            File.WriteAllText(Path.Combine(Location, "conf.lua"), "Event_ECS_WPF.Lua.systems.lua".GetResourceFileContents() + text);
 
             File.WriteAllText("main.lua", "Event_ECS_WPF.Lua.main.lua".GetResourceFileContents());
 
@@ -84,9 +90,25 @@ end";
             return base.Setup();
         }
 
+        public ProcessStartInfo StartInfo
+        {
+            get
+            {
+                return new ProcessStartInfo()
+                {
+                    FileName = Properties.Settings.Default.Love2D,
+                    Arguments = Location
+                };
+            }
+        }
+        
         private void StartApplication()
         {
-
+            Process[] processes = Process.GetProcessesByName(Love2D);
+            if(!processes.Any())
+            {
+                Process.Start(StartInfo);
+            }
         }
 
         protected override void ExecuteInitialCode()

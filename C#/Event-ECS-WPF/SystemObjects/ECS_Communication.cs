@@ -25,7 +25,6 @@ namespace Event_ECS_WPF.SystemObjects
             lock (m_lock)
             {
                 Dispose();
-
                 TryConnect();
             }
         }
@@ -33,6 +32,17 @@ namespace Event_ECS_WPF.SystemObjects
         public event DataReceived DataReceived;
 
         protected Socket Socket { get; private set; }
+
+        private void CreateSocket()
+        {
+            Dispose();
+            Socket = new Socket(Host.AddressFamily, SocketType.Stream, ProtocolType.Tcp)
+            {
+                ReceiveTimeout = 1000,
+                SendTimeout = 1000
+            };
+            LogManager.Instance.Add("Starting to connect...");
+        }
 
         public void Dispose()
         {
@@ -63,8 +73,7 @@ namespace Event_ECS_WPF.SystemObjects
             {
                 if(Socket == null)
                 {
-                    Socket = new Socket(Host.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-                    LogManager.Instance.Add("Starting to connect...");
+                    CreateSocket();
                 }
                 else if (Socket.Connected)
                 {
@@ -101,10 +110,8 @@ namespace Event_ECS_WPF.SystemObjects
                     Socket.EndConnect(result);
 
                     IsConnected = true;
-
-                    byte[] buffer = new byte[2048];
-                    var endpoint = (EndPoint)Endpoint;
-                    Socket.BeginReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref endpoint, ReceiveCallback, buffer);
+                    
+                    StartReceiving(new byte[2048]);
 
                     LogManager.Instance.Add("Connected to {0}", Socket.RemoteEndPoint);
                 }
@@ -131,28 +138,68 @@ namespace Event_ECS_WPF.SystemObjects
 
                     if (bytesRead > 0)
                     {
-                        string message = Encoding.ASCII.GetString(buffer, 0, bytesRead);
-                        string[] dataList = message.Split('\n');
-                        if (dataList[0] == Serialize)
+                        try
                         {
-                            Application.Current.Dispatcher.BeginInvoke(DataReceived, dataList.SubArray(1));
+                            string message = Encoding.ASCII.GetString(buffer, 0, bytesRead);
+                            string[] dataList = message.Split('\n');
+                            if (dataList[0] == Serialize)
+                            {
+                                Application.Current.Dispatcher.BeginInvoke(DataReceived, dataList.SubArray(1));
+                            }
+                            else
+                            {
+                                LogManager.Instance.Add(message);
+                            }
+                            Socket.NoDelay = true;
                         }
-                        else
+                        catch (Exception e)
                         {
-                            LogManager.Instance.Add(message);
+                            LogManager.Instance.Add(e);
+                        }
+                        finally
+                        {
+                            StartReceiving(buffer);
                         }
                     }
-
-                    var endpoint = (EndPoint)Endpoint;
-                    Socket.BeginReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref endpoint, ReceiveCallback, buffer);
+                    else
+                    {
+                        try
+                        {
+                            //Ensure that the client is still connected
+                            if (Socket.IsConnected())
+                            {
+                                StartReceiving(buffer);
+                            }
+                            else
+                            {
+                                HandleDisconnect();
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            HandleDisconnect();
+                        }
+                    }
                 }
                 catch (Exception e)
                 {
                     LogManager.Instance.Add(e);
-                    IsConnected = Socket.Connected;
-                    TryConnect();
+                    HandleDisconnect();
                 }
             }
+        }
+
+        private void StartReceiving(byte[] buffer)
+        {
+            var endpoint = (EndPoint)Endpoint;
+            Socket.BeginReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref endpoint, ReceiveCallback, buffer);
+        }
+
+        private void HandleDisconnect()
+        {
+            LogManager.Instance.Add("Client has disconnected", LogLevel.Medium);
+            Dispose();
+            TryConnect();
         }
 
         private void Send(string message)
@@ -167,8 +214,7 @@ namespace Event_ECS_WPF.SystemObjects
                 catch(Exception e)
                 {
                     LogManager.Instance.Add(e);
-                    IsConnected = Socket.Connected;
-                    TryConnect();
+                    HandleDisconnect();
                 }
             }
         }
@@ -190,8 +236,7 @@ namespace Event_ECS_WPF.SystemObjects
                 catch (Exception e)
                 {
                     LogManager.Instance.Add(e);
-                    IsConnected = Socket.Connected;
-                    TryConnect();
+                    HandleDisconnect();
                 }
             }
         }
