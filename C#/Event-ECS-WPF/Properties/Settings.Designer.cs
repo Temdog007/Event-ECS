@@ -50,12 +50,12 @@ namespace Event_ECS_WPF.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("F5")]
-        public global::System.Windows.Forms.Keys ToggleStart {
+        public global::System.Windows.Forms.Keys StartProject {
             get {
-                return ((global::System.Windows.Forms.Keys)(this["ToggleStart"]));
+                return ((global::System.Windows.Forms.Keys)(this["StartProject"]));
             }
             set {
-                this["ToggleStart"] = value;
+                this["StartProject"] = value;
             }
         }
         
@@ -94,18 +94,27 @@ namespace Event_ECS_WPF.Properties {
                 this["LoadComponentEditor"] = value;
             }
         }
-
+        
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        public global::System.Collections.ObjectModel.ObservableCollection<string> RecentProjects
-        {
-            get
-            {
+        public global::System.Collections.ObjectModel.ObservableCollection<string> RecentProjects {
+            get {
                 return ((global::System.Collections.ObjectModel.ObservableCollection<string>)(this["RecentProjects"]));
             }
-            set
-            {
+            set {
                 this["RecentProjects"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("F5")]
+        public string Start {
+            get {
+                return ((string)(this["Start"]));
+            }
+            set {
+                this["Start"] = value;
             }
         }
     }

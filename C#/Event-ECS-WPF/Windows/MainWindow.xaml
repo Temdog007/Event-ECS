@@ -37,8 +37,7 @@
         
         <KeyBinding Key="F2" Modifiers="Alt" Command="{Binding Source={x:Static sysObj:ECS.Instance}, Path=ResetProjectCommand}"/>
         
-        <KeyBinding Key="F2" Command="{Binding ToggleProjectModeCommand}"/>
-        <KeyBinding Key="F5" Command="{Binding ToggleProjectCommand}"/>
+        <KeyBinding Key="F5" Command="{Binding StartProjectCommand}"/>
 
         <KeyBinding Key="D1" Modifiers="Ctrl" Command="{Binding OpenProjectAtIndexCommand}">
             <KeyBinding.CommandParameter>
@@ -156,17 +155,22 @@
 
             <MenuItem Header="Shortcuts">
                 <DockPanel>
-                    <Label DockPanel.Dock="Right" Margin="5">Manual Update</Label>
-                    <ComboBox Margin="5" ItemsSource="{Binding Source={ex:EnumBindingSource {x:Type forms:Keys}}}" SelectedItem="{Binding Source={x:Static properties:Settings.Default}, Mode=TwoWay, Path=ManualUpdateKey}"/>
-                </DockPanel>
-                <DockPanel>
                     <Label DockPanel.Dock="Right" Margin="5">Start/Stop</Label>
-                    <ComboBox Margin="5" ItemsSource="{Binding Source={ex:EnumBindingSource {x:Type forms:Keys}}}" SelectedItem="{Binding Source={x:Static properties:Settings.Default}, Mode=TwoWay, Path=ToggleStart}"/>
+                    <ComboBox Margin="5" ItemsSource="{Binding Source={ex:EnumBindingSource {x:Type forms:Keys}}}" SelectedItem="{Binding Source={x:Static properties:Settings.Default}, Mode=TwoWay, Path=Start}"/>
                 </DockPanel>
             </MenuItem>
 
-            <MenuItem Header="Project" Visibility="{Binding HasProject, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource boolVis}}" 
-                      Background="{Binding ProjectBackground, UpdateSourceTrigger=PropertyChanged}">
+            <MenuItem Header="Project" Visibility="{Binding HasProject, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource boolVis}}">
+                <MenuItem.Style>
+                    <Style TargetType="MenuItem">
+                        <Setter Property="Background" Value="LightPink"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Source={x:Static sysObj:ECS.Instance}, Mode=TwoWay, Path=IsConnected}" Value="True">
+                                <Setter Property="Background" Value="LightGreen"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </MenuItem.Style>
 
                 <ContentPresenter Content="{Binding Project, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                             ContentTemplateSelector="{StaticResource projectMenuSelector}"/>

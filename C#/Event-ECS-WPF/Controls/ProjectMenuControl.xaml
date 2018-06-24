@@ -8,8 +8,8 @@
              x:Name="m_menu">
 
 
-    <Button Content="{Binding ElementName=m_menu, Path=ProjectText, UpdateSourceTrigger=PropertyChanged}"
-            Command="{Binding ElementName=m_menu, Path=ProjectActionCommand}"/>
+    <Button Command="{Binding ElementName=m_menu, Path=StartCommand}">Start</Button>
+
 </UserControl>
 
     

@@ -8,14 +8,8 @@
     <Setting Name="MultilineLog" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
-    <Setting Name="ManualUpdateKey" Type="System.Windows.Forms.Keys" Scope="User">
-      <Value Profile="(Default)">F1</Value>
-    </Setting>
-    <Setting Name="ToggleStart" Type="System.Windows.Forms.Keys" Scope="User">
+    <Setting Name="StartProject" Type="System.Windows.Forms.Keys" Scope="User">
       <Value Profile="(Default)">F5</Value>
-    </Setting>
-    <Setting Name="RefreshRate" Type="System.UInt32" Scope="User">
-      <Value Profile="(Default)">1000</Value>
     </Setting>
     <Setting Name="ComponentEditor" Type="System.String" Scope="User">
       <Value Profile="(Default)">C:\Windows\System32\notepad.exe</Value>
@@ -26,8 +20,11 @@
     <Setting Name="LoadComponentEditor" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
-    <Setting Name="Setting" Type="System.String" Scope="User">
+    <Setting Name="RecentProjects" Type="System.Collections.ObjectModel.ObservableCollection&lt;string&gt;" Scope="User">
       <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="Start" Type="System.String" Scope="User">
+      <Value Profile="(Default)">F5</Value>
     </Setting>
   </Settings>
 </SettingsFile>

@@ -25,6 +25,7 @@ namespace Event_ECS_WPF.SystemObjects
                 Dispose();
 
                 Socket = new Socket(Host.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                TryConnect();
             }
         }
 
