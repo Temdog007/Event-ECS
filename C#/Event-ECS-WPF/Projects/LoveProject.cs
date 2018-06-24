@@ -4,7 +4,7 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Xml.Serialization;
-
+using Event_ECS_WPF.Extensions;
 namespace Event_ECS_WPF.Projects
 {
     [XmlRoot("LoveProject")]
@@ -12,44 +12,6 @@ namespace Event_ECS_WPF.Projects
     {
         private const string confFormat =
 @"
-local Systems = {}
-
-function addSystem(system)
-  table.insert(Systems, system)
-end
-
-function removeSystem(system)
-
-  local newSystems = {}
-  for _,s in ipairs(Systems) do
-    if system ~= system then
-      table.insert(newSystems, s)
-    end
-  end
-
-  Systems = newSystems
-end
-
-function BroadcastEvent(eventName, args)
-  for _, system in ipairs(Systems) do
-    system:dispatchEvent('eventupdate', args)
-  end
-end
-
-function getSystem(name)
-  for _, system in ipairs(Systems) do
-    if system.name == name then
-      return system
-    end
-  end
-end
-
-function forEachSystem(func, ...)
-  for _, system in ipairs(Systems) do
-    func(system, ...)
-  end
-end
-
 return function(t)
     t.accelerometerjoystick = {0}      -- Enable the accelerometer on iOS and Android by exposing it as a Joystick(boolean)
     t.externalstorage = {1}           -- True to save files(and read from the save directory) in external storage on Android(boolean)
@@ -91,13 +53,6 @@ return function(t)
 end";
         private LoveProjectSettings _settings;
 
-        private static readonly ValueContainer<string>[] DefaultEventsToIgnore = 
-        {
-            "eventupdate", "eventdraw", "eventfocus", "eventunfocus", "eventtextedited", "eventvisible", "eventmousemoved",
-            "eventmousefocus", "eventkeypressed", "eventkeyreleased", "eventmousepressed", "eventmousereleased", "eventtextinput",
-            "eventwheelmoved"
-        };
-
         public LoveProject() : this(false) { }
 
         public LoveProject(bool setDefaults) : base(setDefaults)
@@ -121,19 +76,12 @@ end";
             Settings.Modules.Touch, Settings.Modules.Video, Settings.Modules.Window);
 
             text = text.Replace("True", "true").Replace("False", "false");
-            File.WriteAllText(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "conf.lua"), text);
+            File.WriteAllText(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "conf.lua"), "Event_ECS_WPF.Lua.systems.lua".GetResourceFileContents() + text);
 
-            var assembly = Assembly.GetExecutingAssembly();
-            var mainFile = "Event_ECS_WPF.main.lua";
-            using (Stream stream = assembly.GetManifestResourceStream(mainFile))
-            {
-                using (StreamReader reader = new StreamReader(stream))
-                {
-                    File.WriteAllText("main.lua", reader.ReadToEnd());
-                }
-            }
+            File.WriteAllText("main.lua", "Event_ECS_WPF.Lua.main.lua".GetResourceFileContents());
 
-            return base.Start();
+            StartApplication();
+            return base.Setup();
         }
 
         private void StartApplication()

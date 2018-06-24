@@ -83,7 +83,14 @@ return {0}";
             var line = list[0].Split('|');
             var name = line[0];
             var system = Systems.FirstOrDefault(s => s.Name == name);
-            system.Deserialize(list);
+            if (system == null)
+            {
+                Systems.Add(new ECSSystem(list));
+            }
+            else
+            {
+                system.Deserialize(list);
+            }
         }
 
         private delegate void SettingsUpdateDelegate(object sender, EventArgs e);

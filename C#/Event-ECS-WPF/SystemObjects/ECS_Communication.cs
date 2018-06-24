@@ -14,6 +14,8 @@ namespace Event_ECS_WPF.SystemObjects
 
         public const string Serialize = "Serialize";
 
+        public static IPAddress Host => IPAddress.Parse("127.0.0.1");
+
         public static readonly IPEndPoint Endpoint = new IPEndPoint(Host, Port);
 
         public readonly object m_lock = new object();
@@ -24,31 +26,13 @@ namespace Event_ECS_WPF.SystemObjects
             {
                 Dispose();
 
-                Socket = new Socket(Host.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                 TryConnect();
             }
         }
 
         public event DataReceived DataReceived;
 
-        public static IPAddress Host
-        {
-            get
-            {
-                var host = Dns.GetHostEntry(Dns.GetHostName());
-                foreach(var ip in host.AddressList)
-                {
-                    if(ip.AddressFamily == AddressFamily.InterNetwork)
-                    {
-                        return ip;
-                    }
-                }
-
-                throw new Exception("Failed to find localhost");
-            }
-        }
-
-        protected Socket Socket { get; }
+        protected Socket Socket { get; private set; }
 
         public void Dispose()
         {
@@ -58,6 +42,8 @@ namespace Event_ECS_WPF.SystemObjects
                 {
                     Socket.Shutdown(SocketShutdown.Both);
                     Socket.Dispose();
+                    Socket = null;
+                    LogManager.Instance.Add("Closed connection");
                 }
                 catch (Exception)
                 {
@@ -73,21 +59,36 @@ namespace Event_ECS_WPF.SystemObjects
         #region Socket
         public void TryConnect()
         {
-            if(Socket.Connected)
+            lock (m_lock)
             {
-                return;
-            }
+                if(Socket == null)
+                {
+                    Socket = new Socket(Host.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                    LogManager.Instance.Add("Starting to connect...");
+                }
+                else if (Socket.Connected)
+                {
+                    return;
+                }
 
-            try
-            {
-                LogManager.Instance.Add("Starting to connect...");
-                Socket.BeginConnect(Endpoint, ConnectionCallback, Socket);
-            }
-            catch (Exception e)
-            {
-                LogManager.Instance.Add(e);
-                IsConnected = Socket.Connected;
-                TryConnect();
+                try
+                {
+                    Socket.BeginConnect(Endpoint, ConnectionCallback, Socket);
+                }
+                catch (InvalidOperationException)
+                {
+                    Dispose();
+                    TryConnect();
+                }
+                catch (Exception e)
+                {
+                    if (!(e is SocketException))
+                    {
+                        LogManager.Instance.Add(e);
+                    }
+                    IsConnected = Socket.Connected;
+                    TryConnect();
+                }
             }
         }
 
@@ -109,7 +110,10 @@ namespace Event_ECS_WPF.SystemObjects
                 }
                 catch (Exception e)
                 {
-                    LogManager.Instance.Add(e);
+                    if (!(e is SocketException))
+                    {
+                        LogManager.Instance.Add(e);
+                    }
                     IsConnected = Socket.Connected;
                     TryConnect();
                 }

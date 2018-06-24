@@ -47,9 +47,11 @@ function ServerComponent:connect()
   local i, p = self.server:getsockname()
   assert(i,p)
 
-  print = function(...)
-    for _, message in pairs({...}) do
-      table.insert(self.messages, message)
+  if not UNIT_TEST then
+    print = function(...)
+      for _, message in pairs({...}) do
+        table.insert(self.messages, message)
+      end
     end
   end
 
@@ -80,25 +82,27 @@ end
 local parseMessage
 
 function ServerComponent:eventUpdate(args)
-  local l,e = client:receive()
-  while not e do
-    parseMessage(l)
-    l, e = client:receive()
-  end
 
   if not self.client then
     local err
     self.client, err = self.server:accept()
-    if not self.client and err ~= "timeout" then
-      print(client, err)
+    if self.client then
+      print("Found client")
+    else
+      if err ~= "timeout" then
+        print(client, err)
+      end
     end
   end
 
   if self.client then
     for _, message in pairs(self.messages) do
-      assert(self.server:send(message))
+      assert(self.client:send(message))
     end
     self.messages = {}
+
+    local l,e = self.client:receive()
+    parseMessage(l)
   end
 
   if not args or not args.dt then return end
@@ -107,6 +111,9 @@ function ServerComponent:eventUpdate(args)
   if self.current > self.rate then
     forEachSystem(serialize)
   end
+end
+
+parseMessage = function()
 end
 
 return ServerComponent

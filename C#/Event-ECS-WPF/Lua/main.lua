@@ -6,7 +6,7 @@ function setFrameRate(fps)
 end
 
 function love.run()
-	BroadcastEvent('eventload', love.arg.parseGameArguments(arg), arg)
+	broadcastEvent('eventload', love.arg.parseGameArguments(arg), arg)
 
   local nextTime
 
@@ -26,12 +26,12 @@ function love.run()
 			love.event.pump()
 			for name, a,b,c,d,e,f in love.event.poll() do
 				if name == 'quit' then
-          BroadcastEvent('eventquit', quitArgs)
+          broadcastEvent('eventquit', quitArgs)
 					if not quitArgs.handled then
 						return a or 0
 					end
 				end
-				BroadcastEvent('eventname', {a,b,c,d,e,f})
+				broadcastEvent('eventname', {a,b,c,d,e,f})
 			end
 		end
 
@@ -39,13 +39,13 @@ function love.run()
 		if love.timer then updateArgs.dt = love.timer.step() end
 
 		-- Call update and draw
-		BroadcastEvent('eventupdate', updateArgs) -- will pass 0 if love.timer is disabled
+		broadcastEvent('eventupdate', updateArgs) -- will pass 0 if love.timer is disabled
 
 		if love.graphics and love.graphics.isActive() then
 			love.graphics.origin()
 			love.graphics.clear(love.graphics.getBackgroundColor())
 
-			BroadcastEvent('eventdraw')
+			broadcastEvent('eventdraw')
 
 			love.graphics.present()
 		end

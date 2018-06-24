@@ -94,7 +94,9 @@ namespace Event_ECS_WPF.Logger
         {
             lock (m_lock)
             {
-                Application.Current.Dispatcher.BeginInvoke(new Action(() => m_logs.Add(log)));
+                var app = Application.Current;
+                if(app == null) { return; }
+                app.Dispatcher.BeginInvoke(new Action(() => m_logs.Add(log)));
             }
         }
 

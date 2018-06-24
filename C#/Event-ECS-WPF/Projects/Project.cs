@@ -154,8 +154,14 @@ namespace Event_ECS_WPF.Projects
             }
         }
 
+        private void StartApplication()
+        {
+
+        }
+
         public virtual bool Start()
         {
+            StartApplication();
             return Setup();
         }
 
@@ -165,7 +171,7 @@ namespace Event_ECS_WPF.Projects
             ECS.Instance.Execute(code);
         }
 
-        private bool Setup()
+        protected bool Setup()
         {
             try
             {

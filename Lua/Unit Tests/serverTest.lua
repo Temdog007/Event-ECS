@@ -18,6 +18,8 @@
 -- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 -- SOFTWARE.
 
+UNIT_TEST = true
+
 local DebugSystem = require("debugSystem")
 local system = DebugSystem("Server Test System")
 local ServerComponent = require("Server/ServerComponent")

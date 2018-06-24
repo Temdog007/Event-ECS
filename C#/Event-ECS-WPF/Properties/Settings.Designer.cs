@@ -73,18 +73,6 @@ namespace Event_ECS_WPF.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool LogEvents {
-            get {
-                return ((bool)(this["LogEvents"]));
-            }
-            set {
-                this["LogEvents"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool LoadComponentEditor {
             get {
@@ -115,6 +103,30 @@ namespace Event_ECS_WPF.Properties {
             }
             set {
                 this["Start"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Program Files (x86)\\Lua\\5.1\\lua.exe")]
+        public string Lua {
+            get {
+                return ((string)(this["Lua"]));
+            }
+            set {
+                this["Lua"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Program Files\\LOVE\\love.exe")]
+        public string Love2D {
+            get {
+                return ((string)(this["Love2D"]));
+            }
+            set {
+                this["Love2D"] = value;
             }
         }
     }
