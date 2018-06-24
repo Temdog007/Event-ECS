@@ -1,4 +1,4 @@
-﻿using EventECSWrapper;
+﻿
 using System;
 using System.Collections.Generic;
 
@@ -44,12 +44,14 @@ namespace Event_ECS_WPF.SystemObjects
 
         public Component Component { get; private set; }
 
-        private void UpdateValue(ECSWrapper ecs)
+        private void UpdateValue()
         {
             if(Component == null)
             {
                 return;
             }
+
+            IECS ecs = ECS.Instance;
 
             int entityID = Component.Entity.ID;
             string systemName = Component.Entity.System.Name;
@@ -58,7 +60,7 @@ namespace Event_ECS_WPF.SystemObjects
             {
                 if (int.TryParse(Name, out int result))
                 {
-                    ecs.SetComponentNumber(systemName, entityID, compID, result, (float)Convert.ChangeType(Value, typeof(T)));
+                    ecs.SetComponentNumber(systemName, entityID, compID, result.ToString(), (float)Convert.ChangeType(Value, typeof(T)));
                 }
                 else
                 {
@@ -85,7 +87,7 @@ namespace Event_ECS_WPF.SystemObjects
             set
             {
                 this.m_value = value;
-                ECS.Instance.UseWrapper(UpdateValue);
+                UpdateValue();
                 OnPropertyChanged("Value");
             }
         }

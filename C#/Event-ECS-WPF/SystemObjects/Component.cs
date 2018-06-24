@@ -1,5 +1,4 @@
 ﻿using Event_ECS_WPF.Misc;
-using EventECSWrapper;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -41,15 +40,15 @@ namespace Event_ECS_WPF.SystemObjects
 
         public int ID { get; }
 
+        private bool m_bIsEnabled = false;
         public bool IsEnabled
         {
-            get => ECS.Instance.UseWrapper(IsEnabledFunc, out bool rval) ? rval : false;
+            get => m_bIsEnabled;
             set
             {
-                if (ECS.Instance.UseWrapper(SetEnabledFunc, value))
-                {
-                    OnPropertyChanged("IsEnabled");
-                }
+                m_bIsEnabled = value;
+                ECS.Instance.SetEntityEnabled(Entity.System.Name, Entity.ID, value);
+                OnPropertyChanged("IsEnabled");
             }
         }
 
@@ -125,16 +124,6 @@ namespace Event_ECS_WPF.SystemObjects
         protected void OnPropertyChanged(string propName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
-        }
-
-        private bool IsEnabledFunc(ECSWrapper ecs)
-        {
-            return ecs.IsComponentEnabled(Entity.System.Name, Entity.ID, ID);
-        }
-
-        private void SetEnabledFunc(ECSWrapper ecs, bool value)
-        {
-            ecs.SetComponentEnabled(Entity.System.Name, Entity.ID, ID, value);
         }
     }
 }

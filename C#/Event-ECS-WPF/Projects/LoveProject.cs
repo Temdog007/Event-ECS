@@ -1,7 +1,6 @@
 ﻿using Event_ECS_WPF.Misc;
 using Event_ECS_WPF.SystemObjects;
 using System;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Reflection;
 using System.Xml.Serialization;
@@ -12,7 +11,46 @@ namespace Event_ECS_WPF.Projects
     public class LoveProject : Project
     {
         private const string confFormat =
-@"return function(t)
+@"
+local Systems = {}
+
+function addSystem(system)
+  table.insert(Systems, system)
+end
+
+function removeSystem(system)
+
+  local newSystems = {}
+  for _,s in ipairs(Systems) do
+    if system ~= system then
+      table.insert(newSystems, s)
+    end
+  end
+
+  Systems = newSystems
+end
+
+function BroadcastEvent(eventName, args)
+  for _, system in ipairs(Systems) do
+    system:dispatchEvent('eventupdate', args)
+  end
+end
+
+function getSystem(name)
+  for _, system in ipairs(Systems) do
+    if system.name == name then
+      return system
+    end
+  end
+end
+
+function forEachSystem(func, ...)
+  for _, system in ipairs(Systems) do
+    func(system, ...)
+  end
+end
+
+return function(t)
     t.accelerometerjoystick = {0}      -- Enable the accelerometer on iOS and Android by exposing it as a Joystick(boolean)
     t.externalstorage = {1}           -- True to save files(and read from the save directory) in external storage on Android(boolean)
     t.gammacorrect = {2}             -- Enable gamma-correct rendering, when supported by the system(boolean)
@@ -65,10 +103,6 @@ end";
         public LoveProject(bool setDefaults) : base(setDefaults)
         {
             Settings = new LoveProjectSettings();
-            if(setDefaults)
-            {
-                EventsToIgnore = new ObservableCollection<ValueContainer<string>>(DefaultEventsToIgnore);
-            }
         }
 
         [XmlElement("Settings")]
@@ -89,19 +123,29 @@ end";
             text = text.Replace("True", "true").Replace("False", "false");
             File.WriteAllText(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "conf.lua"), text);
 
-            if (Setup())
+            var assembly = Assembly.GetExecutingAssembly();
+            var mainFile = "Event_ECS_WPF.main.lua";
+            using (Stream stream = assembly.GetManifestResourceStream(mainFile))
             {
-                DispatchProjectStateChange(ProjectStateChangeArgs.Started);
-                return true;
+                using (StreamReader reader = new StreamReader(stream))
+                {
+                    File.WriteAllText("main.lua", reader.ReadToEnd());
+                }
             }
-            return false;
+
+            return base.Start();
         }
 
-        protected override void CreateInstance()
+        private void StartApplication()
+        {
+
+        }
+
+        protected override void ExecuteInitialCode()
         {
             string path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             string code = File.ReadAllText(InitializerScript);
-            ECS.Instance.CreateInstance(code, path, Name);
+            ECS.Instance.Execute(code);
         }
     }
 

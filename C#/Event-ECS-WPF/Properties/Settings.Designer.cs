@@ -49,18 +49,6 @@ namespace Event_ECS_WPF.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("F1")]
-        public global::System.Windows.Forms.Keys ManualUpdateKey {
-            get {
-                return ((global::System.Windows.Forms.Keys)(this["ManualUpdateKey"]));
-            }
-            set {
-                this["ManualUpdateKey"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("F5")]
         public global::System.Windows.Forms.Keys ToggleStart {
             get {
@@ -68,18 +56,6 @@ namespace Event_ECS_WPF.Properties {
             }
             set {
                 this["ToggleStart"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1000")]
-        public uint RefreshRate {
-            get {
-                return ((uint)(this["RefreshRate"]));
-            }
-            set {
-                this["RefreshRate"] = value;
             }
         }
         
@@ -116,18 +92,6 @@ namespace Event_ECS_WPF.Properties {
             }
             set {
                 this["LoadComponentEditor"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string Setting {
-            get {
-                return ((string)(this["Setting"]));
-            }
-            set {
-                this["Setting"] = value;
             }
         }
 

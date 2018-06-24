@@ -37,7 +37,6 @@
         
         <KeyBinding Key="F2" Modifiers="Alt" Command="{Binding Source={x:Static sysObj:ECS.Instance}, Path=ResetProjectCommand}"/>
         
-        <KeyBinding Key="F1" Command="{Binding ManualUpdateCommand}"/>
         <KeyBinding Key="F2" Command="{Binding ToggleProjectModeCommand}"/>
         <KeyBinding Key="F5" Command="{Binding ToggleProjectCommand}"/>
 

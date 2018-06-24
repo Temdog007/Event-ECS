@@ -18,25 +18,20 @@
 -- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 -- SOFTWARE.
 
-local Component = require("component")
-local class = require("classlib")
+local DebugSystem = require("debugSystem")
+local system = DebugSystem("Server Test System")
+local ServerComponent = require("Server/ServerComponent")
+local socket = require("socket")
 
-local FinalizerComponent = class("FinalizerComponent", Component)
+local entity = system:createEntity()
+entity:addComponent(ServerComponent)
 
-function FinalizerComponent:__init(entity)
-  self.Component:__init(entity, self)
+print("Starting Server test")
+
+local sleepLength = 1 / 1000
+for i = 1, 1000 do
+  system:dispatchEvent("eventupdate")
+  socket.sleep(sleepLength)
 end
 
-function FinalizerComponent:eventRemovingComponent(args)
-	if args.component == self then
-		error("Cannot remove finalizer component")
-	end
-end
-
-function FinalizerComponent:eventRemovingEntity(args)
-	if args.entity == self:getEntity() then
-		error("Cannot remove entity with finalizer component")
-	end
-end
-
-return FinalizerComponent
+print("Server test complete")

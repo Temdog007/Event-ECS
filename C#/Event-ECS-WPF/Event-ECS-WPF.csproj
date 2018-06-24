@@ -93,8 +93,9 @@
     <Compile Include="Misc\ComponentVariableValidation.cs" />
     <Compile Include="Misc\ValueContainer.cs" />
     <Compile Include="Projects\FullscreenType.cs" />
-    <Compile Include="Projects\UpdateType.cs" />
+    <Compile Include="SystemObjects\ECS_Communication.cs" />
     <Compile Include="SystemObjects\ComponentVariable.cs" />
+    <Compile Include="SystemObjects\IECS.cs" />
     <Compile Include="TemplateSelectors\ComponentTemplateSelector.cs" />
     <Compile Include="TemplateSelectors\ProjectMenuDataTemplateSelctor.cs" />
     <Page Include="Controls\AddComponentControl.xaml">
@@ -229,6 +230,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <EmbeddedResource Include="main.lua" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

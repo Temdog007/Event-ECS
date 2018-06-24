@@ -1,6 +1,6 @@
 ﻿using Event_ECS_WPF.Extensions;
 using Event_ECS_WPF.Misc;
-using EventECSWrapper;
+
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -25,15 +25,15 @@ namespace Event_ECS_WPF.SystemObjects
             Deserialize(list);
         }
 
+        private bool m_isEnabled = false;
         public bool IsEnabled
         {
-            get => ECS.Instance.UseWrapper(IsEnabledFunc, out bool rval) ? rval : false;
+            get => m_isEnabled;
             set
             {
-                if (ECS.Instance.UseWrapper(SetEnabledFunc, value))
-                {
-                    OnPropertyChanged("IsEnabled");
-                }
+                m_isEnabled = value;
+                ECS.Instance.SetSystemEnabled(Name, value);
+                OnPropertyChanged("IsEnabled");
             }
         }
 
@@ -54,14 +54,6 @@ namespace Event_ECS_WPF.SystemObjects
             {
                 m_name = value;
                 OnPropertyChanged("Name");
-            }
-        }
-
-        public void Deserialize()
-        {
-            if (ECS.Instance.UseWrapper(DeserializeFunc, out string[] data))
-            {
-                Deserialize(data);
             }
         }
 
@@ -200,21 +192,6 @@ namespace Event_ECS_WPF.SystemObjects
                     Entities.Remove(en);
                 }
             }
-        }
-
-        private string[] DeserializeFunc(ECSWrapper ecs)
-        {
-            return ecs.SerializeSystem(Name).Split('\n');
-        }
-
-        private bool IsEnabledFunc(ECSWrapper ecs)
-        {
-            return ecs.IsSystemEnabled(Name);
-        }
-
-        private void SetEnabledFunc(ECSWrapper ecs, bool value)
-        {
-            ecs.SetSystemEnabled(Name, value);
         }
     }
 }

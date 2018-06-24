@@ -15,11 +15,10 @@ namespace Event_ECS_WPF.Controls
 
         public static readonly DependencyProperty ProjectProperty =
                             DependencyProperty.Register("Project", typeof(Project), typeof(ProjectMenuControl));
-        private ICommand m_projectCommand;
+
         public ProjectMenuControl()
         {
             InitializeComponent();
-            Project.ProjectStateChange += Project_ProjectStateChange;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -29,32 +28,10 @@ namespace Event_ECS_WPF.Controls
             get { return (Project)GetValue(ProjectProperty); }
             set { SetValue(ProjectProperty, value); }
         }
-
-        private void Project_ProjectStateChange(object sender, ProjectStateChangeArgs args)
-        {
-            OnPropertyChanged("ProjectStarted");
-            OnPropertyChanged("ProjectText");
-        }
-
-        public ICommand ProjectActionCommand => m_projectCommand ?? (m_projectCommand = new ActionCommand(ProjectAction));
-
-        public bool ProjectStarted => Project?.IsStarted ?? false;
-
-        public string ProjectText => ProjectStarted ? " Stop" : "Start";
+        
         protected void OnPropertyChanged(string name)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
-        private void ProjectAction()
-        {
-            if (ProjectStarted)
-            {
-                Project.Stop();
-            }
-            else
-            {
-                Project.Start();
-            }
         }
     }
 }
