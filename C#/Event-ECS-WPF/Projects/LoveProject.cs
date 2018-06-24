@@ -1,12 +1,7 @@
-﻿using Event_ECS_WPF.Misc;
-using Event_ECS_WPF.SystemObjects;
-using System;
-using System.IO;
-using System.Reflection;
-using System.Xml.Serialization;
-using Event_ECS_WPF.Extensions;
+﻿using Event_ECS_WPF.Extensions;
 using System.Diagnostics;
-using System.Linq;
+using System.IO;
+using System.Xml.Serialization;
 
 namespace Event_ECS_WPF.Projects
 {
@@ -14,8 +9,7 @@ namespace Event_ECS_WPF.Projects
     public class LoveProject : Project
     {
         private const string confFormat =
-@"
-return function(t)
+@"return function(t)
     t.accelerometerjoystick = {0}      -- Enable the accelerometer on iOS and Android by exposing it as a Joystick(boolean)
     t.externalstorage = {1}           -- True to save files(and read from the save directory) in external storage on Android(boolean)
     t.gammacorrect = {2}             -- Enable gamma-correct rendering, when supported by the system(boolean)
@@ -57,6 +51,8 @@ end";
 
         public const string Love2D = "love.exe";
 
+        public override string TargetProcessName => Love2D;
+
         private LoveProjectSettings _settings;
 
         public LoveProject() : this(false) { }
@@ -82,40 +78,28 @@ end";
             Settings.Modules.Touch, Settings.Modules.Video, Settings.Modules.Window);
 
             text = text.Replace("True", "true").Replace("False", "false");
-            File.WriteAllText(Path.Combine(Location, "conf.lua"), "Event_ECS_WPF.Lua.systems.lua".GetResourceFileContents() + text);
+            File.WriteAllText(Path.Combine(OutputPath, "conf.lua"), text);
+            File.WriteAllText(Path.Combine(OutputPath, "main.lua"), "Event_ECS_WPF.Lua.main.lua".GetResourceFileContents());
 
-            File.WriteAllText("main.lua", "Event_ECS_WPF.Lua.main.lua".GetResourceFileContents());
-
-            StartApplication();
-            return base.Setup();
+            return base.Start();
         }
 
-        public ProcessStartInfo StartInfo
+        public override ProcessStartInfo StartInfo
         {
             get
             {
                 return new ProcessStartInfo()
                 {
                     FileName = Properties.Settings.Default.Love2D,
-                    Arguments = Location
+
+                    UseShellExecute = false,
+#if DEBUG
+                    Arguments = string.Join(" ", OutputPath, "DEBUG_MODE")
+#else
+                    Arguments = string.Join(" ", OutputPath)
+#endif
                 };
             }
-        }
-        
-        private void StartApplication()
-        {
-            Process[] processes = Process.GetProcessesByName(Love2D);
-            if(!processes.Any())
-            {
-                Process.Start(StartInfo);
-            }
-        }
-
-        protected override void ExecuteInitialCode()
-        {
-            string path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string code = File.ReadAllText(InitializerScript);
-            ECS.Instance.Execute(code);
         }
     }
 
@@ -242,17 +226,5 @@ end";
         public bool Touch { get => _touch; set { _touch = value; OnPropertyChanged(); } }
         public bool Video { get => _video; set { _video = value; OnPropertyChanged(); } }
         public bool Window { get => _window; set { _window = value; OnPropertyChanged(); } }
-    }
-
-    public class ProjectStateChangeArgs : EventArgs
-    {
-        public ProjectStateChangeArgs(bool started)
-        {
-            IsStarted = started;
-        }
-        public static ProjectStateChangeArgs Started { get; } = new ProjectStateChangeArgs(true);
-        public static ProjectStateChangeArgs Stopped { get; } = new ProjectStateChangeArgs(false);
-
-        public bool IsStarted { get; }
     }
 }

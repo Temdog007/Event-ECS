@@ -83,6 +83,9 @@
     <Compile Include="Controls\ComponentVariableControl.xaml.cs">
       <DependentUpon>ComponentVariableControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\StringListControl.xaml.cs">
+      <DependentUpon>StringListControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Converters\EnabledToColor.cs" />
     <Compile Include="Converters\ItemToItemIndexConverter.cs" />
     <Compile Include="Converters\LogLevelToColor.cs" />
@@ -131,6 +134,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\ProjectMenuControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\StringListControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -223,7 +230,8 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="Lua\main.lua" />
-    <EmbeddedResource Include="Lua\systems.lua" />
+    <EmbeddedResource Include="Lua\serverSystem.lua" />
+    <EmbeddedResource Include="Lua\systemList.lua" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

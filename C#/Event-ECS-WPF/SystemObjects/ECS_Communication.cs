@@ -181,9 +181,9 @@ namespace Event_ECS_WPF.SystemObjects
                         }
                     }
                 }
-                catch (Exception e)
+                catch (SocketException ex)
                 {
-                    LogManager.Instance.Add(e);
+                    LogManager.Instance.Add(ex);
                     HandleDisconnect();
                 }
             }
@@ -208,13 +208,19 @@ namespace Event_ECS_WPF.SystemObjects
             {
                 try
                 {
-                    byte[] byteData = Encoding.ASCII.GetBytes(message);
-                    Socket.BeginSend(byteData, 0, byteData.Length, SocketFlags.None, SendCallback, Socket);
+                    if (IsConnected && Socket.IsConnected())
+                    {
+                        byte[] byteData = Encoding.ASCII.GetBytes(message);
+                        Socket.BeginSend(byteData, 0, byteData.Length, SocketFlags.None, SendCallback, Socket);
+                    }
+                    else
+                    {
+                        LogManager.Instance.Add("Socket isn't connected. So, {0} wasn't sent", message);
+                    }
                 }
                 catch(Exception e)
                 {
                     LogManager.Instance.Add(e);
-                    HandleDisconnect();
                 }
             }
         }
@@ -236,7 +242,6 @@ namespace Event_ECS_WPF.SystemObjects
                 catch (Exception e)
                 {
                     LogManager.Instance.Add(e);
-                    HandleDisconnect();
                 }
             }
         }

@@ -1,10 +1,12 @@
 local Systems = {}
 
-function addSystem(system)
-  table.insert(Systems, system)
+function Systems.addSystems(...)
+  for _, s in pairs({...}) do
+    table.insert(Systems, s)
+  end
 end
 
-function removeSystem(system)
+function Systems.removeSystem(system)
 
   local newSystems = {}
   for _,s in ipairs(Systems) do
@@ -16,13 +18,13 @@ function removeSystem(system)
   Systems = newSystems
 end
 
-function broadcastEvent(eventName, args)
+function Systems.broadcastEvent(eventName, args)
   for _, system in ipairs(Systems) do
     system:dispatchEvent('eventupdate', args)
   end
 end
 
-function getSystem(name)
+function Systems.getSystem(name)
   for _, system in ipairs(Systems) do
     if system.name == name then
       return system
@@ -30,8 +32,10 @@ function getSystem(name)
   end
 end
 
-function forEachSystem(func, ...)
+function Systems.forEachSystem(func, ...)
   for _, system in ipairs(Systems) do
     func(system, ...)
   end
 end
+
+return Systems

@@ -3,9 +3,10 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ctrl="clr-namespace:Event_ECS_WPF.Controls"
              mc:Ignorable="d" 
              d:DesignHeight="400" d:DesignWidth="400"
-             x:Name="m_project" MouseEnter="Project_MouseEnter">
+             x:Name="m_project">
 
     <UserControl.Resources>
         <Style TargetType="Button">
@@ -24,46 +25,12 @@
         </GroupBox.Header>
 
         <StackPanel Margin="5">
-
-            <GroupBox Margin="5" Header="Initializer Script"
-                      ToolTip="This lua script should return a function that returns the systems that ">
-                <Button Content="{Binding ElementName=m_project, Path=Project.InitializerScript, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                        HorizontalAlignment="Stretch" Margin="5" MinHeight="20" Click="Button_Click"/>
+            <GroupBox Header="Output Path">
+                <TextBox Text="{Binding ElementName=m_project, Path=Project.OutputPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
             </GroupBox>
-
-            <GroupBox Margin="5" Header="Path to Library Files">
-                <Button Command="{Binding ElementName=m_project, Path=GetPathCommand}" CommandParameter="LibraryPath" Margin="5" MinHeight="20"
-                        HorizontalAlignment="Stretch"
-                        Content="{Binding ElementName=m_project, Path=Project.LibraryPath, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
-            </GroupBox>
-
-            <Expander Margin="5" Header="Path to Component Files" IsExpanded="True" Background="AntiqueWhite">
-                <DockPanel>
-                    <Button DockPanel.Dock="Bottom" Command="{Binding ElementName=m_project, Path=AddPathCommand}" Margin="5" MinHeight="20"
-                            HorizontalAlignment="Stretch" Content="Add Path"/>
-                    <ItemsControl ItemsSource="{Binding ElementName=m_project, Path=Project.ComponentPaths, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}">
-
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <StackPanel/>
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Border BorderBrush="Black" BorderThickness="1">
-                                    <DockPanel>
-                                        <Button Content="Remove" Command="{Binding ElementName=m_project, Path=RemovePathCommand}" CommandParameter="{Binding Value}" DockPanel.Dock="Right"/>
-                                        <TextBlock Text="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                                    </DockPanel>
-                                </Border>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-
-                    </ItemsControl>
-                </DockPanel>
-            </Expander>
-
+            <ctrl:StringListControl Header="Library Directories" List="{Binding ElementName=m_project, Path=Project.LibraryPaths}"/>
+            <ctrl:StringListControl Header="Component Directories" List="{Binding ElementName=m_project, Path=Project.ComponentPaths}"/>
+            <ctrl:StringListControl Header="Startup Script Directories" List="{Binding ElementName=m_project, Path=Project.StartupScriptsPath}"/>
         </StackPanel>
     </GroupBox>
 </UserControl>

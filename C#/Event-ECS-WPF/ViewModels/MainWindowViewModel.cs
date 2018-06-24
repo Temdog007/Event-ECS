@@ -74,10 +74,10 @@ return {0}";
         public MainWindowViewModel()
         {
             Settings.Default.SettingChanging += Default_SettingChanging;
-            ECS.Instance.DataReceived += Instance_DataReceived;
+            ECS.Instance.DataReceived += OnDataReceived;
         }
 
-        private void Instance_DataReceived(IEnumerable<string> data)
+        private void OnDataReceived(IEnumerable<string> data)
         {
             var list = data.ToArray();
             var line = list[0].Split('|');
