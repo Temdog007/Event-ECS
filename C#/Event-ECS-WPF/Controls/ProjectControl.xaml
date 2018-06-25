@@ -3,7 +3,6 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:ctrl="clr-namespace:Event_ECS_WPF.Controls"
              mc:Ignorable="d" 
              d:DesignHeight="400" d:DesignWidth="400"
              x:Name="m_project">
@@ -25,12 +24,11 @@
         </GroupBox.Header>
 
         <StackPanel Margin="5">
+            
             <GroupBox Header="Output Path">
                 <TextBox Text="{Binding ElementName=m_project, Path=Project.OutputPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
             </GroupBox>
-            <ctrl:StringListControl Header="Library Directories" List="{Binding ElementName=m_project, Path=Project.LibraryPaths}"/>
-            <ctrl:StringListControl Header="Component Directories" List="{Binding ElementName=m_project, Path=Project.ComponentPaths}"/>
-            <ctrl:StringListControl Header="Startup Script Directories" List="{Binding ElementName=m_project, Path=Project.StartupScriptsPath}"/>
+            
         </StackPanel>
     </GroupBox>
 </UserControl>

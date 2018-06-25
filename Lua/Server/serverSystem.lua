@@ -1,3 +1,9 @@
+require('eventecs')
+require('eventecsserver')
+
+local Server = require("ServerComponent")
+local systems = require("systemList")
+
 for k,v in pairs({...}) do
   if v == "debug" then
     DEBUG_MODE = true
@@ -5,10 +11,9 @@ for k,v in pairs({...}) do
   end
 end
 
-local Server = require("ServerComponent")
-local System = require(DEBUG_MODE and "system" or "debugSystem")
-local systems = require("systemList")
 
-local system = systems.addSystem(System("Server System"))
+local System = require(DEBUG_MODE and "system" or "debugSystem")
+
+local system = systems.addSystems(System("Server System"))
 local en = system:createEntity()
 en:addComponent(Server)

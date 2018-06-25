@@ -23,9 +23,6 @@
     <Setting Name="Start" Type="System.String" Scope="User">
       <Value Profile="(Default)">F5</Value>
     </Setting>
-    <Setting Name="Lua" Type="System.String" Scope="User">
-      <Value Profile="(Default)">C:\Program Files (x86)\Lua\5.1\lua.exe</Value>
-    </Setting>
     <Setting Name="Love2D" Type="System.String" Scope="User">
       <Value Profile="(Default)">C:\Program Files\LOVE\love.exe</Value>
     </Setting>

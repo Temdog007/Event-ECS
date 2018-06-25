@@ -12,7 +12,7 @@ function BackgroundSetterComponent:eventUpdate(args)
   if not color then return end
 
   love.graphics.setBackgroundColor(color)
-  Log(string.format("Background setter removed: %s", tostring(self:remove())))
+  print(string.format("Background setter removed: %s", tostring(self:remove())))
 end
 
 return BackgroundSetterComponent

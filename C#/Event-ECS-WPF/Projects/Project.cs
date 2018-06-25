@@ -5,7 +5,6 @@ using Event_ECS_WPF.SystemObjects;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -29,7 +28,7 @@ namespace Event_ECS_WPF.Projects
 
         private string _name;
 
-        private ObservableCollection<ValueContainer<string>> _startupScripts;
+        private string _outputPath = Location;
 
         private ObservableCollection<ValueContainer<string>> m_libraryPaths;
 
@@ -47,24 +46,11 @@ namespace Event_ECS_WPF.Projects
 
         public static string Location => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-        private string _outputPath = Location;
-
-        [XmlElement]
-        public string OutputPath
-        {
-            get => _outputPath;
-            set
-            {
-                _outputPath = value;
-                OnPropertyChanged();
-            }
-        }
-
         /// <summary>
         /// Directory containing all of the lua component files
         /// </summary>
-        [XmlArray("Component Directories")]
-        [XmlArrayItem("Component Directory")]
+        [XmlArray("ComponentDirectories")]
+        [XmlArrayItem("ComponentDirectory")]
         public ObservableCollection<ValueContainer<string>> ComponentPaths
         {
             get => _componentPath ?? (_componentPath = new ObservableCollection<ValueContainer<string>>());
@@ -95,11 +81,11 @@ namespace Event_ECS_WPF.Projects
         {
             get
             {
-                foreach (var componentPath in ComponentPaths)
+                foreach (var componentPath in ComponentPaths.Select(c => c.Value))
                 {
-                    if (!IsHidden(componentPath) && Directory.Exists(componentPath))
+                    if (!componentPath.IsHidden() && Directory.Exists(componentPath))
                     {
-                        foreach (var file in Directory.GetFiles(componentPath).Where(f => !IsHidden(f) && Path.GetExtension(f) == ".lua"))
+                        foreach (var file in Directory.GetFiles(componentPath).Where(f => !f.IsHidden() && Path.GetExtension(f) == ".lua"))
                         {
                             yield return file;
                         }
@@ -108,8 +94,8 @@ namespace Event_ECS_WPF.Projects
             }
         }
 
-        [XmlArray("Library Directories")]
-        [XmlArrayItem("Library Directory")]
+        [XmlArray("LibraryDirectories")]
+        [XmlArrayItem("LibraryDirectory")]
         public ObservableCollection<ValueContainer<string>> LibraryPaths
         {
             get => m_libraryPaths ?? (m_libraryPaths = new ObservableCollection<ValueContainer<string>>());
@@ -131,39 +117,18 @@ namespace Event_ECS_WPF.Projects
             }
         }
 
-        [XmlIgnore]
-        public virtual ProcessStartInfo StartInfo
+        [XmlElement]
+        public string OutputPath
         {
-            get
-            {
-                return new ProcessStartInfo()
-                {
-                    FileName = Properties.Settings.Default.Lua,
-#if DEBUG
-                    Arguments = string.Join(" ", string.Format("\"{0}\"", OutputPath), "DEBUG_MODE")
-#else
-                    Arguments = string.Join(" ", string.Format("\"{0}\"", OutputPath))
-#endif
-                };
-            }
-        }
-
-        [XmlArray("Startup Script Directories")]
-        [XmlArrayItem("Startup Script Directory")]
-        public ObservableCollection<ValueContainer<string>> StartupScriptsPath
-        {
-            get => _startupScripts ?? (_startupScripts = new ObservableCollection<ValueContainer<string>>());
+            get => _outputPath;
             set
             {
-                _startupScripts = value;
-                OnPropertyChanged("StartupScriptsPath");
+                _outputPath = value;
+                OnPropertyChanged();
             }
         }
 
-        public virtual ProjectType Type
-        {
-            get => ProjectType.NORMAL;
-        }
+        public virtual ProjectType Type => ProjectType.NORMAL;
         
         public void CopyComponentsToOutputPath(bool reload = true)
         {
@@ -187,72 +152,18 @@ namespace Event_ECS_WPF.Projects
             }
         }
 
+        public bool CheckOutDir()
+        {
+            if(!Directory.Exists(OutputPath))
+            {
+                Directory.CreateDirectory(OutputPath);
+            }
+            return true;
+        }
+
         public virtual bool Start()
         {
-            if (Setup())
-            {
-                File.WriteAllText(Path.Combine(OutputPath, "systemList.lua"), "Event_ECS_WPF.Lua.systemList.lua".GetResourceFileContents());
-                File.WriteAllText(Path.Combine(OutputPath, "serverSystem.lua"), "Event_ECS_WPF.Lua.serverSystem.lua".GetResourceFileContents());
-                StartApplication();
-                return true;
-            }
-            return false;
-        }
-
-        private static bool IsHidden(string path)
-        {
-            FileAttributes attr = File.GetAttributes(path);
-            return ((attr & FileAttributes.Hidden) == FileAttributes.Hidden);
-        }
-
-        private void ExecuteInitialCode()
-        {
-            foreach (var scriptDir in StartupScriptsPath)
-            {
-                foreach (var script in Directory.GetFiles(scriptDir).Where(f => !IsHidden(f) && Path.GetExtension(f) == ".lua"))
-                {
-                    string code = File.ReadAllText(script);
-                    ECS.Instance.Execute(code);
-                }
-            }
-        }
-
-        private bool Setup()
-        {
-            try
-            {
-                foreach(var libraryPath in LibraryPaths)
-                {
-                    if (!IsHidden(libraryPath) && Directory.Exists(libraryPath))
-                    {
-                        foreach (var file in Directory.GetFiles(libraryPath).Where(f => !IsHidden(f) && Path.GetExtension(f) == ".dll"))
-                        {
-                            string dest = Path.Combine(OutputPath, Path.GetFileName(file));
-                            if (!File.Exists(dest))
-                            {
-                                File.Copy(file, dest);
-                                LogManager.Instance.Add(LogLevel.Medium, "Copied {0} to {1}", file, dest);
-                            }
-                        }
-                    }
-                }
-
-                CopyComponentsToOutputPath();
-
-                ExecuteInitialCode();
-                return true;
-            }
-            catch (Exception e)
-            {
-                ECS.Instance.Dispose();
-                LogManager.Instance.Add(e);
-                return false;
-            }
-        }
-
-        protected virtual void StartApplication()
-        {
-            throw new NotImplementedException("Start application is not applicable for a generic project");
+            throw new NotImplementedException("Start is not applicable for a generic project");
         }
     }
 }

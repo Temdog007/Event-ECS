@@ -83,10 +83,7 @@ namespace Event_ECS_WPF.SystemObjects
                     }
                     catch (Exception e)
                     {
-                        if (!(e is SocketException))
-                        {
-                            LogManager.Instance.Add(e);
-                        }
+                        LogManager.Instance.Add(e);
                         IsConnected = Socket.Connected;
                         TryConnect();
                     }
@@ -110,10 +107,7 @@ namespace Event_ECS_WPF.SystemObjects
                 }
                 catch (Exception e)
                 {
-                    if (!(e is SocketException))
-                    {
-                        LogManager.Instance.Add(e);
-                    }
+                    LogManager.Instance.Add(e);
                     IsConnected = Socket.Connected;
                     TryConnect();
                 }

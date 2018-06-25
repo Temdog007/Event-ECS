@@ -78,6 +78,12 @@ namespace Event_ECS_WPF.Extensions
             }
         }
 
+        public static bool IsHidden(this string path)
+        {
+            FileAttributes attr = File.GetAttributes(path);
+            return ((attr & FileAttributes.Hidden) == FileAttributes.Hidden);
+        }
+
         public static void SetProperty<T>(this object obj, string propertyName, T value)
         {
             obj.GetProperty(propertyName).SetValue(obj, value);
@@ -85,9 +91,9 @@ namespace Event_ECS_WPF.Extensions
 
         public static IEnumerable<string> Split(this string str, uint length)
         {
-            for(uint i = 0, n = (uint)str.Length; i < n; i += length )
+            for (uint i = 0, n = (uint)str.Length; i < n; i += length)
             {
-                if(i + length >= n)
+                if (i + length >= n)
                 {
                     yield return str.Substring((int)i);
                 }
@@ -105,7 +111,7 @@ namespace Event_ECS_WPF.Extensions
 
         public static IEnumerable<T> SubArray<T>(this IList<T> list, int start, int end)
         {
-            for(int i = start; i < end; ++i)
+            for (int i = start; i < end; ++i)
             {
                 yield return list[i];
             }

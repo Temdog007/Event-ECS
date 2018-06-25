@@ -231,9 +231,6 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <EmbeddedResource Include="Lua\main.lua" />
-    <EmbeddedResource Include="Lua\serverSystem.lua" />
-    <EmbeddedResource Include="Lua\systemList.lua" />
     <EmbeddedResource Include="Lua\conf.lua" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

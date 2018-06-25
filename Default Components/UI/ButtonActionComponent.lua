@@ -18,8 +18,8 @@ function ButtonActionComponent:eventMouseReleased(args)
   if button.isClicked and button:isOver(x, y) then
     if self.action then
       self.action()
-    elseif Log then
-      Log("Button was clicked but has not action defined")
+    else
+      print("Button was clicked but has not action defined")
     end
   end
 end

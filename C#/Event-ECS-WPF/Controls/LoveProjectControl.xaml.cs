@@ -1,6 +1,7 @@
 ﻿using Event_ECS_WPF.Projects;
 using System.Windows;
 using System.Windows.Controls;
+using Forms = System.Windows.Forms;
 
 namespace Event_ECS_WPF.Controls
 {
@@ -22,5 +23,21 @@ namespace Event_ECS_WPF.Controls
 
         public static readonly DependencyProperty LoveProjectProperty =
             DependencyProperty.Register("LoveProject", typeof(LoveProject), typeof(LoveProjectControl));
+
+        private void SetMainFile_Click(object sender, RoutedEventArgs e)
+        {
+            Forms.OpenFileDialog dialog = new Forms.OpenFileDialog
+            {
+                Filter = string.Format(MainWindowViewModel.DefaultFilterFormat, "lua")
+            };
+            switch (dialog.ShowDialog())
+            {
+                case Forms.DialogResult.OK:
+                    LoveProject.StartupScript = dialog.FileName;
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 }
