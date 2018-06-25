@@ -93,6 +93,8 @@
     <Compile Include="Misc\ComponentVariableValidation.cs" />
     <Compile Include="Misc\ValueContainer.cs" />
     <Compile Include="Projects\FullscreenType.cs" />
+    <Compile Include="Projects\Love\Modules.cs" />
+    <Compile Include="Projects\Love\LoveProjectSettings.cs" />
     <Compile Include="SystemObjects\ECS_Communication.cs" />
     <Compile Include="SystemObjects\ComponentVariable.cs" />
     <Compile Include="SystemObjects\IECS.cs" />
@@ -232,6 +234,7 @@
     <EmbeddedResource Include="Lua\main.lua" />
     <EmbeddedResource Include="Lua\serverSystem.lua" />
     <EmbeddedResource Include="Lua\systemList.lua" />
+    <EmbeddedResource Include="Lua\conf.lua" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

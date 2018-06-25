@@ -56,13 +56,25 @@ namespace Event_ECS_WPF.Extensions
 
         public static string GetResourceFileContents(this string resourcename)
         {
-            var assembly = Assembly.GetExecutingAssembly();
+            Assembly assembly = Assembly.GetExecutingAssembly();
             using (Stream stream = assembly.GetManifestResourceStream(resourcename))
             {
                 using (StreamReader reader = new StreamReader(stream))
                 {
                     return reader.ReadToEnd();
                 }
+            }
+        }
+
+        public static bool IsConnected(this Socket socket)
+        {
+            try
+            {
+                return !(socket.Poll(1, SelectMode.SelectRead) && socket.Available == 0);
+            }
+            catch (Exception)
+            {
+                return false;
             }
         }
 
@@ -85,6 +97,7 @@ namespace Event_ECS_WPF.Extensions
                 }
             }
         }
+
         public static IEnumerable<T> SubArray<T>(this IList<T> list, int start)
         {
             return SubArray(list, start, list.Count);
@@ -95,18 +108,6 @@ namespace Event_ECS_WPF.Extensions
             for(int i = start; i < end; ++i)
             {
                 yield return list[i];
-            }
-        }
-
-        public static bool IsConnected(this Socket socket)
-        {
-            try
-            {
-                return !(socket.Poll(1, SelectMode.SelectRead) && socket.Available == 0);
-            }
-            catch(Exception)
-            {
-                return false;
             }
         }
     }

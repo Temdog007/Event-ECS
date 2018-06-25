@@ -1,4 +1,4 @@
-﻿using Event_ECS_WPF.Projects;
+﻿using Event_ECS_WPF.Projects.Love;
 using System.Windows;
 using System.Windows.Controls;
 

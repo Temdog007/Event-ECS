@@ -142,7 +142,7 @@ namespace Event_ECS_WPF.Projects
 #if DEBUG
                     Arguments = string.Join(" ", string.Format("\"{0}\"", OutputPath), "DEBUG_MODE")
 #else
-                    Arguments = string.Join(" ", string.Format("'{0}'", OutputPath))
+                    Arguments = string.Join(" ", string.Format("\"{0}\"", OutputPath))
 #endif
                 };
             }
@@ -159,8 +159,6 @@ namespace Event_ECS_WPF.Projects
                 OnPropertyChanged("StartupScriptsPath");
             }
         }
-
-        public virtual string TargetProcessName => throw new NotImplementedException("Non Love2D projects are not supported");
 
         public virtual ProjectType Type
         {
@@ -252,13 +250,9 @@ namespace Event_ECS_WPF.Projects
             }
         }
 
-        private void StartApplication()
+        protected virtual void StartApplication()
         {
-            Process[] processes = Process.GetProcessesByName(TargetProcessName);
-            if (!processes.Any())
-            {
-                Process.Start(StartInfo);
-            }
+            throw new NotImplementedException("Start application is not applicable for a generic project");
         }
     }
 }
