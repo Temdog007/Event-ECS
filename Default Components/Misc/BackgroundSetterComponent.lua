@@ -1,18 +1,18 @@
 local Component = require('component')
 local class = require('classlib')
 
-local BackgroundSetterComponent = class('BackgroundSetterComponent', Component)
+local backgroundSetterComponent = class('backgroundSetterComponent', Component)
 
-function BackgroundSetterComponent:__init(entity)
+function backgroundSetterComponent:__init(entity)
   self.Component:__init(entity, self)
 end
 
-function BackgroundSetterComponent:eventUpdate(args)
-  local color = self:getComponent("ColorComponent")
+function backgroundSetterComponent:eventUpdate(args)
+  local color = self:getComponent("colorComponent")
   if not color then return end
 
   love.graphics.setBackgroundColor(color)
   print(string.format("Background setter removed: %s", tostring(self:remove())))
 end
 
-return BackgroundSetterComponent
+return backgroundSetterComponent

@@ -1,9 +1,9 @@
 local Component = require('component')
 local class = require('classlib')
-local ColorComponent = require("ColorComponent")
-local ButtonComponent = class('ButtonComponent', Component)
+local colorComponent = require("colorComponent")
+local buttonComponent = class('buttonComponent', Component)
 
-function ButtonComponent:__init(entity)
+function buttonComponent:__init(entity)
   self.Component:__init(entity, self)
 
   self.text = ""
@@ -15,12 +15,12 @@ function ButtonComponent:__init(entity)
   self.height = 25
 end
 
-function ButtonComponent:isOver(x, y)
+function buttonComponent:isOver(x, y)
   return self.x < x and x < self.x + self.width and
           self.y < y and y < self.y + self.height
 end
 
-function ButtonComponent:eventMouseMoved(args)
+function buttonComponent:eventMouseMoved(args)
   if not args then return end
   local x, y = args[1], args[2]
   if not x or not y then return end
@@ -31,7 +31,7 @@ function ButtonComponent:eventMouseMoved(args)
   end
 end
 
-function ButtonComponent:eventMousePressed(args)
+function buttonComponent:eventMousePressed(args)
   if not args then return end
   local x, y, b = args[1], args[2], args[3]
   if not x or not y or not b then return end
@@ -41,7 +41,7 @@ function ButtonComponent:eventMousePressed(args)
   end
 end
 
-function ButtonComponent:eventMouseReleased(args)
+function buttonComponent:eventMouseReleased(args)
   if not args then return end
   local b = args[3]
   if not b then return end
@@ -51,9 +51,9 @@ function ButtonComponent:eventMouseReleased(args)
   end
 end
 
-function ButtonComponent:drawHighlight(scale, pressedColor, highlightColor)
+function buttonComponent:drawHighlight(scale, pressedColor, highlightColor)
   scale = scale or 1.1
-  local c = ColorComponent.getColor(self.isClicked and (pressedColor or "red") or (highlightColor or "yellow"))
+  local c = colorComponent.getColor(self.isClicked and (pressedColor or "red") or (highlightColor or "yellow"))
   if c then
     love.graphics.setColor(c)
     local width, height = self.width * scale, self.height * scale
@@ -61,20 +61,20 @@ function ButtonComponent:drawHighlight(scale, pressedColor, highlightColor)
   end
 end
 
-function ButtonComponent:drawButton(color)
-  local color = color or self:getComponent("ColorComponent")
+function buttonComponent:drawButton(color)
+  local color = color or self:getComponent("colorComponent")
   if color then
     love.graphics.setColor(color)
   end
   love.graphics.rectangle("fill", self.x, self.y, self.width, self.height)
 end
 
-function ButtonComponent:drawText(color, alignment, scaleX, scaleY)
+function buttonComponent:drawText(color, alignment, scaleX, scaleY)
   if color then love.graphics.setColor(color) end
   love.graphics.printf(self.text, self.x, self.y, self.width, alignment or "center", 0, scaleX or 1, scaleY or 1)
 end
 
-function ButtonComponent:draw(fontColor)
+function buttonComponent:draw(fontColor)
   if self.isMouseOver then
     self:drawHighlight()
   end
@@ -82,4 +82,4 @@ function ButtonComponent:draw(fontColor)
   self:drawText(fontColor)
 end
 
-return ButtonComponent
+return buttonComponent

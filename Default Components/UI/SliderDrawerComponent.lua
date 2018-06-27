@@ -1,8 +1,8 @@
 local Component = require('component')
 local class = require('classlib')
-local ColorComponent = require("ColorComponent")
+local colorComponent = require("colorComponent")
 
-local SliderDrawerComponent = class('SliderDrawerComponent', Component)
+local SliderDrawerComponent = class('sliderDrawerComponent', Component)
 
 function SliderDrawerComponent:__init(entity)
   self.Component:__init(entity, self)
@@ -23,24 +23,24 @@ function SliderDrawerComponent:__init(entity)
 end
 
 function SliderDrawerComponent:eventDraw(args)
-  local slider = self:getComponent("SliderComponent")
+  local slider = self:getComponent("sliderComponent")
   if not slider then return end
 
   if self.drawBG then
     if slider.isMouseOver or slider.isClicked then
       slider:drawHighlight(self.highlightScale, self.pressedColor, self.highlightColor)
     end
-    local color = self:getComponent("ColorComponent")
+    local color = self:getComponent("colorComponent")
     slider:drawSlider(color)
   end
 
   if self.drawText then
-    local c = ColorComponent.getColor(self.fontColor)
+    local c = colorComponent.getColor(self.fontColor)
     slider:drawText(c, self.alignment, self.scaleX, self.scaleY)
   end
 
   if self.drawCursor then
-    local color = ColorComponent.getColor(self.cursorColor)
+    local color = colorComponent.getColor(self.cursorColor)
     slider:drawCursor(color, self.cursorScale)
   end
 end

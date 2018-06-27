@@ -1,7 +1,7 @@
 local Component = require("component")
 local class = require("classlib")
 
-local LogTest = class("LogTestComponent", Component)
+local LogTest = class("logTestComponent", Component)
 
 local defaultColor = {r = 1,g = 1,b = 1,a = 1}
 function LogTest:__init(entity)
@@ -23,7 +23,7 @@ function LogTest:eventAddedComponent(args)
 end
 
 function LogTest:eventDraw(args)
-	local color = self:getComponent("ColorComponent")
+	local color = self:getComponent("colorComponent")
 	if not color then color = defaultColor end
 	love.graphics.setColor(color)
 	if self.showFps then

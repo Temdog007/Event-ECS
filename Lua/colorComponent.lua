@@ -21,11 +21,11 @@
 local Component = require("component")
 local class = require("classlib")
 
-local ColorComponent = class("ColorComponent", Component)
+local colorComponent = class("colorComponent", Component)
 
 local colors
 
-function ColorComponent:__init(entity)
+function colorComponent:__init(entity)
   self.Component:__init(entity, self)
   self[1] = 1
   self[2] = 1
@@ -33,11 +33,11 @@ function ColorComponent:__init(entity)
   self[4] = 1
 end
 
-function ColorComponent.getColor(name)
+function colorComponent.getColor(name)
   return colors[name]
 end
 
-function ColorComponent:eventSetColor(args)
+function colorComponent:eventSetColor(args)
   if not args then return end
   if args.color then
     if type(args.color) ~= "string" then
@@ -81,7 +81,7 @@ function ColorComponent:eventSetColor(args)
   self:getEntity():dispatchEvent("eventColorChanged", {color = self, entity = self:getEntity()})
 end
 
-function ColorComponent:eventSetBackground(args)
+function colorComponent:eventSetBackground(args)
   love.graphics.setBackgroundColor(self)
 end
 
@@ -265,4 +265,4 @@ for _,color in pairs(colors) do
 	end
 end
 
-return ColorComponent
+return colorComponent

@@ -1,7 +1,7 @@
 local Component = require("component")
 local class = require("classlib")
 
-local ColorRandomizer = class("ColorRandomizerComponent", Component)
+local ColorRandomizer = class("colorRandomizerComponent", Component)
 
 function ColorRandomizer:__init(entity)
   self.Component:__init(entity, self)
@@ -11,7 +11,7 @@ function ColorRandomizer:__init(entity)
 end
 
 function ColorRandomizer:eventUpdate(args)
-	local color = self:getComponent("ColorComponent")
+	local color = self:getComponent("colorComponent")
 	if not color then return end
 
 	self.current = self.current + args.dt

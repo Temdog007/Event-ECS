@@ -21,22 +21,22 @@
 local Component = require("component")
 local class = require("classlib")
 
-local FinalizerComponent = class("FinalizerComponent", Component)
+local finalizerComponent = class("finalizerComponent", Component)
 
-function FinalizerComponent:__init(entity)
+function finalizerComponent:__init(entity)
   self.Component:__init(entity, self)
 end
 
-function FinalizerComponent:eventRemovingComponent(args)
+function finalizerComponent:eventRemovingComponent(args)
 	if args.component == self then
 		error("Cannot remove finalizer component")
 	end
 end
 
-function FinalizerComponent:eventRemovingEntity(args)
+function finalizerComponent:eventRemovingEntity(args)
 	if args.entity == self:getEntity() then
 		error("Cannot remove entity with finalizer component")
 	end
 end
 
-return FinalizerComponent
+return finalizerComponent

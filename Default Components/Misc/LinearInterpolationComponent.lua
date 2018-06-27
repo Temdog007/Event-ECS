@@ -1,9 +1,9 @@
 local Component = require('component')
 local class = require('classlib')
 
-local LinearInterpolationComponent = class('LinearInterpolationComponent', Component)
+local linearInterpolationComponent = class('linearInterpolationComponent', Component)
 
-function LinearInterpolationComponent:__init(entity)
+function linearInterpolationComponent:__init(entity)
   self.Component:__init(entity, self)
 
   self.start = 0
@@ -14,7 +14,7 @@ function LinearInterpolationComponent:__init(entity)
   self.handlers = {}
 end
 
-function LinearInterpolationComponent:eventUpdate(args)
+function linearInterpolationComponent:eventUpdate(args)
   if not args or not args.dt then return end
 
   self.current = (self.current + args.dt) % self.speed
@@ -24,12 +24,12 @@ function LinearInterpolationComponent:eventUpdate(args)
   end
 end
 
-function LinearInterpolationComponent:addHandler(func)
+function linearInterpolationComponent:addHandler(func)
   assert(type(func) == "function", "Handlers must a be function")
   table.insert(self.handlers, func)
 end
 
-function LinearInterpolationComponent:removeHandler(func)
+function linearInterpolationComponent:removeHandler(func)
   assert(type(func) == "function", "Handlers must a be function")
   for k, v in pairs(self.handlers) do
     if v == func then
@@ -40,4 +40,4 @@ function LinearInterpolationComponent:removeHandler(func)
   return false
 end
 
-return LinearInterpolationComponent
+return linearInterpolationComponent

@@ -1,18 +1,18 @@
 local Component = require('component')
 local class = require('classlib')
 
-local LabelDrawerComponent = class('LabelDrawer', Component)
+local labelDrawerComponent = class('labelDrawerComponent', Component)
 
-function LabelDrawerComponent:__init(entity)
+function labelDrawerComponent:__init(entity)
   self.Component:__init(entity, self)
 end
 
-function LabelDrawerComponent:eventDraw(args)
-  local label = self:getComponent("LabelComponent")
+function labelDrawerComponent:eventDraw(args)
+  local label = self:getComponent("labelComponent")
   if not label then return end
 
-  local color = self:getComponent("ColorComponent")
+  local color = self:getComponent("colorComponent")
   label:draw(color)
 end
 
-return LabelDrawerComponent
+return labelDrawerComponent

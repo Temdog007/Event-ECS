@@ -21,8 +21,8 @@
 local class = require("classlib")
 local Entity = require("entity")
 local Component = require("component")
-local FinalizerComponent = require("FinalizerComponent")
-local ColorComponent = require("ColorComponent")
+local finalizerComponent = require("finalizerComponent")
+local colorComponent = require("colorComponent")
 local ClassName = "Entity Component System"
 local system = class(ClassName)
 

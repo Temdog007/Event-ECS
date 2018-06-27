@@ -1,9 +1,9 @@
 local Component = require('component')
 local class = require('classlib')
 
-local FPSDisplayerComponent = class('FPSDisplayerComponent', Component)
+local fpsDisplayerComponent = class('fpsDisplayerComponent', Component)
 
-function FPSDisplayerComponent:__init(entity)
+function fpsDisplayerComponent:__init(entity)
   self.Component:__init(entity, self)
   self.x = 0
   self.y = 0
@@ -12,12 +12,12 @@ function FPSDisplayerComponent:__init(entity)
   self.limit = 100
 end
 
-function FPSDisplayerComponent:eventDraw(args)
-  local color = self:getComponent("ColorComponent")
+function fpsDisplayerComponent:eventDraw(args)
+  local color = self:getComponent("colorComponent")
   if color then
     love.graphics.setColor(color)
   end
   love.graphics.print(love.timer.getFPS(), self.x, self.y, 0, self.scaleX, self.scaleY)
 end
 
-return FPSDisplayerComponent
+return fpsDisplayerComponent

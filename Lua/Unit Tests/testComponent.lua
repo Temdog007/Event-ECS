@@ -21,9 +21,9 @@
 local Component = require("component")
 local class = require("classlib")
 
-local TestComponent = class("TestComponent", Component)
+local testComponent = class("testComponent", Component)
 
-function TestComponent:__init(entity)
+function testComponent:__init(entity)
   self.Component:__init(entity, self)
   self.addedComponentCalled = 0
   self.removingComponentCalled = 0
@@ -33,15 +33,15 @@ function TestComponent:__init(entity)
   self.space = 10
 end
 
-function TestComponent:eventAddedComponent(args)
+function testComponent:eventAddedComponent(args)
   if args.component == self then
     self.added = true
   end
   self.addedComponentCalled = self.addedComponentCalled + 1
 end
 
-function TestComponent:eventDraw(args)
-  local color = self:getEntity().ColorComponent
+function testComponent:eventDraw(args)
+  local color = self:getEntity().colorComponent
   if color then
     love.graphics.setColor(color)
     love.graphics.print(love.timer.getFPS(), self.x, self.y)
@@ -50,7 +50,7 @@ function TestComponent:eventDraw(args)
   end
 end
 
-function TestComponent:eventKeyPressed(args)
+function testComponent:eventKeyPressed(args)
   if args[1] == "escape" then
     love.event.quit()
   elseif args[1] == "f9" then
@@ -59,27 +59,27 @@ function TestComponent:eventKeyPressed(args)
   self.text = args[1]
 end
 
-function TestComponent:eventError(args)
+function testComponent:eventError(args)
   error("Event error was called")
 end
 
-function TestComponent:addedComponent(args)
+function testComponent:addedComponent(args)
   error("This shouldn't have been called")
 end
 
-function TestComponent:addedComponentEvent(args)
+function testComponent:addedComponentEvent(args)
   error("This shouldn't have been called")
 end
 
-function TestComponent:removingComponent(args)
+function testComponent:removingComponent(args)
   error("This shouldn't have been called")
 end
 
--- function TestComponent:eventDraw(args)
+-- function testComponent:eventDraw(args)
 --   error("Test error")
 -- end
 
-function TestComponent:eventRemovingComponent(args)
+function testComponent:eventRemovingComponent(args)
   self.Component:eventRemovingComponent(args)
   if args.component == self then
     self.added = false
@@ -87,4 +87,4 @@ function TestComponent:eventRemovingComponent(args)
   self.removingComponentCalled = self.removingComponentCalled + 1
 end
 
-return TestComponent
+return testComponent
