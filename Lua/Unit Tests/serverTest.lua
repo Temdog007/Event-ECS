@@ -18,15 +18,13 @@
 -- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 -- SOFTWARE.
 
-UNIT_TEST = true
-
 local System = require("system")
 local system = System("Server Test System")
-local ServerComponent = require("Server/ServerComponent")
+local serverComponent = require("Server/serverComponent")
 local socket = require("socket")
 
 local entity = system:createEntity()
-local server = entity:addComponent(ServerComponent)
+local server = entity:addComponent(serverComponent)
 function forEachSystem(serializeFunc)
   if server.client then
     server.client:send("Test message")

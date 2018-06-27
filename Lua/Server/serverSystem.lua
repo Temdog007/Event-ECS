@@ -1,7 +1,7 @@
 require('eventecs')
 require('eventecsserver')
 
-local Server = require("ServerComponent")
+local Server = require("serverComponent")
 local systems = require("systemList")
 
 for k,v in pairs({...}) do

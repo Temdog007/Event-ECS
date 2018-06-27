@@ -1,9 +1,19 @@
 local Systems = {}
 
-function Systems.addSystems(...)
-  for _, s in pairs({...}) do
-    table.insert(Systems, s)
+function Systems.addSystem(sys)
+  table.insert(Systems, sys)
+  return sys
+end
+
+local function insertSystem(t, i)
+  i = i or 1
+  if t[i] ~= nil then
+    return Systems.addSystem(t[i]), insertSystem(t, i + 1)
   end
+end
+
+function Systems.addSystems(...)
+  return insertSystem({...})
 end
 
 function Systems.removeSystem(system)
@@ -20,7 +30,7 @@ end
 
 function Systems.broadcastEvent(eventName, args)
   for _, system in ipairs(Systems) do
-    system:dispatchEvent('eventupdate', args)
+    system:dispatchEvent(eventName, args)
   end
 end
 

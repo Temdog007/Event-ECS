@@ -21,11 +21,15 @@
 local Component = require('component')
 local class = require('classlib')
 
+local Systems = require("systemList")
+
 local socket = require("socket")
 
-local ServerComponent = class('ServerComponent', Component)
+local serverComponent = class('serverComponent', Component)
 
-function ServerComponent:__init(entity)
+local consolePrint = print
+
+function serverComponent:__init(entity)
   self.Component:__init(entity, self)
 
   self.host = "localhost"
@@ -35,12 +39,12 @@ function ServerComponent:__init(entity)
   self.current = 0
 end
 
-function ServerComponent:close()
+function serverComponent:close()
   if self.client then self.client:close() end
   if self.server then self.server:close() end
 end
 
-function ServerComponent:connect()
+function serverComponent:connect()
   self:close()
 
   self.client = nil
@@ -52,25 +56,24 @@ function ServerComponent:connect()
   local i, p = self.server:getsockname()
   assert(i,p)
 
-  if not UNIT_TEST then
-    print = function(...)
-      for _, message in pairs({...}) do
-        table.insert(self.messages, message)
-      end
+  print = function(...)
+    consolePrint(...)
+    for _, message in pairs({...}) do
+      table.insert(self.messages, message)
     end
   end
 
   print(string.format("Starting server {%s:%u}", self.host, self.port))
 end
 
-function ServerComponent:eventAddedComponent(args)
+function serverComponent:eventAddedComponent(args)
   if not args then return end
   if args.component ~= self then return end
 
   self:connect()
 end
 
-function ServerComponent:eventUpdateSocket(args)
+function serverComponent:eventUpdateSocket(args)
   args = args or {}
 
   self.host = args.host or self.host
@@ -86,7 +89,7 @@ end
 
 local parseMessage
 
-function ServerComponent:eventUpdate(args)
+function serverComponent:eventUpdate(args)
 
   if not self.client then
     local err
@@ -121,13 +124,13 @@ function ServerComponent:eventUpdate(args)
 
   self.current = self.current + args.dt
   if self.current > self.rate then
-    forEachSystem(serialize)
+    Systems.forEachSystem(serialize)
     self.current = 0
   end
 
 end
 
-function ServerComponent:eventQuit(args)
+function serverComponent:eventQuit(args)
   self:close()
 end
 
@@ -135,4 +138,4 @@ parseMessage = function(l)
   print(l)
 end
 
-return ServerComponent
+return serverComponent

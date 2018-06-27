@@ -52,7 +52,7 @@ namespace Event_ECS_WPF.Controls
         {
             using (var dialog = new Forms.FolderBrowserDialog())
             {
-                dialog.SelectedPath = List.FirstOrDefault();
+                dialog.SelectedPath = List.LastOrDefault();
                 switch (dialog.ShowDialog())
                 {
                     case Forms.DialogResult.OK:

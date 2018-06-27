@@ -13,11 +13,13 @@ namespace Event_ECS_WPF.Projects
     [XmlRoot("LoveProject")]
     public class LoveProject : Project
     {
-        public const string LoadEventECS = "require('eventecs')\n";
+        public const string LoadEventECS = "require('eventecs')";
 
-        public const string LoadLoveRun = "require('eventecsloverun')\n";
+        public const string LoadLoveRun = "require('eventecsloverun')\nrequire('loveRun')";
 
-        public const string LoadEventECSServer = "require('eventecsserver')\n";
+        public const string LoadEventECSServer = "require('eventecsserver')";
+
+        public const string LoadServerEntity = "require('serverSystem') -- Remove this when releasing game";
 
         private LoveProjectSettings _settings;
 
@@ -65,7 +67,8 @@ namespace Event_ECS_WPF.Projects
 
                 text = text.Replace("True", "true").Replace("False", "false");
                 File.WriteAllText(Path.Combine(OutputPath, "conf.lua"), text);
-                File.WriteAllText(Path.Combine(OutputPath, "main.lua"), string.Join(Environment.NewLine, LoadEventECS, LoadEventECSServer, LoadLoveRun, File.ReadAllText(StartupScript)));
+                File.WriteAllText(Path.Combine(OutputPath, "main.lua"), string.Join(Environment.NewLine, LoadEventECS, LoadEventECSServer, 
+                                                    LoadLoveRun, LoadServerEntity, Environment.NewLine, File.ReadAllText(StartupScript)));
 
                 return true;
             }
@@ -87,9 +90,12 @@ namespace Event_ECS_WPF.Projects
                         foreach (var file in Directory.GetFiles(libraryPath).Where(f => !f.IsHidden() && Path.GetExtension(f) == ".dll"))
                         {
                             string dest = Path.Combine(OutputPath, Path.GetFileName(file));
-                            if (!File.Exists(dest))
+                            FileInfo f1 = new FileInfo(file);
+                            FileInfo f2 = new FileInfo(dest);
+                            if (!f2.Exists || f1.Length != f2.Length || f1.LastWriteTime != f2.LastWriteTime)
                             {
-                                File.Copy(file, dest);
+                                File.Copy(file, dest, true);
+                                f2.LastWriteTime = f1.LastWriteTime;
                                 LogManager.Instance.Add(LogLevel.Medium, "Copied {0} to {1}", file, dest);
                             }
                         }
