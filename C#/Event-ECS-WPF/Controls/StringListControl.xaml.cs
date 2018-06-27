@@ -2,6 +2,7 @@
 using Event_ECS_WPF.Misc;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -51,6 +52,7 @@ namespace Event_ECS_WPF.Controls
         {
             using (var dialog = new Forms.FolderBrowserDialog())
             {
+                dialog.SelectedPath = List.FirstOrDefault();
                 switch (dialog.ShowDialog())
                 {
                     case Forms.DialogResult.OK:

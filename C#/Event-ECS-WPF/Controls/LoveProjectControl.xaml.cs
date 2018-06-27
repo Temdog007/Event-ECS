@@ -26,17 +26,19 @@ namespace Event_ECS_WPF.Controls
 
         private void SetMainFile_Click(object sender, RoutedEventArgs e)
         {
-            Forms.OpenFileDialog dialog = new Forms.OpenFileDialog
+            using (Forms.OpenFileDialog dialog = new Forms.OpenFileDialog
             {
                 Filter = string.Format(MainWindowViewModel.DefaultFilterFormat, "lua")
-            };
-            switch (dialog.ShowDialog())
+            })
             {
-                case Forms.DialogResult.OK:
-                    LoveProject.StartupScript = dialog.FileName;
-                    break;
-                default:
-                    break;
+                switch (dialog.ShowDialog())
+                {
+                    case Forms.DialogResult.OK:
+                        LoveProject.StartupScript = dialog.FileName;
+                        break;
+                    default:
+                        break;
+                }
             }
         }
     }

@@ -48,14 +48,16 @@ namespace Event_ECS_WPF.Controls
 
         private void ExecuteCode()
         {
-            var dialog = new Forms.OpenFileDialog
+            using (var dialog = new Forms.OpenFileDialog
             {
                 Filter = string.Format(MainWindowViewModel.DefaultFilterFormat, "lua")
-            };
-            if (dialog.ShowDialog() == Forms.DialogResult.OK)
+            })
             {
-                string code = File.ReadAllText(dialog.FileName);
-                ECS.Instance.Execute(code);
+                if (dialog.ShowDialog() == Forms.DialogResult.OK)
+                {
+                    string code = File.ReadAllText(dialog.FileName);
+                    ECS.Instance.Execute(code);
+                }
             }
         }
 

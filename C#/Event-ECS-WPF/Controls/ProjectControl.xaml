@@ -26,7 +26,10 @@
         <StackPanel Margin="5">
             
             <GroupBox Header="Output Path">
-                <TextBox Text="{Binding ElementName=m_project, Path=Project.OutputPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                <DockPanel>
+                    <Button Content="..." DockPanel.Dock="Right" Click="Button_Click"/>
+                    <TextBlock Margin="5" Text="{Binding ElementName=m_project, Path=Project.OutputPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                </DockPanel>
             </GroupBox>
             
         </StackPanel>

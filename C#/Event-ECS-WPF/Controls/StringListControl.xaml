@@ -25,7 +25,7 @@
                         <Border BorderBrush="Black" BorderThickness="1">
                             <DockPanel>
                                 <Button Content="Remove" Command="{Binding ElementName=m_listControl, Path=RemovePathCommand}" CommandParameter="{Binding Value}" DockPanel.Dock="Right"/>
-                                <TextBlock Text="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                <TextBlock Margin="5" Text="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                             </DockPanel>
                         </Border>
                     </DataTemplate>
