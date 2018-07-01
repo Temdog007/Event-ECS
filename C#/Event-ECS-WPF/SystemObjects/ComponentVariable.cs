@@ -16,7 +16,7 @@ namespace Event_ECS_WPF.SystemObjects
         Component Component { get; }
     }
 
-    public class ComponentVariable<T> : NotifyPropertyChanged, IEquatable<ComponentVariable<T>>, IComponentVariable, IComponentVariableSetter
+    public class ComponentVariable<T> : NotifyPropertyChanged, IEquatable<ComponentVariable<T>>, IComponentVariable, IComponentVariableSetter where T : IEquatable<T>
     {
         private T m_value;
 
@@ -61,6 +61,11 @@ namespace Event_ECS_WPF.SystemObjects
             get => m_value;
             set
             {
+                if(m_value?.Equals(value) ?? false)
+                {
+                    return;
+                }
+
                 this.m_value = value;
                 UpdateValue();
                 OnPropertyChanged("Value");

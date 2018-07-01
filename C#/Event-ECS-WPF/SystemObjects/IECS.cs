@@ -1,8 +1,6 @@
-﻿using System.Collections.Generic;
-
-namespace Event_ECS_WPF.SystemObjects
+﻿namespace Event_ECS_WPF.SystemObjects
 {
-    public delegate void DataReceived(IEnumerable<string> data);
+    public delegate void DataReceived(string data);
 
     public interface IECS
     {

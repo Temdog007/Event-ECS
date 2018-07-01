@@ -36,8 +36,9 @@ function serverComponent:__init(entity)
   self.host = "*"
   self.port = 32485
   self.timeout = 0
-  self.rate = 1
+
   self.current = 0
+  self.rate = 1
 end
 
 function serverComponent:close()
@@ -59,12 +60,16 @@ function serverComponent:connect()
 
   print = function(...)
     consolePrint(...)
-    for _, message in pairs({...}) do
-      table.insert(self.messages, message)
-    end
+    self:enqueueMessages(...)
   end
 
   print(string.format("Starting server {%s:%u}", self.host, self.port))
+end
+
+function serverComponent:enqueueMessages(...)
+  for _, message in pairs({...}) do
+    table.insert(self.messages, message)
+  end
 end
 
 function serverComponent:eventAddedComponent(args)
@@ -85,7 +90,7 @@ function serverComponent:eventUpdateSocket(args)
 end
 
 local function serialize(system)
-  print("Serialize\n"..system:serialize())
+  return system:serialize()
 end
 
 function serverComponent:eventUpdate(args)
@@ -123,10 +128,9 @@ function serverComponent:eventUpdate(args)
 
   self.current = self.current + args.dt
   if self.current > self.rate then
-    Systems.forEachSystem(serialize)
+    self:enqueueMessages(Systems.forEachSystem(serialize))
     self.current = 0
   end
-
 end
 
 function serverComponent:eventQuit(args)

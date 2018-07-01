@@ -77,19 +77,26 @@ return {0}";
             ECS.Instance.DataReceived += OnDataReceived;
         }
 
-        private void OnDataReceived(IEnumerable<string> data)
+        private void OnDataReceived(string data)
         {
-            var list = data.ToArray();
-            var line = list[0].Split('|');
-            var name = line[0];
-            var system = Systems.FirstOrDefault(s => s.Name == name);
-            if (system == null)
+            string[] dataList = data.Split('\n');
+            string[] lines = dataList[0].Split('|');
+            if (lines[0].StartsWith("System"))
             {
-                Systems.Add(new ECSSystem(list));
+                string name = lines[1];
+                ECSSystem system = Systems.FirstOrDefault(s => s.Name == name);
+                if (system == null)
+                {
+                    Systems.Add(new ECSSystem(dataList));
+                }
+                else
+                {
+                    system.Deserialize(dataList);
+                }
             }
             else
             {
-                system.Deserialize(list);
+                LogManager.Instance.Add(data);
             }
         }
 

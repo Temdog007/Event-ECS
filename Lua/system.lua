@@ -156,7 +156,7 @@ function system:dispatchEvent(event, args)
 end
 
 function system:serialize()
-  local tab = { self:getName()..'|enabled|'..tostring(self:isEnabled()) }
+  local tab = { "System|"..self:getName()..'|'..tostring(self:isEnabled()) }
   for _, en in pairs(self.entities) do
     table.insert(tab, en:serialize())
   end

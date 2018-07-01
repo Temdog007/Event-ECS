@@ -31,6 +31,7 @@ function testComponent:__init(entity)
   self.x = 0
   self.y = 0
   self.space = 10
+  self.added = false
 end
 
 function testComponent:eventAddedComponent(args)
@@ -74,10 +75,6 @@ end
 function testComponent:removingComponent(args)
   error("This shouldn't have been called")
 end
-
--- function testComponent:eventDraw(args)
---   error("Test error")
--- end
 
 function testComponent:eventRemovingComponent(args)
   self.Component:eventRemovingComponent(args)

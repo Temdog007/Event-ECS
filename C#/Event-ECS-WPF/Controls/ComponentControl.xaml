@@ -35,8 +35,6 @@
         
         <Expander.ContextMenu>
             <ContextMenu>
-                <MenuItem Header="Toggle Enabled" Command="{Binding Source={StaticResource ComponentControl}, Path=Data.ToggleComponentEnabledCommand}"/>
-                <Separator/>
                 <MenuItem Header="Reload" Command="{Binding Source={StaticResource ComponentControl}, Path=Data.ReloadComponentCommand}"/>
                 <Separator/>
                 <MenuItem Header="Remove" Command="{Binding Source={StaticResource ComponentControl}, Path=Data.RemoveComponentCommand}"/>

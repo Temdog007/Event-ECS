@@ -23,15 +23,11 @@ package.preload["messageParser"] = function() require("Server/messageParser") en
 local System = require("system")
 local system = System("Server Test System")
 local serverComponent = require("Server/serverComponent")
+local testComponentAlt = require("Unit Tests/testComponentAlt")
 local socket = require("socket")
 
 local entity = system:createEntity()
-local server = entity:addComponent(serverComponent)
-function forEachSystem(serializeFunc)
-  if server.client then
-    server.client:send("Test message")
-  end
-end
+local server = entity:addComponents(serverComponent, testComponentAlt)
 
 print("Starting Server test")
 

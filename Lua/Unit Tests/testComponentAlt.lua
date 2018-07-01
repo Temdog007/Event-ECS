@@ -31,6 +31,10 @@ function testComponentAlt:__init(entity)
   self.x = 0
   self.y = 0
   self.space = 10
+
+  self.current = 0
+  self.rate = 1
+  self.added = false
 end
 
 function testComponentAlt:eventAddedComponent(args)
@@ -46,6 +50,14 @@ function testComponentAlt:eventRemovingComponent(args)
     self.added = false
   end
   self.removingComponentCalled = self.removingComponentCalled + 1
+end
+
+function testComponentAlt:eventUpdate(args)
+  self.current = self.current + args.dt
+  if self.current > self.rate then
+    print("Test Component Update Called")
+    self.current = 0
+  end
 end
 
 return testComponentAlt

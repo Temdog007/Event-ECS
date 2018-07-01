@@ -1,6 +1,7 @@
 local Systems = require("systemList")
 
-return function(l)
+local function parseFunction(l)
+  assert(type(l) == "string", "Must pass a string to parse")
   local message = string.split(l, "|")
   local command = message[1]
 
@@ -24,7 +25,7 @@ return function(l)
     local systemName = message[2]
     local system = assert(Systems.getSystem(systemName), string.format("No system with the name '%s'", systemName))
     system:dispatchEvent(message[3])
-    
+
   elseif command == "DispatchEventEntity" then
     local systemName = message[2]
     local entityID = assert(tonumber(message[3]), string.format("Cannot parse '%s' to number", message[3]))
@@ -47,7 +48,7 @@ return function(l)
     local componentID = assert(tonumber(message[4]), string.format("Cannot parse '%s' to number", message[4]))
     local system = assert(Systems.getSystem(systemName), string.format("No system with the name '%s'", systemName))
     local entity = assert(system:findEntity(entityID), string.format("No entity with ID %d found", entityID))
-    assert(entity:removeComponent(componentID), "Component not removed")
+    assert(entity:removeComponent(componentID), "A component not removed")
 
   elseif command == "RemoveEntity" then
     local systemName = message[2]
@@ -67,7 +68,7 @@ return function(l)
     local value = assert(message[6], "Must have a value")
     local system = assert(Systems.getSystem(systemName), string.format("No system with the name '%s'", systemName))
     local entity = assert(system:findEntity(entityID), string.format("No entity with ID %d found", entityID))
-    local component = assert(entity:findComponent(componentID), string.format("Component with ID %d was not found", componentID))
+    local component = assert(entity:findComponent(componentID), string.format("A component with ID %d was not found", componentID))
 
     if tonumber(value) then
       component[key] = tonumber(value)
@@ -84,8 +85,8 @@ return function(l)
   elseif command == "SetEntityValue" then
     local systemName = message[2]
     local entityID = assert(tonumber(message[3]), string.format("Cannot parse '%s' to number", message[3]))
-    local key = message[4]
-    local value = message[5]
+    local key = assert(message[4], "Must have a key")
+    local value = assert(message[5], "Must have a value")
     local system = assert(Systems.getSystem(systemName), string.format("No system with the name '%s'", systemName))
     local entity = assert(system:findEntity(entityID), string.format("No entity with ID %d found", entityID))
 
@@ -103,8 +104,8 @@ return function(l)
 
   elseif command == "SetSystemValue" then
     local systemName = message[2]
-    local key = message[3]
-    local value = message[4]
+    local key = assert(message[3], "Must have a key")
+    local value = assert(message[4], "Must have a value")
     local system = assert(Systems.getSystem(systemName), string.format("No system with the name '%s'", systemName))
 
     if tonumber(value) then
@@ -123,3 +124,10 @@ return function(l)
     print(string.format("Unknown command '%s' received", command))
   end
 end
+
+return setmetatable({},
+{
+  __call = function(s, l)
+    return parseFunction(l)
+  end
+})

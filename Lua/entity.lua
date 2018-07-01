@@ -23,17 +23,21 @@ local component = class("Component")
 local ClassName = "Entity"
 local entity = class(ClassName)
 
-function string:starts(start)
-  return string.sub(self, 1, string.len(start)) == start
+function string.starts(str, start)
+  return string.sub(str, 1, string.len(start)) == start
 end
 
-function string:split(sep)
+function string.split(str, sep)
   local sep, fields = sep or "|", {}
   local pattern = string.format("([^%s]+)", sep)
-  self:gsub(pattern, function(c)
+  string.gsub(str, pattern, function(c)
     table.insert(fields, c)
   end)
   return fields
+end
+
+function string.ends(str, endStr)
+  return  string.sub(str, -string.len(endStr)) == endStr
 end
 
 local function removeAll()
@@ -96,7 +100,7 @@ function entity:removeComponent(component)
 
   if type(component) == "number" then
     local id = component
-    component = assert(self:findComponent(id), string.format("Component with ID %d not found", id))
+    component = assert(self:findComponent(id), string.format("A component with ID %d not found", id))
   end
 
   local name = classname(component)
@@ -194,12 +198,12 @@ function entity:serialize()
   local events = self:getEventList()
   local tab = {}
   if string.len(events) > 0 then
-    table.insert(tab, string.format("%d|%s|%s|%s", self:getID(), tostring(self:isEnabled()), self:getName(), self:getEventList()))
+    table.insert(tab, string.format("Entity|%d|%s|%s|%s", self:getID(), tostring(self:isEnabled()), self:getName(), self:getEventList()))
   else
-    table.insert(tab, string.format("%d|%s|%s", self:getID(), tostring(self:isEnabled()), self:getName()))
+    table.insert(tab, string.format("Entity|%d|%s|%s", self:getID(), tostring(self:isEnabled()), self:getName()))
   end
 
-  for k,v in pairs(self.components) do
+  for _,v in pairs(self.components) do
     table.insert(tab, v:serialize())
   end
   return table.concat(tab, "\n")
@@ -212,7 +216,7 @@ end
 function entity:addComponent(comp, args)
   local compClass
   if type(comp) == "string" then
-    compClass = assert(require(comp), string.format("Component '%s' couldn't be found", tostring(comp)))
+    compClass = assert(require(comp), string.format("A component '%s' couldn't be found", tostring(comp)))
   else
     compClass = comp
   end

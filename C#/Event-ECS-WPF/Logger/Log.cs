@@ -92,15 +92,18 @@ namespace Event_ECS_WPF.Logger
 
         private void Add(Log log)
         {
-            lock (m_lock)
+            var app = Application.Current;
+            if (app == null) { return; }
+            app.Dispatcher.BeginInvoke(new Action(() => 
             {
-                var app = Application.Current;
-                if(app == null) { return; }
-                app.Dispatcher.BeginInvoke(new Action(() => m_logs.Add(log)));
-            }
+                lock (m_lock)
+                {
+                    m_logs.Add(log);
+                }
+            }));
         }
 
-        public void Add(string message, LogLevel level)
+        public void Add(string message, LogLevel level = LogLevel.Low)
         {
             if (Settings.Default.MultilineLog)
             {
@@ -112,17 +115,25 @@ namespace Event_ECS_WPF.Logger
                         strList.Add(str);
                     }
                 }
-                LogManager.Instance.Add(new Log(string.Join(Environment.NewLine, strList), level));
+                Add(new Log(string.Join(Environment.NewLine, strList), level));
             }
             else
             {
-                LogManager.Instance.Add(new Log(message, level));
+                Add(new Log(message, level));
             }
         }
 
         public void Add(string message, params object[] args)
         {
             Add(LogLevel.Low, message, args);
+        }
+
+        public void Add(IEnumerable<string> messages, LogLevel level = LogLevel.Low)
+        {
+            foreach (string message in messages)
+            {
+                Add(message, level);
+            }
         }
 
         public void Add(LogLevel level, string message, params object[] args)

@@ -11,14 +11,13 @@ namespace Event_ECS_WPF.SystemObjects
 
         private ObservableSet<string> m_events = new ObservableSet<string>();
 
-        private int m_id;
-
         private string m_name = "Entity";
 
-        public Entity(EntityComponentSystem system)
+        public Entity(EntityComponentSystem system, int id)
         {
             this.System = system ?? throw new ArgumentNullException(nameof(system));
             this.System.Entities.Add(this);
+            ID = id;
         }
 
         public ObservableCollection<Component> Components
@@ -55,15 +54,7 @@ namespace Event_ECS_WPF.SystemObjects
 
         internal EntityComponentSystem System { get; }
 
-        public int ID
-        {
-            get => m_id;
-            set
-            {
-                m_id = value;
-                OnPropertyChanged("ID");
-            }
-        }
+        public int ID { get; }
 
         public string Name
         {

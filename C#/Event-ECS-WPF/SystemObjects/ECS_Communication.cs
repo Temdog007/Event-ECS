@@ -15,8 +15,6 @@ namespace Event_ECS_WPF.SystemObjects
 
         public const ushort Port = 32485;
 
-        public const string Serialize = "Serialize";
-
         public static readonly IPEndPoint Endpoint = new IPEndPoint(Host, Port);
 
         private readonly object m_lock = new object();
@@ -26,6 +24,8 @@ namespace Event_ECS_WPF.SystemObjects
         public event DataReceived DataReceived;
 
         public static IPAddress Host => IPAddress.Parse("127.0.0.1");
+
+        public bool ShouldUpdateServer { get; set; } = true;
 
         protected Socket Socket { get; private set; }
 
@@ -123,16 +123,12 @@ namespace Event_ECS_WPF.SystemObjects
             };
             LogManager.Instance.Add("Starting to connect...");
         }
+
         private void HandleDisconnect()
         {
             LogManager.Instance.Add("Client has disconnected", LogLevel.Medium);
             Dispose();
             TryConnect();
-        }
-
-        private string RemoveSerialize(string str)
-        {
-            return str.Replace(Serialize, string.Empty);
         }
 
         private void ReceiveCallback(IAsyncResult ar)
@@ -149,15 +145,7 @@ namespace Event_ECS_WPF.SystemObjects
                         try
                         {
                             string message = Encoding.ASCII.GetString(buffer, 0, bytesRead);
-                            string[] dataList = message.Split('\n');
-                            if (dataList[0] == Serialize)
-                            {
-                                Application.Current.Dispatcher.BeginInvoke(DataReceived, dataList.SubArray(1).ForEach(RemoveSerialize));
-                            }
-                            else
-                            {
-                                LogManager.Instance.Add(message);
-                            }
+                            Application.Current.Dispatcher.BeginInvoke(DataReceived, message);
                             Socket.NoDelay = true;
                         }
                         catch (Exception e)
@@ -199,6 +187,12 @@ namespace Event_ECS_WPF.SystemObjects
 
         private void Send(string message)
         {
+            if(!ShouldUpdateServer) { return; }
+
+            if(!message.EndsWith(Environment.NewLine))
+            {
+                message += Environment.NewLine;
+            }
             lock (m_lock)
             {
                 try
@@ -207,6 +201,7 @@ namespace Event_ECS_WPF.SystemObjects
                     {
                         byte[] byteData = Encoding.ASCII.GetBytes(message);
                         Socket.BeginSend(byteData, 0, byteData.Length, SocketFlags.None, SendCallback, Socket);
+                        LogManager.Instance.Add("Sending '{0}' ({1} bytes) to the server", message, byteData.Length);
                     }
                     else
                     {

@@ -36,13 +36,13 @@ end
 function Systems.flushEvents()
   if #EventQueue == 0 or #Systems == 0 then return end
 
-  for _, event in ipairs(EventQueue) do
+  for i, event in ipairs(EventQueue) do
     local eventName, eventArgs = event[1], event[2]
-    for _, system in ipairs(Systems) do
+    for k, system in ipairs(Systems) do
       system:dispatchEvent(eventName, eventArgs)
     end
+    EventQueue[i] = nil
   end
-  EventQueue = {}
 end
 
 function Systems.getSystem(name)
@@ -53,10 +53,15 @@ function Systems.getSystem(name)
   end
 end
 
-function Systems.forEachSystem(func, ...)
-  for _, system in ipairs(Systems) do
-    func(system, ...)
+local function runOnSystem(t, i, f, ...)
+  i = i or 1
+  if t[i] ~= nil then
+    return f(t[i], ...), runOnSystem(t, i + 1, f, ...)
   end
+end
+
+function Systems.forEachSystem(func, ...)
+  return runOnSystem(Systems, 1, func, ...)
 end
 
 return Systems
