@@ -18,6 +18,7 @@
 -- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 -- SOFTWARE.
 
+local parser = require("messageParser")
 local Component = require('component')
 local class = require('classlib')
 
@@ -87,8 +88,6 @@ local function serialize(system)
   print("Serialize\n"..system:serialize())
 end
 
-local parseMessage
-
 function serverComponent:eventUpdate(args)
 
   if not self.client then
@@ -112,7 +111,7 @@ function serverComponent:eventUpdate(args)
 
     local l,e = self.client:receive()
     if l then
-      parseMessage(l)
+      parser(l)
     else
       if e ~= "timeout" then
         print(e)
@@ -132,10 +131,6 @@ end
 
 function serverComponent:eventQuit(args)
   self:close()
-end
-
-parseMessage = function(l)
-  print(l)
 end
 
 return serverComponent

@@ -74,7 +74,7 @@ namespace Event_ECS_WPF.SystemObjects
 
         public void DispatchEvent(string systemName, int entityID, string eventName)
         {
-            Send("DispatchEvent|{0}|{1}|{2}", systemName, entityID, eventName);
+            Send("DispatchEventEntity|{0}|{1}|{2}", systemName, entityID, eventName);
         }
 
         public void Execute(string code)
@@ -94,7 +94,7 @@ namespace Event_ECS_WPF.SystemObjects
 
         public void RemoveEntity(string systemName, int entityID)
         {
-            Send("RemoveComponent|{0}|{1}", systemName, entityID);
+            Send("RemoveEntity|{0}|{1}", systemName, entityID);
         }
 
         public void Reset()
@@ -102,59 +102,19 @@ namespace Event_ECS_WPF.SystemObjects
             Send("Reset");
         }
 
-        public void SetComponentBool(string systemName, int entityID, int componentID, string key, bool value)
+        public void SetComponentValue(string systemName, int entityID, int componentID, string key, object value)
         {
-            Send("SetComponentBool|{0}|{1}|{2}|{3}|{4}", systemName, entityID, componentID, key, value);
+            Send("SetComponentValue|{0}|{1}|{2}|{3}|{4}", systemName, entityID, componentID, key, value);
         }
 
-        public void SetComponentNumber(string systemName, int entityID, int componentID, string key, double value)
+        public void SetEntityValue(string systemName, int entityID, string key, object value)
         {
-            Send("SetComponentNumber|{0}|{1}|{2}|{3}|{4}", systemName, entityID, componentID, key, value);
+            Send("SetEntityValue|{0}|{1}|{2}|{3}", systemName, entityID, key, value);
         }
 
-        public void SetComponentString(string systemName, int entityID, int componentID, string key, string value)
+        public void SetSystemValue(string systemName, string key, object value)
         {
-            Send("SetComponentString|{0}|{1}|{2}|{3}|{4}", systemName, entityID, componentID, key, value);
-        }
-
-        public void SetEntityBool(string systemName, int entityID, string key, bool value)
-        {
-            Send("SetEntityBool|{0}|{1}|{2}|{3}", systemName, entityID, key, value);
-        }
-
-        public void SetEntityEnabled(string systemName, int entityID, bool value)
-        {
-            Send("SetEntityEnabled|{0}|{1}|{2}", systemName, entityID, value);
-        }
-
-        public void SetEntityNumber(string systemName, int entityID, string key, double value)
-        {
-            Send("SetEntityNumber|{0}|{1}|{2}|{3}", systemName, entityID, key, value);
-        }
-
-        public void SetEntityString(string systemName, int entityID, string key, string value)
-        {
-            Send("SetEntityString|{0}|{1}|{2}|{3}", systemName, entityID, key, value);
-        }
-
-        public void SetSystemBool(string systemName, string key, bool value)
-        {
-            Send("SetSystemBool|{0}|{1}|{2}", systemName, key, value);
-        }
-
-        public void SetSystemEnabled(string systemName, bool value)
-        {
-            Send("SetSystemEnabled|{0}|{1}", systemName, value);
-        }
-
-        public void SetSystemNumber(string systemName, string key, double value)
-        {
-            Send("SetSystemNumber|{0}|{1}|{2}", systemName, key, value);
-        }
-
-        public void SetSystemString(string systemName, string key, string value)
-        {
-            Send("SetSystemString|{0}|{1}|{2}", systemName, key, value);
+            Send("SetSystemValue|{0}|{1}|{2}", systemName, key, value);
         }
         #endregion
     }

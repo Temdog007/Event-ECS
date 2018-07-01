@@ -1,7 +1,6 @@
 ﻿using Event_ECS_WPF.Extensions;
 using Event_ECS_WPF.Logger;
 using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;

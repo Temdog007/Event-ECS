@@ -18,6 +18,8 @@
 -- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 -- SOFTWARE.
 
+package.preload["messageParser"] = function() require("Server/messageParser") end
+
 local System = require("system")
 local system = System("Server Test System")
 local serverComponent = require("Server/serverComponent")

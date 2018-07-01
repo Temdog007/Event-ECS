@@ -48,7 +48,7 @@ namespace Event_ECS_WPF.SystemObjects
             set
             {
                 m_isEnabled = value;
-                ECS.Instance.SetEntityEnabled(System.Name, ID, value);
+                ECS.Instance.SetEntityValue(System.Name, ID, "enabled", value);
                 OnPropertyChanged("IsEnabled");
             }
         }
@@ -71,7 +71,7 @@ namespace Event_ECS_WPF.SystemObjects
             set
             {
                 m_name = value;
-                ECS.Instance.SetEntityString(System.Name, ID, "name", value);
+                ECS.Instance.SetEntityValue(System.Name, ID, "enabled", value);
                 OnPropertyChanged("Name");
             }
         }

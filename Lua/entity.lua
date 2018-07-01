@@ -23,8 +23,17 @@ local component = class("Component")
 local ClassName = "Entity"
 local entity = class(ClassName)
 
-function string.starts(str, start)
-  return string.sub(str, 1, string.len(start)) == start
+function string:starts(start)
+  return string.sub(self, 1, string.len(start)) == start
+end
+
+function string:split(sep)
+  local sep, fields = sep or "|", {}
+  local pattern = string.format("([^%s]+)", sep)
+  self:gsub(pattern, function(c)
+    table.insert(fields, c)
+  end)
+  return fields
 end
 
 local function removeAll()
@@ -83,9 +92,13 @@ function entity:addComponents(...)
 end
 
 function entity:removeComponent(component)
+  if component == nil then error("Cannot remove nil") end
+
   if type(component) == "number" then
-    component = self:findComponent(component)
+    local id = component
+    component = assert(self:findComponent(id), string.format("Component with ID %d not found", id))
   end
+
   local name = classname(component)
   if self[name] then self[name] = nil end
   local base = component:getBase()
@@ -119,8 +132,10 @@ function entity:findComponent(pArg)
   local matchFunction
   if type(pArg) == "number" then
     matchFunction = function(en) return en:getID() == pArg end
-  else
+  elseif type(pArg) == "function" then
     matchFunction = pArg
+  else
+    error(string.format("Must pass function or number to findComponent. Passed %s", type(pArg)))
   end
 
   for _, component in pairs(self.components) do
@@ -128,6 +143,7 @@ function entity:findComponent(pArg)
       return component.parent or component
     end
   end
+
 end
 
 function entity:findComponents(matchFunction)

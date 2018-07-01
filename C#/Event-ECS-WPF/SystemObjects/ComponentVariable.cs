@@ -50,34 +50,10 @@ namespace Event_ECS_WPF.SystemObjects
                 return;
             }
 
-            IECS ecs = ECS.Instance;
-
             int entityID = Component.Entity.ID;
             string systemName = Component.Entity.System.Name;
             int compID = (int)Convert.ChangeType(Component.ID, typeof(int));
-            if (typeof(T) == typeof(float))
-            {
-                if (int.TryParse(Name, out int result))
-                {
-                    ecs.SetComponentNumber(systemName, entityID, compID, result.ToString(), (float)Convert.ChangeType(Value, typeof(T)));
-                }
-                else
-                {
-                    ecs.SetComponentNumber(systemName, entityID, compID, Name, (float)Convert.ChangeType(Value, typeof(T)));
-                }
-            }
-            else if (typeof(T) == typeof(string))
-            {
-                ecs.SetComponentString(systemName, entityID, compID, Name, (string)Convert.ChangeType(Value, typeof(string)));
-            }
-            else if (typeof(T) == typeof(bool))
-            {
-                ecs.SetComponentBool(systemName, entityID, compID, Name, (bool)Convert.ChangeType(Value, typeof(bool)));
-            }
-            else
-            {
-                throw new ArgumentException("Invalid variable type", nameof(T));
-            }
+            ECS.Instance.SetComponentValue(systemName, entityID, compID, Name, Value);
         }
 
         public T Value

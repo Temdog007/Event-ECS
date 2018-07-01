@@ -18,11 +18,15 @@
 -- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 -- SOFTWARE.
 
+local parser = require("Server/messageParser")
+local Systems = require("systemList")
 local LuaUnit = require("luaunit")
 local System = require("system")
 local DebugSystem = require("debugSystem")
 local Component = require("component")
 local class = require("classlib")
+
+package.preload["testComponent"] = function() return require("Unit Tests/testComponent") end
 local testComponent = require("Unit Tests/testComponent")
 local testComponentAlt = require("Unit Tests/testComponentAlt")
 
@@ -63,6 +67,46 @@ function assertMatch(actual, likewise)
 end
 
 ecsTests = {}
+
+function ecsTests:testParser()
+  local system = Systems.addSystem(System("TestSystem"))
+  assertError(parser, "AddEntity|TestSystem3")
+
+  parser("AddEntity|TestSystem")
+  assertEquals(system:entityCount(), 1)
+  assertError(parser, "AddEntity|NoSystem")
+
+  parser("AddComponent|TestSystem|1|testComponent")
+  parser("BroadcastEvent|eventerror")
+  assertError(Systems.flushEvents)
+
+  assertError(parser, "Execute|error('Test error')")
+
+  assertError(parser, "DispatchEvent|TestSystem|eventerror")
+  assertError(parser, "DispatchEventEntity|TestSystem|1|eventerror")
+
+  local en =system:findEntity(1)
+  local comp = en:findComponent(function() return true end)
+  parser(string.format("SetComponentValue|TestSystem|1|%d|test|test", comp:getID()))
+  assertEquals(comp.test, "test")
+  parser(string.format("RemoveComponent|TestSystem|1|%d", comp:getID()))
+
+  assertError(parser, "RemoveComponent|TestSystem|1|f32wrfsad")
+
+  parser("SetEntityValue|TestSystem|1|test|entityTest")
+  assertEquals(en.test, "entityTest")
+
+  parser("RemoveEntity|TestSystem|1")
+  assertEquals(system:entityCount(), 0)
+
+  parser("SetSystemValue|TestSystem|test|systemTest")
+  assertEquals(system.test, "systemTest")
+end
+
+function ecsTests:testStringSplit()
+  local str = "AddComponent|1|2|3"
+  assertEquals(str:split("|"), {"AddComponent", "1", "2", "3"})
+end
 
 function ecsTests:testComponents()
   assertEquals(classname(testComponent), "testComponent")
@@ -160,7 +204,6 @@ end
 function ecsTests:testEntityComponents1()
   local system = System()
   local entity = system:createEntity()
-  assertError(entity.addComponent, entity, 'testComponent')
 
   local comp1 = entity:addComponent(testComponent)
   assertError(entity.addComponent, entity, testComponent)

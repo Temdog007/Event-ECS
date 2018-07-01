@@ -28,26 +28,10 @@ namespace Event_ECS_WPF.SystemObjects
 
         void Reset();
 
-        void SetComponentBool(string systemName, int entityID, int componentID, string key, bool value);
+        void SetComponentValue(string systemName, int entityID, int componentID, string key, object value);
 
-        void SetComponentNumber(string systemName, int entityID, int componentID, string key, double value);
+        void SetEntityValue(string systemName, int entityID, string key, object value);
 
-        void SetComponentString(string systemName, int entityID, int componentID, string key, string value);
-
-        void SetEntityBool(string systemName, int entityID, string key, bool value);
-
-        void SetEntityEnabled(string systemName, int entityID, bool value);
-
-        void SetEntityNumber(string systemName, int entityID, string key, double value);
-
-        void SetEntityString(string systemName, int entityID, string key, string value);
-
-        void SetSystemBool(string systemName, string key, bool value);
-
-        void SetSystemEnabled(string systemName, bool value);
-
-        void SetSystemNumber(string systemName, string key, double value);
-
-        void SetSystemString(string systemName, string key, string value);
+        void SetSystemValue(string systemName, string key, object value);
     }
 }
