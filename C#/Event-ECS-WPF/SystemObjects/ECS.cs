@@ -107,11 +107,6 @@ namespace Event_ECS_WPF.SystemObjects
             Send("SetComponentBool|{0}|{1}|{2}|{3}|{4}", systemName, entityID, componentID, key, value);
         }
 
-        public void SetComponentEnabled(string systemName, int entityID, int componentID, bool value)
-        {
-            Send("SetComponentEnabled|{0}|{1}|{2}|{3}", systemName, entityID, componentID, value);
-        }
-
         public void SetComponentNumber(string systemName, int entityID, int componentID, string key, double value)
         {
             Send("SetComponentNumber|{0}|{1}|{2}|{3}|{4}", systemName, entityID, componentID, key, value);

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Sockets;
@@ -114,6 +115,19 @@ namespace Event_ECS_WPF.Extensions
             for (int i = start; i < end; ++i)
             {
                 yield return list[i];
+            }
+        }
+
+        public static T Copy<T>(this T list) where T : IList
+        {
+            return (T)Activator.CreateInstance(typeof(T), list);
+        }
+
+        public static IEnumerable<T> ForEach<T>(this IEnumerable<T> list, Func<T,T> action)
+        {
+            foreach(T t in list)
+            {
+                yield return action(t);
             }
         }
     }

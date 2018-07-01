@@ -12,13 +12,12 @@ namespace Event_ECS_WPF.SystemObjects
     {
         private ObservableSet<IComponentVariable> m_variables = new ObservableSet<IComponentVariable>();
 
-        public Component(Entity m_entity, string m_name, int m_id)
+        public Component(Entity m_entity, string m_name)
         {
             this.Entity = m_entity ?? throw new ArgumentNullException(nameof(m_entity));
             this.Entity.Components.Add(this);
 
             this.Name = m_name ?? throw new ArgumentNullException(nameof(m_name));
-            this.ID = m_id;
         }
 
         public event NotifyCollectionChangedEventHandler CollectionChanged
@@ -38,20 +37,6 @@ namespace Event_ECS_WPF.SystemObjects
 
         public Entity Entity { get; }
 
-        public int ID { get; }
-
-        private bool m_bIsEnabled = false;
-        public bool IsEnabled
-        {
-            get => m_bIsEnabled;
-            set
-            {
-                m_bIsEnabled = value;
-                ECS.Instance.SetEntityEnabled(Entity.System.Name, Entity.ID, value);
-                OnPropertyChanged("IsEnabled");
-            }
-        }
-
         public bool IsReadOnly => ((ICollection<IComponentVariable>)Variables).IsReadOnly;
 
         public string Name { get; }
@@ -69,6 +54,10 @@ namespace Event_ECS_WPF.SystemObjects
                 OnPropertyChanged("Variables");
             }
         }
+
+        public int ID => Convert.ToInt32(this["id"]);
+
+        public bool IsEnabled => Convert.ToBoolean(this["enabled"]);
 
         public object this[string key]
         {

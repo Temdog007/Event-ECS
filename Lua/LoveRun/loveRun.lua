@@ -52,6 +52,7 @@ function love.run()
   		love.graphics.present()
   	end
 
+    systems.flushEvents()
   	if love.timer then
       nextTime = nextTime + (1 / frameRate)
       local curTime = love.timer.getTime()

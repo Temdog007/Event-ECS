@@ -1,10 +1,10 @@
 ﻿using Event_ECS_WPF.Extensions;
 using Event_ECS_WPF.Logger;
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -20,7 +20,7 @@ namespace Event_ECS_WPF.SystemObjects
 
         public static readonly IPEndPoint Endpoint = new IPEndPoint(Host, Port);
 
-        public readonly object m_lock = new object();
+        private readonly object m_lock = new object();
 
         internal ECS(){}
 
@@ -131,6 +131,11 @@ namespace Event_ECS_WPF.SystemObjects
             TryConnect();
         }
 
+        private string RemoveSerialize(string str)
+        {
+            return str.Replace(Serialize, string.Empty);
+        }
+
         private void ReceiveCallback(IAsyncResult ar)
         {
             lock (m_lock)
@@ -148,7 +153,7 @@ namespace Event_ECS_WPF.SystemObjects
                             string[] dataList = message.Split('\n');
                             if (dataList[0] == Serialize)
                             {
-                                Application.Current.Dispatcher.BeginInvoke(DataReceived, dataList.SubArray(1));
+                                Application.Current.Dispatcher.BeginInvoke(DataReceived, dataList.SubArray(1).ForEach(RemoveSerialize));
                             }
                             else
                             {

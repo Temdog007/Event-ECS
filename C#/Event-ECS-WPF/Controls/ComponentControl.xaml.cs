@@ -19,8 +19,6 @@ namespace Event_ECS_WPF.Controls
 
         private ICommand m_removeComponentCommand;
 
-        private ICommand m_setComponentEnabledCommand;
-
         public ComponentControl()
         {
             InitializeComponent();
@@ -35,8 +33,6 @@ namespace Event_ECS_WPF.Controls
         public ICommand ReloadComponentCommand => m_reloadComponentCommand ?? (m_reloadComponentCommand = new ActionCommand(ReloadComponent));
 
         public ICommand RemoveComponentCommand => m_removeComponentCommand ?? (m_removeComponentCommand = new ActionCommand(RemoveComponent));
-
-        public ICommand SetComponentEnabledCommand => m_setComponentEnabledCommand ?? (m_setComponentEnabledCommand = new ActionCommand<bool>(SetComponentEnabled));
         
         private void ReloadComponent()
         {
@@ -49,11 +45,6 @@ namespace Event_ECS_WPF.Controls
         {
             ECS.Instance.RemoveComponent(Component.Entity.System.Name, Component.Entity.ID, Component.ID);
             LogManager.Instance.Add(LogLevel.Medium, "Removed component {0}", Component.Name);
-        }
-
-        private void SetComponentEnabled(bool enabled)
-        {
-            ECS.Instance.SetComponentEnabled(Component.Entity.System.Name, Component.Entity.ID, Component.ID, enabled);
         }
     }
 }

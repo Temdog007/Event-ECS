@@ -135,14 +135,12 @@
                         <RowDefinition/>
                         <RowDefinition/>
                     </Grid.RowDefinitions>
-                    
+
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="auto"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     
-                    <Label Grid.Row="0" Grid.Column="0">Lua Path</Label>
-                    <TextBox Grid.Row="0" Grid.Column="1" Margin="0,5,0,5" Text="{Binding Source={x:Static properties:Settings.Default}, Mode=TwoWay, Path=Lua}" MinWidth="300"/>
                     <Label Grid.Row="1" Grid.Column="0">Love2D Path</Label>
                     <TextBox Grid.Row="1" Grid.Column="1" Margin="0,5,0,5" Text="{Binding Source={x:Static properties:Settings.Default}, Mode=TwoWay, Path=Love2D}" MinWidth="300"/>
                 </Grid>

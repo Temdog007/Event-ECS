@@ -20,11 +20,22 @@
     </UserControl.Resources>
 
     <Expander Header="{Binding ElementName=m_componentControl, Path=Component.Name}" 
-              Background="{Binding ElementName=m_componentControl, Path=Component.IsEnabled, Converter={StaticResource enToCol}}"
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" MinWidth="100">
+        
+        <Expander.Style>
+            <Style TargetType="Expander">
+                <Setter Property="Background" Value="LightGreen"/>
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding ElementName=m_componentControl, Path=Component.IsEnabled}" Value="False">
+                        <Setter Property="Background" Value="LightPink"/>
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+        </Expander.Style>
+        
         <Expander.ContextMenu>
             <ContextMenu>
-                <MenuItem Header="Is Enabled" IsCheckable="True" IsChecked="{Binding Source={StaticResource ComponentControl}, Path=Data.Component.IsEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                <MenuItem Header="Toggle Enabled" Command="{Binding Source={StaticResource ComponentControl}, Path=Data.ToggleComponentEnabledCommand}"/>
                 <Separator/>
                 <MenuItem Header="Reload" Command="{Binding Source={StaticResource ComponentControl}, Path=Data.ReloadComponentCommand}"/>
                 <Separator/>
@@ -42,6 +53,7 @@
                 <TextBlock Text="ID" Margin="5"/>
                 <TextBlock Text="{Binding ElementName=m_componentControl, Path=Component.ID}" Margin="5"/>
             </StackPanel>
+            
             <ListBox ItemsSource="{Binding Source={StaticResource compSrc}}" Grid.Row="1"
                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ItemTemplateSelector="{StaticResource componentTemplateSelector}">
             </ListBox>

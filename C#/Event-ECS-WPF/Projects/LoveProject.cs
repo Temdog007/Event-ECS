@@ -67,8 +67,9 @@ namespace Event_ECS_WPF.Projects
 
                 text = text.Replace("True", "true").Replace("False", "false");
                 File.WriteAllText(Path.Combine(OutputPath, "conf.lua"), text);
-                File.WriteAllText(Path.Combine(OutputPath, "main.lua"), string.Join(Environment.NewLine, LoadEventECS, LoadEventECSServer, 
-                                                    LoadLoveRun, LoadServerEntity, Environment.NewLine, File.ReadAllText(StartupScript)));
+                File.WriteAllText(Path.Combine(OutputPath, "main.lua"), string.Join(Environment.NewLine, LoadEventECS, LoadLoveRun, 
+                                                    LoadEventECSServer,  LoadServerEntity,
+                                                    Environment.NewLine, File.ReadAllText(StartupScript)));
 
                 return true;
             }

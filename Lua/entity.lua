@@ -178,9 +178,9 @@ function entity:serialize()
   local events = self:getEventList()
   local tab = {}
   if string.len(events) > 0 then
-    table.insert(tab, string.format("%d|%s|%s", self:getID(), self:getName(), self:getEventList()))
+    table.insert(tab, string.format("%d|%s|%s|%s", self:getID(), tostring(self:isEnabled()), self:getName(), self:getEventList()))
   else
-    table.insert(tab, string.format("%d|%s", self:getID(), self:getName()))
+    table.insert(tab, string.format("%d|%s|%s", self:getID(), tostring(self:isEnabled()), self:getName()))
   end
 
   for k,v in pairs(self.components) do
@@ -196,7 +196,7 @@ end
 function entity:addComponent(comp, args)
   local compClass
   if type(comp) == "string" then
-    compClass = assert(require(comp), string.format("Instance of '%s' coudln't be created", comp))
+    compClass = assert(require(comp), string.format("Component '%s' couldn't be found", tostring(comp)))
   else
     compClass = comp
   end

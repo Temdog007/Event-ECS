@@ -4,13 +4,12 @@ require('eventecsserver')
 local Server = require("serverComponent")
 local systems = require("systemList")
 
-for k,v in pairs({...}) do
+for _,v in pairs({...}) do
   if v == "debug" then
     DEBUG_MODE = true
     break
   end
 end
-
 
 local System = require(DEBUG_MODE and "system" or "debugSystem")
 

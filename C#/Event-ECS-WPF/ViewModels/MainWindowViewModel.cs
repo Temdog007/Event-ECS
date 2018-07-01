@@ -294,7 +294,15 @@ return {0}";
                 return;
             }
 
-            OpenProject(Settings.Default.RecentProjects[index]);
+            try
+            {
+                OpenProject(Settings.Default.RecentProjects[index]);
+            }
+            catch(Exception e)
+            {
+                LogManager.Instance.Add(e);
+                Settings.Default.RecentProjects.RemoveAt(index);
+            }
         }
 
         private void SaveProject()

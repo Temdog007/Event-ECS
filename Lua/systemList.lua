@@ -1,4 +1,5 @@
 local Systems = {}
+local EventQueue = {}
 
 function Systems.addSystem(sys)
   table.insert(Systems, sys)
@@ -29,9 +30,19 @@ function Systems.removeSystem(system)
 end
 
 function Systems.broadcastEvent(eventName, args)
-  for _, system in ipairs(Systems) do
-    system:dispatchEvent(eventName, args)
+  table.insert(EventQueue, {eventName, args})
+end
+
+function Systems.flushEvents()
+  if #EventQueue == 0 or #Systems == 0 then return end
+
+  for _, event in ipairs(EventQueue) do
+    local eventName, eventArgs = event[1], event[2]
+    for _, system in ipairs(Systems) do
+      system:dispatchEvent(eventName, eventArgs)
+    end
   end
+  EventQueue = {}
 end
 
 function Systems.getSystem(name)

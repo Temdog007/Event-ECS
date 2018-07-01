@@ -86,7 +86,6 @@
     <Compile Include="Controls\StringListControl.xaml.cs">
       <DependentUpon>StringListControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Converters\EnabledToColor.cs" />
     <Compile Include="Converters\ItemToItemIndexConverter.cs" />
     <Compile Include="Converters\LogLevelToColor.cs" />
     <Compile Include="Extensions\BindingProxy.cs" />

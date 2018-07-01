@@ -30,8 +30,6 @@ namespace Event_ECS_WPF.SystemObjects
 
         void SetComponentBool(string systemName, int entityID, int componentID, string key, bool value);
 
-        void SetComponentEnabled(string systemName, int entityID, int componentID, bool value);
-
         void SetComponentNumber(string systemName, int entityID, int componentID, string key, double value);
 
         void SetComponentString(string systemName, int entityID, int componentID, string key, string value);

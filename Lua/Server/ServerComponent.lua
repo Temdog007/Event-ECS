@@ -32,7 +32,7 @@ local consolePrint = print
 function serverComponent:__init(entity)
   self.Component:__init(entity, self)
 
-  self.host = "localhost"
+  self.host = "*"
   self.port = 32485
   self.timeout = 0
   self.rate = 1
