@@ -53,7 +53,7 @@ end
 
 function testComponent:eventKeyPressed(args)
   if args[1] == "escape" then
-    love.event.quit()
+    love.event.quit("Exiting because 'escape' was pressed")
   elseif args[1] == "f9" then
     error("Error was thrown on purpose because of pressing F9")
   end

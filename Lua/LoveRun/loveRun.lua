@@ -34,7 +34,7 @@ function love.run()
   					return a or 0
   				end
   			end
-  			systems.broadcastEvent('eventname', {a,b,c,d,e,f})
+  			systems.broadcastEvent('event'..name, {a,b,c,d,e,f})
   		end
   	end
 
