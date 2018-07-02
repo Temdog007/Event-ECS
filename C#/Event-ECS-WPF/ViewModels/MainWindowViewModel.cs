@@ -41,6 +41,8 @@ return {0}";
 
         public const string DefaultFilterFormat = "{0} files (*.{0})|*.{0}|All files (*.*)|*.*";
 
+        private static readonly string[] SystemDelim = new string[] { "System" };
+
         private ICommand m_clearLogCommand;
 
         private ActionCommand<Window> m_closeCommand;
@@ -75,29 +77,6 @@ return {0}";
         {
             Settings.Default.SettingChanging += Default_SettingChanging;
             ECS.Instance.DataReceived += OnDataReceived;
-        }
-
-        private void OnDataReceived(string data)
-        {
-            string[] dataList = data.Split('\n');
-            string[] lines = dataList[0].Split('|');
-            if (lines[0].StartsWith("System"))
-            {
-                string name = lines[1];
-                ECSSystem system = Systems.FirstOrDefault(s => s.Name == name);
-                if (system == null)
-                {
-                    Systems.Add(new ECSSystem(dataList));
-                }
-                else
-                {
-                    system.Deserialize(dataList);
-                }
-            }
-            else
-            {
-                LogManager.Instance.Add(data);
-            }
         }
 
         private delegate void SettingsUpdateDelegate(object sender, EventArgs e);
@@ -266,6 +245,37 @@ return {0}";
             Project = type.CreateProject();
         }
 
+        private void OnDataReceived(string data)
+        {
+            List<string> dataList = new List<string>(data.Split('\n'));
+            while (dataList.Count > 0)
+            {
+                string line = dataList[0];
+                string[] args = line.Split('|');
+                string arg = args[0];
+                dataList.RemoveAt(0);
+                if (arg == "System")
+                {
+                    string name = args[1];
+                    bool enabled = Convert.ToBoolean(args[2]);
+                    ECSSystem system = Systems.FirstOrDefault(s => s.Name == name);
+
+                    if (system == null)
+                    {
+                        Systems.Add(new ECSSystem(name, enabled, dataList));
+                    }
+                    else
+                    {
+                        system.Deserialize(name, enabled, dataList);
+                    }
+                }
+                else
+                {
+                    LogManager.Instance.Add(line);
+                }
+            }
+        }
+
         private void OpenProject()
         {
             using (var dialog = new Forms.OpenFileDialog())
@@ -295,7 +305,7 @@ return {0}";
 
         private void OpenProject(int index)
         {
-            if(index >= Settings.Default.RecentProjects.Count)
+            if (index >= Settings.Default.RecentProjects.Count)
             {
                 LogManager.Instance.Add(LogLevel.High, "Cannot open project at index: {0}", index);
                 return;
@@ -305,7 +315,7 @@ return {0}";
             {
                 OpenProject(Settings.Default.RecentProjects[index]);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 LogManager.Instance.Add(e);
                 Settings.Default.RecentProjects.RemoveAt(index);

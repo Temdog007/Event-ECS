@@ -42,13 +42,12 @@ function testComponent:eventAddedComponent(args)
 end
 
 function testComponent:eventDraw(args)
-  local color = self:getEntity().colorComponent
-  if color then
-    love.graphics.setColor(color)
-    love.graphics.print(love.timer.getFPS(), self.x, self.y)
-    love.graphics.print(love.timer.getDelta(), self.x, self.y + self.space)
-    love.graphics.print(self.text, self.x, self.y + self.space * 2)
-  end
+  local color = assert(self:getComponent("colorComponent"), "No color")
+  love.graphics.setColor(color)
+  love.graphics.print(love.timer.getFPS(), self.x, self.y)
+  love.graphics.print(love.timer.getDelta(), self.x, self.y + self.space)
+  love.graphics.print(self.text, self.x, self.y + self.space * 2)
+  love.graphics.rectangle("fill", self.x, self.y + self.space * 3, 100, 100)
 end
 
 function testComponent:eventKeyPressed(args)

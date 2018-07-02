@@ -47,8 +47,8 @@ function love.run()
   	if love.graphics and love.graphics.isActive() then
   		love.graphics.origin()
   		love.graphics.clear(love.graphics.getBackgroundColor())
-
-  		systems.broadcastEvent('eventdraw')
+      
+  		systems.broadcastEvent('eventdraw', updateArgs)
 
   		love.graphics.present()
   	end

@@ -35,9 +35,9 @@ namespace Event_ECS_WPF.Logger
     public class LogManager : INotifyPropertyChanged, INotifyCollectionChanged, IEnumerable<Log>
     {
         private static LogManager m_instance;
-        private object m_lock = new object();
+        private readonly object m_lock = new object();
 
-        private ObservableCollection<Log> m_logs;
+        private readonly ObservableCollection<Log> m_logs;
 
         private LogLevel m_filter;
 
@@ -105,6 +105,11 @@ namespace Event_ECS_WPF.Logger
 
         public void Add(string message, LogLevel level = LogLevel.Low)
         {
+            if(string.IsNullOrWhiteSpace(message))
+            {
+                return;
+            }
+
             if (Settings.Default.MultilineLog)
             {
                 List<string> strList = new List<string>();

@@ -78,7 +78,6 @@ function ecsTests:testParser()
 
   parser("AddComponent|TestSystem|1|testComponent")
   parser("BroadcastEvent|eventerror")
-  assertError(Systems.flushEvents)
 
   assertError(parser, "Execute|error('Test error')")
 

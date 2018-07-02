@@ -20,9 +20,9 @@ namespace Event_ECS_WPF.SystemObjects
         {
         }
 
-        public EntityComponentSystem(IList<string> list)
+        public EntityComponentSystem(string systemName, bool isSystemEnabled, IList<string> list)
         {
-            Deserialize(list);
+            Deserialize(systemName, isSystemEnabled, list);
         }
 
         private bool m_isEnabled = false;
@@ -57,21 +57,26 @@ namespace Event_ECS_WPF.SystemObjects
             }
         }
 
-        public void Deserialize(IList<string> list)
+        public void Deserialize(string systemName, bool isSystemEnabled, IList<string> list)
         {
             ECS.Instance.ShouldUpdateServer = false;
 
-            string systemData = list[0];
-            string[] systemDataList = systemData.Split(Delim);
-            Name = systemDataList[1];
-            IsEnabled = Convert.ToBoolean(systemDataList[2]);
-
-            List<string> enList = new List<string>(list.SubArray(1));
+            Name = systemName;
+            IsEnabled = isSystemEnabled;
+            
             List<int> handledIDs = new List<int>();
             Entity entity = null;
             List<string> compNames = new List<string>();
-            foreach (string en in enList.AsReadOnly())
+
+            bool done = false;
+            while(!done && list.Count > 0)
             {
+                string en = list.First();
+                list.RemoveAt(0);
+                if (string.IsNullOrWhiteSpace(en))
+                {
+                    continue;
+                }
                 string[] enData = en.Split(Delim);
                 switch (enData[0])
                 {
@@ -174,8 +179,12 @@ namespace Event_ECS_WPF.SystemObjects
                         }
                         break;
 
+                    case "System":
+                        done = true;
+                        break;
+
                     default:
-                        LogManager.Instance.Add("Unknown ECS type {0}", enData[0]);
+                        LogManager.Instance.Add("Unknown ECS type: {0}", enData[0]);
                         break;
                 }
             }

@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Windows;
@@ -116,6 +117,11 @@ namespace Event_ECS_WPF.Extensions
             {
                 yield return list[i];
             }
+        }
+
+        public static IReadOnlyList<T> AsReadOnly<T>(this IEnumerable<T> list)
+        {
+            return list.ToList().AsReadOnly();
         }
 
         public static T Copy<T>(this T list) where T : IList

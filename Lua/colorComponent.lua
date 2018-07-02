@@ -40,13 +40,10 @@ end
 function colorComponent:eventSetColor(args)
   if not args then return end
   if args.color then
-    if type(args.color) ~= "string" then
-      return
-    end
-    color = self.getColor(args.color)
-    if not color then
-      error(string.format("Color '%s' was not found", args.color))
-    end
+
+    assert(type(args.color) == "string", "Color must be a string")
+    color = assert(self.getColor(args.color), string.format("Color '%s' was not found", args.color))
+
     args[1] = color[1]
     args[2] = color[2]
     args[3] = color[3]

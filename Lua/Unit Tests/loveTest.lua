@@ -24,7 +24,7 @@ local love = require ("love")
 local loveRoutine = require("love.boot")
 local bootFunction = coroutine.create(loveRoutine)
 
-local DebugSystem = require("debugSystem")
+local DebugSystem = require("system")
 local testComponent = require("Unit Tests/testComponent")
 local System = require("system")
 local Systems = require("systemList")
@@ -32,6 +32,9 @@ local Systems = require("systemList")
 local system = Systems.addSystem(System("Love Test System"))
 local en = system:createEntity()
 en:addComponent(testComponent)
+en:addComponent("colorComponent")
+assert(en.colorComponent, "Color not added")
+-- en:dispatchEvent("eventsetcolor", {color = "red"})
 
 local result, err
 repeat

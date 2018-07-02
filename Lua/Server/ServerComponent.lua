@@ -67,8 +67,9 @@ function serverComponent:connect()
 end
 
 function serverComponent:enqueueMessages(...)
-  for _, message in pairs({...}) do
-    if message:endsWith("\n") then
+  for _, m in pairs({...}) do
+    local message = tostring(m)
+    if message:ends("\n") then
       table.insert(self.messages, message)
     else
       table.insert(self.messages, message.."\n")
