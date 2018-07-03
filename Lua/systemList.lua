@@ -39,7 +39,7 @@ function SystemMT.flushEvents()
 
   for i, event in ipairs(EventQueue) do
     local eventName, eventArgs = event[1], event[2]
-    for k, system in ipairs(Systems) do
+    for _, system in ipairs(Systems) do
       system:dispatchEvent(eventName, eventArgs)
     end
     EventQueue[i] = nil
@@ -48,7 +48,7 @@ end
 
 function SystemMT.getSystem(name)
   for _, system in ipairs(Systems) do
-    if system.name == name then
+    if system:getName() == name then
       return system
     end
   end

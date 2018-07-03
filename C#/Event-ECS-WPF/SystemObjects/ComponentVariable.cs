@@ -72,7 +72,17 @@ namespace Event_ECS_WPF.SystemObjects
             }
         }
 
-        object IComponentVariable.Value { get => Value; set => Value = (T)value; }
+        object IComponentVariable.Value
+        {
+            get => Value;
+            set
+            {
+                if (value is T t)
+                {
+                    Value = t;
+                }
+            }
+        }
 
         public static bool operator !=(ComponentVariable<T> variable1, ComponentVariable<T> variable2)
         {

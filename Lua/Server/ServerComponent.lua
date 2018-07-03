@@ -30,6 +30,8 @@ local serverComponent = class('serverComponent', Component)
 
 local consolePrint = print
 
+local eos = string.char(3)
+
 function serverComponent:__init(entity)
   self.Component:__init(entity, self)
 
@@ -69,10 +71,10 @@ end
 function serverComponent:enqueueMessages(...)
   for _, m in pairs({...}) do
     local message = tostring(m)
-    if message:ends("\n") then
+    if message:ends(eos) then
       table.insert(self.messages, message)
     else
-      table.insert(self.messages, message.."\n")
+      table.insert(self.messages, message..eos)
     end
   end
 end
@@ -114,10 +116,15 @@ function serverComponent:eventUpdate(args)
   end
 
   if self.client then
-    for _, message in pairs(self.messages) do
-      assert(self.client:send(message))
+    for i, message in pairs(self.messages) do
+      local status, err = pcall(self.client.send, self.client, message)
+      if not status then
+        print(err)
+        self.client = nil
+        return
+      end
+      self.messages[i] = nil
     end
-    self.messages = {}
 
     local l,e = self.client:receive()
     if l then
@@ -127,14 +134,14 @@ function serverComponent:eventUpdate(args)
         print(e)
       end
     end
-  end
 
-  if not args or not args.dt then return end
+    if not args or not args.dt then return end
 
-  self.current = self.current + args.dt
-  if self.current > self.rate then
-    self:enqueueMessages(Systems.forEachSystem(serialize))
-    self.current = 0
+    self.current = self.current + args.dt
+    if self.current > self.rate then
+      self:enqueueMessages(Systems.forEachSystem(serialize))
+      self.current = 0
+    end
   end
 end
 

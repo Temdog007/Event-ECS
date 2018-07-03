@@ -31,7 +31,6 @@ namespace Event_ECS_WPF.SystemObjects
                 lock (m_lock)
                 {
                     Dispose();
-                    TryConnect();
                 }
                 OnPropertyChanged();
             }

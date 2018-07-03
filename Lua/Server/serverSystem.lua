@@ -4,7 +4,7 @@ require('eventecsserver')
 local Server = require("serverComponent")
 local systems = require("systemList")
 
-local System = require(DEBUG_MODE and "system" or "debugSystem")
+local System = require(DEBUG_MODE and "debugSystem" or "system")
 
 local system = systems.addSystem(System("Server System"))
 local en = system:createEntity()

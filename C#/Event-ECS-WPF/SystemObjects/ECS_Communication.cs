@@ -4,6 +4,7 @@ using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -11,19 +12,25 @@ namespace Event_ECS_WPF.SystemObjects
 {
     public partial class ECS : IECS
     {
-        public const int ConnectDelay = 2000;
-
         public const ushort Port = 32485;
 
-        public static readonly IPEndPoint Endpoint = new IPEndPoint(Host, Port);
+        public const char ETX = (char)3;
+
+        public static IPEndPoint Endpoint => new IPEndPoint(Host, Port);
 
         private readonly object m_lock = new object();
 
-        internal ECS(){}
+        private readonly AutoResetEvent appRunEvent = new AutoResetEvent(false);
+
+        private string leftover = string.Empty;
+
+        internal ECS() { TryConnect(); }
 
         public event DataReceived DataReceived;
 
-        public static IPAddress Host => IPAddress.Parse("127.0.0.1");
+        public event Action ServerDisconnect;
+
+        public static readonly IPAddress Host = IPAddress.Parse("127.0.0.1");
 
         public bool ShouldUpdateServer { get; set; } = true;
 
@@ -51,12 +58,16 @@ namespace Event_ECS_WPF.SystemObjects
             }
         }
 
+        public void SignalAppStarted()
+        {
+            appRunEvent.Set();
+        }
+
         public void TryConnect()
         {
             if (!TargetAppIsRunning)
             {
-                // Try again later
-                Task.Delay(ConnectDelay).ContinueWith(task => TryConnect());
+                Task.Run(() => TryConnectOnEvent());
             }
             else
             {
@@ -74,11 +85,6 @@ namespace Event_ECS_WPF.SystemObjects
                     try
                     {
                         Socket.BeginConnect(Endpoint, ConnectionCallback, Socket);
-                    }
-                    catch (InvalidOperationException)
-                    {
-                        Dispose();
-                        TryConnect();
                     }
                     catch (Exception e)
                     {
@@ -119,14 +125,16 @@ namespace Event_ECS_WPF.SystemObjects
             Socket = new Socket(Host.AddressFamily, SocketType.Stream, ProtocolType.Tcp)
             {
                 ReceiveTimeout = 1000,
-                SendTimeout = 1000
+                SendTimeout = 1000,
+                NoDelay = true
             };
             LogManager.Instance.Add("Starting to connect...");
         }
 
         private void HandleDisconnect()
         {
-            LogManager.Instance.Add("Client has disconnected", LogLevel.Medium);
+            LogManager.Instance.Add("Client has disconnected. Server might have shutdown.", LogLevel.Medium);
+            ServerDisconnect?.Invoke();
             Dispose();
             TryConnect();
         }
@@ -145,8 +153,31 @@ namespace Event_ECS_WPF.SystemObjects
                         try
                         {
                             string message = Encoding.ASCII.GetString(buffer, 0, bytesRead);
-                            Application.Current.Dispatcher.BeginInvoke(DataReceived, message);
-                            Socket.NoDelay = true;
+
+                            // End of message contains ETX.
+                            int index = message.IndexOf(ETX);
+
+                            // If not found, haven't read all of the data
+                            if(index == -1)
+                            {
+                                leftover += message;
+                            }
+                            else
+                            {
+                                string[] data = message.Split(ETX);
+                                Application.Current.Dispatcher.BeginInvoke(DataReceived, leftover + data[0]);
+                                leftover = string.Empty;
+
+                                int n = data.Length - 1;
+                                for (int i = 1; i < n; ++i)
+                                {
+                                    Application.Current.Dispatcher.BeginInvoke(DataReceived, data[i]);
+                                }
+                                if(n > 0)
+                                {
+                                    leftover = data[n];
+                                }
+                            }
                         }
                         catch (Exception e)
                         {
@@ -187,9 +218,9 @@ namespace Event_ECS_WPF.SystemObjects
 
         private void Send(string message)
         {
-            if(!ShouldUpdateServer) { return; }
+            if (!ShouldUpdateServer) { return; }
 
-            if(!message.EndsWith(Environment.NewLine))
+            if (!message.EndsWith(Environment.NewLine))
             {
                 message += Environment.NewLine;
             }
@@ -201,11 +232,11 @@ namespace Event_ECS_WPF.SystemObjects
                     {
                         byte[] byteData = Encoding.ASCII.GetBytes(message);
                         Socket.BeginSend(byteData, 0, byteData.Length, SocketFlags.None, SendCallback, Socket);
-                        LogManager.Instance.Add("Sending '{0}' ({1} bytes) to the server", message, byteData.Length);
+                        LogManager.Instance.Add(LogLevel.SuperLow, "Sending '{0}' ({1} bytes) to the server", message, byteData.Length);
                     }
                     else
                     {
-                        LogManager.Instance.Add("Socket isn't connected. So, {0} wasn't sent", message);
+                        LogManager.Instance.Add(LogLevel.Medium, "Socket isn't connected. So, {0} wasn't sent", message);
                     }
                 }
                 catch (Exception e)
@@ -227,7 +258,7 @@ namespace Event_ECS_WPF.SystemObjects
                 try
                 {
                     int bytes = Socket.EndSend(ar);
-                    LogManager.Instance.Add("Sent {0} bytes to the server", bytes);
+                    LogManager.Instance.Add(LogLevel.SuperLow, "Sent {0} bytes to the server", bytes);
                 }
                 catch (Exception e)
                 {
@@ -240,6 +271,12 @@ namespace Event_ECS_WPF.SystemObjects
         {
             var endpoint = (EndPoint)Endpoint;
             Socket.BeginReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref endpoint, ReceiveCallback, buffer);
+        }
+
+        private void TryConnectOnEvent()
+        {
+            appRunEvent.WaitOne();
+            TryConnect();
         }
     }
 }

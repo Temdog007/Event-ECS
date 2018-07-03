@@ -70,6 +70,7 @@ local function parseFunction(l)
     local entity = assert(system:findEntity(entityID), string.format("No entity with ID %d found", entityID))
     local component = assert(entity:findComponent(componentID), string.format("A component with ID %d was not found", componentID))
 
+    if tonumber(key) then key = tonumber(key) end
     if tonumber(value) then
       component[key] = tonumber(value)
     elseif key == "enabled" then
@@ -90,6 +91,7 @@ local function parseFunction(l)
     local system = assert(Systems.getSystem(systemName), string.format("No system with the name '%s'", systemName))
     local entity = assert(system:findEntity(entityID), string.format("No entity with ID %d found", entityID))
 
+    if tonumber(key) then key = tonumber(key) end
     if tonumber(value) then
       entity[key] = tonumber(value)
     elseif key == "enabled" then
@@ -108,6 +110,7 @@ local function parseFunction(l)
     local value = assert(message[4], "Must have a value")
     local system = assert(Systems.getSystem(systemName), string.format("No system with the name '%s'", systemName))
 
+    if tonumber(key) then key = tonumber(key) end
     if tonumber(value) then
       system[key] = tonumber(value)
     elseif key == "enabled" then

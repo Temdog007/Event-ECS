@@ -26,5 +26,8 @@
     <Setting Name="Love2D" Type="System.String" Scope="User">
       <Value Profile="(Default)">C:\Program Files\LOVE\love.exe</Value>
     </Setting>
+    <Setting Name="LogLevel" Type="Event_ECS_WPF.Logger.LogLevel" Scope="User">
+      <Value Profile="(Default)">Low</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

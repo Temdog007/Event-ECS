@@ -201,20 +201,21 @@
                                 <Setter Property="GroupName" Value="GR"/>
                             </Style>
                         </MenuItem.Resources>
-                        <RadioButton Content="High" IsChecked="{Binding Source={x:Static logger:LogManager.Instance}, Path=Filter, Mode=TwoWay, 
-                                UpdateSourceTrigger=PropertyChanged, Converter={StaticResource enumConv}, ConverterParameter=High}"/>
-                        <RadioButton Content="Medium" IsChecked="{Binding Source={x:Static logger:LogManager.Instance}, Path=Filter, Mode=TwoWay, 
-                                UpdateSourceTrigger=PropertyChanged, Converter={StaticResource enumConv}, ConverterParameter=Medium}"/>
-                        <RadioButton Content="Low" IsChecked="{Binding Source={x:Static logger:LogManager.Instance}, Path=Filter, Mode=TwoWay, 
-                                UpdateSourceTrigger=PropertyChanged, Converter={StaticResource enumConv}, ConverterParameter=Low}"/>
+                        <RadioButton Content="High" IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=LogLevel, Mode=TwoWay, 
+                                 Converter={StaticResource enumConv}, ConverterParameter=High}"/>
+                        <RadioButton Content="Medium" IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=LogLevel, Mode=TwoWay, 
+                                Converter={StaticResource enumConv}, ConverterParameter=Medium}"/>
+                        <RadioButton Content="Low" IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=LogLevel, Mode=TwoWay, 
+                                Converter={StaticResource enumConv}, ConverterParameter=Low}"/>
+                        <RadioButton Content="SuperLow" IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=LogLevel, Mode=TwoWay, 
+                                Converter={StaticResource enumConv}, ConverterParameter=SuperLow}"/>
                     </MenuItem>
                 </ContextMenu>
             </Expander.ContextMenu>
 
-            <DataGrid ItemsSource="{Binding Source={x:Static logger:LogManager.Instance}, UpdateSourceTrigger=PropertyChanged}"
+            <DataGrid ItemsSource="{Binding Source={x:Static logger:LogManager.Instance}, Path=FilteredLogs, UpdateSourceTrigger=PropertyChanged}"
                           AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" CanUserDeleteRows="False"
-                          CanUserReorderColumns="False" CanUserResizeRows="False" CanUserSortColumns="False"
-                          misc:DataGridBehaviour.ScrollOnNewItem="True" Margin="5">
+                          CanUserReorderColumns="False" CanUserResizeRows="False" CanUserSortColumns="False" Margin="5">
 
                 <DataGrid.Resources>
                     <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Transparent"/>
@@ -228,7 +229,7 @@
                 </DataGrid.RowStyle>
 
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Time" Binding="{Binding DateTime}" Width="auto" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="Time" Binding="{Binding DateTime, StringFormat=\{0:dd.MM.yy HH:mm:ss:fff\}}" Width="auto" IsReadOnly="True"/>
                     <DataGridTextColumn Header="Message" Binding="{Binding Message}" Width="*" IsReadOnly="True"/>
                 </DataGrid.Columns>
 

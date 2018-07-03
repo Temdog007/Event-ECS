@@ -62,7 +62,7 @@ namespace Event_ECS_WPF.SystemObjects
             set
             {
                 m_name = value;
-                ECS.Instance.SetEntityValue(System.Name, ID, "enabled", value);
+                ECS.Instance.SetEntityValue(System.Name, ID, "name", value);
                 OnPropertyChanged("Name");
             }
         }

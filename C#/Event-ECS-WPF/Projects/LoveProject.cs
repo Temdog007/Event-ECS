@@ -124,6 +124,7 @@ namespace Event_ECS_WPF.Projects
                 {
                     Process.Start(StartInfo);
                     ECS.Instance.AppName = "love";
+                    ECS.Instance.SignalAppStarted();
                 }
                 return true;
             }

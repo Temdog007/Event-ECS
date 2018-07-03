@@ -4,6 +4,7 @@ using Event_ECS_WPF.SystemObjects;
 using System;
 using System.ComponentModel;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
 

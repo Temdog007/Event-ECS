@@ -94,6 +94,11 @@
     <Compile Include="Projects\FullscreenType.cs" />
     <Compile Include="Projects\Love\Modules.cs" />
     <Compile Include="Projects\Love\LoveProjectSettings.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
     <Compile Include="SystemObjects\ECS_Communication.cs" />
     <Compile Include="SystemObjects\ComponentVariable.cs" />
     <Compile Include="SystemObjects\IECS.cs" />
@@ -220,11 +225,6 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

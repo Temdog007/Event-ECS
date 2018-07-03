@@ -117,5 +117,17 @@ namespace Event_ECS_WPF.Properties {
                 this["Love2D"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Low")]
+        public global::Event_ECS_WPF.Logger.LogLevel LogLevel {
+            get {
+                return ((global::Event_ECS_WPF.Logger.LogLevel)(this["LogLevel"]));
+            }
+            set {
+                this["LogLevel"] = value;
+            }
+        }
     }
 }

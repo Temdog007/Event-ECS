@@ -77,6 +77,7 @@ return {0}";
         {
             Settings.Default.SettingChanging += Default_SettingChanging;
             ECS.Instance.DataReceived += OnDataReceived;
+            ECS.Instance.ServerDisconnect += ServerDisconnect;
         }
 
         private delegate void SettingsUpdateDelegate(object sender, EventArgs e);
@@ -342,6 +343,11 @@ return {0}";
                         break;
                 }
             }
+        }
+
+        private void ServerDisconnect()
+        {
+            Application.Current?.Dispatcher.BeginInvoke(new Action(Systems.Clear));
         }
 
         private void SetComponentSettings()
