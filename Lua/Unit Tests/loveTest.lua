@@ -31,10 +31,11 @@ local Systems = require("systemList")
 
 local system = Systems.addSystem(System("Love Test System"))
 local en = system:createEntity()
-en:addComponent(testComponent)
+local testComp = en:addComponent(testComponent)
+testComp.text = "Test text"
 en:addComponent("colorComponent")
 assert(en.colorComponent, "Color not added")
--- en:dispatchEvent("eventsetcolor", {color = "red"})
+en:dispatchEvent("eventsetcolor", {color = "red"})
 
 local result, err
 repeat

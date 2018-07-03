@@ -47,7 +47,6 @@ function testComponent:eventDraw(args)
   love.graphics.print(love.timer.getFPS(), self.x, self.y)
   love.graphics.print(love.timer.getDelta(), self.x, self.y + self.space)
   love.graphics.print(self.text, self.x, self.y + self.space * 2)
-  love.graphics.rectangle("fill", self.x, self.y + self.space * 3, 100, 100)
 end
 
 function testComponent:eventKeyPressed(args)

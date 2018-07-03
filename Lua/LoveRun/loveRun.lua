@@ -43,17 +43,18 @@ function love.run()
 
   	-- Call update and draw
   	systems.broadcastEvent('eventupdate', updateArgs) -- will pass 0 if love.timer is disabled
-
+    systems.flushEvents()
+    
   	if love.graphics and love.graphics.isActive() then
   		love.graphics.origin()
   		love.graphics.clear(love.graphics.getBackgroundColor())
-      
-  		systems.broadcastEvent('eventdraw', updateArgs)
 
+  		systems.broadcastEvent('eventdraw')
+      systems.flushEvents()
   		love.graphics.present()
   	end
 
-    systems.flushEvents()
+
   	if love.timer then
       nextTime = nextTime + (1 / frameRate)
       local curTime = love.timer.getTime()
