@@ -9,7 +9,7 @@ namespace Event_ECS_WPF.Converters
     {
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            if(values.Length == 2 && values[0] is IList list && values[1] is object item)
+            if(values != null && values.Length == 2 && values[0] is IList list && values[1] is object item)
             {
                 int index = list.IndexOf(item);
                 if(parameter is Array arr)

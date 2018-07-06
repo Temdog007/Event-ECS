@@ -1,4 +1,5 @@
 <h1> TODO List
 
-* Create default components (Body, Canvas, Fixtures, etc)
-* Create images to show in the ReadMe
+* Fix issue with updating boolean values from GUI
+* Update template selector so that Color Components have sliders
+* Update templates so that IDs are not editable

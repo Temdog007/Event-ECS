@@ -2,17 +2,16 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Event_ECS_WPF"
         xmlns:controls="clr-namespace:Event_ECS_WPF.Controls"
         xmlns:ex="clr-namespace:Event_ECS_WPF.Extensions"
         xmlns:logger="clr-namespace:Event_ECS_WPF.Logger"
-        xmlns:misc="clr-namespace:Event_ECS_WPF.Misc"
         xmlns:proj="clr-namespace:Event_ECS_WPF.Projects"
         xmlns:properties="clr-namespace:Event_ECS_WPF.Properties"
         xmlns:sysObj="clr-namespace:Event_ECS_WPF.SystemObjects"
         xmlns:forms="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d"
         Title="Entity Component System Viewer" 
         Height="768" Width="1366"
@@ -29,8 +28,8 @@
         
         <KeyBinding Key="O" Modifiers="Ctrl" Command="{Binding OpenProjectCommand}"/>
         <KeyBinding Key="S" Modifiers="Ctrl" Command="{Binding SaveProjectCommand}"/>
-        <KeyBinding Key="C" Modifiers="Ctrl" Command="{Binding ClearLogCommand}"/>
-        <KeyBinding Key="Q" Modifiers="Ctrl" Command="{Binding CreateComponentCommand}"/>
+        <KeyBinding Key="Q" Modifiers="Ctrl" Command="{Binding ClearLogCommand}"/>
+        <KeyBinding Key="K" Modifiers="Ctrl" Command="{Binding CreateComponentCommand}"/>
         <KeyBinding Key="W" Modifiers="Ctrl" Command="{Binding SetComponentSettingsCommand}"/>
         <KeyBinding Key="E" Modifiers="Ctrl" Command="{Binding EditComponentCommand}"/>
         <KeyBinding Key="R" Modifiers="Ctrl" Command="{Binding CopyComponentsCommand}"/>
@@ -147,7 +146,7 @@
             </MenuItem>
 
             <MenuItem Header="Components">
-                <MenuItem Header="Create Component" InputGestureText="Ctrl+Q" Command="{Binding CreateComponentCommand}"/>
+                <MenuItem Header="Create Component" InputGestureText="Ctrl+K" Command="{Binding CreateComponentCommand}"/>
                 <MenuItem Header="Open Component Editor" IsCheckable="True" IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=LoadComponentEditor, Mode=TwoWay}"/>
                 <MenuItem Header="Edit Component" InputGestureText="Ctrl+E" Command="{Binding EditComponentCommand}"/>
                 <MenuItem Header="Change Component Editor" InputGestureText="Ctrl+W" Command="{Binding SetComponentSettingsCommand}"/>
@@ -164,7 +163,7 @@
                         </StackPanel>
                     </MenuItem.Header>
                 </MenuItem>
-                <MenuItem Header="Clear Logs" Command="{Binding ClearLogCommand}"/>
+                <MenuItem Header="Clear Logs" InputGestureText="Ctrl+Q" Command="{Binding ClearLogCommand}"/>
             </MenuItem>
 
             <MenuItem Header="Shortcuts">

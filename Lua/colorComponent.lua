@@ -83,7 +83,7 @@ function colorComponent:eventSetColor(args)
   self[2] = args[2] or self[2]
   self[3] = args[3] or self[3]
   self[4] = args[4] or self[4]
-  self:getEntity():dispatchEvent("eventColorChanged", {color = self, entity = self:getEntity()})
+  self:dispatchEvent("eventColorChanged", {color = self, entity = self:getEntity()})
 end
 
 function colorComponent:eventSetBackground(args)

@@ -23,7 +23,7 @@
 
     <DataTemplate x:Key="colorComponentVariable">
         <DockPanel VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="10">
-            <Label DockPanel.Dock="Left" FontWeight="Bold" Content="{Binding Name}" Margin="5"/>
+            <Label DockPanel.Dock="Left" FontWeight="Bold" Content="{Binding Name, Converter={StaticResource colorIndexConv}}" Margin="5"/>
             <TextBox DockPanel.Dock="Right" Text="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5"/>
             <Slider Minimum="0" Maximum="1" TickFrequency="0.05" MinWidth="150" MinHeight="25" 
                     TickPlacement="BottomRight" Margin="5" IsMoveToPointEnabled="True"
@@ -35,6 +35,13 @@
         <CheckBox IsChecked="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Content="{Binding Name}"/>
     </DataTemplate>
 
+    <DataTemplate x:Key="idComponentVariable">
+        <StackPanel Orientation="Horizontal" Background="Transparent">
+            <TextBlock Text="ID: " Background="Transparent"/>
+            <TextBlock Text="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Background="Transparent"/>
+        </StackPanel>
+    </DataTemplate>
+    
     <selector:ProjectDataTemplateSelector x:Key="projectSelector"/>
     <selector:ComponentTemplateSelector x:Key="componentTemplateSelector"/>
 </ResourceDictionary>

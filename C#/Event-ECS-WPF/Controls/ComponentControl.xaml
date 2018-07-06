@@ -41,17 +41,12 @@
             </ContextMenu>
         </Expander.ContextMenu>
         <Grid>
-            
+
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <StackPanel Orientation="Horizontal" Grid.Row="0">
-                <TextBlock Text="ID" Margin="5"/>
-                <TextBlock Text="{Binding ElementName=m_componentControl, Path=Component.ID}" Margin="5"/>
-            </StackPanel>
-            
             <ListBox ItemsSource="{Binding Source={StaticResource compSrc}}" Grid.Row="1"
                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ItemTemplateSelector="{StaticResource componentTemplateSelector}">
             </ListBox>

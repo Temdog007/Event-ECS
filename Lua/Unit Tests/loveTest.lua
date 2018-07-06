@@ -37,7 +37,7 @@ testComp.y = 500
 testComp.text = "Test text"
 en:addComponent("colorComponent")
 assert(en.colorComponent, "Color not added")
-en:dispatchEvent("eventsetcolor", {color = "yellow"})
+en:dispatchEvent("eventsetcolor", {color = "greenyellow"})
 
 
 local result, err
