@@ -21,5 +21,4 @@
 require("love")
 require("LoveRun/loveRun")
 
-setFrameRate(30)
-addDrawOrder(3)
+setFrameRate(15)

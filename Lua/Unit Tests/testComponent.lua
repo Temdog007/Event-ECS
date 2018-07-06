@@ -42,24 +42,29 @@ function testComponent:eventAddedComponent(args)
 end
 
 function testComponent:eventDraw(args)
-  if args.drawOrder == 0 then
+  if args.drawOrder >= 0 then
     local color = assert(self:getComponent("colorComponent"), "No color")
+    local x, y = self.x + 25 * args.drawOrder, self.y + 25 * args.drawOrder
     love.graphics.setColor(color)
-    love.graphics.print(love.timer.getFPS(), self.x, self.y)
-    love.graphics.print(love.timer.getDelta(), self.x, self.y + self.space)
-    love.graphics.print(self.text, self.x, self.y + self.space * 2)
-  elseif args.drawOrder == 3 then
-    local color = assert(self:getComponent("colorComponent"), "No color")
-    love.graphics.setColor(color:inverse())
-    love.graphics.print(love.timer.getFPS(), self.x, self.y, 0, -1, -1)
-    love.graphics.print(love.timer.getDelta(), self.x, self.y - self.space, 0, -1, -1)
-    love.graphics.print(self.text, self.x, self.y + self.space * 2, 0, -1, -1)
+    love.graphics.print(love.timer.getFPS(), x, y)
+    love.graphics.print(love.timer.getDelta(), x, y + self.space)
+    love.graphics.print(self.text, x, y + self.space * 2)
   end
 end
 
+local order = 0
 function testComponent:eventKeyPressed(args)
   if args[1] == "escape" then
     love.event.quit("Exiting because 'escape' was pressed")
+  elseif args[1] == "f1" then
+    while not addDrawOrder(order) do order = order + 1 end
+  elseif args[1] == "f2" then
+    removeDrawOrder(order)
+    order = order - 1
+  elseif args[1] == "f3" then
+    addDrawOrder("Bad order")
+  elseif args[1] == "f4" then
+    removeDrawOrder("Bad Order")
   elseif args[1] == "f9" then
     error("Error was thrown on purpose because of pressing F9")
   end

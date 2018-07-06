@@ -77,7 +77,7 @@ local function parseFunction(l)
       component:setEnabled(value:lower() == "true")
     elseif value:lower() == "true" then
       component[key] = true
-    elseif value:upper() == "false" then
+    elseif value:lower() == "false" then
       component[key] = false
     else
       component[key] = value
@@ -98,7 +98,7 @@ local function parseFunction(l)
       entity:setEnabled(value:lower() == "true")
     elseif value:lower() == "true" then
       entity[key] = true
-    elseif value:upper() == "false" then
+    elseif value:lower() == "false" then
       entity[key] = false
     else
       entity[key] = value
@@ -117,7 +117,7 @@ local function parseFunction(l)
       system:setEnabled(value:lower() == "true")
     elseif value:lower() == "true" then
       system[key] = true
-    elseif value:upper() == "false" then
+    elseif value:lower() == "false" then
       system[key] = false
     else
       system[key] = value

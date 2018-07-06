@@ -32,8 +32,6 @@ local Systems = require("systemList")
 local system = Systems.addSystem(System("Love Test System"))
 local en = system:createEntity()
 local testComp = en:addComponent(testComponent)
-testComp.x = 500
-testComp.y = 500
 testComp.text = "Test text"
 en:addComponent("colorComponent")
 assert(en.colorComponent, "Color not added")

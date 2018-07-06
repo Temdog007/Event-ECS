@@ -11,10 +11,30 @@ end
 
 function addDrawOrder(order)
   assert(type(order) == "number", "Must add a number as a draw order")
-  assert(not ordersSet[order], string.format("Draw order %d is already in the set", order))
+  if(ordersSet[order]) then return false end
+
   table.insert(drawOrders, order)
   ordersSet[order] = true
   table.sort(drawOrders)
+  return true
+end
+
+function removeDrawOrder(order)
+  assert(type(order) == "number", "Can only remove a number as a draw order")
+
+  if(not ordersSet[order]) then return false end
+
+  local newTab = {}
+  for _,v in pairs(drawOrders) do
+    if v ~= order then
+      table.insert(newTab, v)
+    end
+  end
+
+  drawOrders = newTab
+  ordersSet[order] = false
+  table.sort(drawOrders)
+  return true
 end
 
 function love.run()

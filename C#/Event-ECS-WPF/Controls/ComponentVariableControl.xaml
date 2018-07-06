@@ -23,7 +23,7 @@
         
         <TextBox>
             <TextBox.Text>
-                <Binding Path="ComponentVariable.Value" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged" ElementName="m_control" Delay="100">
+                <Binding Path="ComponentVariable.Value" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged" ElementName="m_control">
                     <Binding.ValidationRules>
                         <misc:ComponentVariableValidation>
                             <misc:ComponentVariableValidation.Variable>
