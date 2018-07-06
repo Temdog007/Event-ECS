@@ -19,7 +19,7 @@ local function parseFunction(l)
     system:createEntity()
 
   elseif command == "BroadcastEvent" then
-    Systems.broadcastEvent(message[2])
+    Systems.pushEvent(message[2])
 
   elseif command == "DispatchEvent" then
     local systemName = message[2]

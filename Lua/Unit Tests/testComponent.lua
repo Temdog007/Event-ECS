@@ -42,11 +42,19 @@ function testComponent:eventAddedComponent(args)
 end
 
 function testComponent:eventDraw(args)
-  local color = assert(self:getComponent("colorComponent"), "No color")
-  love.graphics.setColor(color)
-  love.graphics.print(love.timer.getFPS(), self.x, self.y)
-  love.graphics.print(love.timer.getDelta(), self.x, self.y + self.space)
-  love.graphics.print(self.text, self.x, self.y + self.space * 2)
+  if args.drawOrder == 0 then
+    local color = assert(self:getComponent("colorComponent"), "No color")
+    love.graphics.setColor(color)
+    love.graphics.print(love.timer.getFPS(), self.x, self.y)
+    love.graphics.print(love.timer.getDelta(), self.x, self.y + self.space)
+    love.graphics.print(self.text, self.x, self.y + self.space * 2)
+  elseif args.drawOrder == 3 then
+    local color = assert(self:getComponent("colorComponent"), "No color")
+    love.graphics.setColor(color:inverse())
+    love.graphics.print(love.timer.getFPS(), self.x, self.y, 0, -1, -1)
+    love.graphics.print(love.timer.getDelta(), self.x, self.y - self.space, 0, -1, -1)
+    love.graphics.print(self.text, self.x, self.y + self.space * 2, 0, -1, -1)
+  end
 end
 
 function testComponent:eventKeyPressed(args)

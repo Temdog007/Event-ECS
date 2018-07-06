@@ -1,14 +1,25 @@
 local systems = require("systemList")
 
 local frameRate = 60
+local drawOrders = {}
+local ordersSet = {}
 
 function setFrameRate(fps)
   assert(type(fps) == "number" and fps > 0, "FPS must be a number greater than 0")
   frameRate = fps
 end
 
+function addDrawOrder(order)
+  assert(type(order) == "number", "Must add a number as a draw order")
+  assert(not ordersSet[order], string.format("Draw order %d is already in the set", order))
+  table.insert(drawOrders, order)
+  ordersSet[order] = true
+  table.sort(drawOrders)
+end
+
 function love.run()
-  systems.broadcastEvent('eventload', love.arg.parseGameArguments(arg), arg)
+  addDrawOrder(0)
+  systems.pushEvent('eventload', love.arg.parseGameArguments(arg), arg)
 
   local nextTime
 
@@ -20,6 +31,7 @@ function love.run()
 
   local updateArgs = {dt = 0}
   local quitArgs = {handled = false}
+  local drawArgs = {drawOrder = 0}
 
   -- Main loop time.
   return function()
@@ -28,13 +40,13 @@ function love.run()
   		love.event.pump()
   		for name, a,b,c,d,e,f in love.event.poll() do
   			if name == 'quit' then
-          systems.broadcastEvent('eventquit', quitArgs)
+          systems.pushEvent('eventquit', quitArgs)
           systems.flushEvents()
   				if not quitArgs.handled then
   					return a or 0
   				end
   			end
-  			systems.broadcastEvent('event'..name, {a,b,c,d,e,f})
+  			systems.pushEvent('event'..name, {a,b,c,d,e,f})
   		end
   	end
 
@@ -42,15 +54,18 @@ function love.run()
   	if love.timer then updateArgs.dt = love.timer.step() end
 
   	-- Call update and draw
-  	systems.broadcastEvent('eventupdate', updateArgs) -- will pass 0 if love.timer is disabled
+  	systems.pushEvent('eventupdate', updateArgs) -- will pass 0 if love.timer is disabled
     systems.flushEvents()
-    
+
   	if love.graphics and love.graphics.isActive() then
   		love.graphics.origin()
   		love.graphics.clear(love.graphics.getBackgroundColor())
 
-  		systems.broadcastEvent('eventdraw')
-      systems.flushEvents()
+      for _, o in pairs(drawOrders) do
+        drawArgs.drawOrder = o
+		    systems.pushEvent('eventdraw', drawArgs)
+        systems.flushEvents()
+      end
   		love.graphics.present()
   	end
 

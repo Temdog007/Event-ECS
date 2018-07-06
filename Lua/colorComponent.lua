@@ -37,6 +37,14 @@ function colorComponent.getColor(name)
   return colors[name]
 end
 
+function colorComponent:inverse(invertAlpha)
+  local c ={}
+  for i = 1, invertAlpha and 4 or 3 do
+    c[i] = math.abs(1 - self[i])
+  end
+  return c
+end
+
 function colorComponent:eventSetColor(args)
   if not args then return end
   if args.color then

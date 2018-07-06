@@ -30,7 +30,7 @@ function SystemMT.removeSystem(system)
   Systems = newSystems
 end
 
-function SystemMT.broadcastEvent(eventName, args)
+function SystemMT.pushEvent(eventName, args)
   table.insert(EventQueue, {eventName, args})
 end
 
