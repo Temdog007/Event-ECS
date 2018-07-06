@@ -18,40 +18,28 @@
 -- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 -- SOFTWARE.
 
-package.preload['conf'] = function()
-  return function(t)
-    t.window.vsync = 0
-  end
-end
+arg[0] = "E:\\Game Development\\GitHub\\Event-ECS\\Lua\\Unit Tests"
+for k,v in pairs(arg) do print(k,v) end
+local love = require ("love")
+local loveRoutine = require("love.boot")
+local bootFunction = coroutine.create(loveRoutine)
 
-local loveFuncs = require("loveBoot")
+local DebugSystem = require("system")
+local testComponent = require("Unit Tests/testComponent")
+local System = require("system")
+local Systems = require("systemList")
 
-local system = require("debugSystem")()
-loveFuncs.bootLove(
-  function(eventName, args)
-    system:dispatchEvent(eventName, args)
-  end,
-  "Love Unit Test")
+local system = Systems.addSystem(System("Love Test System"))
+local en = system:createEntity()
+local testComp = en:addComponent(testComponent)
+testComp.text = "Test text"
+en:addComponent("colorComponent")
+assert(en.colorComponent, "Color not added")
+en:dispatchEvent("eventsetcolor", {color = "greenyellow"})
 
-local Component = require("component")
-local class = require("classlib")
 
-local TestComponent = require("Unit Tests/testComponent")
-
-setFrameRate(120)
-loveFuncs.updateLove()
-
-local entity = system:createEntity()
-entity:addComponent(TestComponent)
-local color = entity:addComponent("ColorComponent")
---entity:dispatchEvent("eventSetColor", {r = 1, g = 0.5, b = 0, a = 1})
-entity:dispatchEvent("eventSetColor", {color = "orange"})
-print(color.getColor("purple"))
-
-repeat loveFuncs.drawLove() until not loveFuncs.updateLove()
-repeat until not loveFuncs.updateLove()
-
-local loveFuncs = require("loveBoot")
-repeat loveFuncs.drawLove() until not loveFuncs.updateLove()
-
-print("Corutine ended")
+local result, err
+repeat
+  result, err = coroutine.resume(bootFunction)
+  if err then print(err) end
+until not result

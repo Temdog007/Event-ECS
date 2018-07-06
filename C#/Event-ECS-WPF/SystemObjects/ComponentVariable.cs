@@ -1,5 +1,4 @@
-﻿using EventECSWrapper;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace Event_ECS_WPF.SystemObjects
@@ -17,7 +16,7 @@ namespace Event_ECS_WPF.SystemObjects
         Component Component { get; }
     }
 
-    public class ComponentVariable<T> : NotifyPropertyChanged, IEquatable<ComponentVariable<T>>, IComponentVariable, IComponentVariableSetter
+    public class ComponentVariable<T> : NotifyPropertyChanged, IEquatable<ComponentVariable<T>>, IComponentVariable, IComponentVariableSetter where T : IEquatable<T>
     {
         private T m_value;
 
@@ -44,7 +43,7 @@ namespace Event_ECS_WPF.SystemObjects
 
         public Component Component { get; private set; }
 
-        private void UpdateValue(ECSWrapper ecs)
+        private void UpdateValue()
         {
             if(Component == null)
             {
@@ -54,29 +53,7 @@ namespace Event_ECS_WPF.SystemObjects
             int entityID = Component.Entity.ID;
             string systemName = Component.Entity.System.Name;
             int compID = (int)Convert.ChangeType(Component.ID, typeof(int));
-            if (typeof(T) == typeof(float))
-            {
-                if (int.TryParse(Name, out int result))
-                {
-                    ecs.SetComponentNumber(systemName, entityID, compID, result, (float)Convert.ChangeType(Value, typeof(T)));
-                }
-                else
-                {
-                    ecs.SetComponentNumber(systemName, entityID, compID, Name, (float)Convert.ChangeType(Value, typeof(T)));
-                }
-            }
-            else if (typeof(T) == typeof(string))
-            {
-                ecs.SetComponentString(systemName, entityID, compID, Name, (string)Convert.ChangeType(Value, typeof(string)));
-            }
-            else if (typeof(T) == typeof(bool))
-            {
-                ecs.SetComponentBool(systemName, entityID, compID, Name, (bool)Convert.ChangeType(Value, typeof(bool)));
-            }
-            else
-            {
-                throw new ArgumentException("Invalid variable type", nameof(T));
-            }
+            ECS.Instance.SetComponentValue(systemName, entityID, compID, Name, Value);
         }
 
         public T Value
@@ -84,13 +61,28 @@ namespace Event_ECS_WPF.SystemObjects
             get => m_value;
             set
             {
+                if(m_value?.Equals(value) ?? false)
+                {
+                    return;
+                }
+
                 this.m_value = value;
-                ECS.Instance.UseWrapper(UpdateValue);
+                UpdateValue();
                 OnPropertyChanged("Value");
             }
         }
 
-        object IComponentVariable.Value { get => Value; set => Value = (T)value; }
+        object IComponentVariable.Value
+        {
+            get => Value;
+            set
+            {
+                if (value is T t)
+                {
+                    Value = t;
+                }
+            }
+        }
 
         public static bool operator !=(ComponentVariable<T> variable1, ComponentVariable<T> variable2)
         {

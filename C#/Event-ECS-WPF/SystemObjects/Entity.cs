@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using Event_ECS_WPF.Misc;
-using EventECSWrapper;
+
 
 namespace Event_ECS_WPF.SystemObjects
 {
@@ -11,14 +11,13 @@ namespace Event_ECS_WPF.SystemObjects
 
         private ObservableSet<string> m_events = new ObservableSet<string>();
 
-        private int m_id;
-
         private string m_name = "Entity";
 
-        public Entity(EntityComponentSystem system)
+        public Entity(EntityComponentSystem system, int id)
         {
             this.System = system ?? throw new ArgumentNullException(nameof(system));
             this.System.Entities.Add(this);
+            ID = id;
         }
 
         public ObservableCollection<Component> Components
@@ -41,39 +40,21 @@ namespace Event_ECS_WPF.SystemObjects
             }
         }
 
-        private bool GetIsEnabled(ECSWrapper ecs)
-        {
-            return ecs.GetEntityBool(System.Name, ID, "enabled");
-        }
-
-        private void SetIsEnabled(ECSWrapper ecs, bool value)
-        {
-            ecs.SetEntityBool(System.Name, ID, "enabled", value);
-        }
-
+        private bool m_isEnabled = false;
         public bool IsEnabled
         {
-            get => ECS.Instance.UseWrapper(GetIsEnabled, out bool enabled) ? enabled : false;
+            get => m_isEnabled;
             set
             {
-                if (ECS.Instance.UseWrapper(SetIsEnabled, value))
-                {
-                    OnPropertyChanged("IsEnabled");
-                }
+                m_isEnabled = value;
+                ECS.Instance.SetEntityValue(System.Name, ID, "enabled", value);
+                OnPropertyChanged("IsEnabled");
             }
         }
 
         internal EntityComponentSystem System { get; }
 
-        public int ID
-        {
-            get => m_id;
-            set
-            {
-                m_id = value;
-                OnPropertyChanged("ID");
-            }
-        }
+        public int ID { get; }
 
         public string Name
         {
@@ -81,10 +62,7 @@ namespace Event_ECS_WPF.SystemObjects
             set
             {
                 m_name = value;
-                if(ECS.Instance.ProjectStarted && ID != 0) // Entity ID is never 0
-                {
-                    ECS.Instance.UseWrapper(ecs => ecs.SetEntityString(System.Name, ID, "name", value));
-                }
+                ECS.Instance.SetEntityValue(System.Name, ID, "name", value);
                 OnPropertyChanged("Name");
             }
         }

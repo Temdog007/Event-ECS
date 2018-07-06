@@ -1,9 +1,9 @@
 local Component = require('component')
 local class = require('classlib')
-local ColorComponent = require("ColorComponent")
-local SliderComponent = class('SliderComponent', Component)
+local colorComponent = require("colorComponent")
+local sliderComponent = class('sliderComponent', Component)
 
-function SliderComponent:__init(entity)
+function sliderComponent:__init(entity)
   self.Component:__init(entity, self)
   self.min = 0
   self.max = 100
@@ -19,12 +19,12 @@ function SliderComponent:__init(entity)
   self.height = 100
 end
 
-function SliderComponent:isOver(x, y)
+function sliderComponent:isOver(x, y)
   return self.x < x and x < self.x + self.width and
           self.y < y and y < self.y + self.height
 end
 
-function SliderComponent:updatePosition(x, y)
+function sliderComponent:updatePosition(x, y)
   if self.isClicked then
     local minX, maxX = self:getXBoundary()
     local minY, maxY = self:getYXBoundary()
@@ -41,19 +41,19 @@ function SliderComponent:updatePosition(x, y)
   end
 end
 
-function SliderComponent:getXBoundary()
+function sliderComponent:getXBoundary()
   return self.x, self.x + self.width
 end
 
-function SliderComponent:getYXBoundary()
+function sliderComponent:getYXBoundary()
   return self.y, self.y + self.height
 end
 
-function SliderComponent:getPercentage()
+function sliderComponent:getPercentage()
   return (self.value - self.min) / (self.max - self.min)
 end
 
-function SliderComponent:eventMouseMoved(args)
+function sliderComponent:eventMouseMoved(args)
   if not args then return end
   local x, y = args[1], args[2]
   if not x or not y then return end
@@ -62,7 +62,7 @@ function SliderComponent:eventMouseMoved(args)
   self:updatePosition(x,y)
 end
 
-function SliderComponent:eventMousePressed(args)
+function sliderComponent:eventMousePressed(args)
   if not args then return end
   local x, y, b = args[1], args[2], args[3]
   if not x or not y or not b then return end
@@ -73,7 +73,7 @@ function SliderComponent:eventMousePressed(args)
   end
 end
 
-function SliderComponent:eventMouseReleased(args)
+function sliderComponent:eventMouseReleased(args)
   if not args then return end
   local b = args[3]
   if not b then return end
@@ -83,9 +83,9 @@ function SliderComponent:eventMouseReleased(args)
   end
 end
 
-function SliderComponent:drawHighlight(scale, pressedColor, highlightColor)
+function sliderComponent:drawHighlight(scale, pressedColor, highlightColor)
   scale = scale or 1.1
-  local c = ColorComponent.getColor((self.isClicked or self.isClicked) and (pressedColor or "red") or (highlightColor or "yellow"))
+  local c = colorComponent.getColor((self.isClicked or self.isClicked) and (pressedColor or "red") or (highlightColor or "yellow"))
   if c then
     love.graphics.setColor(c)
     local width, height = self.width * scale, self.height * scale
@@ -93,13 +93,13 @@ function SliderComponent:drawHighlight(scale, pressedColor, highlightColor)
   end
 end
 
-function SliderComponent:drawSlider()
-  local color = self:getComponent("ColorComponent")
+function sliderComponent:drawSlider()
+  local color = self:getComponent("colorComponent")
   if color then love.graphics.setColor(color) end
   love.graphics.rectangle("fill", self.x, self.y, self.width, self.height)
 end
 
-function SliderComponent:drawCursor(color, scale)
+function sliderComponent:drawCursor(color, scale)
   scale = scale or 0.1
   if color then
     love.graphics.setColor(color)
@@ -111,12 +111,12 @@ function SliderComponent:drawCursor(color, scale)
   end
 end
 
-function SliderComponent:drawText(color, alignment, scaleX, scaleY)
+function sliderComponent:drawText(color, alignment, scaleX, scaleY)
   if color then love.graphics.setColor(color) end
   love.graphics.printf(self.text, self.x, self.y, self.width, alignment or "center", 0, scaleX or 1, scaleY or 1)
 end
 
-function SliderComponent:draw(color)
+function sliderComponent:draw(color)
   if self.isClicked or self.isMouseOver then
     self:drawHighlight()
   end
@@ -125,4 +125,4 @@ function SliderComponent:draw(color)
   self:drawText(color)
 end
 
-return SliderComponent
+return sliderComponent

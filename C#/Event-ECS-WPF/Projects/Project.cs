@@ -1,7 +1,7 @@
-﻿using Event_ECS_WPF.Logger;
+﻿using Event_ECS_WPF.Extensions;
+using Event_ECS_WPF.Logger;
 using Event_ECS_WPF.Misc;
 using Event_ECS_WPF.SystemObjects;
-using EventECSWrapper;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -12,7 +12,6 @@ using System.Xml.Serialization;
 
 namespace Event_ECS_WPF.Projects
 {
-    public delegate void ProjectStateChangeEvent(object sender, ProjectStateChangeArgs args);
 
     [XmlInclude(typeof(LoveProject))]
     [XmlRoot("Project")]
@@ -27,13 +26,11 @@ namespace Event_ECS_WPF.Projects
 
         private ObservableCollection<ValueContainer<string>> _componentPath;
 
-        private ObservableCollection<ValueContainer<string>> _eventsToIgnore;
-
-        private string _initializer;
-
         private string _name;
 
-        private string m_libraryPath;
+        private string _outputPath = Location;
+
+        private ObservableCollection<ValueContainer<string>> m_libraryPaths;
 
         public Project() : this(false) { }
 
@@ -43,18 +40,17 @@ namespace Event_ECS_WPF.Projects
             if(setDefaults)
             {
                 ComponentPaths.Add(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
+                LibraryPaths.Add(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
             }
-            LibraryPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
         }
-
-        public static event ProjectStateChangeEvent ProjectStateChange;
 
         public static string Location => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
         /// <summary>
         /// Directory containing all of the lua component files
         /// </summary>
-        [XmlElement]
+        [XmlArray("ComponentDirectories")]
+        [XmlArrayItem("ComponentDirectory")]
         public ObservableCollection<ValueContainer<string>> ComponentPaths
         {
             get => _componentPath ?? (_componentPath = new ObservableCollection<ValueContainer<string>>());
@@ -81,27 +77,15 @@ namespace Event_ECS_WPF.Projects
             }
         }
 
-        [XmlArray("EventsToIgnore")]
-        [XmlArrayItem("Event")]
-        public ObservableCollection<ValueContainer<string>> EventsToIgnore
-        {
-            get => _eventsToIgnore ?? (_eventsToIgnore = new ObservableCollection<ValueContainer<string>>());
-            set
-            {
-                _eventsToIgnore = new ObservableCollection<ValueContainer<string>>(value);
-                OnPropertyChanged();
-            }
-        }
-
         public IEnumerable<string> Files
         {
             get
             {
-                foreach (var componentPath in ComponentPaths)
+                foreach (var componentPath in ComponentPaths.Select(c => c.Value))
                 {
-                    if (!IsHidden(componentPath) && Directory.Exists(componentPath))
+                    if (!componentPath.IsHidden() && Directory.Exists(componentPath))
                     {
-                        foreach (var file in Directory.GetFiles(componentPath).Where(f => !IsHidden(f) && Path.GetExtension(f) == ".lua"))
+                        foreach (var file in Directory.GetFiles(componentPath).Where(f => !f.IsHidden() && Path.GetExtension(f) == ".lua"))
                         {
                             yield return file;
                         }
@@ -110,26 +94,15 @@ namespace Event_ECS_WPF.Projects
             }
         }
 
-        [XmlElement]
-        public string InitializerScript
+        [XmlArray("LibraryDirectories")]
+        [XmlArrayItem("LibraryDirectory")]
+        public ObservableCollection<ValueContainer<string>> LibraryPaths
         {
-            get => _initializer;
+            get => m_libraryPaths ?? (m_libraryPaths = new ObservableCollection<ValueContainer<string>>());
             set
             {
-                _initializer = value;
-                OnPropertyChanged("InitializerScript");
-            }
-        }
-
-        public bool IsStarted => ECS.Instance.ProjectStarted;
-        [XmlElement]
-        public string LibraryPath
-        {
-            get => m_libraryPath;
-            set
-            {
-                m_libraryPath = value;
-                OnPropertyChanged("LibraryPath");
+                m_libraryPaths = value;
+                OnPropertyChanged("LibraryPaths");
             }
         }
 
@@ -144,21 +117,24 @@ namespace Event_ECS_WPF.Projects
             }
         }
 
-        public virtual ProjectType Type
+        [XmlElement]
+        public string OutputPath
         {
-            get => ProjectType.NORMAL;
+            get => _outputPath;
+            set
+            {
+                _outputPath = value;
+                OnPropertyChanged();
+            }
         }
 
-        private void Unregister(ECSWrapper ecs, string modName)
-        {
-            ecs.Unregister(modName);
-        }
+        public virtual ProjectType Type => ProjectType.NORMAL;
         
-        public void CopyComponentsToOutputPath(bool unregister = true)
+        public void CopyComponentsToOutputPath(bool reload = true)
         {
             foreach (string file in Files)
             {
-                string dest = Path.Combine(Location, Path.GetFileName(file));
+                string dest = Path.Combine(OutputPath, Path.GetFileName(file));
                 if (!File.Exists(dest) || File.GetLastWriteTimeUtc(dest) != (File.GetLastWriteTimeUtc(file)))
                 {
                     File.Copy(file, dest, true);
@@ -166,99 +142,28 @@ namespace Event_ECS_WPF.Projects
                     File.SetLastWriteTimeUtc(file, now);
                     File.SetLastWriteTimeUtc(dest, now);
                     LogManager.Instance.Add(LogLevel.Medium, "Copied {0} to {1}", file, dest);
-                    if (unregister && ECS.Instance.ProjectStarted)
+                    if (reload)
                     {
                         string modName = Path.GetFileNameWithoutExtension(file);
-                        if (ECS.Instance.UseWrapper(Unregister, modName))
-                        {
-                            LogManager.Instance.Add(LogLevel.Medium, "Unloaded {0} from cache", modName);
-                        }
-                        else
-                        {
-                            LogManager.Instance.Add(LogLevel.Medium, "Failed to unloaded {0} from cache", modName);
-                        }
+                        ECS.Instance.ReloadModule(modName);
+                        LogManager.Instance.Add(LogLevel.Medium, "Reload {0} from cache", modName);
                     }
                 }
             }
+        }
+
+        public bool CheckOutDir()
+        {
+            if(!Directory.Exists(OutputPath))
+            {
+                Directory.CreateDirectory(OutputPath);
+            }
+            return true;
         }
 
         public virtual bool Start()
         {
-            if (Setup())
-            {
-                DispatchProjectStateChange(ProjectStateChangeArgs.Started);
-                return true;
-            }
-            return false;
-        }
-
-        public virtual void Stop()
-        {
-            ECS.Instance.Dispose();
-            ProjectStateChange?.Invoke(this, ProjectStateChangeArgs.Stopped);
-            OnPropertyChanged("IsStarted");
-        }
-
-        protected virtual void CreateInstance()
-        {
-            string code = File.ReadAllText(InitializerScript);
-            ECS.Instance.CreateInstance(code);
-        }
-
-        protected void DispatchProjectStateChange(ProjectStateChangeArgs args)
-        {
-            ProjectStateChange?.Invoke(this, args);
-        }
-
-        protected bool Setup()
-        {
-            try
-            {
-                if (string.IsNullOrEmpty(InitializerScript))
-                {
-                    throw new ArgumentNullException(nameof(InitializerScript));
-                }
-
-                if (!IsHidden(LibraryPath) && Directory.Exists(LibraryPath))
-                {
-                    foreach (var file in Directory.GetFiles(LibraryPath).Where(f => !IsHidden(f) && Path.GetExtension(f) == ".dll"))
-                    {
-                        string dest = Path.Combine(Location, Path.GetFileName(file));
-                        if (!File.Exists(dest))
-                        {
-                            File.Copy(file, dest);
-                            LogManager.Instance.Add(LogLevel.Medium, "Copied {0} to {1}", file, dest);
-                        }
-                    }
-                }
-
-                CopyComponentsToOutputPath();
-
-                CreateInstance();
-                ECS.Instance.UseWrapper(SetEventsToIgnore);
-                return true;
-            }
-            catch (Exception e)
-            {
-                ECS.Instance.Dispose();
-                LogManager.Instance.Add(e);
-                return false;
-            }
-            finally
-            {
-                OnPropertyChanged("IsStarted");
-            }
-        }
-
-        private static bool IsHidden(string path)
-        {
-            FileAttributes attr = File.GetAttributes(path);
-            return ((attr & FileAttributes.Hidden) == FileAttributes.Hidden);
-        }
-        
-        private void SetEventsToIgnore(ECSWrapper ecs)
-        {
-            ecs.SetEventsToIgnore(EventsToIgnore.Select(s => s.Value).ToArray());
+            throw new NotImplementedException("Start is not applicable for a generic project");
         }
     }
 }

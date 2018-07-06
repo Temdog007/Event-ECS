@@ -1,9 +1,9 @@
 local Component = require('component')
 local class = require('classlib')
-local ColorComponent = require("ColorComponent")
-local ButtonDrawerComponent = class('ButtonDrawerComponent', Component)
+local colorComponent = require("colorComponent")
+local buttonDrawerComponent = class('buttonDrawerComponent', Component)
 
-function ButtonDrawerComponent:__init(entity)
+function buttonDrawerComponent:__init(entity)
   self.Component:__init(entity, self)
 
   self.drawText = true
@@ -17,8 +17,8 @@ function ButtonDrawerComponent:__init(entity)
   self.alignment = "center"
 end
 
-function ButtonDrawerComponent:eventDraw(args)
-  local button = self:getComponent("ButtonComponent")
+function buttonDrawerComponent:eventDraw(args)
+  local button = self:getComponent("buttonComponent")
   if not button then return end
 
   if self.drawBG then
@@ -29,8 +29,8 @@ function ButtonDrawerComponent:eventDraw(args)
   end
 
   if self.drawText then
-    button:drawText(ColorComponent.getColor(self.fontColor), self.alignment, self.scaleX, self.scaleY)
+    button:drawText(colorComponent.getColor(self.fontColor), self.alignment, self.scaleX, self.scaleY)
   end
 end
 
-return ButtonDrawerComponent
+return buttonDrawerComponent

@@ -1,6 +1,6 @@
 ﻿using Event_ECS_WPF.Extensions;
+using Event_ECS_WPF.Logger;
 using Event_ECS_WPF.Misc;
-using EventECSWrapper;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -20,20 +20,20 @@ namespace Event_ECS_WPF.SystemObjects
         {
         }
 
-        public EntityComponentSystem(IList<string> list)
+        public EntityComponentSystem(string systemName, bool isSystemEnabled, IList<string> list)
         {
-            Deserialize(list);
+            Deserialize(systemName, isSystemEnabled, list);
         }
 
+        private bool m_isEnabled = false;
         public bool IsEnabled
         {
-            get => ECS.Instance.UseWrapper(IsEnabledFunc, out bool rval) ? rval : false;
+            get => m_isEnabled;
             set
             {
-                if (ECS.Instance.UseWrapper(SetEnabledFunc, value))
-                {
-                    OnPropertyChanged("IsEnabled");
-                }
+                m_isEnabled = value;
+                ECS.Instance.SetSystemValue(Name, "enabled", value);
+                OnPropertyChanged("IsEnabled");
             }
         }
 
@@ -57,86 +57,86 @@ namespace Event_ECS_WPF.SystemObjects
             }
         }
 
-        public void Deserialize()
+        public void Deserialize(string systemName, bool isSystemEnabled, IList<string> list)
         {
-            if (ECS.Instance.UseWrapper(DeserializeFunc, out string[] data))
-            {
-                Deserialize(data);
-            }
-        }
+            ECS.Instance.ShouldUpdateServer = false;
 
-        public void Deserialize(IList<string> list)
-        {
-            string systemData = list[0];
-            string[] systemDataList = systemData.Split(Delim);
-            Name = systemDataList[0];
-
-            List<string> enList = new List<string>(list.SubArray(1));
+            Name = systemName;
+            IsEnabled = isSystemEnabled;
+            
             List<int> handledIDs = new List<int>();
             Entity entity = null;
             List<string> compNames = new List<string>();
-            foreach (string en in enList.AsReadOnly())
+
+            bool done = false;
+            while(!done && list.Count > 0)
             {
-                string[] enData = en.Split(Delim);
-                if (int.TryParse(enData[0], out int entityID)) // Is Entity
+                string en = list.First();
+                list.RemoveAt(0);
+                if (string.IsNullOrWhiteSpace(en))
                 {
-                    handledIDs.Add(entityID);
-
-                    if (entity != null && compNames.Any())
-                    {
-                        var deadComps = entity.Components.Where(comp => !compNames.Contains(comp.Name));
-                        foreach (var deadComp in deadComps.ToList().AsReadOnly())
-                        {
-                            entity.Components.Remove(deadComp);
-                        }
-                    }
-                    compNames.Clear();
-                    
-                    entity = Entities.FirstOrDefault(e => e.ID == entityID);
-                    if (entity != null)
-                    {
-                        entity.Name = enData[1];
-                    }
-                    else
-                    {
-                        entity = new Entity(this)
-                        {
-                            Name = enData[1],
-                            ID = entityID
-                        };
-                    }
-
-                    List<string> events = new List<string>();
-                    for (int i = 2; i < enData.Length; ++i)
-                    {
-                        events.Add(enData[i]);
-                    }
-                    entity.Events = new ObservableSet<string>(events);
+                    continue;
                 }
-                else // Is Component
+                string[] enData = en.Split(Delim);
+                switch (enData[0])
                 {
-                    string compName = enData[0];
-                    compNames.Add(compName);
-                    LinkedList<string> data = new LinkedList<string>(enData);
-                    data.RemoveFirst(); // Remove component name
+                    case "Entity":
+                        int entityID = int.Parse(enData[1]);
 
-                    int id = 0;
-                    List<IComponentVariable> tempVars = new List<IComponentVariable>();
-                    while (data.Count > 0)
-                    {
-                        string name = data.First.Value;
-                        data.RemoveFirst();
-                        if (name == "enabled")
+                        handledIDs.Add(entityID);
+
+                        if (entity != null && compNames.Any())
                         {
-                            data.RemoveFirst(); // Type must be a boolean
+                            var deadComps = entity.Components.Where(comp => !compNames.Contains(comp.Name));
+                            foreach (var deadComp in deadComps.ToList().AsReadOnly())
+                            {
+                                entity.Components.Remove(deadComp);
+                            }
                         }
-                        else if (name == "id")
+                        compNames.Clear();
+
+                        entity = Entities.FirstOrDefault(e => e.ID == entityID);
+                        if (entity != null)
                         {
-                            data.RemoveFirst(); // Type must be a number
-                            id = Convert.ToInt32(data.First.Value);
+                            entity.IsEnabled = Convert.ToBoolean(enData[2]);
+                            entity.Name = enData[3];
                         }
                         else
                         {
+                            entity = new Entity(this, entityID)
+                            {
+                                IsEnabled = Convert.ToBoolean(enData[2]),
+                                Name = enData[3]
+                            };
+                        }
+
+                        List<string> events = new List<string>();
+                        for (int i = 4; i < enData.Length; ++i)
+                        {
+                            events.Add(enData[i]);
+                        }
+                        entity.Events = new ObservableSet<string>(events);
+                        break;
+
+                    case "Component":
+                        if(entity == null)
+                        {
+                            break;
+                        }
+
+                        LinkedList<string> data = new LinkedList<string>(enData);
+                        data.RemoveFirst(); // Remove 'Component'
+
+                        string compName = data.First.Value;
+                        compNames.Add(compName);
+                        data.RemoveFirst(); // Remove component name
+
+                        List<IComponentVariable> tempVars = new List<IComponentVariable>();
+                        while (data.Count > 0 && data.Count % 3 == 0)
+                        {
+                            string name = data.First.Value;
+                            data.RemoveFirst();
+
                             Type type;
                             switch (data.First.Value)
                             {
@@ -159,25 +159,33 @@ namespace Event_ECS_WPF.SystemObjects
                                 Type generic = typeof(ComponentVariable<>).MakeGenericType(type);
                                 tempVars.Add((IComponentVariable)Activator.CreateInstance(generic, new object[] { name, Convert.ChangeType(data.First.Value, type) }));
                             }
+                            data.RemoveFirst();
                         }
-                        data.RemoveFirst();
-                    }
 
-                    var oldComp = entity.Components.FirstOrDefault(comp => comp.Name == compName);
-                    if (oldComp == null)
-                    {
-                        Component comp = new Component(entity, compName, id)
+                        var oldComp = entity.Components.FirstOrDefault(comp => comp.Name == compName);
+                        if (oldComp == null)
                         {
-                            Variables = new ObservableSet<IComponentVariable>(tempVars)
-                        };
-                    }
-                    else
-                    {
-                        foreach (var tempVar in tempVars)
-                        {
-                            oldComp[tempVar.Name] = tempVar.Value;
+                            Component comp = new Component(entity, compName)
+                            {
+                                Variables = new ObservableSet<IComponentVariable>(tempVars)
+                            };
                         }
-                    }
+                        else
+                        {
+                            foreach (var tempVar in tempVars)
+                            {
+                                oldComp[tempVar.Name] = tempVar.Value;
+                            }
+                        }
+                        break;
+
+                    case "System":
+                        done = true;
+                        break;
+
+                    default:
+                        LogManager.Instance.Add("Unknown ECS type: {0}", enData[0]);
+                        break;
                 }
             }
 
@@ -200,21 +208,8 @@ namespace Event_ECS_WPF.SystemObjects
                     Entities.Remove(en);
                 }
             }
-        }
 
-        private string[] DeserializeFunc(ECSWrapper ecs)
-        {
-            return ecs.SerializeSystem(Name).Split('\n');
-        }
-
-        private bool IsEnabledFunc(ECSWrapper ecs)
-        {
-            return ecs.IsSystemEnabled(Name);
-        }
-
-        private void SetEnabledFunc(ECSWrapper ecs, bool value)
-        {
-            ecs.SetSystemEnabled(Name, value);
+            ECS.Instance.ShouldUpdateServer = true;
         }
     }
 }

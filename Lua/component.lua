@@ -105,20 +105,15 @@ local function contains(tab, value)
   return false
 end
 
-local function addValues(tab, t, addTables)
+local function addValues(tab, t)
   for k,v in pairs(tab) do
     k = tostring(k)
     if not string.starts(k, "__") then
       local typ = type(v)
       if typ == "string" or typ == "number" or typ == "boolean" then
-        local val = tostring(v)
         table.insert(t, k)
         table.insert(t, typ)
-        table.insert(t, val)
-      elseif addTables and typ == "table" then
-        if not classname(v) then
-          addValues(v, t, args)
-        end
+        table.insert(t, tostring(v))
       end
     end
   end
@@ -127,12 +122,14 @@ end
 function component:serialize()
   local t =
   {
+    'Component',
     classname(self.parent or self),
+    'enabled', 'boolean', tostring(self.enabled),
+    'id', 'number', tostring(self.id)
   }
   if self.parent then
-    addValues(self.parent, t, true)
+    addValues(self.parent, t)
   end
-  addValues(self, t)
   return table.concat(t, "|")
 end
 

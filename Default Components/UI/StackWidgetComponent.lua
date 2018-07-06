@@ -1,7 +1,7 @@
 local Component = require('component')
 local class = require('classlib')
 
-local StackWidgetComponent = class('StackWidgetComponent', Component)
+local StackWidgetComponent = class('stackWidgetComponent', Component)
 
 function StackWidgetComponent:__init(entity)
   self.Component:__init(entity, self)
@@ -118,7 +118,7 @@ function StackWidgetComponent:eventUpdate(args)
 end
 
 function StackWidgetComponent:eventDraw(args)
-  local color = self:getComponent("ColorComponent")
+  local color = self:getComponent("colorComponent")
 
   if not self.autoSize then
     love.graphics.setScissor(self.sx, self.sy, self.width, self.height)

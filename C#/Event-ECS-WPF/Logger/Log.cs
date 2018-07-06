@@ -1,11 +1,11 @@
 ﻿using Event_ECS_WPF.Extensions;
 using Event_ECS_WPF.Properties;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Configuration;
 using System.Linq;
 using System.Windows;
 
@@ -13,93 +13,52 @@ namespace Event_ECS_WPF.Logger
 {
     public enum LogLevel
     {
-        Low,
-        Medium,
-        High
+        SuperLow = -1,
+        Low = 0,
+        Medium = 1,
+        High = 2
     }
 
     public class Log
     {
-        public DateTime DateTime { get; private set; }
-        public string Message { get; private set; }
-        public LogLevel Level { get; private set; }
-
         internal Log(string message, LogLevel level)
         {
             Message = message;
             Level = level;
             DateTime = DateTime.Now;
         }
+
+        public DateTime DateTime { get; }
+        public LogLevel Level { get; }
+        public string Message { get; }
     }
 
-    public class LogManager : INotifyPropertyChanged, INotifyCollectionChanged, IEnumerable<Log>
+    public class LogManager : INotifyPropertyChanged
     {
         private static LogManager m_instance;
-        private object m_lock = new object();
+        private readonly object m_lock = new object();
 
-        private ObservableCollection<Log> m_logs;
-
-        private LogLevel m_filter;
+        private readonly ObservableCollection<Log> m_logs;
 
         private LogManager()
         {
             m_logs = new ObservableCollection<Log>();
+            Settings.Default.SettingChanging += Default_SettingChanging;
         }
 
-        private NotifyCollectionChangedEventHandler m_collectionChanged;
-        public event NotifyCollectionChangedEventHandler CollectionChanged
-        {
-            add
-            {
-                m_collectionChanged += value;
-                ((INotifyCollectionChanged)m_logs).CollectionChanged += value;
-            }
-
-            remove
-            {
-                m_collectionChanged -= value;
-                ((INotifyCollectionChanged)m_logs).CollectionChanged -= value;
-            }
-        }
-
-        private PropertyChangedEventHandler m_propertyChanged;
-        public event PropertyChangedEventHandler PropertyChanged
-        {
-            add
-            {
-                m_propertyChanged += value;
-                ((INotifyPropertyChanged)m_logs).PropertyChanged += value;
-            }
-
-            remove
-            {
-                m_propertyChanged -= value;
-                ((INotifyPropertyChanged)m_logs).PropertyChanged -= value;
-            }
-        }
         public static LogManager Instance => m_instance ?? (m_instance = new LogManager());
 
-        public LogLevel Filter
-        {
-            get => m_filter;
-            set
-            {
-                m_filter = value;
-                m_propertyChanged?.Invoke(this, new PropertyChangedEventArgs("Filter"));
-                m_collectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-            }
-        }
+        public IEnumerable<Log> FilteredLogs => m_logs.Where(log => log.Level >= Settings.Default.LogLevel);
 
-        private void Add(Log log)
-        {
-            lock (m_lock)
-            {
-                Application.Current.Dispatcher.BeginInvoke(new Action(() => m_logs.Add(log)));
-            }
-        }
+        public event PropertyChangedEventHandler PropertyChanged;
 
-        public void Add(string message, LogLevel level)
+        public void Add(string message, LogLevel level = LogLevel.Low)
         {
+            if (string.IsNullOrWhiteSpace(message))
+            {
+                return;
+            }
+
             if (Settings.Default.MultilineLog)
             {
                 List<string> strList = new List<string>();
@@ -110,17 +69,25 @@ namespace Event_ECS_WPF.Logger
                         strList.Add(str);
                     }
                 }
-                LogManager.Instance.Add(new Log(string.Join(Environment.NewLine, strList), level));
+                Add(new Log(string.Join(Environment.NewLine, strList), level));
             }
             else
             {
-                LogManager.Instance.Add(new Log(message, level));
+                Add(new Log(message, level));
             }
         }
 
         public void Add(string message, params object[] args)
         {
             Add(LogLevel.Low, message, args);
+        }
+
+        public void Add(IEnumerable<string> messages, LogLevel level = LogLevel.Low)
+        {
+            foreach (string message in messages)
+            {
+                Add(message, level);
+            }
         }
 
         public void Add(LogLevel level, string message, params object[] args)
@@ -131,7 +98,7 @@ namespace Event_ECS_WPF.Logger
         public void Add(Exception e)
         {
             Add(e.Message, LogLevel.High);
-            if(e.InnerException != null)
+            if (e.InnerException != null)
             {
                 Add(e.InnerException);
             }
@@ -145,14 +112,23 @@ namespace Event_ECS_WPF.Logger
             }
         }
 
-        public IEnumerator<Log> GetEnumerator()
+        private void Add(Log log)
         {
-            return m_logs.Where(log => log.Level >= this.Filter).GetEnumerator();
+            var app = Application.Current;
+            if (app == null) { return; }
+            app.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                lock (m_lock)
+                {
+                    m_logs.Insert(0, log);
+                }
+            }));
+            Default_SettingChanging(null, null);
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
+        private void Default_SettingChanging(object sender, SettingChangingEventArgs e)
         {
-            return this.GetEnumerator();
+            Application.Current.Dispatcher.BeginInvoke(PropertyChanged, this, new PropertyChangedEventArgs("FilteredLogs"));
         }
     }
 }

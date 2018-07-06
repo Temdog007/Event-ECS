@@ -1,0 +1,37 @@
+﻿<UserControl x:Class="Event_ECS_WPF.Controls.StringListControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" 
+             Name="m_listControl" MouseEnter="List_MouseEnter"
+             d:DesignHeight="450" d:DesignWidth="800">
+    
+    <Expander Margin="5" Header="{Binding ElementName=m_listControl, Path=Header}" IsExpanded="True" Background="AntiqueWhite">
+        <DockPanel>
+            <Button DockPanel.Dock="Bottom" Command="{Binding ElementName=m_listControl, Path=AddPathCommand}" 
+                    Margin="5" MinHeight="20" HorizontalAlignment="Stretch" Content="Add Path"/>
+            
+            <ItemsControl ItemsSource="{Binding ElementName=m_listControl, Path=List}">
+
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border BorderBrush="Black" BorderThickness="1">
+                            <DockPanel>
+                                <Button Content="Remove" Command="{Binding ElementName=m_listControl, Path=RemovePathCommand}" CommandParameter="{Binding Value}" DockPanel.Dock="Right"/>
+                                <TextBlock Margin="5" Text="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            </DockPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+
+            </ItemsControl>
+        </DockPanel>
+    </Expander>
+</UserControl>

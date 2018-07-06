@@ -1,11 +1,31 @@
+-- Copyright (c) 2018 Temdog007
+--
+-- Permission is hereby granted, free of charge, to any person obtaining a copy
+-- of this software and associated documentation files (the "Software"), to deal
+-- in the Software without restriction, including without limitation the rights
+-- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+-- copies of the Software, and to permit persons to whom the Software is
+-- furnished to do so, subject to the following conditions:
+--
+-- The above copyright notice and this permission notice shall be included in all
+-- copies or substantial portions of the Software.
+--
+-- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+-- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+-- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+-- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+-- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+-- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+-- SOFTWARE.
+
 local Component = require("component")
 local class = require("classlib")
 
-local ColorComponent = class("ColorComponent", Component)
+local colorComponent = class("colorComponent", Component)
 
 local colors
 
-function ColorComponent:__init(entity)
+function colorComponent:__init(entity)
   self.Component:__init(entity, self)
   self[1] = 1
   self[2] = 1
@@ -13,20 +33,25 @@ function ColorComponent:__init(entity)
   self[4] = 1
 end
 
-function ColorComponent.getColor(name)
+function colorComponent.getColor(name)
   return colors[name]
 end
 
-function ColorComponent:eventSetColor(args)
+function colorComponent:inverse(invertAlpha)
+  local c ={}
+  for i = 1, invertAlpha and 4 or 3 do
+    c[i] = math.abs(1 - self[i])
+  end
+  return c
+end
+
+function colorComponent:eventSetColor(args)
   if not args then return end
   if args.color then
-    if type(args.color) ~= "string" then
-      return
-    end
-    color = self.getColor(args.color)
-    if not color then
-      error(string.format("Color '%s' was not found", args.color))
-    end
+
+    assert(type(args.color) == "string", "Color must be a string")
+    color = assert(self.getColor(args.color), string.format("Color '%s' was not found", args.color))
+
     args[1] = color[1]
     args[2] = color[2]
     args[3] = color[3]
@@ -58,10 +83,10 @@ function ColorComponent:eventSetColor(args)
   self[2] = args[2] or self[2]
   self[3] = args[3] or self[3]
   self[4] = args[4] or self[4]
-  self:getEntity():dispatchEvent("eventColorChanged", {color = self, entity = self:getEntity()})
+  self:dispatchEvent("eventColorChanged", {color = self, entity = self:getEntity()})
 end
 
-function ColorComponent:eventSetBackground(args)
+function colorComponent:eventSetBackground(args)
   love.graphics.setBackgroundColor(self)
 end
 
@@ -245,4 +270,4 @@ for _,color in pairs(colors) do
 	end
 end
 
-return ColorComponent
+return colorComponent

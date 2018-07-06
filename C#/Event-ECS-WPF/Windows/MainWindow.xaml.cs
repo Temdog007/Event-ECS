@@ -4,6 +4,7 @@ using Event_ECS_WPF.SystemObjects;
 using System;
 using System.ComponentModel;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
 
@@ -40,18 +41,10 @@ namespace Event_ECS_WPF.Windows
 
         private void Window_Closing(object sender, CancelEventArgs e)
         {
-            if (m_viewmodel.Project?.IsStarted ?? false)
-            {
-                MessageBox.Show("Cannot close application while project is running!", "Warning", MessageBoxButton.OK, MessageBoxImage.Exclamation);
-                LogManager.Instance.Add("Cannot close application while project is running!", LogLevel.Medium);
-                e.Cancel = true;
-            }
-            else
-            {
-                ECS.Instance.Dispose();
-                Settings.Default.Save();
-            }
+            ECS.Instance.Dispose();
+            Settings.Default.Save();
         }
+        
 
         private void UpdateCommands(object sender, EventArgs e)
         {

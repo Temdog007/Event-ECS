@@ -16,15 +16,12 @@
         </Style>
         <ex:BindingProxy x:Key="CompVarControl" Data="{Binding ElementName=m_control}"/>
     </UserControl.Resources>
-    
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="auto"/>
-            <ColumnDefinition Width="*" MinWidth="100"/>
-        </Grid.ColumnDefinitions>
 
-        <TextBlock Margin="5" Grid.Column="0" Text="{Binding ElementName=m_control, Path=ComponentVariable.Name}"/>
-        <TextBox Grid.Column="1">
+    <DockPanel>
+
+        <TextBlock Margin="5" DockPanel.Dock="Left" Text="{Binding ElementName=m_control, Path=ComponentVariable.Name}"/>
+        
+        <TextBox>
             <TextBox.Text>
                 <Binding Path="ComponentVariable.Value" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged" ElementName="m_control">
                     <Binding.ValidationRules>
@@ -46,5 +43,5 @@
                 </Style>
             </TextBox.Style>
         </TextBox>
-    </Grid>
+    </DockPanel>
 </UserControl>

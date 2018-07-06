@@ -27,6 +27,19 @@ function string.starts(str, start)
   return string.sub(str, 1, string.len(start)) == start
 end
 
+function string.split(str, sep)
+  local sep, fields = sep or "|", {}
+  local pattern = string.format("([^%s]+)", sep)
+  string.gsub(str, pattern, function(c)
+    table.insert(fields, c)
+  end)
+  return fields
+end
+
+function string.ends(str, endStr)
+  return  string.sub(str, -string.len(endStr)) == endStr
+end
+
 local function removeAll()
   return true
 end
@@ -83,9 +96,13 @@ function entity:addComponents(...)
 end
 
 function entity:removeComponent(component)
+  if component == nil then error("Cannot remove nil") end
+
   if type(component) == "number" then
-    component = self:findComponent(component)
+    local id = component
+    component = assert(self:findComponent(id), string.format("A component with ID %d not found", id))
   end
+
   local name = classname(component)
   if self[name] then self[name] = nil end
   local base = component:getBase()
@@ -119,8 +136,10 @@ function entity:findComponent(pArg)
   local matchFunction
   if type(pArg) == "number" then
     matchFunction = function(en) return en:getID() == pArg end
-  else
+  elseif type(pArg) == "function" then
     matchFunction = pArg
+  else
+    error(string.format("Must pass function or number to findComponent. Passed %s", type(pArg)))
   end
 
   for _, component in pairs(self.components) do
@@ -128,6 +147,7 @@ function entity:findComponent(pArg)
       return component.parent or component
     end
   end
+
 end
 
 function entity:findComponents(matchFunction)
@@ -178,12 +198,12 @@ function entity:serialize()
   local events = self:getEventList()
   local tab = {}
   if string.len(events) > 0 then
-    table.insert(tab, string.format("%d|%s|%s", self:getID(), self:getName(), self:getEventList()))
+    table.insert(tab, string.format("Entity|%d|%s|%s|%s", self:getID(), tostring(self:isEnabled()), self:getName(), self:getEventList()))
   else
-    table.insert(tab, string.format("%d|%s", self:getID(), self:getName()))
+    table.insert(tab, string.format("Entity|%d|%s|%s", self:getID(), tostring(self:isEnabled()), self:getName()))
   end
 
-  for k,v in pairs(self.components) do
+  for _,v in pairs(self.components) do
     table.insert(tab, v:serialize())
   end
   return table.concat(tab, "\n")
@@ -196,7 +216,7 @@ end
 function entity:addComponent(comp, args)
   local compClass
   if type(comp) == "string" then
-    compClass = assert(require(comp), string.format("Instance of '%s' coudln't be created", comp))
+    compClass = assert(require(comp), string.format("A component '%s' couldn't be found", tostring(comp)))
   else
     compClass = comp
   end

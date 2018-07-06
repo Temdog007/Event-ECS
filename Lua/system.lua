@@ -21,8 +21,8 @@
 local class = require("classlib")
 local Entity = require("entity")
 local Component = require("component")
-local FinalizerComponent = require("FinalizerComponent")
-local ColorComponent = require("ColorComponent")
+local finalizerComponent = require("finalizerComponent")
+local colorComponent = require("colorComponent")
 local ClassName = "Entity Component System"
 local system = class(ClassName)
 
@@ -156,7 +156,7 @@ function system:dispatchEvent(event, args)
 end
 
 function system:serialize()
-  local tab = { self:getName()..'|enabled|'..tostring(self:isEnabled()) }
+  local tab = { "System|"..self:getName()..'|'..tostring(self:isEnabled()) }
   for _, en in pairs(self.entities) do
     table.insert(tab, en:serialize())
   end

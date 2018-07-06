@@ -31,9 +31,7 @@ end
 function debugSystem:dispatchEvent(name, args)
   local callResult, returnValue = pcall(self.System.dispatchEvent, self.System, name, args)
   if not callResult then
-    if Log then Log(returnValue)
-    else print(returnValue) end
-    return -1
+    print(returnValue)
   end
   return returnValue
 end

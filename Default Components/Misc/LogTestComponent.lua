@@ -1,7 +1,7 @@
 local Component = require("component")
 local class = require("classlib")
 
-local LogTest = class("LogTestComponent", Component)
+local LogTest = class("logTestComponent", Component)
 
 local defaultColor = {r = 1,g = 1,b = 1,a = 1}
 function LogTest:__init(entity)
@@ -18,12 +18,12 @@ end
 
 function LogTest:eventAddedComponent(args)
   if args.component == self then
-    Log("Log Test Component Added")
+    print("print Test Component Added")
 	end
 end
 
 function LogTest:eventDraw(args)
-	local color = self:getComponent("ColorComponent")
+	local color = self:getComponent("colorComponent")
 	if not color then color = defaultColor end
 	love.graphics.setColor(color)
 	if self.showFps then
@@ -36,23 +36,19 @@ end
 
 function LogTest:eventBroadcast(args)
 	args.number = love.math.random()
-	if Log then
-		Log("EventBroadcast handled. Going to dispatch a test event")
-		Log("Set args to "..tostring(args.number))
-	end
+	print("EventBroadcast handled. Going to dispatch a test event")
+	print("Set args to "..tostring(args.number))
 	BroadcastEvent("eventTest", args)
 end
 
 function LogTest:eventTest(args)
-	if Log then
-		Log("Received "..tostring(args.number).." in event test handler")
-	end
+	print("Received "..tostring(args.number).." in event test handler")
 end
 
 function LogTest:eventRemovingComponent(args)
   self.Component:eventRemovingComponent(args)
   if args.component == self then
-    Log("Log Test Removing component")
+    print("print Test Removing component")
   end
 end
 

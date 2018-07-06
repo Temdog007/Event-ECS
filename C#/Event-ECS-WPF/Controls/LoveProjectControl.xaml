@@ -3,15 +3,23 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:obj ="clr-namespace:Event_ECS_WPF.SystemObjects"
+             xmlns:ctrl="clr-namespace:Event_ECS_WPF.Controls"
              xmlns:controls="clr-namespace:Event_ECS_WPF.Controls"
              mc:Ignorable="d" 
-             d:DesignHeight="400" d:DesignWidth="400"
+             d:DesignHeight="1500" d:DesignWidth="400"
              x:Name="m_project">
 
     <GroupBox Margin="5">
         <StackPanel>
             <controls:ProjectControl Project="{Binding ElementName=m_project, Path=LoveProject, UpdateSourceTrigger=PropertyChanged}"/>
+            <GroupBox Header="Main Script">
+                <DockPanel>
+                    <Button DockPanel.Dock="Right" Content="..." Click="SetMainFile_Click"/>
+                    <TextBlock Text="{Binding ElementName=m_project, Path=LoveProject.StartupScript, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                </DockPanel>
+            </GroupBox>
+            <ctrl:StringListControl Header="Library Directories" List="{Binding ElementName=m_project, Path=LoveProject.LibraryPaths}"/>
+            <ctrl:StringListControl Header="Component Directories" List="{Binding ElementName=m_project, Path=LoveProject.ComponentPaths}"/>
             <GroupBox Header="Settings">
                 <controls:LoveProjectSettingsControl Settings="{Binding ElementName=m_project, Path=LoveProject.Settings, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
             </GroupBox>

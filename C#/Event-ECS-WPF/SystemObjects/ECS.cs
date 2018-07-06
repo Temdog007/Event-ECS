@@ -1,245 +1,120 @@
 ﻿using Event_ECS_WPF.Commands;
-using Event_ECS_WPF.Logger;
-using EventECSWrapper;
-using System;
-using System.Windows;
+using System.Diagnostics;
+using System.Linq;
 using System.Windows.Input;
-using System.Windows.Media;
 
 namespace Event_ECS_WPF.SystemObjects
 {
-    public delegate void AutoUpdateChanged(object sender, AutoUpdateChangedArgs e);
-
-    public delegate void DisposeDelegate();
-
-    public delegate void DoActionOnMainThreadDelegate(Action action);
-
-    public delegate void LogDelegate(string message);
-
-    public class AutoUpdateChangedArgs : EventArgs
+    public partial class ECS : NotifyPropertyChanged
     {
-        public AutoUpdateChangedArgs(bool autoUpdate)
-        {
-            AutoUpdate = autoUpdate;
-        }
-
-        public bool AutoUpdate { get; private set; }
-    }
-
-    public class ECS : NotifyPropertyChanged, IDisposable
-    {
-        private const string DeserializeLog = "Deserialize";
-
-        private static readonly TimeSpan WaitTimeSpan = TimeSpan.FromMilliseconds(10);
-
         private static ECS s_instance;
 
-        private readonly object m_lock = new object();
+        private string _appName = string.Empty;
 
-        private ECSWrapper m_ecs;
+        private bool m_bIsConnected = false;
 
         private ActionCommand m_resetProjectCommand;
 
-        static ECS()
-        {
-            ECSWrapper.LogEvent = HandleLogFromECS;
-        }
-        
-        internal ECS(){}
-
-        public static event Action DeserializeRequested;
-
-        public event Action ProjectRestarted;
-
-        public event AutoUpdateChanged OnAutoUpdateChanged;
-
         public static ECS Instance => s_instance ?? (s_instance = new ECS());
 
-        public bool ProjectStarted => m_ecs != null;
-
-        public ICommand ResetProjectCommand => m_resetProjectCommand ?? (m_resetProjectCommand = new ActionCommand(ResetProject));
-
-        public void CreateInstance(string code)
+        public string AppName
         {
-            lock (m_lock)
+            get => _appName;
+            set
             {
-                Dispose();
-                m_ecs = new ECSWrapper(code);
-                LogManager.Instance.Add(LogLevel.Medium, "Project Started");
-            }
-        }
-
-        public void CreateInstance(string code, string path, string name)
-        {
-            lock (m_lock)
-            {
-                Dispose();
-                m_ecs = new ECSWrapper(code, path, name);
-                CompositionTarget.Rendering += CompositionTarget_Rendering;
-                LogManager.Instance.Add(LogLevel.Medium, "Project Started");
-            }
-        }
-
-        public void Dispose()
-        {
-            lock (m_lock)
-            {
-                CompositionTarget.Rendering -= CompositionTarget_Rendering;
-                if (m_ecs != null)
-                {
-                    DisposeDelegate d = DoDispose;
-                    Application.Current.Dispatcher.BeginInvoke(d);
-                }
-            }
-        }
-
-        public bool GetAutoUpdate()
-        {
-            lock (m_lock)
-            {
-                return m_ecs?.GetAutoUpdate() ?? false;
-            }
-        }
-
-        public void ResetProject()
-        {
-            if (UseWrapper(ResetProjectFunc))
-            {
-                ProjectRestarted?.Invoke();
-                LogManager.Instance.Add("Project restarted", LogLevel.Medium);
-            }
-        }
-
-        public void SetAutoUpdate(bool value)
-        {
-            lock (m_lock)
-            {
-                m_ecs?.SetAutoUpdate(value);
-                OnAutoUpdateChanged?.Invoke(this, new AutoUpdateChangedArgs(value));
-            }
-        }
-
-        public void Update()
-        {
-            lock (m_lock)
-            {
-                if (m_ecs == null)
+                if(string.IsNullOrWhiteSpace(value) || _appName == value)
                 {
                     return;
                 }
-                UseWrapper(UpdateAction);
-                LogManager.Instance.Add(LogLevel.Low, "Manual Update");
+
+                _appName = value;
+                lock (m_lock)
+                {
+                    Dispose();
+                }
+                OnPropertyChanged();
             }
         }
 
-        public bool UseWrapper<T>(Func<ECSWrapper, T> action, out T t)
+        public bool IsConnected
         {
-            lock (m_lock)
+            get => m_bIsConnected;
+            set
             {
-                if (m_ecs == null)
-                {
-                    LogManager.Instance.Add(LogLevel.High, "Project has not been started. Cannot run function");
-                    t = default(T);
-                    return false;
-                }
-                else
-                {
-                    t = action(m_ecs);
-                    return true;
-                }
+                m_bIsConnected = value;
+                OnPropertyChanged();
             }
         }
 
-        public bool UseWrapper<K>(Action<ECSWrapper, K> action, K argument)
+        public ICommand ResetProjectCommand => m_resetProjectCommand ?? (m_resetProjectCommand = new ActionCommand(Reset));
+
+        public bool TargetAppIsRunning => Process.GetProcessesByName(AppName).Any();
+
+        #region IECS
+        public void AddComponent(string systemName, int entityID, string componentName)
         {
-            lock (m_lock)
-            {
-                if (m_ecs == null)
-                {
-                    LogManager.Instance.Add(LogLevel.High, "Project has not been started. Cannot run function");
-                    return false;
-                }
-                else
-                {
-                    action(m_ecs, argument);
-                    return true;
-                }
-            }
+            Send("AddComponent|{0}|{1}|{2}", systemName, entityID, componentName);
         }
 
-        public bool UseWrapper<T, K>(Func<ECSWrapper, K, T> action, K argument, out T t)
+        public void AddEntity(string systemName)
         {
-            lock (m_lock)
-            {
-                if (m_ecs == null)
-                {
-                    LogManager.Instance.Add(LogLevel.High, "Project has not been started. Cannot run function");
-                    t = default(T);
-                    return false;
-                }
-                else
-                {
-                    t = action(m_ecs, argument);
-                    return true;
-                }
-            }
+            Send("AddEntity|{0}", systemName);
         }
 
-        public bool UseWrapper(Action<ECSWrapper> action)
+        public void BroadcastEvent(string eventName)
         {
-            lock (m_lock)
-            {
-                if (m_ecs == null)
-                {
-                    LogManager.Instance.Add(LogLevel.High, "Project has not been started. Cannot run function");
-                    return false;
-                }
-                else
-                {
-                    action(m_ecs);
-                    return true;
-                }
-            }
+            Send("BroadcastEvent|{0}", eventName);
         }
 
-        private static void HandleLogFromECS(string message)
+        public void DispatchEvent(string systemName, string eventName)
         {
-            LogManager.Instance.Add(message);
-            if (message == DeserializeLog)
-            {
-                DeserializeRequested?.Invoke();
-            }
+            Send("DispatchEvent|{0}|{1}", systemName, eventName);
         }
 
-        private void UpdateAction(ECSWrapper ecs)
+        public void DispatchEvent(string systemName, int entityID, string eventName)
         {
-            ecs.LoveUpdate();
+            Send("DispatchEventEntity|{0}|{1}|{2}", systemName, entityID, eventName);
         }
 
-        private void CompositionTarget_Rendering(object sender, EventArgs e)
+        public void Execute(string code)
         {
-            UseWrapper(LoveDraw, out double sleepMilliseconds);
+            Send("Execute|{0}", code);
         }
 
-        private void DoDispose()
+        public void ReloadModule(string modName)
         {
-            lock (m_lock)
-            {
-                m_ecs?.Dispose();
-                m_ecs = null;
-                LogManager.Instance.Add(LogLevel.Medium, "Project Stopped");
-            }
+            Send("ReloadModule|{0}", modName);
         }
 
-        private double LoveDraw(ECSWrapper ecs)
+        public void RemoveComponent(string systemName, int entityID, int componentID)
         {
-            return ecs.LoveDraw(true);
+            Send("RemoveComponent|{0}|{1}|{2}", systemName, entityID, componentID);
         }
 
-        private void ResetProjectFunc(ECSWrapper ecs)
+        public void RemoveEntity(string systemName, int entityID)
         {
-            ecs.Reset();
-            ProjectRestarted?.Invoke();
+            Send("RemoveEntity|{0}|{1}", systemName, entityID);
         }
+
+        public void Reset()
+        {
+            Send("Reset");
+        }
+
+        public void SetComponentValue(string systemName, int entityID, int componentID, string key, object value)
+        {
+            Send("SetComponentValue|{0}|{1}|{2}|{3}|{4}", systemName, entityID, componentID, key, value);
+        }
+
+        public void SetEntityValue(string systemName, int entityID, string key, object value)
+        {
+            Send("SetEntityValue|{0}|{1}|{2}|{3}", systemName, entityID, key, value);
+        }
+
+        public void SetSystemValue(string systemName, string key, object value)
+        {
+            Send("SetSystemValue|{0}|{1}|{2}", systemName, key, value);
+        }
+        #endregion
     }
 }

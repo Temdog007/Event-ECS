@@ -83,20 +83,30 @@
     <Compile Include="Controls\ComponentVariableControl.xaml.cs">
       <DependentUpon>ComponentVariableControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controls\LoveProjectMenuControl.xaml.cs">
-      <DependentUpon>LoveProjectMenuControl.xaml</DependentUpon>
+    <Compile Include="Controls\ComponentVariableStringControl.xaml.cs">
+      <DependentUpon>ComponentVariableStringControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Converters\EnabledToColor.cs" />
+    <Compile Include="Controls\StringListControl.xaml.cs">
+      <DependentUpon>StringListControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Converters\ColorIndexToNameConverter.cs" />
     <Compile Include="Converters\ItemToItemIndexConverter.cs" />
     <Compile Include="Converters\LogLevelToColor.cs" />
     <Compile Include="Extensions\BindingProxy.cs" />
     <Compile Include="Misc\ComponentVariableValidation.cs" />
     <Compile Include="Misc\ValueContainer.cs" />
     <Compile Include="Projects\FullscreenType.cs" />
-    <Compile Include="Projects\UpdateType.cs" />
+    <Compile Include="Projects\Love\Modules.cs" />
+    <Compile Include="Projects\Love\LoveProjectSettings.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="SystemObjects\ECS_Communication.cs" />
     <Compile Include="SystemObjects\ComponentVariable.cs" />
+    <Compile Include="SystemObjects\IECS.cs" />
     <Compile Include="TemplateSelectors\ComponentTemplateSelector.cs" />
-    <Compile Include="TemplateSelectors\ProjectMenuDataTemplateSelctor.cs" />
     <Page Include="Controls\AddComponentControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -109,6 +119,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Controls\ComponentVariableStringControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Controls\EntityControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -118,10 +132,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\LoveProjectControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Controls\LoveProjectMenuControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -138,6 +148,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\ProjectMenuControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\StringListControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -220,15 +234,11 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-    </Compile>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <EmbeddedResource Include="Lua\conf.lua" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -236,12 +246,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\CLI\Event-ECS-Wrapper\Event-ECS-Wrapper.vcxproj">
-      <Project>{85b1aed7-d0cf-4e7c-9557-c9be1cece62f}</Project>
-      <Name>Event-ECS-Wrapper</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

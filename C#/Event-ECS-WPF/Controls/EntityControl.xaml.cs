@@ -2,7 +2,7 @@
 using Event_ECS_WPF.Logger;
 using Event_ECS_WPF.Projects;
 using Event_ECS_WPF.SystemObjects;
-using EventECSWrapper;
+
 using System;
 using System.ComponentModel;
 using System.Windows;
@@ -80,8 +80,7 @@ namespace Event_ECS_WPF.Controls
 
         private void AddComponent(string compName)
         {
-            ECS.Instance.UseWrapper(ecs => ecs.AddComponent(Entity.System.Name, Entity.ID, compName));
-            Entity.System.Deserialize();
+            ECS.Instance.AddComponent(Entity.System.Name, Entity.ID, compName);
         }
 
         private void DispatchButton_Click(object sender, RoutedEventArgs e)
@@ -95,10 +94,7 @@ namespace Event_ECS_WPF.Controls
             {
                 ev = "event" + ev;
             }
-            if (ECS.Instance.UseWrapper(ecs => ecs.DispatchEvent(Entity.System.Name, Entity.ID, ev), out int rval))
-            {
-                LogManager.Instance.Add("Entity #{0} '{1}' had {2} component(s) handle the event {3}", Entity.ID, Entity.Name, rval, ev);
-            }
+            ECS.Instance.DispatchEvent(Entity.System.Name, Entity.ID, ev);
         }
 
         private void Expander_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
@@ -111,16 +107,7 @@ namespace Event_ECS_WPF.Controls
 
         private void Remove()
         {
-            if (ECS.Instance.UseWrapper(RemoveFunc, out bool rval))
-            {
-                LogManager.Instance.Add("Removed entity: {0}", rval);
-                Entity.System.Deserialize();
-            }
-        }
-
-        private bool RemoveFunc(ECSWrapper ecs)
-        {
-            return ecs.RemoveEntity(Entity.System.Name, Entity.ID);
+           ECS.Instance.RemoveEntity(Entity.System.Name, Entity.ID);
         }
     }
 }

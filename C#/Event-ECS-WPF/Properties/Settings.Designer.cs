@@ -49,37 +49,13 @@ namespace Event_ECS_WPF.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("F1")]
-        public global::System.Windows.Forms.Keys ManualUpdateKey {
-            get {
-                return ((global::System.Windows.Forms.Keys)(this["ManualUpdateKey"]));
-            }
-            set {
-                this["ManualUpdateKey"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("F5")]
-        public global::System.Windows.Forms.Keys ToggleStart {
+        public global::System.Windows.Forms.Keys StartProject {
             get {
-                return ((global::System.Windows.Forms.Keys)(this["ToggleStart"]));
+                return ((global::System.Windows.Forms.Keys)(this["StartProject"]));
             }
             set {
-                this["ToggleStart"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1000")]
-        public uint RefreshRate {
-            get {
-                return ((uint)(this["RefreshRate"]));
-            }
-            set {
-                this["RefreshRate"] = value;
+                this["StartProject"] = value;
             }
         }
         
@@ -97,18 +73,6 @@ namespace Event_ECS_WPF.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool LogEvents {
-            get {
-                return ((bool)(this["LogEvents"]));
-            }
-            set {
-                this["LogEvents"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool LoadComponentEditor {
             get {
@@ -121,27 +85,48 @@ namespace Event_ECS_WPF.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string Setting {
+        public global::System.Collections.ObjectModel.ObservableCollection<string> RecentProjects {
             get {
-                return ((string)(this["Setting"]));
-            }
-            set {
-                this["Setting"] = value;
-            }
-        }
-
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        public global::System.Collections.ObjectModel.ObservableCollection<string> RecentProjects
-        {
-            get
-            {
                 return ((global::System.Collections.ObjectModel.ObservableCollection<string>)(this["RecentProjects"]));
             }
-            set
-            {
+            set {
                 this["RecentProjects"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("F5")]
+        public string Start {
+            get {
+                return ((string)(this["Start"]));
+            }
+            set {
+                this["Start"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Program Files\\LOVE\\love.exe")]
+        public string Love2D {
+            get {
+                return ((string)(this["Love2D"]));
+            }
+            set {
+                this["Love2D"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Low")]
+        public global::Event_ECS_WPF.Logger.LogLevel LogLevel {
+            get {
+                return ((global::Event_ECS_WPF.Logger.LogLevel)(this["LogLevel"]));
+            }
+            set {
+                this["LogLevel"] = value;
             }
         }
     }

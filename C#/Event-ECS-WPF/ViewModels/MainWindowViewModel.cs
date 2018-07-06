@@ -3,8 +3,8 @@ using Event_ECS_WPF.Logger;
 using Event_ECS_WPF.Projects;
 using Event_ECS_WPF.Properties;
 using Event_ECS_WPF.SystemObjects;
-using EventECSWrapper;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Configuration;
@@ -13,7 +13,6 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Media;
 using System.Xml.Serialization;
 using ECSSystem = Event_ECS_WPF.SystemObjects.EntityComponentSystem;
 using Forms = System.Windows.Forms;
@@ -42,6 +41,8 @@ return {0}";
 
         public const string DefaultFilterFormat = "{0} files (*.{0})|*.{0}|All files (*.*)|*.*";
 
+        private static readonly string[] SystemDelim = new string[] { "System" };
+
         private ICommand m_clearLogCommand;
 
         private ActionCommand<Window> m_closeCommand;
@@ -53,8 +54,6 @@ return {0}";
         private ECSSystem m_currentSystem;
 
         private IActionCommand m_editComponentCommand;
-
-        private ActionCommand m_manualUpdateCommand;
 
         private ActionCommand<ProjectType> m_newProjectCommand;
 
@@ -72,20 +71,13 @@ return {0}";
 
         private ActionCommand m_startProjectCommand;
 
-        private ActionCommand m_stopProjectCommand;
-
         private ObservableCollection<ECSSystem> m_systems = new ObservableCollection<ECSSystem>();
-
-        private ActionCommand m_toggleProjectCommand;
-
-        private ActionCommand m_toggleProjectModeCommand;
 
         public MainWindowViewModel()
         {
-            Project.ProjectStateChange += ECS_OnAutoUpdateChanged;
-            ECS.Instance.OnAutoUpdateChanged += ECS_OnAutoUpdateChanged;
-            ECS.Instance.ProjectRestarted += SetSystems;
             Settings.Default.SettingChanging += Default_SettingChanging;
+            ECS.Instance.DataReceived += OnDataReceived;
+            ECS.Instance.ServerDisconnect += ServerDisconnect;
         }
 
         private delegate void SettingsUpdateDelegate(object sender, EventArgs e);
@@ -114,8 +106,6 @@ return {0}";
 
         public bool HasProject => Project != null;
 
-        public ICommand ManualUpdateCommand => m_manualUpdateCommand ?? (m_manualUpdateCommand = new ActionCommand(ManualUpdate));
-
         public ActionCommand<ProjectType> NewProjectCommand => m_newProjectCommand ?? (m_newProjectCommand = new ActionCommand<ProjectType>(NewProject));
 
         public IActionCommand OpenProjectAtIndexCommand => m_openProjectAtIndexCommand ?? (m_openProjectAtIndexCommand = new ActionCommand<int>(OpenProject));
@@ -141,38 +131,11 @@ return {0}";
             }
         }
 
-        public SolidColorBrush ProjectBackground
-        {
-            get
-            {
-                if (Project == null)
-                {
-                    return Brushes.Red;
-                }
-                switch (Project.Type)
-                {
-                    case ProjectType.LOVE:
-                        if (Project.IsStarted)
-                        {
-                            return ECS.Instance.GetAutoUpdate() ? Brushes.Lime : Brushes.LightYellow;
-                        }
-                        else
-                        {
-                            return Brushes.LightPink;
-                        }
-                    default:
-                        return Project.IsStarted ? Brushes.Lime : Brushes.LightPink;
-                }
-            }
-        }
-
         public IActionCommand SaveProjectCommand => m_saveProjectCommand ?? (m_saveProjectCommand = new ActionCommand(SaveProject, () => HasProject));
 
         public ICommand SetComponentSettingsCommand => m_setComponentSettingsCommand ?? (m_setComponentSettingsCommand = new ActionCommand(SetComponentSettings));
 
         public ICommand StartProjectCommand => m_startProjectCommand ?? (m_startProjectCommand = new ActionCommand(StartProject));
-
-        public ICommand StopProjectCommand => m_stopProjectCommand ?? (m_stopProjectCommand = new ActionCommand(StopProject));
 
         public ObservableCollection<ECSSystem> Systems
         {
@@ -183,10 +146,6 @@ return {0}";
                 OnPropertyChanged("Systems");
             }
         }
-
-        public ICommand ToggleProjectCommand => m_toggleProjectCommand ?? (m_toggleProjectCommand = new ActionCommand(ToggleProject));
-
-        public ICommand ToggleProjectModeCommand => m_toggleProjectModeCommand ?? (m_toggleProjectModeCommand = new ActionCommand(ToggleProjectMode));
 
         public static string GetFileFilter(string ext)
         {
@@ -258,16 +217,7 @@ return {0}";
 
         private void DoSettingsUpdate(object sender, EventArgs e)
         {
-            if (ECS.Instance.ProjectStarted)
-            {
-                ECS.Instance.UseWrapper(SetLogEvents);
-            }
             EditComponentCommand.UpdateCanExecute(sender, e);
-        }
-
-        private void ECS_OnAutoUpdateChanged(object sender, EventArgs e)
-        {
-            OnPropertyChanged("ProjectBackground");
         }
 
         private void EditComponent()
@@ -291,14 +241,40 @@ return {0}";
             }
         }
 
-        private void ManualUpdate()
-        {
-            ECS.Instance.Update();
-        }
-
         private void NewProject(ProjectType type)
         {
             Project = type.CreateProject();
+        }
+
+        private void OnDataReceived(string data)
+        {
+            List<string> dataList = new List<string>(data.Split('\n'));
+            while (dataList.Count > 0)
+            {
+                string line = dataList[0];
+                string[] args = line.Split('|');
+                string arg = args[0];
+                dataList.RemoveAt(0);
+                if (arg == "System")
+                {
+                    string name = args[1];
+                    bool enabled = Convert.ToBoolean(args[2]);
+                    ECSSystem system = Systems.FirstOrDefault(s => s.Name == name);
+
+                    if (system == null)
+                    {
+                        Systems.Add(new ECSSystem(name, enabled, dataList));
+                    }
+                    else
+                    {
+                        system.Deserialize(name, enabled, dataList);
+                    }
+                }
+                else
+                {
+                    LogManager.Instance.Add(line);
+                }
+            }
         }
 
         private void OpenProject()
@@ -330,13 +306,21 @@ return {0}";
 
         private void OpenProject(int index)
         {
-            if(index >= Settings.Default.RecentProjects.Count)
+            if (index >= Settings.Default.RecentProjects.Count)
             {
                 LogManager.Instance.Add(LogLevel.High, "Cannot open project at index: {0}", index);
                 return;
             }
 
-            OpenProject(Settings.Default.RecentProjects[index]);
+            try
+            {
+                OpenProject(Settings.Default.RecentProjects[index]);
+            }
+            catch (Exception e)
+            {
+                LogManager.Instance.Add(e);
+                Settings.Default.RecentProjects.RemoveAt(index);
+            }
         }
 
         private void SaveProject()
@@ -361,9 +345,9 @@ return {0}";
             }
         }
 
-        private string[] Serialize(ECSWrapper ecs)
+        private void ServerDisconnect()
         {
-            return ecs.Serialize();
+            Application.Current?.Dispatcher.BeginInvoke(new Action(Systems.Clear));
         }
 
         private void SetComponentSettings()
@@ -388,73 +372,17 @@ return {0}";
             }
         }
 
-        private void SetLogEvents(ECSWrapper ecs)
-        {
-            ecs.SetLoggingEvents(Settings.Default.LogEvents);
-        }
-
-        private void SetSystems()
-        {
-            ECS.Instance.UseWrapper(SetLogEvents);
-            if (ECS.Instance.UseWrapper(Serialize, out string[] data))
-            {
-                Systems.Clear();
-                if (data.Length > 0)
-                {
-                    foreach (string line in data)
-                    {
-                        Systems.Add(new ECSSystem(line.Split('\n')));
-                    }
-                    CurrentSystem = Systems[0];
-                }
-            }
-            OnPropertyChanged("ProjectBackground");
-        }
-
         private void StartProject()
         {
-            StopProject();
-
-            try
+            if (Project != null)
             {
+                ECS.Instance.Reset();
+                Systems.Clear();
                 if (!Project.Start())
                 {
                     throw new Exception("Failed to start project");
                 }
-                SetSystems();
             }
-            catch (Exception e)
-            {
-                StopProject();
-                LogManager.Instance.Add(e);
-            }
-        }
-
-        private void StopProject()
-        {
-            Systems.Clear();
-            CurrentSystem = null;
-            Project.Stop();
-        }
-
-        private void ToggleProject()
-        {
-            if (Project != null)
-            {
-                if (Project.IsStarted)
-                {
-                    StopProject();
-                }
-                else
-                {
-                    StartProject();
-                }
-            }
-        }
-
-        private void ToggleProjectMode()
-        {
-            ECS.Instance.SetAutoUpdate(!ECS.Instance.GetAutoUpdate());
         }
 
         private void UpdateRecentProjects(string filename)

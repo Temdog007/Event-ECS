@@ -21,9 +21,9 @@
 local Component = require("component")
 local class = require("classlib")
 
-local TestComponentAlt = class("TestComponentAlt", Component)
+local testComponentAlt = class("testComponentAlt", Component)
 
-function TestComponentAlt:__init(entity)
+function testComponentAlt:__init(entity)
   self.Component:__init(entity, self)
   self.addedComponentCalled = 0
   self.removingComponentCalled = 0
@@ -31,16 +31,20 @@ function TestComponentAlt:__init(entity)
   self.x = 0
   self.y = 0
   self.space = 10
+
+  self.current = 0
+  self.rate = 1
+  self.added = false
 end
 
-function TestComponentAlt:eventAddedComponent(args)
+function testComponentAlt:eventAddedComponent(args)
   if args.component == self then
     self.added = true
   end
   self.addedComponentCalled = self.addedComponentCalled + 1
 end
 
-function TestComponentAlt:eventRemovingComponent(args)
+function testComponentAlt:eventRemovingComponent(args)
   self.Component:eventRemovingComponent(args)
   if args.component == self then
     self.added = false
@@ -48,4 +52,12 @@ function TestComponentAlt:eventRemovingComponent(args)
   self.removingComponentCalled = self.removingComponentCalled + 1
 end
 
-return TestComponentAlt
+function testComponentAlt:eventUpdate(args)
+  self.current = self.current + args.dt
+  if self.current > self.rate then
+    print("Test Component Update Called")
+    self.current = 0
+  end
+end
+
+return testComponentAlt

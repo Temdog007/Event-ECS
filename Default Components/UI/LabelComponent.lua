@@ -1,9 +1,9 @@
 local Component = require('component')
 local class = require('classlib')
 
-local LabelComponent = class('LabelComponent', Component)
+local labelComponent = class('labelComponent', Component)
 
-function LabelComponent:__init(entity)
+function labelComponent:__init(entity)
   self.Component:__init(entity, self)
 
   self.x = 0
@@ -13,11 +13,11 @@ function LabelComponent:__init(entity)
   self.text = ""
 end
 
-function LabelComponent:draw(color)
+function labelComponent:draw(color)
   if color then
     love.graphics.setColor(color)
   end
   love.graphics.printf(self.text, self.x, self.y, self.width, "center")
 end
 
-return LabelComponent
+return labelComponent
