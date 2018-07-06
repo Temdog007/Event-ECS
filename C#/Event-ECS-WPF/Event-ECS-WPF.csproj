@@ -83,6 +83,9 @@
     <Compile Include="Controls\ComponentVariableControl.xaml.cs">
       <DependentUpon>ComponentVariableControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\ComponentVariableStringControl.xaml.cs">
+      <DependentUpon>ComponentVariableStringControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\StringListControl.xaml.cs">
       <DependentUpon>StringListControl.xaml</DependentUpon>
     </Compile>
@@ -113,6 +116,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\ComponentVariableControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\ComponentVariableStringControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
