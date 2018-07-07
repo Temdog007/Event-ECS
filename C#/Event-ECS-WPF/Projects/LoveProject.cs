@@ -87,7 +87,7 @@ namespace Event_ECS_WPF.Projects
         {
             try
             {
-                foreach (var libraryPath in LibraryPaths.Select(l => l.Value))
+                foreach (string libraryPath in AllLibraryPaths)
                 {
                     if (!libraryPath.IsHidden() && Directory.Exists(libraryPath))
                     {
@@ -144,11 +144,10 @@ namespace Event_ECS_WPF.Projects
                     FileName = Properties.Settings.Default.Love2D,
 
                     UseShellExecute = false,
-#if DEBUG
-                    Arguments = string.Join(" ", string.Format("\"{0}\"", OutputPath), "DEBUG_MODE")
-#else
-                    Arguments = string.Join(" ", string.Format("\"{0}\"", OutputPath))
-#endif
+
+                    Arguments = string.Join(" ", string.Format("\"{0}\"", OutputPath)),
+
+                    WorkingDirectory = OutputPath
                 };
             }
         }

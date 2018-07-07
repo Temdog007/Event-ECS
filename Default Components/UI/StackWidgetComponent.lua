@@ -20,13 +20,15 @@ function StackWidgetComponent:__init(entity)
   self.updateInterval = 1
 end
 
-function StackWidgetComponent:addItem(item)
-  if not item or not classname(item) or
-    not item.x or not item.y or
-    not item.width or not item.height then
-    error("Cannot add item because it is not considered a UI drawable object")
+function StackWidgetComponent:addItems(...)
+  for _, item in pairs({...}) do
+    self:addItem(item)
   end
+end
 
+function StackWidgetComponent:addItem(item)
+  assert(item and classname(item) and item.x and item.y and item.width and item.height,
+		"Cannot add item because it is not considered a UI drawable object")
   table.insert(self.items, item)
   self:dispatchEvent("eventItemAdded", {widget = self, item = item})
   self:layoutItems()
@@ -50,6 +52,13 @@ function StackWidgetComponent:hasItem(item)
     end
   end
   return false
+end
+
+function StackWidgetComponent:setItemsEnabled(enable)
+  assert(type(enable) == "boolean", "Must enter a boolean to setEnable")
+  for _, item in pairs(self.items) do
+    item:setEnabled(enable)
+  end
 end
 
 function StackWidgetComponent:reorderItems()

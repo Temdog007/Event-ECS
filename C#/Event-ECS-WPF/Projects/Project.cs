@@ -106,6 +106,18 @@ namespace Event_ECS_WPF.Projects
             }
         }
 
+        public IEnumerable<string> AllLibraryPaths
+        {
+            get
+            {
+                yield return Location;
+                foreach(var path in LibraryPaths)
+                {
+                    yield return path;
+                }
+            }
+        }
+
         [XmlAttribute]
         public string Name
         {
