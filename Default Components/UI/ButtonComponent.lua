@@ -16,6 +16,8 @@ function buttonComponent:__init(entity)
 end
 
 function buttonComponent:isOver(x, y)
+  assert(type(x) == "number" and type(y) == "number",
+    string.format("Must enter numbers to 'isOver' %s %s", tostring(s), tostring(s)))
   return self.x < x and x < self.x + self.width and
           self.y < y and y < self.y + self.height
 end
@@ -47,6 +49,9 @@ function buttonComponent:eventMouseReleased(args)
   if not b then return end
 
   if b == 1 then
+    if self.isClicked and self.isMouseOver and self.action then
+      self.action()
+    end
     self.isClicked = false
   end
 end

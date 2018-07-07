@@ -60,6 +60,9 @@ function sliderComponent:eventMouseMoved(args)
 
   self.isMouseOver = self:isOver(x, y)
   self:updatePosition(x,y)
+  if self.isClicked and self.isMouseOver and self.action then
+    self.action(self.value, self:getPercentage())
+  end
 end
 
 function sliderComponent:eventMousePressed(args)
