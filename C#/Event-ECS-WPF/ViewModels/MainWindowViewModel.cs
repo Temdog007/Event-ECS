@@ -300,6 +300,7 @@ return {0}";
             {
                 var serializer = new XmlSerializer(typeof(Project));
                 Project = (Project)serializer.Deserialize(s);
+                LogManager.Instance.Add("Loaded project: {0}", projectName);
             }
             UpdateRecentProjects(projectName);
         }

@@ -109,6 +109,7 @@ namespace Event_ECS_WPF.Logger
             lock (m_lock)
             {
                 m_logs.Clear();
+                Default_SettingChanging(null, null);
             }
         }
 

@@ -22,6 +22,10 @@ namespace Event_ECS_WPF.Misc
 
         public static implicit operator T(ValueContainer<T> val)
         {
+            if(val == null)
+            {
+                return null;
+            }
             return (T)val.Value.Clone();
         }
 

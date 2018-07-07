@@ -9,6 +9,7 @@
         xmlns:logger="clr-namespace:Event_ECS_WPF.Logger"
         xmlns:proj="clr-namespace:Event_ECS_WPF.Projects"
         xmlns:properties="clr-namespace:Event_ECS_WPF.Properties"
+        xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
         xmlns:sysObj="clr-namespace:Event_ECS_WPF.SystemObjects"
         xmlns:forms="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
@@ -21,6 +22,14 @@
     <Window.DataContext>
         <local:MainWindowViewModel x:Name="viewmodel"/>
     </Window.DataContext>
+
+    <Window.Resources>
+        <CollectionViewSource x:Key="ecsList" Source="{Binding ElementName=viewmodel, Path=Systems, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+            <CollectionViewSource.SortDescriptions>
+                <scm:SortDescription PropertyName="Name"/>
+            </CollectionViewSource.SortDescriptions>
+        </CollectionViewSource>
+    </Window.Resources>
 
     <Window.InputBindings>
         <KeyBinding Key="N" Modifiers="Ctrl" Command="{Binding NewProjectCommand}" CommandParameter="{x:Static proj:ProjectType.NORMAL}"/>
@@ -88,6 +97,7 @@
                 <sys:Int32>9</sys:Int32>
             </KeyBinding.CommandParameter>
         </KeyBinding>
+        
     </Window.InputBindings>
 
     <DockPanel>
@@ -241,18 +251,20 @@
                 Content="{Binding Project, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ContentTemplateSelector="{StaticResource projectSelector}"/>
         </Expander>
 
-        <TabControl ItemsSource="{Binding Systems, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                    SelectedItem="{Binding CurrentSystem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+        <TabControl ItemsSource="{Binding Source={StaticResource ecsList}}" SelectedItem="{Binding CurrentSystem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+
             <TabControl.ItemTemplate>
                 <DataTemplate>
                     <TextBlock Text="{Binding Name}"/>
                 </DataTemplate>
             </TabControl.ItemTemplate>
+            
             <TabControl.ContentTemplate>
                 <DataTemplate>
                     <controls:EntityComponentSystemControl EntityComponentSystem="{Binding}" Project="{Binding ElementName=viewmodel, Path=Project, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                 </DataTemplate>
             </TabControl.ContentTemplate>
+            
         </TabControl>
     </DockPanel>
 </Window>
