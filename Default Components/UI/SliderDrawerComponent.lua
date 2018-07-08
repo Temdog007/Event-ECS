@@ -20,9 +20,12 @@ function SliderDrawerComponent:__init(entity)
   self.scaleX = 1
   self.scaleY = 1
   self.cursorScale = 0.1
+  self.drawOrder = 0
 end
 
 function SliderDrawerComponent:eventDraw(args)
+  if not args or args.drawOrder ~= self.drawOrder then return end
+
   local slider = self:getComponent("sliderComponent")
   if not slider then return end
 

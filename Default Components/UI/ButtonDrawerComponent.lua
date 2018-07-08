@@ -15,9 +15,12 @@ function buttonDrawerComponent:__init(entity)
   self.scaleX = 1
   self.scaleY = 1
   self.alignment = "center"
+  self.drawOrder = 0
 end
 
 function buttonDrawerComponent:eventDraw(args)
+  if not args or args.drawOrder ~= self.drawOrder then return end
+  
   local button = self:getComponent("buttonComponent")
   if not button then return end
 

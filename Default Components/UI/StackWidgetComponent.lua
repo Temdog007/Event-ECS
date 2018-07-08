@@ -29,6 +29,8 @@ function StackWidgetComponent:__init(entity)
 
   self.currentInterval = 0
   self.updateInterval = 1
+
+  self.drawOrder = 0
 end
 
 function StackWidgetComponent:addItems(...)
@@ -182,6 +184,8 @@ local function widgetDraw(widget)
 end
 
 function StackWidgetComponent:eventDraw(args)
+  if not args or args.drawOrder ~= self.drawOrder then return end
+  
   if self.useScissor then
     love.graphics.setScissor(self.scissorX, self.scissorY,
                     self.scissorWidth, self.scissorHeight)

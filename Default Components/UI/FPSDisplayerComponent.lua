@@ -10,9 +10,12 @@ function fpsDisplayerComponent:__init(entity)
   self.scaleX = 1
   self.scaleY = 1
   self.limit = 100
+  self.drawOrder = 0
 end
 
 function fpsDisplayerComponent:eventDraw(args)
+  if not args or args.drawOrder ~= self.drawOrder then return end
+
   local color = self:getComponent("colorComponent")
   if color then
     love.graphics.setColor(color)

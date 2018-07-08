@@ -14,6 +14,7 @@ function LogTest:__init(entity)
   self.scaleX = 1
   self.scaleY = 1
   self.space = 10
+  self.drawOrder = 0
 end
 
 function LogTest:eventAddedComponent(args)
@@ -23,6 +24,8 @@ function LogTest:eventAddedComponent(args)
 end
 
 function LogTest:eventDraw(args)
+  if not args or args.drawOrder ~= self.drawOrder then return end
+  
 	local color = self:getComponent("colorComponent")
 	if not color then color = defaultColor end
 	love.graphics.setColor(color)
