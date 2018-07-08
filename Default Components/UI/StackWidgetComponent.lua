@@ -12,10 +12,21 @@ function StackWidgetComponent:__init(entity)
   self.height = 0
   self.space = 10
 
-  self.sx = 0
-  self.sy = 0
-  self.autoSize = true
-  self.vertical = true
+  -- scissor
+  self.scissorX = 0
+  self.scissorY = 0
+  self.scissorWidth = 100
+  self.scissorHeight = 100
+  self.useScissor = false
+
+  --alignment
+  self.verticalAlignment = "none"
+  self.verticalPadding = 0
+  self.horizontalAlignment = "none"
+  self.horizontalPadding = 0
+
+  self.stackVertically = true
+
   self.currentInterval = 0
   self.updateInterval = 1
 end
@@ -71,49 +82,84 @@ function StackWidgetComponent:reorderItems()
   self:layoutItems()
 end
 
+function StackWidgetComponent:alignVerticalPosition()
+  if self.verticalAlignment == "top" then
+    self.y = self.verticalPadding
+  elseif self.verticalAlignment == "bottom" then
+    self.y = love.graphics.getHeight() - self.height - self.verticalPadding
+  elseif self.verticalAlignment == "center" then
+    self.y = (love.graphics.getHeight() - self.height) * 0.5
+  end
+end
+
+function StackWidgetComponent:alignHorizontalPosition()
+  if self.horizontalAlignment == "left" then
+    self.x = self.horizontalPadding
+  elseif self.horizontalAlignment == "right" then
+    self.x = love.graphics.getWidth() - self.width - self.horizontalPadding
+  elseif self.horizontalAlignment == "center" then
+    self.x = (love.graphics.getWidth() - self.width) * 0.5
+  end
+end
+
+function StackWidgetComponent:alignPosition()
+  self:alignVerticalPosition()
+  self:alignHorizontalPosition()
+end
+
+function StackWidgetComponent:calculateSize()
+  self.width = 0
+  self.height = 0
+  if self.stackVertically then
+    for i, item in ipairs(self.items) do
+      if item:isEnabled() then
+        self.width = math.max(self.width, item.width)
+        self.height = self.height + self.space + item.height
+      end
+    end
+  else
+    for i, item in ipairs(self.items) do
+      if item:isEnabled() then
+        self.width = self.width + self.space + item.width
+        self.height = math.max(self.height, item.height)
+      end
+    end
+  end
+end
+
 function StackWidgetComponent:layoutItems()
-  if self.vertical then self:layoutItemsVertically()
+  self:calculateSize()
+  self:alignPosition()
+  if self.stackVertically then self:layoutItemsVertically()
   else self:layoutItemsHorizontally() end
 end
 
 function StackWidgetComponent:layoutItemsVertically()
   local x, y, space = self.x, self.y, self.space
-  if self.autoSize then
-    self.width = 0
-  end
+  self.width = 0
   for i, item in ipairs(self.items) do
     if item:isEnabled() then
       item.x = x
       item.y = y
       y = y + space + item.height
-      if self.autoSize then
-        self.width = math.max(self.width, item.width)
-      end
+      self.width = math.max(self.width, item.width)
     end
   end
-  if self.autoSize then
-    self.height = y - self.y
-  end
+  self.height = y - self.y
 end
 
 function StackWidgetComponent:layoutItemsHorizontally()
   local x, y, space = self.x, self.y, self.space
-  if self.autoSize then
-    self.height = 0
-  end
+  self.height = 0
   for i, item in ipairs(self.items) do
     if item:isEnabled() then
       item.x = x
       item.y = y
       x = x + space + item.width
-      if self.autoSize then
-        self.height = math.max(self.height, item.height)
-      end
+      self.height = math.max(self.height, item.height)
     end
   end
-  if self.autoSize then
-    self.width = x - self.x
-  end
+  self.width = x - self.x
 end
 
 function StackWidgetComponent:eventUpdate(args)
@@ -126,18 +172,24 @@ function StackWidgetComponent:eventUpdate(args)
   end
 end
 
-function StackWidgetComponent:eventDraw(args)
-  local color = self:getComponent("colorComponent")
-
-  if not self.autoSize then
-    love.graphics.setScissor(self.sx, self.sy, self.width, self.height)
-  end
-  for i, item in ipairs(self.items) do
+local function widgetDraw(widget)
+  local color = widget:getComponent("colorComponent")
+  for _, item in ipairs(widget.items) do
     if item:isEnabled() then
       item:draw(color)
     end
   end
-  love.graphics.setScissor()
+end
+
+function StackWidgetComponent:eventDraw(args)
+  if self.useScissor then
+    love.graphics.setScissor(self.scissorX, self.scissorY,
+                    self.scissorWidth, self.scissorHeight)
+    widgetDraw(self)
+    love.graphics.setScissor()
+  else
+    widgetDraw(self)
+  end
 end
 
 return StackWidgetComponent
