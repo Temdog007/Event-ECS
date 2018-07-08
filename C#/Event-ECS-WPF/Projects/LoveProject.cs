@@ -1,6 +1,7 @@
 ﻿using Event_ECS_WPF.Extensions;
 using Event_ECS_WPF.Logger;
 using Event_ECS_WPF.Projects.Love;
+using Event_ECS_WPF.Properties;
 using Event_ECS_WPF.SystemObjects;
 using System;
 using System.Diagnostics;
@@ -21,7 +22,7 @@ namespace Event_ECS_WPF.Projects
 
         public const string LoadServerEntity = "require('serverSystem') -- Remove this when releasing game";
 
-        public const string SetDebugMode = "DEBUG_MODE = true -- Remove this when releasing game";
+        public const string SetDebugMode = "DEBUG_MODE = {0} -- Remove this when releasing game";
 
         private LoveProjectSettings _settings;
 
@@ -70,7 +71,7 @@ namespace Event_ECS_WPF.Projects
                 text = text.Replace("True", "true").Replace("False", "false");
                 File.WriteAllText(Path.Combine(OutputPath, "conf.lua"), text);
                 File.WriteAllText(Path.Combine(OutputPath, "main.lua"), 
-                    string.Join(Environment.NewLine, SetDebugMode,
+                    string.Join(Environment.NewLine, string.Format(SetDebugMode, Properties.Settings.Default.StartProjectInDebugMode ? "true" : "false"),
                     LoadEventECS, LoadLoveRun, LoadEventECSServer, LoadServerEntity,
                     Environment.NewLine, File.ReadAllText(StartupScript)));
 

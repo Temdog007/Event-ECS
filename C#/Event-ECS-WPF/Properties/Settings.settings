@@ -29,5 +29,8 @@
     <Setting Name="LogLevel" Type="Event_ECS_WPF.Logger.LogLevel" Scope="User">
       <Value Profile="(Default)">Low</Value>
     </Setting>
+    <Setting Name="StartProjectInDebugMode" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

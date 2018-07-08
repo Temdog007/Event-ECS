@@ -129,5 +129,17 @@ namespace Event_ECS_WPF.Properties {
                 this["LogLevel"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool StartProjectInDebugMode {
+            get {
+                return ((bool)(this["StartProjectInDebugMode"]));
+            }
+            set {
+                this["StartProjectInDebugMode"] = value;
+            }
+        }
     }
 }
