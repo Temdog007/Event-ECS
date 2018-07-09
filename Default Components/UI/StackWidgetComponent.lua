@@ -33,6 +33,14 @@ function StackWidgetComponent:__init(entity)
   self.drawOrder = 0
 end
 
+function StackWidgetComponent:eventEnabledChanged(args)
+  if not args then return end
+
+  if args.system == self:getSystem() and args.enabled then
+    self:layoutItems()
+  end
+end
+
 function StackWidgetComponent:addItems(...)
   for _, item in pairs({...}) do
     self:addItem(item)
@@ -185,7 +193,7 @@ end
 
 function StackWidgetComponent:eventDraw(args)
   if not args or args.drawOrder ~= self.drawOrder then return end
-  
+
   if self.useScissor then
     love.graphics.setScissor(self.scissorX, self.scissorY,
                     self.scissorWidth, self.scissorHeight)

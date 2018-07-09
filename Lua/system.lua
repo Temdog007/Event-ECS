@@ -42,10 +42,13 @@ function system:isEnabled()
   return self.enabled
 end
 
-function system:setEnabled(value)
-  assert(type(value) == "boolean", "Must set enabled to a boolean value")
+function system:setEnabled(pEnabled)
+  assert(type(pEnabled) == "boolean", "Must set enabled to a boolean value")
 
-  self.enabled = value
+  if self.enabled ~= pEnabled then
+    self.enabled = pEnabled
+    self:dispatchEvent("eventEnabledChanged", {system = self, enabled = pEnabled})
+  end
 end
 
 function system:registerEntity(name, ...)

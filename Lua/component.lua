@@ -55,7 +55,7 @@ function component:getEntity()
 end
 
 function component:getSystem()
-  return self:getEntity().system
+  return self.entity.system
 end
 
 function component:getComponent(compName)
@@ -63,11 +63,11 @@ function component:getComponent(compName)
   return self.entity[compName]
 end
 
-function component:setEnabled(enabled)
-  assert(type(enabled) == "boolean", "Must set enabled to a boolean value")
-  if self.enabled ~= enabled then
-    self.enabled = enabled
-    self:dispatchEvent("eventEnabledChanged", {component = self, enabled = enabled})
+function component:setEnabled(pEnabled)
+  assert(type(pEnabled) == "boolean", "Must set enabled to a boolean value")
+  if self.enabled ~= pEnabled then
+    self.enabled = pEnabled
+    self:dispatchEvent("eventEnabledChanged", {component = self, enabled = pEnabled})
   end
 end
 
