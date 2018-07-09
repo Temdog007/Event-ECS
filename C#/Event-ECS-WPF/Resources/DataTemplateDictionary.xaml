@@ -37,14 +37,11 @@
     </DataTemplate>
 
     <DataTemplate x:Key="boolComponentVariable">
-        <CheckBox IsChecked="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Content="{Binding Name}"/>
+        <CheckBox IsChecked="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
     </DataTemplate>
 
     <DataTemplate x:Key="idComponentVariable">
-        <StackPanel Orientation="Horizontal" Background="Transparent">
-            <TextBlock Text="ID: " Background="Transparent" FontWeight="Bold"/>
-            <TextBlock Text="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Background="Transparent"/>
-        </StackPanel>
+        <TextBlock Text="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Background="Transparent"/>
     </DataTemplate>
     
     <selector:ProjectDataTemplateSelector x:Key="projectSelector"/>

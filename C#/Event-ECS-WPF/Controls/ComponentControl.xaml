@@ -4,24 +4,17 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:ex="clr-namespace:Event_ECS_WPF.Extensions"
-             xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
              x:Name="m_componentControl">
 
     <UserControl.Resources>
-        <CollectionViewSource x:Key="compSrc" Source="{Binding ElementName=m_componentControl, Path=Component.Variables, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
-            <CollectionViewSource.SortDescriptions>
-                <scm:SortDescription PropertyName="Name"/>
-            </CollectionViewSource.SortDescriptions>
-        </CollectionViewSource>
-
         <ex:BindingProxy x:Key="ComponentControl" Data="{Binding ElementName=m_componentControl}"/>
     </UserControl.Resources>
 
     <Expander Header="{Binding ElementName=m_componentControl, Path=Component.Name}" 
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" MinWidth="100">
-        
+
         <Expander.Style>
             <Style TargetType="Expander">
                 <Setter Property="Background" Value="LightGreen"/>
@@ -32,7 +25,7 @@
                 </Style.Triggers>
             </Style>
         </Expander.Style>
-        
+
         <Expander.ContextMenu>
             <ContextMenu>
                 <MenuItem Header="Reload" Command="{Binding Source={StaticResource ComponentControl}, Path=Data.ReloadComponentCommand}"/>
@@ -40,16 +33,17 @@
                 <MenuItem Header="Remove" Command="{Binding Source={StaticResource ComponentControl}, Path=Data.RemoveComponentCommand}"/>
             </ContextMenu>
         </Expander.ContextMenu>
-        <Grid>
-
-            <Grid.RowDefinitions>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-
-            <ListBox ItemsSource="{Binding Source={StaticResource compSrc}}" Grid.Row="1"
-                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ItemTemplateSelector="{StaticResource componentTemplateSelector}">
-            </ListBox>
-        </Grid>
+        
+        <ListView ItemsSource="{Binding ElementName=m_componentControl, Path=Component.SortedVariables, UpdateSourceTrigger=PropertyChanged}">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <DockPanel>
+                        <TextBlock Text="{Binding Name}" FontWeight="Bold" Width="auto" MinWidth="50" DockPanel.Dock="Left" Margin="5"/>
+                        <ContentPresenter ContentTemplateSelector="{StaticResource componentTemplateSelector}" MinWidth="300"/>
+                    </DockPanel>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+        
     </Expander>
 </UserControl>

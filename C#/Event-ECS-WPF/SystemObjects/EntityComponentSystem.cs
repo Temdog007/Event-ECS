@@ -1,5 +1,4 @@
-﻿using Event_ECS_WPF.Extensions;
-using Event_ECS_WPF.Logger;
+﻿using Event_ECS_WPF.Logger;
 using Event_ECS_WPF.Misc;
 using System;
 using System.Collections.Generic;

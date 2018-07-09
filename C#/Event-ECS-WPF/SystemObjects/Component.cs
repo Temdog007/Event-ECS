@@ -1,14 +1,13 @@
 ﻿using Event_ECS_WPF.Misc;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 
 namespace Event_ECS_WPF.SystemObjects
 {
-    public class Component : Collection<IComponentVariable>, INotifyCollectionChanged, INotifyPropertyChanged
+    public class Component : INotifyCollectionChanged, INotifyPropertyChanged
     {
         private ObservableSet<IComponentVariable> m_variables = new ObservableSet<IComponentVariable>();
 
@@ -52,6 +51,17 @@ namespace Event_ECS_WPF.SystemObjects
                     v.Component = this;
                 }
                 OnPropertyChanged("Variables");
+                OnPropertyChanged("SortedVariables");
+            }
+        }
+
+        public IEnumerable<IComponentVariable> SortedVariables
+        {
+            get
+            {
+                List<IComponentVariable> sortedList = new List<IComponentVariable>(Variables);
+                sortedList.Sort();
+                return sortedList;
             }
         }
 

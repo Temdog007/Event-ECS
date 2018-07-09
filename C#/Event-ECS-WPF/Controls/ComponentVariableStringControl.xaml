@@ -19,30 +19,26 @@
         <ex:BindingProxy x:Key="CompVarControl" Data="{Binding ElementName=m_control}"/>
     </UserControl.Resources>
 
-    <DockPanel>
-
-        <TextBlock Margin="5" DockPanel.Dock="Left" Text="{Binding ElementName=m_control, Path=ComponentVariable.Name}"/>
-        <TextBox>
-            <TextBox.Text>
-                <Binding Path="ComponentVariable.Value" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged" ElementName="m_control" Delay="100">
-                    <Binding.ValidationRules>
-                        <misc:ComponentVariableValidation>
-                            <misc:ComponentVariableValidation.Variable>
-                                <misc:ComponentVariableChecker ComponentVariable="{Binding Source={StaticResource CompVarControl}, Path=Data.ComponentVariable}"/>
-                            </misc:ComponentVariableValidation.Variable>
-                        </misc:ComponentVariableValidation>
-                    </Binding.ValidationRules>
-                </Binding>
-            </TextBox.Text>
-            <TextBox.Style>
-                <Style TargetType="TextBox">
-                    <Style.Triggers>
-                        <Trigger Property="Validation.HasError" Value="true">
-                            <Setter Property="ToolTip" Value="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=(Validation.Errors)[0].ErrorContent}"/>
-                        </Trigger>
-                    </Style.Triggers>
-                </Style>
-            </TextBox.Style>
-        </TextBox>
-    </DockPanel>
+    <TextBox>
+        <TextBox.Text>
+            <Binding Path="ComponentVariable.Value" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged" ElementName="m_control" Delay="100">
+                <Binding.ValidationRules>
+                    <misc:ComponentVariableValidation>
+                        <misc:ComponentVariableValidation.Variable>
+                            <misc:ComponentVariableChecker ComponentVariable="{Binding Source={StaticResource CompVarControl}, Path=Data.ComponentVariable}"/>
+                        </misc:ComponentVariableValidation.Variable>
+                    </misc:ComponentVariableValidation>
+                </Binding.ValidationRules>
+            </Binding>
+        </TextBox.Text>
+        <TextBox.Style>
+            <Style TargetType="TextBox">
+                <Style.Triggers>
+                    <Trigger Property="Validation.HasError" Value="true">
+                        <Setter Property="ToolTip" Value="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=(Validation.Errors)[0].ErrorContent}"/>
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+        </TextBox.Style>
+    </TextBox>
 </UserControl>
