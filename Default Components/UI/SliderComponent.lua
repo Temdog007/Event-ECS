@@ -3,6 +3,10 @@ local class = require('classlib')
 local colorComponent = require("colorComponent")
 local sliderComponent = class('sliderComponent', Component)
 
+local defaultKeys = require('itemKeys')
+local initKeys = defaultKeys.init
+local updateKeys = defaultKeys.update
+
 function sliderComponent:__init(entity)
   self.Component:__init(entity, self)
   self.min = 0
@@ -17,11 +21,27 @@ function sliderComponent:__init(entity)
   self.y = 0
   self.width = 100
   self.height = 100
+  initKeys(self)
 end
 
 function sliderComponent:isOver(x, y)
   return self.x < x and x < self.x + self.width and
           self.y < y and y < self.y + self.height
+end
+
+function sliderComponent:eventUpdate(args)
+  updateKeys(self)
+end
+
+sliderComponent.eventItemsChanged = defaultKeys.itemChanged
+
+function sliderComponent:eventItemChanged(args)
+  if not args or not args.item ~= self then return end
+
+  self.lastValues.x = self.x
+  self.lastValues.y = self.y
+  self.lastValues.width = self.width
+  self.lastValues.height = self.height
 end
 
 function sliderComponent:updatePosition(x, y)

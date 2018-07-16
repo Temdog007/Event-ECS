@@ -3,6 +3,10 @@ local class = require('classlib')
 local colorComponent = require("colorComponent")
 local buttonComponent = class('buttonComponent', Component)
 
+local defaultKeys = require('itemKeys')
+local initKeys = defaultKeys.init
+local updateKeys = defaultKeys.update
+
 function buttonComponent:__init(entity)
   self.Component:__init(entity, self)
 
@@ -13,6 +17,8 @@ function buttonComponent:__init(entity)
   self.y = 0
   self.width = 100
   self.height = 25
+
+  initKeys(self)
 end
 
 function buttonComponent:isOver(x, y)
@@ -21,6 +27,12 @@ function buttonComponent:isOver(x, y)
   return self.x < x and x < self.x + self.width and
           self.y < y and y < self.y + self.height
 end
+
+function buttonComponent:eventUpdate(args)
+  updateKeys(self)
+end
+
+buttonComponent.eventItemsChanged = defaultKeys.itemChanged
 
 function buttonComponent:eventMouseMoved(args)
   if not args then return end
