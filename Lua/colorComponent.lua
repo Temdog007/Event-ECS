@@ -22,6 +22,7 @@ local Component = require("component")
 local class = require("classlib")
 
 local colorComponent = class("colorComponent", Component)
+local colors = require("eventecscolors")
 
 function colorComponent:__init(entity)
   self.Component:__init(entity, self)
@@ -44,12 +45,10 @@ function colorComponent:eventSetColor(args)
   if args.color then
 
     assert(type(args.color) == "string", "Color must be a string")
-    color = assert(self.getColor(args.color), string.format("Color '%s' was not found", args.color))
-
-    args[1] = color[1]
-    args[2] = color[2]
-    args[3] = color[3]
-    args[4] = nil -- don't change
+    args[1], args[2], args[3], args[4] = colors.getColor(args.color)
+    for i = 1, 4 do
+      assert(type(args[i]) == "number", string.format("Non number value %s was entered as when changing to color", tostring(args[i])))
+    end
   else
     if args[1] then
       if type(args[1]) ~= "number" then

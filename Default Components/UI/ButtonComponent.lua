@@ -2,6 +2,7 @@ local Component = require('component')
 local class = require('classlib')
 local colorComponent = require("colorComponent")
 local buttonComponent = class('buttonComponent', Component)
+local Colors = require("eventecscolors")
 
 local defaultKeys = require('itemKeys')
 local initKeys = defaultKeys.init
@@ -70,7 +71,7 @@ end
 
 function buttonComponent:drawHighlight(scale, pressedColor, highlightColor)
   scale = scale or 1.1
-  local c = colorComponent.getColor(self.isClicked and (pressedColor or "red") or (highlightColor or "yellow"))
+  local c = {Colors.getColor(self.isClicked and (pressedColor or "red") or (highlightColor or "yellow"))}
   if c then
     love.graphics.setColor(c)
     local width, height = self.width * scale, self.height * scale

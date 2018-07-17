@@ -1,7 +1,6 @@
 ﻿using Event_ECS_WPF.Extensions;
 using Event_ECS_WPF.Logger;
 using Event_ECS_WPF.Projects.Love;
-using Event_ECS_WPF.Properties;
 using Event_ECS_WPF.SystemObjects;
 using System;
 using System.Diagnostics;
@@ -15,6 +14,8 @@ namespace Event_ECS_WPF.Projects
     public class LoveProject : Project
     {
         public const string LoadEventECS = "require('eventecs')";
+
+        public const string LoadColors = "local Colors = require('eventecscolors')";
 
         public const string LoadLoveRun = "require('eventecsloverun')\nrequire('loveRun')";
 
@@ -72,7 +73,7 @@ namespace Event_ECS_WPF.Projects
                 File.WriteAllText(Path.Combine(OutputPath, "conf.lua"), text);
                 File.WriteAllText(Path.Combine(OutputPath, "main.lua"), 
                     string.Join(Environment.NewLine, string.Format(SetDebugMode, Properties.Settings.Default.StartProjectInDebugMode ? "true" : "false"),
-                    LoadEventECS, LoadLoveRun, LoadEventECSServer, LoadServerEntity,
+                    LoadEventECS, LoadColors, LoadLoveRun, LoadEventECSServer, LoadServerEntity,
                     Environment.NewLine, File.ReadAllText(StartupScript)));
 
                 return true;

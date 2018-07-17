@@ -1,6 +1,6 @@
 local Component = require('component')
 local class = require('classlib')
-local colorComponent = require("colorComponent")
+local Colors = require("eventecscolors")
 
 local SliderDrawerComponent = class('sliderDrawerComponent', Component)
 
@@ -38,12 +38,12 @@ function SliderDrawerComponent:eventDraw(args)
   end
 
   if self.drawText then
-    local c = colorComponent.getColor(self.fontColor)
+    local c = Colors.getColor(self.fontColor)
     slider:drawText(c, self.alignment, self.scaleX, self.scaleY)
   end
 
   if self.drawCursor then
-    local color = colorComponent.getColor(self.cursorColor)
+    local color = Colors.getColor(self.cursorColor)
     slider:drawCursor(color, self.cursorScale)
   end
 end

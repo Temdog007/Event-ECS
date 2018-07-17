@@ -1,6 +1,6 @@
 local Component = require('component')
 local class = require('classlib')
-local colorComponent = require("colorComponent")
+local Colors = require("eventecscolors")
 local sliderComponent = class('sliderComponent', Component)
 
 local defaultKeys = require('itemKeys')
@@ -108,7 +108,7 @@ end
 
 function sliderComponent:drawHighlight(scale, pressedColor, highlightColor)
   scale = scale or 1.1
-  local c = colorComponent.getColor((self.isClicked or self.isClicked) and (pressedColor or "red") or (highlightColor or "yellow"))
+  local c = {Colors.getColor((self.isClicked or self.isClicked) and (pressedColor or "red") or (highlightColor or "yellow"))}
   if c then
     love.graphics.setColor(c)
     local width, height = self.width * scale, self.height * scale
