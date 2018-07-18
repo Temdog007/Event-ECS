@@ -23,13 +23,8 @@ local ClassName = "Debug Entity Component System"
 local system = require("system")
 local debugSystem = class(ClassName, system)
 
-function debugSystem:__init(name)
-  self.System = self[classname(system)]
-  self.System:__init(name)
-end
-
 function debugSystem:dispatchEvent(name, args)
-  local callResult, returnValue = pcall(self.System.dispatchEvent, self.System, name, args)
+  local callResult, returnValue = pcall(self.system.dispatchEvent, self.system, name, args)
   if not callResult then
     print(returnValue)
   end

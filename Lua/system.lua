@@ -20,51 +20,31 @@
 
 local class = require("classlib")
 local Entity = require("entity")
-local Component = require("component")
-local finalizerComponent = require("finalizerComponent")
-local colorComponent = require("colorComponent")
-local ClassName = "Entity Component System"
-local system = class(ClassName)
+local system = class("system", require("ecsObject"))
 
-function system:__init(name)
-  self.entities = {}
-  self.registeredEntities = {}
-  self.id = 1
-  self.name = name or ClassName
-  self.enabled = true
+local function dispatchEvent(ecsObj, eventName, args)
+  return ecsObj.system:dispatchEvent(eventName, args)
 end
 
-function system:getName()
-  return self.name
-end
-
-function system:isEnabled()
-  return self.enabled
-end
-
-function system:setEnabled(pEnabled)
-  assert(type(pEnabled) == "boolean", "Must set enabled to a boolean value")
-
-  if self.enabled ~= pEnabled then
-    self.enabled = pEnabled
-    self:dispatchEvent("eventEnabledChanged", {system = self, enabled = pEnabled})
-  end
+function system:__user_init(name)
+  self:set("name", name or "System")
+  self:set("entities", {})
+  self:set("registeredEntities", {})
+  self:set("dispatchEvent", dispatchEvent)
 end
 
 function system:registerEntity(name, ...)
-  assert(not self.registeredEntities[name], string.format("Entity with name '%s' is already registered", tostring(name)))
-  self.registeredEntities[name] = {...}
+  assert(not self:get("registeredEntities")[name], string.format("Entity with name '%s' is already registered", tostring(name)))
+  self:get("registeredEntities")[name] = {...}
 end
 
 function system:createEntity(name)
-  assert(not name or self.registeredEntities[name], string.format("Entity with name '%s' is not registered", tostring(name)))
+  assert(not name or self:get("registeredEntities")[name], string.format("Entity with name '%s' is not registered", tostring(name)))
+
   local entity = Entity(self)
-  local thisID = self.id
-  entity.getID = function() return thisID end
-  self.id = self.id + 1
-  self.entities[#self.entities + 1] = entity
+  table.insert(self:get("entities"), entity)
   if name then
-    for _, comp in pairs(self.registeredEntities[name]) do
+    for _, comp in pairs(self:get("registeredEntities")[name]) do
       entity:addComponent(comp)
     end
   end
@@ -73,20 +53,21 @@ end
 
 function system:removeEntity(entity)
   if type(entity) == "number" then
-    for k, en in pairs(self.entities) do
+    for k, en in pairs(self:get("entities")) do
       if en:getID() == entity then
         self:dispatchEvent("eventRemovingEntity", {entity = entity, system = self})
-        self.entities[k] = nil
+        self:get("entities")[k] = nil
         self:dispatchEvent("eventRemovedEntity", {entity = entity, system = self})
         return true
       end
     end
   else
-    assert(entity, "Must enter a entity to remove")
-    for k, en in pairs(self.entities) do
+    checkEntity(entity)
+
+    for k, en in pairs(self:get("entities")) do
       if en == entity then
         self:dispatchEvent("eventRemovingEntity", {entity = entity, system = self})
-        self.entities[k] = nil
+        self:get("entities")[k] = nil
         self:dispatchEvent("eventRemovedEntity", {entity = entity, system = self})
         return true
       end
@@ -95,13 +76,13 @@ function system:removeEntity(entity)
 end
 
 function system:removeEntities(matchFunction)
-  assert(typeof(matchFunction) == "function", "Must enter a function to remove self.entities")
+  assert(typeof(matchFunction) == "function", "Must enter a function to remove entities")
 
   local count = 0
-  for k, en in pairs(self.entities) do
+  for k, en in pairs(self:get("entities")) do
     if matchFunction(en) then
       self:dispatchEvent("eventRemovingEntity", {entity = en, system = self})
-      self.entities[k] = nil
+      self:get("entities")[k] = nil
       self:dispatchEvent("eventRemovedEntity", {entity = en, system = self})
       count = count + 1
     end
@@ -111,7 +92,7 @@ end
 
 function system:entityCount()
   local count = 0
-  for _ in pairs(self.entities) do
+  for _ in pairs(self:get("entities")) do
     count = count + 1
   end
   return count
@@ -126,7 +107,7 @@ function system:findEntity(pArg)
     findFunc = pArg
   end
 
-  for _, en in pairs(self.entities) do
+  for _, en in pairs(self:get("entities")) do
     if findFunc(en) then
       return en
     end
@@ -136,7 +117,7 @@ end
 
 function system:findEntities(findFunc)
   local tab = {}
-  for _, en in pairs(self.entities) do
+  for _, en in pairs(self:get("entities")) do
     if findFunc(en) then
       tab[#tab + 1] = en
     end
@@ -150,7 +131,8 @@ function system:dispatchEvent(event, args)
   end
 
   local eventsHandled = 0
-  for _, entity in pairs(self.entities) do
+  if args then args.callingSystem = self end
+  for _, entity in pairs(self:get("entities")) do
     if entity:isEnabled() then
       eventsHandled = eventsHandled + entity:dispatchEvent(event, args)
     end
@@ -159,11 +141,14 @@ function system:dispatchEvent(event, args)
 end
 
 function system:serialize()
-  local tab = { "System|"..self:getName()..'|'..tostring(self:isEnabled()) }
-  for _, en in pairs(self.entities) do
+  local tab ={}
+  
+  table.insert(tab, self.serializable:serialize())
+
+  for _, en in pairs(self:get("entities")) do
     table.insert(tab, en:serialize())
   end
-  return table.concat(tab, "\n");
+  return "system|"..table.concat(tab, "\n");
 end
 
 return system

@@ -18,25 +18,22 @@
 -- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 -- SOFTWARE.
 
-local Component = require("component")
 local class = require("classlib")
 
-local finalizerComponent = class("finalizerComponent", Component)
+local finalizerComponent = class("finalizerComponent", require("component"))
 
-function finalizerComponent:__init(entity)
-  self.Component:__init(entity, self)
+local function throwError()
+	error("Cannot remove finalizer component or entity with finalizer component")
 end
 
-function finalizerComponent:eventRemovingComponent(args)
+function finalizerComponent:eventremovingcomponent(args)
 	if args.component == self then
-		error("Cannot remove finalizer component")
+		throwError()
 	end
 end
 
-function finalizerComponent:eventRemovingEntity(args)
-	if args.entity == self:getEntity() then
-		error("Cannot remove entity with finalizer component")
-	end
+function finalizerComponent:remove()
+	throwError()
 end
 
 return finalizerComponent

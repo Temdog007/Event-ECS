@@ -18,46 +18,31 @@
 -- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 -- SOFTWARE.
 
-local Component = require("component")
 local class = require("classlib")
-
-local testComponentAlt = class("testComponentAlt", Component)
+local testComponentAlt = class("testComponentAlt", require("Unit Tests/testComponent"))
 
 function testComponentAlt:__init(entity)
-  self.Component:__init(entity, self)
-  self.addedComponentCalled = 0
-  self.removingComponentCalled = 0
-  self.text = ""
-  self.x = 0
-  self.y = 0
-  self.space = 10
+  checkEntity(entity)
 
-  self.current = 0
-  self.rate = 1
-  self.added = false
-end
+  self:setDefault("base", self)
 
-function testComponentAlt:eventAddedComponent(args)
-  if args.component == self then
-    self.added = true
-  end
-  self.addedComponentCalled = self.addedComponentCalled + 1
-end
+  self:setDefault("name", "testComponentAlt")
 
-function testComponentAlt:eventRemovingComponent(args)
-  self.Component:eventRemovingComponent(args)
-  if args.component == self then
-    self.added = false
-  end
-  self.removingComponentCalled = self.removingComponentCalled + 1
+  entity:setDefault("current", 0)
+  entity:setDefault("rate", 1)
 end
 
 function testComponentAlt:eventUpdate(args)
-  self.current = self.current + args.dt
-  if self.current > self.rate then
+  if not args or not args.dt then return end
+
+  local entity = self:get("entity")
+  self:set("current", self:get("current") + args.dt)
+  if self:get("current") > self:get("rate") then
     print("Test Component Update Called")
-    self.current = 0
+    self:set("current", 0)
   end
 end
+
+lowerEventName(testComponentAlt)
 
 return testComponentAlt

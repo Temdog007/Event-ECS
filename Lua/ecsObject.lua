@@ -18,8 +18,39 @@
 -- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 -- SOFTWARE.
 
-require("love")
-require("LoveRun/loveRun")
+local class = require("classlib")
+local ecsObject = class("ecsObject", require("serializable"))
 
-setFrameRate(120)
-love.graphics.setBackgroundColor(1, 0, 0, 1)
+local id = 1
+function ecsObject:__user_init()
+  self:setDefault("name", "ECS Object")
+  self:setDefault("enabled", true)
+  self:setDefault("id", id)
+  self:setDefault("dispatchEvent", function(eventName, args) end)
+  id = id + 1
+
+  local values = self:get("values") or {}
+  table.insert(values, "name")
+  table.insert(values, "enabled")
+  table.insert(values, "id")
+  self:set("values", values)
+end
+
+function ecsObject:getID()
+  return self:get("id")
+end
+
+function ecsObject:isEnabled()
+  return self:get("enabled")
+end
+
+function ecsObject:setEnabled(pEnabled)
+  assert(type(pEnabled) == "boolean", "Must call setEnabled with a boolean")
+  self:set("enabled", pEnabled)
+end
+
+function ecsObject:getName()
+  return self:get("name")
+end
+
+return ecsObject

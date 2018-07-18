@@ -18,42 +18,64 @@
 -- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 -- SOFTWARE.
 
-local Component = require("component")
+local component = require("component")
 local class = require("classlib")
 
-local testComponent = class("testComponent", Component)
+local testComponent = class("testComponent", component)
 
-function testComponent:__init(entity)
-  self.Component:__init(entity, self)
-  self.addedComponentCalled = 0
-  self.removingComponentCalled = 0
-  self.text = ""
-  self.x = 0
-  self.y = 0
-  self.space = 10
-  self.added = false
+function testComponent:__user_init(entity)
+  checkEntity(entity)
+
+  self:setDefault("base", self)
+
+  self:setDefault("name", "testComponent")
+
+  entity:setDefault("addedComponentCalled", 0)
+  entity:setDefault("x", 0)
+  entity:setDefault("y", 0)
+  entity:setDefault("removingComponentCalled", 0)
+  entity:setDefault("space", 10)
+  entity:setDefault("added", false)
 end
 
 function testComponent:eventAddedComponent(args)
+  if not args or not args.callingEntity then return end
+
   if args.component == self then
-    self.added = true
+    local en = args.callingEntity
+    local v = en:get("addedComponentCalled")
+    en:set("addedComponentCalled", v + 1)
   end
-  self.addedComponentCalled = self.addedComponentCalled + 1
+end
+
+function testComponent:eventRemovingComponent(args)
+  if not args or not args.callingEntity then return end
+
+  if args.component == self then
+    local en = args.callingEntity
+    local v = en:get("removingComponentCalled")
+    en:set("removingComponentCalled", v + 1)
+  end
 end
 
 function testComponent:eventDraw(args)
+  if not args then return end
+
+  local entity = self:getEntity()
   if args.drawOrder >= 0 then
-    local color = assert(self:getComponent("colorComponent"), "No color")
-    local x, y = self.x + 25 * args.drawOrder, self.y + 25 * args.drawOrder
-    love.graphics.setColor(color)
+    local x, y = entity.x + 25 * args.drawOrder, entity.y + 25 * args.drawOrder
+    local color = entity.color
+    if color then love.graphics.setColor(color) end
     love.graphics.print(love.timer.getFPS(), x, y)
-    love.graphics.print(love.timer.getDelta(), x, y + self.space)
-    love.graphics.print(self.text, x, y + self.space * 2)
+    love.graphics.print(love.timer.getDelta(), x, y + entity.space)
+    love.graphics.print(entity.text, x, y + entity.space * 2)
   end
 end
 
 local order = 0
 function testComponent:eventKeyPressed(args)
+  if not args or not args.callingEntity then return end
+
   if args[1] == "escape" then
     love.event.quit("Exiting because 'escape' was pressed")
   elseif args[1] == "f1" then
@@ -68,7 +90,7 @@ function testComponent:eventKeyPressed(args)
   elseif args[1] == "f9" then
     error("Error was thrown on purpose because of pressing F9")
   end
-  self.text = args[1]
+  args.entity:set("text", args[1])
 end
 
 function testComponent:eventError(args)
@@ -87,12 +109,6 @@ function testComponent:removingComponent(args)
   error("This shouldn't have been called")
 end
 
-function testComponent:eventRemovingComponent(args)
-  self.Component:eventRemovingComponent(args)
-  if args.component == self then
-    self.added = false
-  end
-  self.removingComponentCalled = self.removingComponentCalled + 1
-end
+lowerEventName(testComponent)
 
 return testComponent
