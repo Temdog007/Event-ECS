@@ -32,9 +32,7 @@ local consolePrint = print
 
 local eos = string.char(3)
 
-function serverComponent:__init(entity)
-  self.Component:__init(entity, self)
-
+function serverComponent:__init()
   self.host = "*"
   self.port = 32485
   self.timeout = 0

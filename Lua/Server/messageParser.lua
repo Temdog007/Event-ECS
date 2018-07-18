@@ -60,29 +60,6 @@ local function parseFunction(l)
   elseif command == "Reset" then
     love.event.quit("restart")
 
-  elseif command == "SetComponentValue" then
-    local systemName = message[2]
-    local entityID = assert(tonumber(message[3]), string.format("Cannot parse '%s' to number", message[3]))
-    local componentID = assert(tonumber(message[4]), string.format("Cannot parse '%s' to number", message[4]))
-    local key = assert(message[5], "Must have a key")
-    local value = assert(message[6], "Must have a value")
-    local system = assert(Systems.getSystem(systemName), string.format("No system with the name '%s'", systemName))
-    local entity = assert(system:findEntity(entityID), string.format("No entity with ID %d found", entityID))
-    local component = assert(entity:findComponent(componentID), string.format("A component with ID %d was not found", componentID))
-
-    if tonumber(key) then key = tonumber(key) end
-    if tonumber(value) then
-      component[key] = tonumber(value)
-    elseif key == "enabled" then
-      component:setEnabled(value:lower() == "true")
-    elseif value:lower() == "true" then
-      component[key] = true
-    elseif value:lower() == "false" then
-      component[key] = false
-    else
-      component[key] = value
-    end
-
   elseif command == "SetEntityValue" then
     local systemName = message[2]
     local entityID = assert(tonumber(message[3]), string.format("Cannot parse '%s' to number", message[3]))
@@ -92,35 +69,17 @@ local function parseFunction(l)
     local entity = assert(system:findEntity(entityID), string.format("No entity with ID %d found", entityID))
 
     if tonumber(key) then key = tonumber(key) end
+    
     if tonumber(value) then
-      entity[key] = tonumber(value)
+      entity:set(key, tonumber(value))
     elseif key == "enabled" then
       entity:setEnabled(value:lower() == "true")
     elseif value:lower() == "true" then
-      entity[key] = true
+      entity:set(key, true)
     elseif value:lower() == "false" then
-      entity[key] = false
+      entity:set(key, false)
     else
-      entity[key] = value
-    end
-
-  elseif command == "SetSystemValue" then
-    local systemName = message[2]
-    local key = assert(message[3], "Must have a key")
-    local value = assert(message[4], "Must have a value")
-    local system = assert(Systems.getSystem(systemName), string.format("No system with the name '%s'", systemName))
-
-    if tonumber(key) then key = tonumber(key) end
-    if tonumber(value) then
-      system[key] = tonumber(value)
-    elseif key == "enabled" then
-      system:setEnabled(value:lower() == "true")
-    elseif value:lower() == "true" then
-      system[key] = true
-    elseif value:lower() == "false" then
-      system[key] = false
-    else
-      system[key] = value
+      entity:set(key, value)
     end
 
   else

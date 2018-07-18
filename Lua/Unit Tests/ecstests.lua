@@ -35,46 +35,41 @@ local testComponentAlt = require("Unit Tests/testComponentAlt")
 
 ecsTests = {}
 
--- function ecsTests:testParser()
---   local system = Systems.addSystem(System("TestSystem"))
---   assertError(parser, "AddEntity|TestSystem3")
---
---   parser("AddEntity|TestSystem")
---   assertEquals(system:entityCount(), 1)
---   assertError(parser, "AddEntity|NoSystem")
---
---   parser("AddComponent|TestSystem|1|testComponent")
---   parser("BroadcastEvent|eventerror")
---
---   assertError(parser, "Execute|error('Test error')")
---
---   assertError(parser, "DispatchEvent|TestSystem|eventerror")
---   assertError(parser, "DispatchEventEntity|TestSystem|1|eventerror")
---
---   local en = system:findEntity(1)
---   local comp = en:findComponent(function() return true end)
---   parser(string.format("SetComponentValue|TestSystem|1|%d|test|test", comp:getID()))
---   assertEquals(comp.test, "test")
---   parser(string.format("SetComponentValue|TestSystem|1|%d|test|True", comp:getID()))
---   assertIsTrue(comp.test)
---   parser(string.format("SetComponentValue|TestSystem|1|%d|test|False", comp:getID()))
---   assertIsFalse(comp.test)
---   parser(string.format("SetComponentValue|TestSystem|1|%d|enabled|FALSE", comp:getID()))
---   parser("DispatchEvent|TestSystem|eventerror")
---   assertIsFalse(comp:isEnabled())
---   parser(string.format("RemoveComponent|TestSystem|1|%d", comp:getID()))
---
---   assertError(parser, "RemoveComponent|TestSystem|1|f32wrfsad")
---
---   parser("SetEntityValue|TestSystem|1|test|entityTest")
---   assertEquals(en.test, "entityTest")
---
---   parser("RemoveEntity|TestSystem|1")
---   assertEquals(system:entityCount(), 0)
---
---   parser("SetSystemValue|TestSystem|test|systemTest")
---   assertEquals(system.test, "systemTest")
--- end
+function ecsTests:testParser()
+  local system = Systems.addSystem(System("TestSystem"))
+  assertError(parser, "AddEntity|TestSystem3")
+
+  parser("AddEntity|TestSystem")
+  assertEquals(system:entityCount(), 1)
+  assertError(parser, "AddEntity|NoSystem")
+
+  local en = system:findEntity(function() return true end)
+  parser('AddComponent|TestSystem|'..tostring(en:getID())..'|testComponent')
+  parser("BroadcastEvent|eventerror")
+
+  assertError(parser, "Execute|error('Test error')")
+
+  assertError(parser, "DispatchEvent|TestSystem|eventerror")
+  assertError(parser, "DispatchEventEntity|TestSystem|1|eventerror")
+
+  parser(string.format('SetEntityValue|TestSystem|%d|test|test', en:getID()))
+  assertEquals(en:get("test"), "test")
+  parser(string.format('SetEntityValue|TestSystem|%d|test|True', en:getID()))
+  assertIsTrue(en:get("test"))
+  parser(string.format("SetEntityValue|TestSystem|%d|test|False", en:getID()))
+  assertIsFalse(en:get("test"))
+  parser(string.format("SetEntityValue|TestSystem|%d|enabled|FALSE", en:getID()))
+  assertIsFalse(en:isEnabled())
+  parser("DispatchEvent|TestSystem|eventerror")
+
+  local comp = en:findComponent(function() return true end)
+  parser(string.format("RemoveComponent|TestSystem|%d|%d", en:getID(), comp:getID()))
+
+  assertError(parser, string.format("RemoveComponent|TestSystem|%d|f32wrfsad", en:getID()))
+
+  parser(string.format("RemoveEntity|TestSystem|%d", en:getID()))
+  assertEquals(system:entityCount(), 0)
+end
 
 function ecsTests:testStringSplit()
   local str = "AddComponent|1|2|3"
