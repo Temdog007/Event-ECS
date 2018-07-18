@@ -3,18 +3,29 @@ local class = require("classlib")
 
 local LogTest = class("logTestComponent", Component)
 
-local defaultColor = {r = 1,g = 1,b = 1,a = 1}
-function LogTest:__init(entity)
-  self.Component:__init(entity, self)
-  self.text = "This is a test string"
-  self.showFps = false
-  self.x = 0
-  self.y = 0
-  self.rotation = 0
-  self.scaleX = 1
-  self.scaleY = 1
-  self.space = 10
-  self.drawOrder = 0
+function LogTest:__init()
+  local entity = self:getEntity(true)
+
+  entity.text = "This is a test string"
+  entity.showFps = false
+  entity.x = 0
+  entity.y = 0
+  entity.rotation = 0
+  entity.scaleX = 1
+  entity.scaleY = 1
+  entity.space = 10
+  entity.drawOrder = 0
+
+  local values = entity.values or {}
+  values.showFps = true
+  values.x = true
+  values.y = true
+  values.rotation = true
+  values.scaleX = true
+  values.scaleY = true
+  values.space = true
+  values.drawOrder = true
+  entity.values = values
 end
 
 function LogTest:eventAddedComponent(args)
@@ -25,7 +36,7 @@ end
 
 function LogTest:eventDraw(args)
   if not args or args.drawOrder ~= self.drawOrder then return end
-  
+
 	local color = self:getComponent("colorComponent")
 	if not color then color = defaultColor end
 	love.graphics.setColor(color)
@@ -49,7 +60,6 @@ function LogTest:eventTest(args)
 end
 
 function LogTest:eventRemovingComponent(args)
-  self.Component:eventRemovingComponent(args)
   if args.component == self then
     print("print Test Removing component")
   end

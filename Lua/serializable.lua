@@ -70,7 +70,7 @@ function serializable:serialize(t)
         table.insert(t, k) -- key
         table.insert(t, typ) -- type
         table.insert(t, tostring(v)) -- value
-      elseif typ == "table" then
+      elseif typ == "table" and not classname(v) then
         table.insert(t, k) -- key
         table.insert(t, "table")
         table.insert(t, serializeTable(v))

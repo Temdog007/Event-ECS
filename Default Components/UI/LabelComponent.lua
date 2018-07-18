@@ -1,39 +1,35 @@
-local Component = require('component')
+local Component = require('uiComponent')
 local class = require('classlib')
 
 local labelComponent = class('labelComponent', Component)
 
-local defaultKeys = require('itemKeys')
-local initKeys = defaultKeys.init
-local updateKeys = defaultKeys.update
+function labelComponent:__init()
+  local entity = self:getEntity()
 
-function labelComponent:__init(entity)
-  self.Component:__init(entity, self)
+  entity.text = ""
+  entity.alignment = "center"
+  entity.scaleX = 1
+  entity.scaleY = 1
+  entity.fontColor = {1,1,1,1}
 
-  self.text = ""
-  self.x = 0
-  self.y = 0
-  self.width = 100
-  self.alignment = "center"
-  self.height = love.graphics.getFont():getHeight()
-  self.rotation = 0
-  self.scaleX = 1
-  self.scaleY = 1
-  initKeys(self)
+  local values = entity.values or {}
+  values.text = true
+  values.alignment = true
+  values.scaleX = true
+  values.scaleY = true
+  values.fontColor = true
+  entity.values = values
 end
 
-function labelComponent:draw(color)
-  if color then
-    love.graphics.setColor(color)
-  end
-  love.graphics.printf(self.text, self.x, self.y, self.width, self.alignment,
-   self.rotation, self.scaleX, self.scaleY)
-end
+function labelComponent:draw()
+  local entity = self:getEntity()
 
-function labelComponent:eventUpdate(args)
-  updateKeys(self)
-end
+  self.uiComponent:draw()
 
-labelComponent.eventItemsChanged = defaultKeys.itemChanged
+  local color = entity.fontColor
+  if color then love.graphics.setColor(color) end
+
+  love.graphics.printf(entity.text, entity.x, entity.y, entity.width, entity.alignment, 0, entity.scaleX, entity.scaleY)
+end
 
 return labelComponent

@@ -1,59 +1,47 @@
-local Component = require('component')
+local Component = require('uiComponent')
 local class = require('classlib')
-local Colors = require("eventecscolors")
 local sliderComponent = class('sliderComponent', Component)
 
-local defaultKeys = require('itemKeys')
-local initKeys = defaultKeys.init
-local updateKeys = defaultKeys.update
+function sliderComponent:__init()
+  local entity = self:getEntity(true)
 
-function sliderComponent:__init(entity)
-  self.Component:__init(entity, self)
-  self.min = 0
-  self.max = 100
-  self.value = 0
+  entity.min = 0
+  entity.max = 100
+  entity.value = 0
+  entity.text = ""
+  entity.isClicked = false
+  entity.vertical = false
+  entity.scaleX = 1
+  entity.scaleY = 1
+  entity.cursorColor = {1,1,1,1}
+  entity.fontColor = {1,1,1,1}
 
-  self.text = ""
-  self.isMouseOver = false
-  self.isClicked = false
-  self.vertical = false
-  self.x = 0
-  self.y = 0
-  self.width = 100
-  self.height = 100
-  initKeys(self)
-end
-
-function sliderComponent:isOver(x, y)
-  return self.x < x and x < self.x + self.width and
-          self.y < y and y < self.y + self.height
-end
-
-function sliderComponent:eventUpdate(args)
-  updateKeys(self)
-end
-
-sliderComponent.eventItemsChanged = defaultKeys.itemChanged
-
-function sliderComponent:eventItemChanged(args)
-  if not args or not args.item ~= self then return end
-
-  self.lastValues.x = self.x
-  self.lastValues.y = self.y
-  self.lastValues.width = self.width
-  self.lastValues.height = self.height
+  local values = entity.values or {}
+  values.min = true
+  values.max = true
+  values.value = true
+  values.text = true
+  values.isClicked = true
+  values.vertical = true
+  values.scaleX = true
+  values.scaleY = true
+  values.cursorColor = true
+  values.fontColor = true
+  entity.values = values
 end
 
 function sliderComponent:updatePosition(x, y)
-  if self.isClicked then
+  local entity = self:getEntity(true)
+
+  if entity.isClicked then
     local minX, maxX = self:getXBoundary()
     local minY, maxY = self:getYXBoundary()
 
-    if self.isMouseOver then
-      if self.vertical then
-        self.value = self.min + (self.max - self.min) * (y - minY) / (maxY - minY)
+    if entity.isMouseOver then
+      if entity.vertical then
+        entity.value = entity.min + (entity.max - entity.min) * (y - minY) / (maxY - minY)
       else
-        self.value = self.min + (self.max - self.min) * (x - minX) / (maxX - minX)
+        entity.value = entity.min + (entity.max - entity.min) * (x - minX) / (maxX - minX)
       end
     else
       love.mouse.setPosition(math.min(maxX, math.max(minX, x)), math.min(maxY, math.max(minY, y)))
@@ -62,26 +50,27 @@ function sliderComponent:updatePosition(x, y)
 end
 
 function sliderComponent:getXBoundary()
-  return self.x, self.x + self.width
+  local entity = self:getEntity(true)
+  return entity.x, entity.x + entity.width
 end
 
 function sliderComponent:getYXBoundary()
-  return self.y, self.y + self.height
+  local entity = self:getEntity(true)
+  return entity.y, entity.y + entity.height
 end
 
 function sliderComponent:getPercentage()
-  return (self.value - self.min) / (self.max - self.min)
+  local entity = self:getEntity(true)
+  return (entity.value - entity.min) / (entity.max - entity.min)
 end
 
 function sliderComponent:eventMouseMoved(args)
-  if not args then return end
-  local x, y = args[1], args[2]
-  if not x or not y then return end
-
-  self.isMouseOver = self:isOver(x, y)
+  self.uiComponent:eventMouseMoved(args)
   self:updatePosition(x,y)
-  if self.isClicked and self.isMouseOver and self.action then
-    self.action(self.value, self:getPercentage())
+
+  local entity = self:getEntity()
+  if entity.isClicked and entity.isMouseOver and entity.action then
+    entity.action(entity.value, self:getPercentage())
   end
 end
 
@@ -91,7 +80,8 @@ function sliderComponent:eventMousePressed(args)
   if not x or not y or not b then return end
 
   if b == 1 and self:isOver(x, y) then
-    self.isClicked = true
+    local entity = self:getEntity()
+    entity.isClicked = true
     self:updatePosition(x, y)
   end
 end
@@ -102,50 +92,39 @@ function sliderComponent:eventMouseReleased(args)
   if not b then return end
 
   if b == 1 then
-    self.isClicked = false
+    local entity = self:getEntity()
+    entity.isClicked = false
   end
 end
 
-function sliderComponent:drawHighlight(scale, pressedColor, highlightColor)
-  scale = scale or 1.1
-  local c = {Colors.getColor((self.isClicked or self.isClicked) and (pressedColor or "red") or (highlightColor or "yellow"))}
-  if c then
-    love.graphics.setColor(c)
-    local width, height = self.width * scale, self.height * scale
-    love.graphics.rectangle("fill", self.x - (width - self.width)*0.5, self.y - (height - self.height)*0.5, width, height)
-  end
-end
+function sliderComponent:drawCursor()
+  local entity = self:getEntity()
 
-function sliderComponent:drawSlider()
-  local color = self:getComponent("colorComponent")
+  local color = entity.cursorColor
   if color then love.graphics.setColor(color) end
-  love.graphics.rectangle("fill", self.x, self.y, self.width, self.height)
-end
 
-function sliderComponent:drawCursor(color, scale)
-  scale = scale or 0.1
-  if color then
-    love.graphics.setColor(color)
-  end
-  if self.vertical then
-    love.graphics.rectangle("fill", self.x, self.y + self.height * self:getPercentage(), self.width, self.height * scale)
+  if entity.vertical then
+    love.graphics.rectangle("fill", entity.x, entity.y + entity.height * self:getPercentage(), entity.width, entity.height * entity.scaleY)
   else
-    love.graphics.rectangle("fill", self.x + self.width * self:getPercentage(), self.y, self.width * scale, self.height)
+    love.graphics.rectangle("fill", entity.x + entity.width * self:getPercentage(), entity.y, entity.width * entity.scaleX, entity.height)
   end
 end
 
-function sliderComponent:drawText(color, alignment, scaleX, scaleY)
+function sliderComponent:drawText()
+  local entity = self:getEntity()
+
+  local color = entity.fontColor
   if color then love.graphics.setColor(color) end
-  love.graphics.printf(self.text, self.x, self.y, self.width, alignment or "center", 0, scaleX or 1, scaleY or 1)
+
+  love.graphics.printf(entity.text, entity.x, entity.y, entity.width, entity.alignment, 0, entity.scaleX, entity.scaleY)
 end
 
-function sliderComponent:draw(color)
-  if self.isClicked or self.isMouseOver then
-    self:drawHighlight()
-  end
-  self:drawSlider()
-  self:drawCursor(color)
-  self:drawText(color)
+function sliderComponent:draw()
+  self.uiComponent:draw()
+
+  local entity = self:getEntity()
+  if entity.drawingCursor then self:drawCursor() end
+  if entity.drawingText then self:drawText() end
 end
 
 return sliderComponent

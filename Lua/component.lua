@@ -27,19 +27,43 @@ function component:__user_init(entity)
   self:set("entity", entity)
 end
 
-function component:getEntity()
-  return setmetatable({},
-  {
-      __index = function(obj, k)
-        local en = self:get("entity")
-        if en then return en:get(k) end
-        return nil
-      end,
-      __newindex = function(obj, k, v)
-        local en = self:get("entity")
-        if en then return en:set(k,v) end
-      end
-  })
+function component:getEntity(useDefault)
+
+  if not self.entityTable then
+    self.entityTable = setmetatable({},
+    {
+        __index = function(obj, k)
+          local en = self:get("entity")
+          if en then return en:get(k) end
+          return nil
+        end,
+        __newindex = function(obj, k, v)
+          local en = self:get("entity")
+          if en then
+            en:set(k,v)
+          end
+        end
+    })
+  end
+
+  if not self.defaultEntityTable then
+    self.defaultEntityTable = setmetatable({},
+    {
+        __index = function(obj, k)
+          local en = self:get("entity")
+          if en then return en:get(k) end
+          return nil
+        end,
+        __newindex = function(obj, k, v)
+          local en = self:get("entity")
+          if en then
+            en:setDefault(k,v)
+          end
+        end
+    })
+  end
+
+  return useDefault and self.defaultEntityTable or self.entityTable
 end
 
 function component:remove()

@@ -39,20 +39,20 @@ function testComponent:__user_init(entity)
 end
 
 function testComponent:eventAddedComponent(args)
-  if not args or not args.callingEntity then return end
+  if not args then return end
 
   if args.component == self then
-    local en = args.callingEntity
+    local en = self:get("entity")
     local v = en:get("addedComponentCalled")
     en:set("addedComponentCalled", v + 1)
   end
 end
 
 function testComponent:eventRemovingComponent(args)
-  if not args or not args.callingEntity then return end
+  if not args then return end
 
   if args.component == self then
-    local en = args.callingEntity
+    local en = self:get("entity")
     local v = en:get("removingComponentCalled")
     en:set("removingComponentCalled", v + 1)
   end
@@ -74,7 +74,7 @@ end
 
 local order = 0
 function testComponent:eventKeyPressed(args)
-  if not args or not args.callingEntity then return end
+  if not args then return end
 
   if args[1] == "escape" then
     love.event.quit("Exiting because 'escape' was pressed")
@@ -90,7 +90,7 @@ function testComponent:eventKeyPressed(args)
   elseif args[1] == "f9" then
     error("Error was thrown on purpose because of pressing F9")
   end
-  args.entity:set("text", args[1])
+  self:get("entity"):set("text", args[1])
 end
 
 function testComponent:eventError(args)

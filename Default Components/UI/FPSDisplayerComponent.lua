@@ -1,26 +1,37 @@
-local Component = require('component')
+local Component = require('drawableComponent')
 local class = require('classlib')
 
 local fpsDisplayerComponent = class('fpsDisplayerComponent', Component)
 
-function fpsDisplayerComponent:__init(entity)
-  self.Component:__init(entity, self)
-  self.x = 0
-  self.y = 0
-  self.scaleX = 1
-  self.scaleY = 1
-  self.limit = 100
-  self.drawOrder = 0
+function fpsDisplayerComponent:__init()
+  local entity = self:getEntity(true)
+
+  entity.x = 0
+  entity.y = 0
+  entity.scaleX = 1
+  entity.scaleY = 1
+  entity.limit = 100
+  entity.color = {1,1,1,1}
+
+  local values = entity.values or {}
+  values.x = true
+  values.y = true
+  values.scaleX = true
+  values.scaleY = true
+  values.limit = true
+  values.color = true
+  entity.values = values
 end
 
 function fpsDisplayerComponent:eventDraw(args)
-  if not args or args.drawOrder ~= self.drawOrder then return end
+  local entity = self:getEntity()
 
-  local color = self:getComponent("colorComponent")
-  if color then
-    love.graphics.setColor(color)
-  end
-  love.graphics.print(love.timer.getFPS(), self.x, self.y, 0, self.scaleX, self.scaleY)
+  if not args or args.drawOrder ~= entity.drawOrder then return end
+
+  local color = entity.color
+  if color then love.graphics.setColor(color) end
+
+  love.graphics.print(love.timer.getFPS(), entity.x, entity.y, 0, entity.scaleX, entity.scaleY)
 end
 
 return fpsDisplayerComponent

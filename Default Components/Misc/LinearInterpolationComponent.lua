@@ -3,41 +3,54 @@ local class = require('classlib')
 
 local linearInterpolationComponent = class('linearInterpolationComponent', Component)
 
-function linearInterpolationComponent:__init(entity)
-  self.Component:__init(entity, self)
+function linearInterpolationComponent:__init()
+  local entity = self:getEntity()
 
-  self.start = 0
-  self["end"] = 1
-  self.value = 0
-  self.speed = 1
-  self.current = 0
-  self.handlers = {}
+  entity.start = 0
+  entity["end"] = 1
+  entity.value = 0
+  entity.speed = 1
+  entity.current = 0
+  entity.handlers = {}
+
+  local values = entity.values or {}
+  values.start = true
+  values["end"] = true
+  values.value = true
+  values.speed = true
+  values.current = true
+  entity.values = values
 end
 
 function linearInterpolationComponent:eventUpdate(args)
   if not args or not args.dt then return end
 
-  self.current = (self.current + args.dt) % self.speed
-  self.value = self.start + (self["end"] - self.start) * (self.current / self.speed)
-  for _, handler in pairs(self.handlers) do
-    handler(self.value)
+  local entity = self:getEntity()
+  entity.current = (entity.current + args.dt) % entity.speed
+  entity.value = entity.start + (entity["end"] - entity.start) * (entity.current / entity.speed)
+  for _, handler in pairs(entity.handlers) do
+    handler(entity.value)
   end
 end
 
 function linearInterpolationComponent:addHandler(func)
   assert(type(func) == "function", "Handlers must a be function")
-  table.insert(self.handlers, func)
+  local entity = self:getEntity()
+  table.insert(entity.handlers, func)
 end
 
 function linearInterpolationComponent:removeHandler(func)
   assert(type(func) == "function", "Handlers must a be function")
-  for k, v in pairs(self.handlers) do
+  local entity = self:getEntity()
+  for k, v in pairs(entity.handlers) do
     if v == func then
-      self.handlers[k] = nil
+      entity.handlers[k] = nil
       return true
     end
   end
   return false
 end
+
+lowerEventName(linearInterpolationComponent)
 
 return linearInterpolationComponent

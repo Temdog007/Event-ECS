@@ -3,27 +3,37 @@ local class = require("classlib")
 
 local ColorRandomizer = class("colorRandomizerComponent", Component)
 
-function ColorRandomizer:__init(entity)
-  self.Component:__init(entity, self)
-  self.current = 0
-  self.interval = 1
-  self.changeAlpha = false
+function ColorRandomizer:__init()
+
+  local entity = self:getEntity(true)
+  entity.current = 0
+  entity.interval = 1
+  entity.changeAlpha = false
+
+  local values = entity.values or {}
+  values.current = true
+  values.interval = true
+  values.changeAlpha = true
+  entity.values = values
 end
 
 function ColorRandomizer:eventUpdate(args)
-	local color = self:getComponent("colorComponent")
+  local entity = self:getEntity()
+	local color = entity.color
 	if not color then return end
 
-	self.current = self.current + args.dt
-	if self.current > self.interval then
+	entity.current = entity.current + args.dt
+	if entity.current > entity.interval then
 		color[1] = love.math.random()
 		color[2] = love.math.random()
 		color[3] = love.math.random()
-		if self.changeAlpha then
+		if entity.changeAlpha then
 			color[4] = love.math.random()
 		end
-		self.current = 0
+		entity.current = 0
 	end
 end
+
+lowerEventName(ColorRandomizer)
 
 return  ColorRandomizer

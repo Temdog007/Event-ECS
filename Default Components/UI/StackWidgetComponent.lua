@@ -3,38 +3,34 @@ local class = require('classlib')
 
 local stackWidgetComponent = class('stackWidgetComponent', Component)
 
-local defaultKeys = require('itemKeys')
-local initKeys = defaultKeys.init
-local updateKeys = defaultKeys.update
-local itemChanged = defaultKeys.itemChanged
+function stackWidgetComponent:__init()
 
-function stackWidgetComponent:__init(entity)
-  self.Component:__init(entity, self)
-  self.items = {}
-  self.x = 0
-  self.y = 0
-  self.width = 0
-  self.height = 0
-  self.space = 10
+  local entity = self:getEntity(true)
+
+  entity.items = {}
+  entity.x = 0
+  entity.y = 0
+  entity.width = 0
+  entity.height = 0
+  entity.space = 10
 
   -- scissor
-  self.scissorX = 0
-  self.scissorY = 0
-  self.scissorWidth = 100
-  self.scissorHeight = 100
-  self.useScissor = false
+  entity.scissorX = 0
+  entity.scissorY = 0
+  entity.scissorWidth = 100
+  entity.scissorHeight = 100
+  entity.useScissor = false
 
   --alignment
-  self.verticalAlignment = "none"
-  self.verticalPadding = 0
-  self.horizontalAlignment = "none"
-  self.horizontalPadding = 0
+  entity.verticalAlignment = "none"
+  entity.verticalPadding = 0
+  entity.horizontalAlignment = "none"
+  entity.horizontalPadding = 0
 
-  self.stackVertically = true
+  entity.stackVertically = true
 
-  self.drawOrder = 0
+  entity.drawOrder = 0
 
-  initKeys(self)
 end
 
 function stackWidgetComponent:eventEnabledChanged(args)

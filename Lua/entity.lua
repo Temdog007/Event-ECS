@@ -160,7 +160,6 @@ function entity:dispatchEvent(event, args)
   event = string.lower(event)
 
   local count = 0
-  if args then args.callingEntity = self end
   for _, comp in pairs(self:get("components")) do
     if comp:isEnabled() then
       local func = comp[event]
