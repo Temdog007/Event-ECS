@@ -61,18 +61,20 @@ end
 
 function serializable:serialize(t)
   t = t or {}
-  for _, k in pairs(self:get("values") or {}) do
-    k = tostring(k)
-    local v = self:get(k)
-    local typ = type(v)
-    if typ == "string" or typ == "number" or typ == "boolean" then
-      table.insert(t, k) -- key
-      table.insert(t, typ) -- type
-      table.insert(t, tostring(v)) -- value
-    elseif typ == "table" then
-      table.insert(t, k) -- key
-      table.insert(t, "table")
-      table.insert(t, serializeTable(v))
+  for k, set in pairs(self:get("values") or {}) do
+    if set then
+      k = tostring(k)
+      local v = self:get(k)
+      local typ = type(v)
+      if typ == "string" or typ == "number" or typ == "boolean" then
+        table.insert(t, k) -- key
+        table.insert(t, typ) -- type
+        table.insert(t, tostring(v)) -- value
+      elseif typ == "table" then
+        table.insert(t, k) -- key
+        table.insert(t, "table")
+        table.insert(t, serializeTable(v))
+      end
     end
   end
   return table.concat(t, "|")

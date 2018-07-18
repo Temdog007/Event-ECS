@@ -297,26 +297,27 @@ function ecsTests:testComponentSerialization()
   local entity = system:createEntity()
   local comp = entity:addComponent(testComponentAlt)
 
-  assertEquals(comp:serialize(), 'name|string|testComponentAlt|enabled|boolean|true|id|number|10')
+  assertEquals(comp:serialize(), 'enabled|boolean|true|name|string|testComponentAlt|id|number|10')
   comp:setEnabled(false)
 
-  assertEquals(comp:serialize(), 'name|string|testComponentAlt|enabled|boolean|false|id|number|10')
+  assertEquals(comp:serialize(), 'enabled|boolean|false|name|string|testComponentAlt|id|number|10')
 
   comp:set("test", {"test string", n = 4})
-  assertEquals(comp:serialize(), 'name|string|testComponentAlt|enabled|boolean|false|id|number|10')
+  assertEquals(comp:serialize(), 'enabled|boolean|false|name|string|testComponentAlt|id|number|10')
 
-  table.insert(comp:get("values"), "test")
-  assertEquals(comp:serialize(), 'name|string|testComponentAlt|enabled|boolean|false|id|number|10|test|table|{1|string|test string|n|number|4}')
+  comp:get("values")["test"] = true
+  assertEquals(comp:serialize(), 'enabled|boolean|false|test|table|{1|string|test string|n|number|4}|name|string|testComponentAlt|id|number|10')
 
-  comp:set("test", nil)
+  comp:get("values")["test"] = false
+  assertEquals(comp:serialize(), 'enabled|boolean|false|name|string|testComponentAlt|id|number|10')
 
-  assertEquals(entity:serialize(), 'entity|name|string|Entity|enabled|boolean|true|id|number|9\n'..
-                                  'component|name|string|testComponentAlt|enabled|boolean|false|id|number|10')
+  assertEquals(entity:serialize(), 'entity|enabled|boolean|true|name|string|Entity|id|number|9\n'..
+                                  'component|enabled|boolean|false|name|string|testComponentAlt|id|number|10')
 
   assertEquals(system:serialize(),
-    "system|name|string|System|enabled|boolean|true|id|number|8\n"..
-    'entity|name|string|Entity|enabled|boolean|true|id|number|9\n'..
-    'component|name|string|testComponentAlt|enabled|boolean|false|id|number|10')
+    "system|enabled|boolean|true|name|string|System|id|number|8\n"..
+    'entity|enabled|boolean|true|name|string|Entity|id|number|9\n'..
+    'component|enabled|boolean|false|name|string|testComponentAlt|id|number|10')
 end
 
 LuaUnit:run('ecsTests')

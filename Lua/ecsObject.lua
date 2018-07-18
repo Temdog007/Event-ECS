@@ -30,9 +30,9 @@ function ecsObject:__user_init()
   id = id + 1
 
   local values = self:get("values") or {}
-  table.insert(values, "name")
-  table.insert(values, "enabled")
-  table.insert(values, "id")
+  values.name = true
+  values.enabled = true
+  values.id = true
   self:set("values", values)
 end
 
