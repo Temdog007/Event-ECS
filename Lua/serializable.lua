@@ -36,9 +36,24 @@ function serializable:get(name)
 end
 
 function serializable:setDefault(key, value)
-  if self:get(key) == nil then
+  if self:get(key) == nil and value ~= nil then
     self:set(key, value)
   end
+end
+
+function serializable:setDefaults(...)
+  for k,v in pairs({...}) do
+    self:setDefault(k,v)
+  end
+end
+
+function serializable:setDefaultsAndValues(...)
+  local values = self:get("values") or {}
+  for k,v in pairs({...}) do
+    self:setDefault(k,v)
+    values[k] = true
+  end
+  self:set("values", values)
 end
 
 local function serializeTable(t)
@@ -53,7 +68,7 @@ local function serializeTable(t)
     elseif typ == "table" then
       table.insert(rval, k) -- key
       table.insert(rval, "table")
-      table.insert(rval, serializableTable(v))
+      table.insert(rval, serializeTable(v))
     end
   end
   return "{"..table.concat(rval, "|").."}"

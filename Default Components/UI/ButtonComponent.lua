@@ -5,6 +5,7 @@ local buttonComponent = class('buttonComponent', uiComponent)
 function buttonComponent:__init()
 
   local entity = self:getEntity(true)
+  entity.base = self
   entity.text = ""
   entity.scaleX = 1.1
   entity.scaleY = 1.1

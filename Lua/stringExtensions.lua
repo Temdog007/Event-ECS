@@ -12,13 +12,17 @@ function string.split(str, sep)
 end
 
 function string.ends(str, endStr)
-  return  string.sub(str, -string.len(endStr)) == endStr
+  return string.sub(str, -string.len(endStr)) == endStr
 end
 
 function lowerEventName(t)
+  local temp = {}
   for k,v in pairs(t) do
     if string.starts(k, "event") and type(v) == "function" then
-      t[string.lower(k)] = v
+      temp[string.lower(k)] = v
     end
+  end
+  for k,v in pairs(temp) do
+    t[k] = v
   end
 end

@@ -1,11 +1,16 @@
-local Component = require('component')
+local Component = require('uiComponent')
 local class = require('classlib')
 
 local stackWidgetComponent = class('stackWidgetComponent', Component)
 
 function stackWidgetComponent:__init()
 
-  local entity = self:getEntity(true)
+  local entity = self:getEntity()
+
+  entity.base = self
+  entity.bgColor = {0,0,0,0}
+  entity.pressedColor = {0,0,0,0}
+  entity.highlightColor = {0,0,0,0}
 
   entity.items = {}
   entity.x = 0
@@ -46,10 +51,6 @@ function stackWidgetComponent:eventEnabledChanged(args)
   end
 
   itemChanged(self, args)
-end
-
-function stackWidgetComponent:eventUpdate(args)
-  updateKeys(self)
 end
 
 function stackWidgetComponent:eventItemChanged(args)
@@ -199,12 +200,10 @@ function stackWidgetComponent:eventResize(args)
   self:layoutItems()
 end
 
-
 local function widgetDraw(widget)
-  local color = widget:getComponent("colorComponent")
   for _, item in ipairs(widget.items) do
     if item:isEnabled() then
-      item:draw(color)
+      item:draw()
     end
   end
 end
@@ -221,5 +220,7 @@ function stackWidgetComponent:eventDraw(args)
     widgetDraw(self)
   end
 end
+
+lowerEventName(stackWidgetComponent)
 
 return stackWidgetComponent

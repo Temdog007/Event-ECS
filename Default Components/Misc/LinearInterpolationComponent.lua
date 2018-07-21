@@ -6,6 +6,7 @@ local linearInterpolationComponent = class('linearInterpolationComponent', Compo
 function linearInterpolationComponent:__init()
   local entity = self:getEntity()
 
+  entity.base = self
   entity.start = 0
   entity["end"] = 1
   entity.value = 0

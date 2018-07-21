@@ -5,6 +5,7 @@ local sliderComponent = class('sliderComponent', Component)
 function sliderComponent:__init()
   local entity = self:getEntity(true)
 
+  entity.base = self
   entity.min = 0
   entity.max = 100
   entity.value = 0

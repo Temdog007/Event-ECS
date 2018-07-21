@@ -4,23 +4,21 @@ local Colors = require("eventecscolors")
 
 local SliderDrawerComponent = class('sliderDrawerComponent', Component)
 
-function SliderDrawerComponent:__init(entity)
-  self.Component:__init(entity, self)
-
-  self.cursorColor = "gray"
-
-  self.drawText = true
-  self.drawBG = true
-  self.drawCursor = true
-  self.fontColor = "white"
-  self.highlightColor = "yellow"
-  self.pressedColor = "red"
-  self.alignment = "center"
-  self.highlightScale = 1.1
-  self.scaleX = 1
-  self.scaleY = 1
-  self.cursorScale = 0.1
-  self.drawOrder = 0
+function SliderDrawerComponent:__init()
+  self:setDefaultsAndValues(
+    "cursorColor", {Colors.getColor("gray")},
+    "drawText", true,
+    "drawBG", true,
+    "drawCursor", true,
+    "fontColor", {1,1,1,1},
+    "highlightColor", {1,1,0,1},
+    "pressedColor", {1,0,0,1},
+    "alignment", "center",
+    "highlightScale", 1.1,
+    "scaleX", 1,
+    "scaleY", 1,
+    "cursorScale", 0.1,
+    "drawOrder", 0)
 end
 
 function SliderDrawerComponent:eventDraw(args)

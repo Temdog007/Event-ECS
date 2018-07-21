@@ -6,6 +6,7 @@ local ColorRandomizer = class("colorRandomizerComponent", Component)
 function ColorRandomizer:__init()
 
   local entity = self:getEntity(true)
+  entity.base = self
   entity.current = 0
   entity.interval = 1
   entity.changeAlpha = false

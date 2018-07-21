@@ -26,13 +26,13 @@ local bootFunction = coroutine.create(loveRoutine)
 
 local DebugSystem = require("system")
 local testComponent = require("Unit Tests/testComponent")
-local System = require("system")
+local System = require("debugSystem")
 local Systems = require("systemList")
 local Colors = require("eventecscolors")
 
 local system = Systems.addSystem(System("Love Test System"))
 local en = system:createEntity()
-local testComp = en:addComponent(testComponent)
+en:addComponent(testComponent)
 en:set("text", "Test text")
 en:set("color", {Colors.getColor("blue")})
 

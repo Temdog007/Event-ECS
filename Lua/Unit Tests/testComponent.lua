@@ -59,7 +59,7 @@ function testComponent:eventRemovingComponent(args)
 end
 
 function testComponent:eventDraw(args)
-  if not args then return end
+  if not args or not args.drawOrder then print("no args") return end
 
   local entity = self:getEntity()
   if args.drawOrder >= 0 then
@@ -109,6 +109,12 @@ function testComponent:removingComponent(args)
   error("This shouldn't have been called")
 end
 
+-- print("Before change")
+-- for k,v in pairs(testComponent) do print(k,v) end
+
 lowerEventName(testComponent)
+
+-- print("\nAfter change")
+-- for k,v in pairs(testComponent) do print(k,v) end
 
 return testComponent

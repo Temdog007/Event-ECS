@@ -6,6 +6,7 @@ local LogTest = class("logTestComponent", Component)
 function LogTest:__init()
   local entity = self:getEntity(true)
 
+  entity.base = self
   entity.text = "This is a test string"
   entity.showFps = false
   entity.x = 0
@@ -64,5 +65,7 @@ function LogTest:eventRemovingComponent(args)
     print("print Test Removing component")
   end
 end
+
+lowerEventName(LogTest)
 
 return  LogTest
