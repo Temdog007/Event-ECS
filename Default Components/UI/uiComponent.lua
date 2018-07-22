@@ -10,8 +10,8 @@ function uiComponent:__init(en)
 
   entity.x = 0
   entity.y = 0
-  entity.highlightScaleX = 1.5
-  entity.highlightScaleY = 1.5
+  entity.highlightScaleX = 1.1
+  entity.highlightScaleY = 1.1
   entity.width = 100
   entity.height = 100
   entity.isMouseOver = false
@@ -91,7 +91,7 @@ end
 
 function uiComponent:draw()
   local entity = self:getEntity()
-  if entity.drawingHighlight and self.isMouseOver then self:drawHighlight() end
+  if entity.drawingHighlight and entity.isMouseOver then self:drawHighlight() end
   if entity.drawingBg then self:drawBg() end
 end
 

@@ -12,8 +12,12 @@ function sliderComponent:__init(en)
   entity.max = 100
   entity.value = 0
   entity.text = ""
+  entity.alignment = "center"
   entity.isClicked = false
   entity.vertical = false
+  entity.drawingCursor = true
+  entity.drawingText = true
+  entity.cursorScale = 0.1
   entity.scaleX = 1
   entity.scaleY = 1
   entity.cursorColor = {1,1,1,1}
@@ -27,15 +31,21 @@ function sliderComponent:__init(en)
   values.text = true
   values.isClicked = true
   values.vertical = true
+  values.cursorScale = true
+  values.alignment = true
   values.scaleX = true
   values.scaleY = true
   values.cursorColor = true
   values.fontColor = true
+  values.drawingCursor = true
+  values.drawingText = true
   entity.values = values
 end
 
 function sliderComponent:updatePosition(x, y)
-  local entity = self:getEntity(true)
+  assert(tonumber(x) and tonumber(y), "Must update position with number")
+
+  local entity = self:getEntity()
 
   if entity.isClicked then
     local minX, maxX = self:getXBoundary()
@@ -54,23 +64,23 @@ function sliderComponent:updatePosition(x, y)
 end
 
 function sliderComponent:getXBoundary()
-  local entity = self:getEntity(true)
+  local entity = self:getEntity()
   return entity.x, entity.x + entity.width
 end
 
 function sliderComponent:getYXBoundary()
-  local entity = self:getEntity(true)
+  local entity = self:getEntity()
   return entity.y, entity.y + entity.height
 end
 
 function sliderComponent:getPercentage()
-  local entity = self:getEntity(true)
+  local entity = self:getEntity()
   return (entity.value - entity.min) / (entity.max - entity.min)
 end
 
 function sliderComponent:eventMouseMoved(args)
   self.uiComponent:eventMouseMoved(args)
-  self:updatePosition(x,y)
+  self:updatePosition(args[1], args[2])
 
   local entity = self:getEntity()
   if entity.isClicked and entity.isMouseOver and entity.action then
@@ -79,6 +89,7 @@ function sliderComponent:eventMouseMoved(args)
 end
 
 function sliderComponent:eventMousePressed(args)
+
   if not args then return end
   local x, y, b = args[1], args[2], args[3]
   if not x or not y or not b then return end
@@ -108,9 +119,9 @@ function sliderComponent:drawCursor()
   if color then love.graphics.setColor(color) end
 
   if entity.vertical then
-    love.graphics.rectangle("fill", entity.x, entity.y + entity.height * self:getPercentage(), entity.width, entity.height * entity.scaleY)
+    love.graphics.rectangle("fill", entity.x, entity.y + entity.height * self:getPercentage(), entity.width, entity.height * entity.cursorScale)
   else
-    love.graphics.rectangle("fill", entity.x + entity.width * self:getPercentage(), entity.y, entity.width * entity.scaleX, entity.height)
+    love.graphics.rectangle("fill", entity.x + entity.width * self:getPercentage(), entity.y, entity.width * entity.cursorScale, entity.height)
   end
 end
 
@@ -131,5 +142,7 @@ function sliderComponent:draw()
   if entity.drawingCursor then self:drawCursor() end
   if entity.drawingText then self:drawText() end
 end
+
+lowerEventName(sliderComponent)
 
 return sliderComponent

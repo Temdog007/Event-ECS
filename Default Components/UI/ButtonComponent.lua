@@ -12,6 +12,7 @@ function buttonComponent:__init(en)
   entity.scaleY = 1.1
   entity.isClicked = false
   entity.drawingText = true
+  entity.alignment = "center"
   entity.fontColor = {1,1,1,1}
   entity.draw = {ui = self, draw = buttonComponent.draw}
 
@@ -19,6 +20,7 @@ function buttonComponent:__init(en)
   values.text = true
   values.scaleX = true
   values.scaleY = true
+  values.alignment = true
   values.isClicked = true
   values.drawingText = true
   values.fontColor = true
@@ -63,7 +65,7 @@ function buttonComponent:drawText()
   local entity = self:getEntity()
   local color = entity.fontColor
   if color then love.graphics.setColor(color) end
-  love.graphics.printf(entity.text, entity.x, entity.y, entity.width, entity.alignment or "center", 0, entity.scaleX, entity.scaleY)
+  love.graphics.printf(entity.text, entity.x, entity.y, entity.width, entity.alignment, 0, entity.scaleX, entity.scaleY)
 end
 
 function buttonComponent:draw()
