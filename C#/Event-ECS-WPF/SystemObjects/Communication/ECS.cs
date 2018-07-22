@@ -101,14 +101,19 @@ namespace Event_ECS_WPF.SystemObjects.Communication
             Send("Reset");
         }
 
+        public void SetComponentEnabled(int systemID, int entityID, int componentID, bool value)
+        {
+            Send("SetComponentEnabled|{0}|{1}|{2}|{3}", systemID, entityID, componentID, value);
+        }
+
         public void SetEntityValue(int systemID, int entityID, string key, object value)
         {
             Send("SetEntityValue|{0}|{1}|{2}|{3}", systemID, entityID, key, value);
         }
 
-        public void SetSystemValue(int systemID, string key, object value)
+        public void SetSystemEnabled(int systemID, bool value)
         {
-            Send("SetSystemValue|{0}|{1}|{2}", systemID, key, value);
+            Send("SetSystemEnabled|{0}|{1}", systemID, value);
         }
         #endregion
     }

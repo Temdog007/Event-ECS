@@ -1,14 +1,13 @@
-local Component = require("component")
+local Component = require("drawableComponent")
 local class = require("classlib")
 
 local LogTest = class("logTestComponent", Component)
 
-function LogTest:__user_init()
+function LogTest:__user_init(en)
   self:setDefault("name", classname(self))
-  
-  local entity = self:getEntity()
+  self:set("entity", en)
+  local entity = self:getEntity(true)
 
-  entity.name = classname(self)
   entity.text = "This is a test string"
   entity.showFps = false
   entity.x = 0
@@ -20,6 +19,7 @@ function LogTest:__user_init()
   entity.drawOrder = 0
 
   local values = entity.values or {}
+  values.text = true
   values.showFps = true
   values.x = true
   values.y = true
@@ -38,18 +38,20 @@ function LogTest:eventAddedComponent(args)
 end
 
 function LogTest:eventDraw(args)
-  if not args or args.drawOrder ~= self.drawOrder then return end
+  if not self:canDraw(args) then return end
 
-	local color = self:get("color")
+  local entity = self:getEntity()
+
+	local color = entity.color
 	if color then
 	   love.graphics.setColor(color)
    end
 
-	if self.showFps then
-		love.graphics.print(love.timer.getFPS(), self.x, self.y, self.rotation, self.scaleX, self.scaleY)
-		love.graphics.print(self.text, self.x, self.y + self.space, self.rotation, self.scaleX, self.scaleY)
+	if entity.showFps then
+		love.graphics.print(love.timer.getFPS(), entity.x, entity.y, entity.rotation, entity.scaleX, entity.scaleY)
+		love.graphics.print(entity.text, entity.x, entity.y + entity.space, entity.rotation, entity.scaleX, entity.scaleY)
 	else
-		love.graphics.print(self.text, self.x, self.y, self.rotation, self.scaleX, self.scaleY)
+		love.graphics.print(entity.text, entity.x, entity.y, entity.rotation, entity.scaleX, entity.scaleY)
 	end
 end
 

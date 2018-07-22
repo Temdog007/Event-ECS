@@ -29,7 +29,8 @@ local class = require('classlib')
 local {0} = class('{0}', Component)
 
 function {0}:__init(entity)
-  self.Component:__init(entity, self)
+  self:setDefault('name', classname(self))
+  self:set('entity', en)
 end
 
 function {0}:eventUpdate(args)
@@ -37,6 +38,8 @@ end
 
 function {0}:eventDraw(args)
 end
+
+lowerEventName({0})
 
 return {0}";
 

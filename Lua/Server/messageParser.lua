@@ -88,19 +88,41 @@ local function parseFunction(l)
     local system = assert(Systems.getSystem(systemID), string.format("No system with the ID %d found", systemID))
     local entity = assert(system:findEntity(entityID), string.format("No entity with ID %d found", entityID))
 
-    if tonumber(key) then key = tonumber(key) end
-
-    if tonumber(value) then
-      entity:set(key, tonumber(value))
-    elseif key == "enabled" then
-      entity:setEnabled(value:lower() == "true")
-    elseif value:lower() == "true" then
-      entity:set(key, true)
-    elseif value:lower() == "false" then
-      entity:set(key, false)
+    if string.starts(value, "{") and string.ends(value, "}") then
+      local f, err = loadstring("return "..value)
+      if not f then error(err) end
+      entity:set(key, f())
     else
-      entity:set(key, value)
+      if tonumber(key) then key = tonumber(key) end
+
+      if tonumber(value) then
+        entity:set(key, tonumber(value))
+      elseif key == "enabled" then
+        entity:setEnabled(value:lower() == "true")
+      elseif value:lower() == "true" then
+        entity:set(key, true)
+      elseif value:lower() == "false" then
+        entity:set(key, false)
+      else
+        entity:set(key, value)
+      end
     end
+
+  elseif command == "SetComponentEnabled" then
+    local systemID = message[2]
+    local entityID = assert(tonumber(message[3]), string.format("Cannot parse '%s' to number", message[3]))
+    local compID = assert(tonumber(message[4]), string.format("Cannot parse '%s' to number", message[4]))
+    local value = assert(message[5], "Must have a value")
+    local system = assert(Systems.getSystem(systemID), string.format("No system with the ID %d found", systemID))
+    local entity = assert(system:findEntity(entityID), string.format("No entity with ID %d found", entityID))
+    local comp = entity:findComponent(compID)
+    comp:setEnabled(value:lower() == "true")
+
+  elseif command == "SetSystemEnabled" then
+    local systemID = message[2]
+    local value = assert(message[3], "Must have a value")
+    local system = assert(Systems.getSystem(systemID), string.format("No system with the ID %d found", systemID))
+    system:setEnabled(value:lower() == "true")
 
   else
     error(string.format("Unknown command '%s' received", command))

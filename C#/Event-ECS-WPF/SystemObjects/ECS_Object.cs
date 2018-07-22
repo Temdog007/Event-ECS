@@ -48,8 +48,6 @@ namespace Event_ECS_WPF.SystemObjects
             }
         }
 
-        protected abstract void ValueChanged(string key, object value);
-
         public static string GetData(string line, out ECSData nameData, out ECSData enabledData, out ECSData idData, out List<ECSData> ecsDataList)
         {
             string[] enData = line.Split(Delim);
@@ -85,7 +83,7 @@ namespace Event_ECS_WPF.SystemObjects
             }
         }
 
-        public static LuaTable ParseTable(string data)
+        public static LuaTable ParseTable(Entity entity, string data)
         {
             var list = data.Replace("{", string.Empty).Replace("}", string.Empty).Split(TableDelim).ToList();
             var dict = new LuaTable();
@@ -94,8 +92,17 @@ namespace Event_ECS_WPF.SystemObjects
             {
                 string name = list[i];
                 Type type = GetType(list[i + 1]);
-                IEntityVariable enVar = dict[name];
-                enVar.Value = Convert.ChangeType(list[i + 2], type);
+                object value = Convert.ChangeType(list[i + 2], type);
+                if (!dict.ContainsKey(name))
+                {
+                    Type generic = typeof(EntityVariable<>).MakeGenericType(type);
+                    dict[name] = (IEntityVariable)Activator.CreateInstance(generic, new object[] { entity, name, value });
+                }
+                else
+                {
+                    IEntityVariable enVar = dict[name];
+                    enVar.Value = value;
+                }
             }
 
             return dict;
@@ -125,6 +132,14 @@ namespace Event_ECS_WPF.SystemObjects
         {
             return ID.Equals(other.ID) && Name.Equals(other.Name) && IsEnabled.Equals(other.IsEnabled);
         }
+
         public abstract bool Remove();
+
+        public override string ToString()
+        {
+            return string.Format("Name: {0}, ID: {1}, Enabled: {2}", Name, ID, IsEnabled);
+        }
+
+        protected abstract void ValueChanged(string key, object value);
     }
 }

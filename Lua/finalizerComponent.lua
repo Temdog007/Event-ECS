@@ -22,8 +22,9 @@ local class = require("classlib")
 
 local finalizerComponent = class("finalizerComponent", require("component"))
 
-function finalizerComponent:__init()
+function finalizerComponent:__init(entity)
 	self:setDefault("name", classname(self))
+	self:set("entity", entity)
 end
 
 local function throwError()

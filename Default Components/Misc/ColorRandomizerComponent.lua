@@ -3,9 +3,10 @@ local class = require("classlib")
 
 local ColorRandomizer = class("colorRandomizerComponent", Component)
 
-function ColorRandomizer:__init()
+function ColorRandomizer:__init(en)
 
   self:setDefault("name", classname(self))
+  self:set("entity", en)
 
   local entity = self:getEntity(true)
   entity.current = 0

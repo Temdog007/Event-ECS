@@ -3,8 +3,9 @@ local class = require("classlib")
 
 local debugComponent = class("debugComponent", Component)
 
-function debugComponent:__user_init()
+function debugComponent:__user_init(en)
 	self:setDefault("name", classname(self))
+	self:set("entity", en)
 end
 
 function debugComponent:eventToggleVsync()

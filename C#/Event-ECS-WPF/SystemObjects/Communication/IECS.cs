@@ -18,14 +18,18 @@
 
         void Execute(string code);
 
+        void ReloadModule(string modName);
+
         void RemoveComponent(int systemID, int entityID, int componentID);
 
         void RemoveEntity(int systemID, int entityID);
 
-        void ReloadModule(string modName);
-
         void Reset();
 
+        void SetComponentEnabled(int systemID, int entityID, int componentID, bool value);
+
         void SetEntityValue(int systemID, int entityID, string key, object value);
+
+        void SetSystemEnabled(int systemID, bool value);
     }
 }

@@ -43,15 +43,10 @@ function component:getEntity(useDefault)
     self.entityTable = setmetatable({},
     {
         __index = function(obj, k)
-          local en = self:get("entity")
-          if en then return en:get(k) end
-          return nil
+          return self.entity:get(k)
         end,
         __newindex = function(obj, k, v)
-          local en = self:get("entity")
-          if en then
-            en:set(k,v)
-          end
+          self.entity:set(k,v)
         end
     })
   end
@@ -60,15 +55,10 @@ function component:getEntity(useDefault)
     self.defaultEntityTable = setmetatable({},
     {
         __index = function(obj, k)
-          local en = self:get("entity")
-          if en then return en:get(k) end
-          return nil
+          return self.entity:get(k)
         end,
         __newindex = function(obj, k, v)
-          local en = self:get("entity")
-          if en then
-            en:setDefault(k,v)
-          end
+          self.entity:setDefault(k,v)
         end
     })
   end

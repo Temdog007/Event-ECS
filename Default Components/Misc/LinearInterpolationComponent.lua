@@ -3,8 +3,9 @@ local class = require('classlib')
 
 local linearInterpolationComponent = class('linearInterpolationComponent', Component)
 
-function linearInterpolationComponent:__user_init()
+function linearInterpolationComponent:__user_init(en)
   self:setDefault("name", classname(self))
+  self:set("entity", en)
 
   local entity = self:getEntity()
 

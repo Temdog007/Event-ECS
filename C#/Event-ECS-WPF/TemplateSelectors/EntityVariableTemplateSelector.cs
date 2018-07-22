@@ -1,7 +1,7 @@
 ﻿using Event_ECS_WPF.Extensions;
 using Event_ECS_WPF.SystemObjects;
+using Event_ECS_WPF.SystemObjects.EntityAttributes;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -19,10 +19,6 @@ namespace Event_ECS_WPF.TemplateSelectors
                 {
                     resourceName = "colorEntityVariable";
                 }
-                else if(variable.Name == "id")
-                {
-                    resourceName = "idEntityVariable";
-                }
                 else
                 {
                     var type = variable.Type;
@@ -30,11 +26,7 @@ namespace Event_ECS_WPF.TemplateSelectors
                     {
                         resourceName = "boolEntityVariable";
                     }
-                    else if (type == typeof(string))
-                    {
-                        resourceName = "boolEntityVariable";
-                    }
-                    else if(type == typeof(Dictionary<string, IEntityVariable>))
+                    else if(type == typeof(LuaTable))
                     {
                         resourceName = "tableEntityVariable";
                     }

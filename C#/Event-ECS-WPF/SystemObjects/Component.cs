@@ -1,4 +1,7 @@
-﻿namespace Event_ECS_WPF.SystemObjects
+﻿using Event_ECS_WPF.SystemObjects.Communication;
+using System;
+
+namespace Event_ECS_WPF.SystemObjects
 {
     public class Component : ECS_Object
     {
@@ -17,7 +20,10 @@
 
         protected override void ValueChanged(string key, object value)
         {
-            
+            if (key == "enabled")
+            {
+                ECS.Instance.SetComponentEnabled(Entity.System.ID, Entity.ID, ID, Convert.ToBoolean(value));
+            }
         }
     }
 }

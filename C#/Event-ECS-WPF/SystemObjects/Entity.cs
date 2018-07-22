@@ -53,7 +53,13 @@ namespace Event_ECS_WPF.SystemObjects
                 {
                     if (ecsData.Type == "table" && variable.Value is LuaTable dict)
                     {
-                        variable.Value = ParseTable(ecsData.Value);
+                        LuaTable table = (LuaTable)variable.Value;
+                        foreach (var newTable in ParseTable(this, ecsData.Value))
+                        {
+                            IEntityVariable t = table[newTable.Key];
+                            t.Value = newTable.Value;
+                            t.Parent = variable;
+                        }
                     }
                     else
                     {
@@ -64,13 +70,16 @@ namespace Event_ECS_WPF.SystemObjects
                 {
                     if (ecsData.Type == "table")
                     {
-                        var dictVar = new EntityVariable<LuaTable>(ecsData.Name, new LuaTable(ParseTable(ecsData.Value)));
+                        var t = new LuaTable(ParseTable(this, ecsData.Value));
+                        var v = new EntityVariable<LuaTable>(this, ecsData.Name, t);
+                        t.Parent = v;
+                        Variables.Add(v);
                     }
                     else
                     {
                         Type type = GetType(ecsData.Type);
                         Type generic = typeof(EntityVariable<>).MakeGenericType(type);
-                        Variables.Add((IEntityVariable)Activator.CreateInstance(generic, new object[] { ecsData.Name, Convert.ChangeType(ecsData.Value, type) }));
+                        Variables.Add((IEntityVariable)Activator.CreateInstance(generic, new object[] { this, ecsData.Name, Convert.ChangeType(ecsData.Value, type) }));
                     }
                 }
             }

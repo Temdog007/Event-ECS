@@ -38,16 +38,30 @@ ecsTests = {}
 function ecsTests:testParser()
   local system = Systems.addSystem(System("TestSystem"))
   local sysID = system:getID()
-  assertError(parser, "AddEntity|1")
 
+  parser(string.format('SetSystemEnabled|%d|false', sysID))
+  assertIsFalse(system:isEnabled())
+  parser(string.format('SetSystemEnabled|%d|true', sysID))
+  assertIsTrue(system:isEnabled())
+
+  assertError(parser, "AddEntity|1")
   parser(string.format("AddEntity|%d", sysID))
   assertEquals(system:entityCount(), 1)
   assertError(parser, "AddEntity|NoSystem")
 
   local en = system:findEntity(function() return true end)
   local enID = en:getID()
+
   parser(string.format('AddComponent|%d|%d|testComponent', sysID, enID))
   assertEquals(en:componentCount(), 1)
+  local comp = en:findComponent(function() return true end)
+  local compID = comp:getID()
+
+  parser(string.format('SetComponentEnabled|%d|%d|%d|false', sysID, enID, compID))
+  assertIsFalse(comp:isEnabled())
+  parser(string.format('SetComponentEnabled|%d|%d|%d|true', sysID, enID, compID))
+  assertIsTrue(comp:isEnabled())
+
   parser("BroadcastEvent|eventerror")
 
   assertError(parser, "Execute|error('Test error')")
@@ -63,10 +77,13 @@ function ecsTests:testParser()
   assertIsFalse(en:get("test"))
   parser(string.format("SetEntityValue|%d|%d|enabled|FALSE", sysID, enID))
   assertIsFalse(en:isEnabled())
+  parser(string.format("SetEntityValue|%d|%d|testTable|{}", sysID, enID))
+  assertEquals(en:get("testTable"), {})
+  parser(string.format("SetEntityValue|%d|%d|testTable|{[1] = 3, [4] = 6, [87] = 43}", sysID, enID))
+  assertEquals(en:get("testTable"), {[1] = 3, [4] = 6, [87] = 43})
   parser(string.format("DispatchEvent|%d|eventerror", sysID))
 
-  local comp = en:findComponent(function() return true end)
-  parser(string.format("RemoveComponent|%d|%d|%d", sysID, enID, comp:getID()))
+  parser(string.format("RemoveComponent|%d|%d|%d", sysID, enID, compID))
   assertEquals(en:componentCount(), 0)
 
   assertError(parser, string.format("RemoveComponent|%d|%d|f32wrfsad", sysID, enID))

@@ -33,6 +33,8 @@ local consolePrint = print
 local eos = string.char(3)
 
 function serverComponent:__init()
+  self:setDefault("name", classname(self))
+
   self.host = "*"
   self.port = 32485
   self.timeout = 0

@@ -8,8 +8,10 @@ namespace Event_ECS_WPF.SystemObjects.EntityAttributes
     {
         private T m_value;
 
-        public EntityVariable(string name, T value)
+        public EntityVariable(Entity entity, string name, T value)
         {
+            Entity = entity ?? throw new ArgumentNullException(nameof(entity));
+
             if (string.IsNullOrWhiteSpace(name))
             {
                 throw new ArgumentNullException(nameof(name));
@@ -22,12 +24,17 @@ namespace Event_ECS_WPF.SystemObjects.EntityAttributes
             {
                 this.m_value = value;
             }
-            throw new ArgumentException("Invalid variable type", nameof(T));
+            else
+            {
+                throw new ArgumentException("Invalid variable type", nameof(T));
+            }
         }
 
-        public Entity Entity { get; private set; }
+        public Entity Entity { get; }
 
         public string Name { get; }
+
+        public IEntityVariable Parent { get; set; }
 
         public Type Type => typeof(T);
 
@@ -119,7 +126,7 @@ namespace Event_ECS_WPF.SystemObjects.EntityAttributes
             return string.Format("{0}: {1}", Name, Value);
         }
 
-        private void UpdateValue()
+        public void UpdateValue()
         {
             if(Entity == null)
             {
@@ -128,7 +135,14 @@ namespace Event_ECS_WPF.SystemObjects.EntityAttributes
 
             int entityID = Entity.ID;
             int systemID = Entity.System.ID;
-            ECS.Instance.SetEntityValue(systemID, entityID, Name, Value);
+            if (Type == typeof(LuaTable))
+            {
+                ECS.Instance.SetEntityValue(systemID, entityID, Name, Value.ToString());
+            }
+            else
+            {
+                ECS.Instance.SetEntityValue(systemID, entityID, Name, Value);
+            }
         }
     }
 }
