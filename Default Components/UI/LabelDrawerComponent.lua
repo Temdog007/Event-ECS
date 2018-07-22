@@ -3,7 +3,8 @@ local class = require('classlib')
 
 local labelDrawerComponent = class('labelDrawerComponent', Component)
 
-function labelDrawerComponent:__init()
+function labelDrawerComponent:__init(en)
+  self:set("entity", en)
   self:setDefault("name", classname(self))
 end
 

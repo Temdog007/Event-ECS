@@ -3,10 +3,11 @@ local class = require('classlib')
 
 local stackWidgetComponent = class('stackWidgetComponent', Component)
 
-function stackWidgetComponent:__init()
+function stackWidgetComponent:__init(en)
+  self:set("entity", en)
   self:setDefault("name", classname(self))
 
-  local entity = self:getEntity()
+  local entity = self:getEntity(true)
 
   entity.bgColor = {0,0,0,0}
   entity.pressedColor = {0,0,0,0}
@@ -34,35 +35,44 @@ function stackWidgetComponent:__init()
 
   entity.stackVertically = true
 
-  entity.drawOrder = 0
+  entity.valueKeys = entity.valueKeys or {}
+  entity.valueKeys.verticalAlignment = true
+  entity.valueKeys.verticalPadding = true
+  entity.valueKeys.horizontalAlignment = true
+  entity.valueKeys.horizontalPadding = true
 
+  local values = entity.values or {}
+  values.bgColor = true
+  values.pressedColor = true
+  values.highlightColor = true
+  values.x = true
+  values.y = true
+  values.width = true
+  values.height = true
+  values.space = true
+  values.scissorX = true
+  values.scissorY = true
+  values.scissorWidth = true
+  values.scissorHeight = true
+  values.useScissor = true
+  values.verticalAlignment = true
+  values.verticalPadding = true
+  values.horizontalAlignment = true
+  values.horizontalPadding = true
+  values.stackVertically = true
+  entity.values = values
 end
 
-function stackWidgetComponent:eventEnabledChanged(args)
-  if not args then return end
-
-  if args.enabled then
-    if args.component == self or
-      args.system == self:getSystem() or
-      args.entity == self:getEntity() or
-      self:hasItem(args.component) then
-      self:layoutItems()
-    end
+function stackWidgetComponent:setEnabled(bool)
+  self.ecsObject:setEnabled(bool)
+  if self:isEnabled() then
+    self:layoutItems()
   end
-
-  itemChanged(self, args)
 end
 
 function stackWidgetComponent:eventItemChanged(args)
-  if not args then return end
-
-  for _, item in pairs(self.items) do
-    if item == args.item then
-      self:layoutItems()
-      break
-    end
-  end
-
+  self.valueWatcherComponent:eventItemChanged(args)
+  self:layoutItems()
 end
 
 function stackWidgetComponent:addItems(...)
@@ -72,17 +82,18 @@ function stackWidgetComponent:addItems(...)
 end
 
 function stackWidgetComponent:addItem(item)
-  assert(item and classname(item) and item.x and item.y and item.width and item.height,
+  assert(item and item:get("x") and item:get("y") and item:get("width") and item:get("height"),
 		"Cannot add item because it is not considered a UI drawable object")
-  table.insert(self.items, item)
+  table.insert(self:get("items"), item)
   self:dispatchEvent("eventItemAdded", {widget = self, item = item})
   self:layoutItems()
 end
 
 function stackWidgetComponent:removeItem(item)
-  for k,v in pairs(self.items) do
+  local items = self:get("items")
+  for k,v in pairs(items) do
     if v == item then
-      self.items[k] = nil
+      items[k] = nil
       self:dispatchEvent("eventItemRemoved", {widget = self, item = item})
       break
     end
@@ -91,8 +102,8 @@ function stackWidgetComponent:removeItem(item)
 end
 
 function stackWidgetComponent:hasItem(item)
-  for k,v in pairs(self.items) do
-    if v == item then
+  for k,v in pairs(self:get("items")) do
+    if v == item or v:getID() == item then
       return true
     end
   end
@@ -101,38 +112,40 @@ end
 
 function stackWidgetComponent:setItemsEnabled(enable)
   assert(type(enable) == "boolean", "Must enter a boolean to setEnable")
-  for _, item in pairs(self.items) do
+  for _, item in pairs(self:get("items")) do
     item:setEnabled(enable)
   end
 end
 
 function stackWidgetComponent:reorderItems()
   local newItems = {}
-  for _, v in pairs(self.items) do
+  for _, v in pairs(self:get("items")) do
     table.insert(newItems, v)
   end
 
-  self.items = newItems
+  self:set("items", newItems)
   self:layoutItems()
 end
 
 function stackWidgetComponent:alignVerticalPosition()
-  if self.verticalAlignment == "top" then
-    self.y = self.verticalPadding
-  elseif self.verticalAlignment == "bottom" then
-    self.y = love.graphics.getHeight() - self.height - self.verticalPadding
-  elseif self.verticalAlignment == "center" then
-    self.y = (love.graphics.getHeight() - self.height) * 0.5
+  local entity = self:getEntity()
+  if entity.verticalAlignment == "top" then
+    entity.y = entity.verticalPadding
+  elseif entity.verticalAlignment == "bottom" then
+    entity.y = love.graphics.getHeight() - entity.height - entity.verticalPadding
+  elseif entity.verticalAlignment == "center" then
+    entity.y = (love.graphics.getHeight() - entity.height) * 0.5
   end
 end
 
 function stackWidgetComponent:alignHorizontalPosition()
-  if self.horizontalAlignment == "left" then
-    self.x = self.horizontalPadding
-  elseif self.horizontalAlignment == "right" then
-    self.x = love.graphics.getWidth() - self.width - self.horizontalPadding
-  elseif self.horizontalAlignment == "center" then
-    self.x = (love.graphics.getWidth() - self.width) * 0.5
+  local entity = self:getEntity()
+  if entity.horizontalAlignment == "left" then
+    entity.x = self.horizontalPadding
+  elseif entity.horizontalAlignment == "right" then
+    entity.x = love.graphics.getWidth() - entity.width - entity.horizontalPadding
+  elseif entity.horizontalAlignment == "center" then
+    entity.x = (love.graphics.getWidth() - entity.width) * 0.5
   end
 end
 
@@ -142,20 +155,21 @@ function stackWidgetComponent:alignPosition()
 end
 
 function stackWidgetComponent:calculateSize()
-  self.width = 0
-  self.height = 0
-  if self.stackVertically then
-    for i, item in ipairs(self.items) do
+  local entity = self:getEntity()
+  entity.width = 0
+  entity.height = 0
+  if entity.stackVertically then
+    for i, item in ipairs(entity.items) do
       if item:isEnabled() then
-        self.width = math.max(self.width, item.width)
-        self.height = self.height + self.space + item.height
+        entity.width = math.max(entity.width, item:get("width"))
+        entity.height = entity.height + entity.space + item:get("height")
       end
     end
   else
-    for i, item in ipairs(self.items) do
+    for i, item in ipairs(entity.items) do
       if item:isEnabled() then
-        self.width = self.width + self.space + item.width
-        self.height = math.max(self.height, item.height)
+        entity.width = entity.width + entity.space + item:get("width")
+        entity.height = math.max(entity.height, item:get("height"))
       end
     end
   end
@@ -164,36 +178,38 @@ end
 function stackWidgetComponent:layoutItems()
   self:calculateSize()
   self:alignPosition()
-  if self.stackVertically then self:layoutItemsVertically()
+  if self:get("stackVertically") then self:layoutItemsVertically()
   else self:layoutItemsHorizontally() end
 end
 
 function stackWidgetComponent:layoutItemsVertically()
-  local x, y, space = self.x, self.y, self.space
-  self.width = 0
-  for i, item in ipairs(self.items) do
+  local entity = self:getEntity()
+  local x, y, space = entity.x, entity.y, entity.space
+  entity.width = 0
+  for i, item in ipairs(entity.items) do
     if item:isEnabled() then
-      item.x = x
-      item.y = y
-      y = y + space + item.height
-      self.width = math.max(self.width, item.width)
+      item:set("x", x)
+      item:set("y", y)
+      y = y + space + item:get("height")
+      entity.width = math.max(entity.width, item:get("width"))
     end
   end
-  self.height = y - self.y
+  entity.height = y - entity.y
 end
 
 function stackWidgetComponent:layoutItemsHorizontally()
-  local x, y, space = self.x, self.y, self.space
-  self.height = 0
-  for i, item in ipairs(self.items) do
+  local entity = self:getEntity()
+  local x, y, space = entity.x, entity.y, entity.space
+  entity.height = 0
+  for i, item in ipairs(entity.items) do
     if item:isEnabled() then
-      item.x = x
-      item.y = y
-      x = x + space + item.width
-      self.height = math.max(self.height, item.height)
+      item:set("x", x)
+      item:set("y", y)
+      x = x + space + item:get("width")
+      entity.height = math.max(entity.height, item:get("height"))
     end
   end
-  self.width = x - self.x
+  entity.width = x - entity.x
 end
 
 function stackWidgetComponent:eventResize(args)
@@ -203,21 +219,23 @@ end
 local function widgetDraw(widget)
   for _, item in ipairs(widget.items) do
     if item:isEnabled() then
-      item:draw()
+      local d = item:get("draw")
+      d.draw(d.ui)
     end
   end
 end
 
 function stackWidgetComponent:eventDraw(args)
-  if not args or args.drawOrder ~= self.drawOrder then return end
+  if not self:canDraw(args) then return end
 
-  if self.useScissor then
-    love.graphics.setScissor(self.scissorX, self.scissorY,
-                    self.scissorWidth, self.scissorHeight)
-    widgetDraw(self)
+  local entity = self:getEntity()
+  if entity.useScissor then
+    love.graphics.setScissor(entity.scissorX, entity.scissorY,
+                    entity.scissorWidth, entity.scissorHeight)
+    widgetDraw(entity)
     love.graphics.setScissor()
   else
-    widgetDraw(self)
+    widgetDraw(entity)
   end
 end
 

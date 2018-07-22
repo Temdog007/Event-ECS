@@ -1,9 +1,10 @@
 local class = require('classlib')
 local drawableComponent = class('drawableComponent', require("component"))
 
-function drawableComponent:__init()
+function drawableComponent:__init(en)
+  self:set("entity", en)
   self:setDefault("name", classname(self))
-  
+
   local entity = self:getEntity(true)
   entity.drawOrder = 0
 

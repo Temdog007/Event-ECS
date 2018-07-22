@@ -3,7 +3,6 @@ using Event_ECS_WPF.Properties;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Configuration;
 using System.Linq;
@@ -122,6 +121,10 @@ namespace Event_ECS_WPF.Logger
                 lock (m_lock)
                 {
                     m_logs.Insert(0, log);
+                    while (FilteredLogs.Count() > Settings.Default.MaxLogs)
+                    {
+                        m_logs.RemoveAt(m_logs.Count - 1);
+                    }
                 }
             }));
             Default_SettingChanging(null, null);

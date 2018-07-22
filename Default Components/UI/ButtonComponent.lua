@@ -2,7 +2,8 @@ local uiComponent = require('uiComponent')
 local class = require('classlib')
 local buttonComponent = class('buttonComponent', uiComponent)
 
-function buttonComponent:__init()
+function buttonComponent:__init(en)
+  self:set("entity", en)
   self:setDefault("name", classname(self))
 
   local entity = self:getEntity(true)
@@ -12,6 +13,7 @@ function buttonComponent:__init()
   entity.isClicked = false
   entity.drawingText = true
   entity.fontColor = {1,1,1,1}
+  entity.draw = {ui = self, draw = buttonComponent.draw}
 
   local values = entity.values or {}
   values.text = true
@@ -65,9 +67,8 @@ function buttonComponent:drawText()
 end
 
 function buttonComponent:draw()
-  self.uiComponent:draw()
-
   local entity = self:getEntity()
+  self.uiComponent:draw()
   if entity.drawingText then self:drawText() end
 end
 

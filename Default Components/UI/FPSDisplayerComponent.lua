@@ -3,9 +3,10 @@ local class = require('classlib')
 
 local fpsDisplayerComponent = class('fpsDisplayerComponent', Component)
 
-function fpsDisplayerComponent:__init()
+function fpsDisplayerComponent:__init(en)
+  self:set("entity", en)
   self:setDefault("name", classname(self))
-  
+
   local entity = self:getEntity(true)
 
   entity.x = 0
@@ -35,5 +36,7 @@ function fpsDisplayerComponent:eventDraw(args)
 
   love.graphics.print(love.timer.getFPS(), entity.x, entity.y, 0, entity.scaleX, entity.scaleY)
 end
+
+lowerEventName(fpsDisplayerComponent)
 
 return fpsDisplayerComponent

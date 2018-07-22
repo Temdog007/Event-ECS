@@ -32,6 +32,7 @@ function testComponent:__user_init(entity)
   entity:setDefault("x", 0)
   entity:setDefault("y", 0)
   entity:setDefault("removingComponentCalled", 0)
+  entity:setDefault("eventEnabledChanged", 0)
   entity:setDefault("space", 10)
   entity:setDefault("added", false)
 end
@@ -53,6 +54,16 @@ function testComponent:eventRemovingComponent(args)
     local en = self:get("entity")
     local v = en:get("removingComponentCalled")
     en:set("removingComponentCalled", v + 1)
+  end
+end
+
+function testComponent:eventEnabledChanged(args)
+  if not args then return end
+
+  if args.id == self:get("id") or args.id == self:getID() then
+    local en = self:get("entity")
+    local v = en:get("eventEnabledChanged")
+    en:set("eventEnabledChanged", v + 1)
   end
 end
 

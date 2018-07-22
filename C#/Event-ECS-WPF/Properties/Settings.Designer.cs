@@ -141,5 +141,17 @@ namespace Event_ECS_WPF.Properties {
                 this["StartProjectInDebugMode"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("100")]
+        public int MaxLogs {
+            get {
+                return ((int)(this["MaxLogs"]));
+            }
+            set {
+                this["MaxLogs"] = value;
+            }
+        }
     }
 }

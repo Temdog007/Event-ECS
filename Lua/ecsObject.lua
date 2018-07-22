@@ -26,7 +26,6 @@ function ecsObject:__user_init()
   self:setDefault("name", "ECS Object")
   self:setDefault("enabled", true)
   self:setDefault("id", id)
-  self:setDefault("dispatchEvent", function(eventName, args) end)
   id = id + 1
 
   local values = self:get("values") or {}
@@ -46,7 +45,9 @@ end
 
 function ecsObject:setEnabled(pEnabled)
   assert(type(pEnabled) == "boolean", "Must call setEnabled with a boolean")
-  self:set("enabled", pEnabled)
+  if pEnabled ~= self:get("enabled") then
+    self:set("enabled", pEnabled)
+  end
 end
 
 function ecsObject:getName()

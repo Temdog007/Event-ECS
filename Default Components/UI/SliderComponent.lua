@@ -2,9 +2,10 @@ local Component = require('uiComponent')
 local class = require('classlib')
 local sliderComponent = class('sliderComponent', Component)
 
-function sliderComponent:__init()
+function sliderComponent:__init(en)
+  self:set("entity", en)
   self:setDefault("name", classname(self))
-  
+
   local entity = self:getEntity(true)
 
   entity.min = 0
@@ -17,6 +18,7 @@ function sliderComponent:__init()
   entity.scaleY = 1
   entity.cursorColor = {1,1,1,1}
   entity.fontColor = {1,1,1,1}
+  entity.draw = {ui = self, draw = sliderComponent.draw}
 
   local values = entity.values or {}
   values.min = true
@@ -122,9 +124,10 @@ function sliderComponent:drawText()
 end
 
 function sliderComponent:draw()
+  local entity = self:getEntity()
+
   self.uiComponent:draw()
 
-  local entity = self:getEntity()
   if entity.drawingCursor then self:drawCursor() end
   if entity.drawingText then self:drawText() end
 end

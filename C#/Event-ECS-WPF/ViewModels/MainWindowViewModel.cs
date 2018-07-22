@@ -28,9 +28,9 @@ local class = require('classlib')
 
 local {0} = class('{0}', Component)
 
-function {0}:__init(entity)
+function {0}:__init(en)
   self:setDefault('name', classname(self))
-  self:set('entity', en)
+  self:set('entity', en)entity
 end
 
 function {0}:eventUpdate(args)

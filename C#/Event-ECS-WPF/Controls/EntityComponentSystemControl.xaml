@@ -14,7 +14,8 @@
     <UserControl.Resources>
         <CollectionViewSource x:Key="entitiesSrc" Source="{Binding ElementName=m_system, Path=EntityComponentSystem.Entities, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
             <CollectionViewSource.SortDescriptions>
-                <scm:SortDescription PropertyName="ID"/>
+                <scm:SortDescription PropertyName="IsEnabled" Direction="Ascending"/>
+                <scm:SortDescription PropertyName="ID" Direction="Ascending"/>
             </CollectionViewSource.SortDescriptions>
         </CollectionViewSource>
         <ex:BindingProxy x:Key="SystemControl" Data="{Binding ElementName=m_system}"/>

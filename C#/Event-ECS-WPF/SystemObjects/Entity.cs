@@ -57,7 +57,7 @@ namespace Event_ECS_WPF.SystemObjects
                         foreach (var newTable in ParseTable(this, ecsData.Value))
                         {
                             IEntityVariable t = table[newTable.Key];
-                            t.Value = newTable.Value;
+                            t.Value = Convert.ChangeType(newTable.Value.Value, newTable.Value.Type);
                             t.Parent = variable;
                         }
                     }

@@ -70,6 +70,10 @@ function component:remove()
   return self.entity:removeComponent(self:getID())
 end
 
+function component:dispatchEvent(eventName, args)
+  self.entity:dispatchEvent(eventName, args)
+end
+
 lowerEventName(component)
 
 return component

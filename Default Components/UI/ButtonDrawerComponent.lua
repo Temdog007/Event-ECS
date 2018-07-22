@@ -2,7 +2,8 @@ local Component = require('drawableComponent')
 local class = require('classlib')
 local buttonDrawerComponent = class('buttonDrawerComponent', Component)
 
-function buttonDrawerComponent:__init()
+function buttonDrawerComponent:__init(en)
+  self:set("entity", en)
   self:setDefault("name", classname(self))
 end
 

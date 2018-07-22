@@ -92,6 +92,16 @@ namespace Event_ECS_WPF.Controls
             }
         }
 
+        private void ReloadComponent_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.Tag is SystemObjects.Component component)
+            {
+                ECS.Instance.ReloadModule(component.Name);
+                ECS.Instance.RemoveComponent(Entity.System.ID, Entity.ID, component.ID);
+                ECS.Instance.AddComponent(Entity.System.ID, Entity.ID, component.Name);
+            }
+        }
+
         private void Remove()
         {
            ECS.Instance.RemoveEntity(Entity.System.ID, Entity.ID);

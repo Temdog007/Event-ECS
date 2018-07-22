@@ -1,18 +1,24 @@
 local Component = require('uiComponent')
 local class = require('classlib')
+local Entity = require("entity")
 
 local labelComponent = class('labelComponent', Component)
 
-function labelComponent:__init()
+function labelComponent:__init(en)
+  self:set("entity", en)
   self:setDefault("name", classname(self))
-  
-  local entity = self:getEntity()
+
+  local entity = self:getEntity(true)
 
   entity.text = ""
   entity.alignment = "center"
   entity.scaleX = 1
   entity.scaleY = 1
   entity.fontColor = {1,1,1,1}
+  entity.bgColor = {0,0,0,0}
+  entity.highlightColor = {0,0,0,0}
+  entity.pressedColor = {0,0,0,0}
+  entity.draw = {ui = self, draw = labelComponent.draw}
 
   local values = entity.values or {}
   values.text = true
@@ -25,7 +31,6 @@ end
 
 function labelComponent:draw()
   local entity = self:getEntity()
-
   self.uiComponent:draw()
 
   local color = entity.fontColor

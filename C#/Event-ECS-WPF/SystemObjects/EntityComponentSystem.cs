@@ -34,7 +34,7 @@ namespace Event_ECS_WPF.SystemObjects
                 foreach (var entity in Entities.AsReadOnly())
                 {
                     yield return entity;
-                    foreach (var component in entity.Components)
+                    foreach (var component in entity.Components.AsReadOnly())
                     {
                         yield return component;
                     }

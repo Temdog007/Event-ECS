@@ -22,15 +22,13 @@ local class = require("classlib")
 local Entity = require("entity")
 local system = class("system", require("ecsObject"))
 
-local function dispatchEvent(ecsObj, eventName, args)
-  return ecsObj.system:dispatchEvent(eventName, args)
-end
-
 function system:__user_init(name)
   self:set("name", name or "System")
   self:set("entities", {})
   self:set("registeredEntities", {})
-  self:set("dispatchEvent", dispatchEvent)
+  self:set("dispatchEvent", function(eventName, args)
+    return self:dispatchEvent(eventName, args)
+   end)
 end
 
 function system:registerEntity(name, ...)
@@ -142,7 +140,7 @@ end
 
 function system:serialize()
   local tab ={}
-  
+
   table.insert(tab, self.serializable:serialize())
 
   for _, en in pairs(self:get("entities")) do

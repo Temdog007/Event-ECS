@@ -1,16 +1,17 @@
-local Component = require('drawableComponent')
+local Component = require('valueWatcherComponent')
 local class = require('classlib')
 local uiComponent = class('uiComponent', Component)
 
-local valueKeys = {"x", "y", "width", "height"}
-
-function uiComponent:__init()
+function uiComponent:__init(en)
+  self:set("entity", en)
   self:setDefault("name", classname(self))
 
   local entity = self:getEntity(true)
 
   entity.x = 0
   entity.y = 0
+  entity.highlightScaleX = 1.5
+  entity.highlightScaleY = 1.5
   entity.width = 100
   entity.height = 100
   entity.isMouseOver = false
@@ -19,10 +20,21 @@ function uiComponent:__init()
   entity.highlightColor = {1,1,0,1}
   entity.drawingBg = true
   entity.drawingHighlight = true
+  entity.lastValues = {}
+  entity.drawOrder = 0
+  entity.draw = uiComponent.draw
+
+  entity.valueKeys = entity.valueKeys or {}
+  entity.valueKeys.x = 0
+  entity.valueKeys.y = 0
+  entity.valueKeys.width = 100
+  entity.valueKeys.height = 100
 
   local values = entity.values or {}
   values.x = true
   values.y = true
+  values.highlightScaleX = true
+  values.highlightScaleY = true
   values.width = true
   values.height = true
   values.isMouseOver = true
@@ -30,26 +42,14 @@ function uiComponent:__init()
   values.pressedColor = true
   values.highlightColor = true
   values.drawingBg = true
+  values.drawOrder = true
   values.drawingHighlight = true
   entity.values = values
 end
 
-function uiComponent:eventUpdate(args)
-  for _, value in pairs(valueKeys) do
-    if self[value] ~= self.lastValues[value] then
-      local system = self:get("entity"):get("system")
-      system:dispatchEvent("eventItemChanged", {item = self})
-      break
-    end
-  end
-end
-
-function uiComponent:eventItemChanged(args)
-  if not args or args.component ~= self then return end
-
-  for _, value in pairs(valueKeys) do
-    self.lastValues[value] = self[value]
-  end
+function uiComponent:canDraw(args)
+  local entity = self:getEntity()
+  return args and args.drawOrder == entity.drawOrder
 end
 
 function uiComponent:eventMouseMoved(args)
@@ -76,7 +76,7 @@ function uiComponent:drawHighlight()
   local c = entity.isClicked and entity.pressedColor or entity.highlightColor
   if c then
     love.graphics.setColor(c)
-    local width, height = entity.width * entity.scale, entity.height * entity.scale
+    local width, height = entity.width * entity.highlightScaleX, entity.height * entity.highlightScaleY
     love.graphics.rectangle("fill", entity.x - (width - entity.width)*0.5, entity.y - (height - entity.height)*0.5, width, height)
   end
 end
@@ -91,7 +91,7 @@ end
 
 function uiComponent:draw()
   local entity = self:getEntity()
-  if entity.drawingHighlight then self:drawHighlight() end
+  if entity.drawingHighlight and self.isMouseOver then self:drawHighlight() end
   if entity.drawingBg then self:drawBg() end
 end
 

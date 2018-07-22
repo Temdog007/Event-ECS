@@ -2,7 +2,8 @@ local Component = require('drawableComponent')
 local class = require('classlib')
 local SliderDrawerComponent = class('sliderDrawerComponent', Component)
 
-function SliderDrawerComponent:__init()
+function SliderDrawerComponent:__init(en)
+  self:set("entity", en)
   self:setDefault("name", classname(self))
 end
 

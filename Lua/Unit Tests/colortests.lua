@@ -1,5 +1,4 @@
--- local colors = require("colorComponent")
---
+
 -- for k,v in pairs(colors.getColors()) do
 --   print(string.format("{\"%s\", {%f, %f, %f, %f}},", k, v[1], v[2], v[3], v[4] or 1))
 -- end

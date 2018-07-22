@@ -52,11 +52,10 @@
     </DataTemplate>
 
     <DataTemplate x:Key="colorEntityVariable">
-        <DockPanel>
-            <Label DockPanel.Dock="Top" FontWeight="Bold" Content="{Binding Name}" Margin="5" />
+        <Expander FontWeight="Bold" Header="{Binding Name}">
             <ListView ItemsSource="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
                       ItemTemplateSelector="{StaticResource colorVariableTemplateSelector}"/>
-        </DockPanel>
+        </Expander>
     </DataTemplate>
 
     <DataTemplate x:Key="boolEntityVariable">

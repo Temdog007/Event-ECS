@@ -31,10 +31,6 @@ function checkEntity(obj)
   assert(is_a(obj, entity), "Must pass an entity to create a component")
 end
 
-local function dispatchEvent(ecsObj, eventName, args)
-  return ecsObj.entity:dispatchEvent(eventName, args)
-end
-
 function entity:__user_init(system)
   local System = require("system")
   assert(is_a(system, System), "Entity must have a system")
@@ -42,7 +38,41 @@ function entity:__user_init(system)
   self:set("name", "Entity")
   self:set("system", system)
   self:set("components", {})
-  self:set("dispatchEvent", dispatchEvent)
+  self:set("dispatchEvent", function(eventName, args)
+    return system:dispatchEvent(eventName, args)
+  end)
+  self:set("dispatchEventLocal", function(eventName, args)
+    return self:dispatchEvent(eventName, args)
+  end)
+end
+
+function entity:getEntity(useDefault)
+
+  if not self.entityTable then
+    self.entityTable = setmetatable({},
+    {
+        __index = function(obj, k)
+          return self:get(k)
+        end,
+        __newindex = function(obj, k, v)
+          self:set(k,v)
+        end
+    })
+  end
+
+  if not self.defaultEntityTable then
+    self.defaultEntityTable = setmetatable({},
+    {
+        __index = function(obj, k)
+          return self:get(k)
+        end,
+        __newindex = function(obj, k, v)
+          self:setDefault(k,v)
+        end
+    })
+  end
+
+  return useDefault and self.defaultEntityTable or self.entityTable
 end
 
 local function addComponentsFromTable(s, t, i)
@@ -66,9 +96,9 @@ function entity:addComponent(comp)
   local component = assert(compClass(self), string.format("Instance of '%s' couldn't be created", tostring(compClass)))
   assert(is_a(component, ComponentBase), "Must pass a component or the name of a registered component to addComponent")
 
-  local compName = classname(component)
+  local compName = classname(compClass)
   assert(not self[compName], string.format("Can only add one type of component('%s') to an entity", compName))
-  self[compName] = comp
+  self[compName] = component
 
   -- Insert component into list of self:get("components")
   table.insert(self:get("components"), component)
