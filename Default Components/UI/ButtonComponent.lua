@@ -3,9 +3,9 @@ local class = require('classlib')
 local buttonComponent = class('buttonComponent', uiComponent)
 
 function buttonComponent:__init()
+  self:setDefault("name", classname(self))
 
   local entity = self:getEntity(true)
-  entity.base = self
   entity.text = ""
   entity.scaleX = 1.1
   entity.scaleY = 1.1

@@ -12,6 +12,11 @@ namespace Event_ECS_WPF.Extensions
 {
     public static class Extensions
     {
+        public static IReadOnlyList<T> AsReadOnly<T>(this IEnumerable<T> list)
+        {
+            return list.ToList().AsReadOnly();
+        }
+
         public static System.Windows.Input.Key Convert(this System.Windows.Forms.Keys key)
         {
             try
@@ -22,6 +27,11 @@ namespace Event_ECS_WPF.Extensions
             {
                 return System.Windows.Input.Key.None;
             }
+        }
+
+        public static T Copy<T>(this T list) where T : IList
+        {
+            return (T)Activator.CreateInstance(typeof(T), list);
         }
 
         public static T FindVisualChild<T>(DependencyObject obj) where T : DependencyObject
@@ -44,6 +54,14 @@ namespace Event_ECS_WPF.Extensions
                 }
             }
             return null;
+        }
+
+        public static IEnumerable<T> ForEach<T>(this IEnumerable<T> list, Func<T, T> action)
+        {
+            foreach (T t in list)
+            {
+                yield return action(t);
+            }
         }
 
         public static PropertyInfo GetProperty(this object obj, string propertyName)
@@ -119,22 +137,14 @@ namespace Event_ECS_WPF.Extensions
             }
         }
 
-        public static IReadOnlyList<T> AsReadOnly<T>(this IEnumerable<T> list)
+        public static bool Contains(this string str1, string str2, StringComparison comp)
         {
-            return list.ToList().AsReadOnly();
-        }
-
-        public static T Copy<T>(this T list) where T : IList
-        {
-            return (T)Activator.CreateInstance(typeof(T), list);
-        }
-
-        public static IEnumerable<T> ForEach<T>(this IEnumerable<T> list, Func<T,T> action)
-        {
-            foreach(T t in list)
+            if(str1.Contains(str2))
             {
-                yield return action(t);
+                return true;
             }
+
+            return str1.IndexOf(str2, comp) >= 0;
         }
     }
 }

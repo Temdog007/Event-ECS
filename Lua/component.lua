@@ -27,6 +27,16 @@ function component:__user_init(entity)
   self:set("entity", entity)
 end
 
+function component:set(key, value)
+  if key == "entity" then self.entity = value
+  else self.entity:set(key, value) end
+end
+
+function component:get(key)
+  if key == "entity" then return self.entity
+  else return self.entity:get(key) end
+end
+
 function component:getEntity(useDefault)
 
   if not self.entityTable then
@@ -67,8 +77,7 @@ function component:getEntity(useDefault)
 end
 
 function component:remove()
-  local en = self:get("entity")
-  return en:removeComponent(self:get("base") or self)
+  return self.entity:removeComponent(self:getID())
 end
 
 lowerEventName(component)

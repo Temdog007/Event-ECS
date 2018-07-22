@@ -1,49 +1,70 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:controls="clr-namespace:Event_ECS_WPF.Controls"
-                    xmlns:misc="clr-namespace:Event_ECS_WPF.Misc"
                     xmlns:selector="clr-namespace:Event_ECS_WPF.TemplateSelectors">
-    
+
+    <selector:ProjectDataTemplateSelector x:Key="projectSelector" />
+    <selector:EntityVariableTemplateSelector x:Key="entityVariableTemplateSelector" />
+    <selector:ColorVariableTemplateSelector x:Key="colorVariableTemplateSelector" />
+
     <DataTemplate x:Key="projectTemplate">
-        <controls:ProjectControl Project="{Binding}"/>
+        <controls:ProjectControl Project="{Binding}" />
     </DataTemplate>
 
     <DataTemplate x:Key="loveProjectTemplate">
         <ScrollViewer>
-            <controls:LoveProjectControl LoveProject="{Binding}"/>
+            <controls:LoveProjectControl LoveProject="{Binding}" />
         </ScrollViewer>
     </DataTemplate>
 
     <DataTemplate x:Key="projectMenuTemplate">
-        <controls:ProjectMenuControl Project="{Binding}"/>
+        <controls:ProjectMenuControl Project="{Binding}" />
     </DataTemplate>
 
-    <DataTemplate x:Key="stringComponentVariable">
-        <controls:ComponentVariableStringControl ComponentVariable="{Binding}"/>
-    </DataTemplate>
-
-    <DataTemplate x:Key="defaultComponentVariable">
-        <controls:ComponentVariableControl ComponentVariable="{Binding}"/>
-    </DataTemplate>
-
-    <DataTemplate x:Key="colorComponentVariable">
+    <DataTemplate x:Key="sliderEntityVariable">
         <DockPanel VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="10">
-            <Label DockPanel.Dock="Left" FontWeight="Bold" Content="{Binding Name, Converter={StaticResource colorIndexConv}}" Margin="5"/>
-            <TextBlock DockPanel.Dock="Right" Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}" Margin="5"/>
-            <Slider Minimum="0" Maximum="1" TickFrequency="0.05" MinWidth="150" MinHeight="25" 
+            <Label DockPanel.Dock="Left" FontWeight="Bold" Content="{Binding Key, Converter={StaticResource colorIndexConv}}" Margin="5" />
+            <TextBlock DockPanel.Dock="Right" Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}" Margin="5" />
+            <Slider Minimum="0" Maximum="1" TickFrequency="0.05" MinWidth="150" MinHeight="25"
                     TickPlacement="BottomRight" Margin="5" IsMoveToPointEnabled="True"
-                    Value="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    Value="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
         </DockPanel>
     </DataTemplate>
 
-    <DataTemplate x:Key="boolComponentVariable">
-        <CheckBox IsChecked="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+    <DataTemplate x:Key="colorEntityVariable">
+        <DockPanel>
+            <Label DockPanel.Dock="Left" FontWeight="Bold" Content="{Binding Name}" Margin="5" />
+            <ListView ItemsSource="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                      ItemTemplateSelector="{StaticResource colorVariableTemplateSelector}"/>
+        </DockPanel>
     </DataTemplate>
 
-    <DataTemplate x:Key="idComponentVariable">
-        <TextBlock Text="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Background="Transparent"/>
+    <DataTemplate x:Key="boolEntityVariable">
+        <CheckBox IsChecked="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
     </DataTemplate>
-    
-    <selector:ProjectDataTemplateSelector x:Key="projectSelector"/>
-    <selector:ComponentTemplateSelector x:Key="componentTemplateSelector"/>
+
+    <DataTemplate x:Key="idEntityVariable">
+        <TextBlock Text="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Background="Transparent" />
+    </DataTemplate>
+
+    <DataTemplate x:Key="defaultEntityVariable">
+        <TextBox Text="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Background="Transparent" />
+    </DataTemplate>
+
+    <DataTemplate x:Key="tableEntityVariable">
+        <DataGrid ItemsSource="{Binding Value}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" 
+                  CanUserReorderColumns="True" CanUserResizeColumns="False" CanUserResizeRows="False" CanUserSortColumns="True">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Name" Binding="{Binding Key, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="True"/>
+                <DataGridTemplateColumn>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <ContentPresenter Content="{Binding Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" 
+                                              ContentTemplateSelector="{StaticResource entityVariableTemplateSelector}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+    </DataTemplate>
 </ResourceDictionary>

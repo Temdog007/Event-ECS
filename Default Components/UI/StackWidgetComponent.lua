@@ -4,10 +4,10 @@ local class = require('classlib')
 local stackWidgetComponent = class('stackWidgetComponent', Component)
 
 function stackWidgetComponent:__init()
+  self:setDefault("name", classname(self))
 
   local entity = self:getEntity()
 
-  entity.base = self
   entity.bgColor = {0,0,0,0}
   entity.pressedColor = {0,0,0,0}
   entity.highlightColor = {0,0,0,0}

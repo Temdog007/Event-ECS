@@ -3,6 +3,7 @@ using Event_ECS_WPF.Logger;
 using Event_ECS_WPF.Projects;
 using Event_ECS_WPF.Properties;
 using Event_ECS_WPF.SystemObjects;
+using Event_ECS_WPF.SystemObjects.Communication;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -248,31 +249,40 @@ return {0}";
 
         private void OnDataReceived(string data)
         {
-            List<string> dataList = new List<string>(data.Split('\n'));
-            while (dataList.Count > 0)
+            List<string> dataString = new List<string>(data.Split('\n'));
+            while(dataString.Count > 0)
             {
-                string line = dataList[0];
-                string[] args = line.Split('|');
-                string arg = args[0];
-                dataList.RemoveAt(0);
-                if (arg == "System")
+                string line = dataString.First();
+                string name = line.Split('|').First();
+
+                if (name == "system")
                 {
-                    string name = args[1];
-                    bool enabled = Convert.ToBoolean(args[2]);
-                    ECSSystem system = Systems.FirstOrDefault(s => s.Name == name);
+                    ECS_Object.GetData(line, out ECSData nameData, out ECSData enabledData, out ECSData idData, out List<ECSData> dataList);
+                    dataString.RemoveAt(0);
+
+                    ECSSystem system = Systems.FirstOrDefault(s => s.Name == nameData.Value);
 
                     if (system == null)
                     {
-                        Systems.Add(new ECSSystem(name, enabled, dataList));
+                        Systems.Add(new ECSSystem(
+                            nameData.Value,
+                            Convert.ToBoolean(enabledData.Value),
+                            Convert.ToInt32(idData.Value),
+                            dataString
+                        ));
                     }
                     else
                     {
-                        system.Deserialize(name, enabled, dataList);
+                        system.Name = nameData.Value;
+                        system.IsEnabled = Convert.ToBoolean(enabledData.Value);
+                        system.ID = Convert.ToInt32(idData.Value);
+                        system.Deserialize(dataString);
                     }
                 }
                 else
                 {
                     LogManager.Instance.Add(line);
+                    dataString.RemoveAt(0);
                 }
             }
         }

@@ -26,7 +26,7 @@
                         <Style TargetType="TextBox">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding ElementName=m_entityControl, Path=Entity.IsEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Value="False">
-                                    <Setter Property="Foreground" Value="Red"/>
+                                    <Setter Property="Opacity" Value="0.5"/>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
@@ -52,7 +52,6 @@
                                                           Command="{Binding Source={StaticResource EntityControl}, Path=Data.AddComponentCommand}"/>
                         </MenuItem>
                         <Separator/>
-                        <MenuItem Header="Show Events" IsCheckable="True" IsChecked="{Binding Source={StaticResource EntityControl}, Path=Data.ShowEvents, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                         <MenuItem Header="Is Enabled" IsCheckable="True" IsChecked="{Binding Source={StaticResource EntityControl}, Path=Data.Entity.IsEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                         <Separator/>
                         <MenuItem Header="Remove" Command="{Binding Source={StaticResource EntityControl}, Path=Data.RemoveCommand}"/>
@@ -61,26 +60,27 @@
 
             </ContextMenu>
         </Expander.ContextMenu>
-        
+
         <StackPanel>
 
-            <GroupBox Header="Events" Visibility="{Binding ElementName=m_entityControl, Path=ShowEvents, Converter={StaticResource boolVis}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
-                <DockPanel>
-                    <Button DockPanel.Dock="Bottom" Content="Dispatch Event" Click="DispatchButton_Click"/>
-                    <ListBox ItemsSource="{Binding ElementName=m_entityControl, Path=Entity.Events, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                             SelectedItem="{Binding ElementName=m_entityControl, Path=SelectedEvent, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                </DockPanel>
+            <GroupBox Header="Variables">
+                <ListBox ItemsSource="{Binding ElementName=m_entityControl, Path=Entity.Variables, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         ItemTemplateSelector="{StaticResource entityVariableTemplateSelector}"/>
             </GroupBox>
 
             <GroupBox Header="Components">
                 <ListBox ItemsSource="{Binding ElementName=m_entityControl, Path=Entity.Components, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <controls:ComponentControl Component="{Binding}" Background="AliceBlue"/>
+                            <DockPanel>
+                                <Button Content="Remove" Click="RemoveComponent_Click" DockPanel.Dock="Right" Tag="{Binding}"/>
+                                <CheckBox Content="{Binding Name, UpdateSourceTrigger=PropertyChanged}" IsChecked="{Binding IsEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,5"/>
+                            </DockPanel>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>
             </GroupBox>
+            
         </StackPanel>
     </Expander>
 </UserControl>

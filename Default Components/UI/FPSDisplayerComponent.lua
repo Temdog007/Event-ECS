@@ -4,9 +4,10 @@ local class = require('classlib')
 local fpsDisplayerComponent = class('fpsDisplayerComponent', Component)
 
 function fpsDisplayerComponent:__init()
+  self:setDefault("name", classname(self))
+  
   local entity = self:getEntity(true)
 
-  entity.base = self
   entity.x = 0
   entity.y = 0
   entity.scaleX = 1

@@ -24,8 +24,6 @@ local testComponentAlt = class("testComponentAlt", require("Unit Tests/testCompo
 function testComponentAlt:__init(entity)
   checkEntity(entity)
 
-  self:setDefault("base", self)
-
   self:setDefault("name", "testComponentAlt")
 
   entity:setDefault("current", 0)

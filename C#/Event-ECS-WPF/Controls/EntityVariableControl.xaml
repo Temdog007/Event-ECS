@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="Event_ECS_WPF.Controls.ComponentVariableControl"
+﻿<UserControl x:Class="Event_ECS_WPF.Controls.EntityVariableControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -19,13 +19,13 @@
 
     <TextBox>
         <TextBox.Text>
-            <Binding Path="ComponentVariable.Value" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged" ElementName="m_control">
+            <Binding Path="EntityVariable.Value" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged" ElementName="m_control">
                 <Binding.ValidationRules>
-                    <misc:ComponentVariableValidation>
-                        <misc:ComponentVariableValidation.Variable>
-                            <misc:ComponentVariableChecker ComponentVariable="{Binding Source={StaticResource CompVarControl}, Path=Data.ComponentVariable}"/>
-                        </misc:ComponentVariableValidation.Variable>
-                    </misc:ComponentVariableValidation>
+                    <misc:EntityVariableValidation>
+                        <misc:EntityVariableValidation.Variable>
+                            <misc:EntityVariableChecker EntityVariable="{Binding Source={StaticResource CompVarControl}, Path=Data.EntityVariable}"/>
+                        </misc:EntityVariableValidation.Variable>
+                    </misc:EntityVariableValidation>
                 </Binding.ValidationRules>
             </Binding>
         </TextBox.Text>

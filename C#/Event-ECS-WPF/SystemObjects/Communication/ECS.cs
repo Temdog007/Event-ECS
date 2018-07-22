@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Windows.Input;
 
-namespace Event_ECS_WPF.SystemObjects
+namespace Event_ECS_WPF.SystemObjects.Communication
 {
     public partial class ECS : NotifyPropertyChanged
     {
@@ -51,14 +51,14 @@ namespace Event_ECS_WPF.SystemObjects
         public bool TargetAppIsRunning => Process.GetProcessesByName(AppName).Any();
 
         #region IECS
-        public void AddComponent(string systemName, int entityID, string componentName)
+        public void AddComponent(int systemID, int entityID, string componentName)
         {
-            Send("AddComponent|{0}|{1}|{2}", systemName, entityID, componentName);
+            Send("AddComponent|{0}|{1}|{2}", systemID, entityID, componentName);
         }
 
-        public void AddEntity(string systemName)
+        public void AddEntity(int systemID)
         {
-            Send("AddEntity|{0}", systemName);
+            Send("AddEntity|{0}", systemID);
         }
 
         public void BroadcastEvent(string eventName)
@@ -66,14 +66,14 @@ namespace Event_ECS_WPF.SystemObjects
             Send("BroadcastEvent|{0}", eventName);
         }
 
-        public void DispatchEvent(string systemName, string eventName)
+        public void DispatchEvent(int systemID, string eventName)
         {
-            Send("DispatchEvent|{0}|{1}", systemName, eventName);
+            Send("DispatchEvent|{0}|{1}", systemID, eventName);
         }
 
-        public void DispatchEvent(string systemName, int entityID, string eventName)
+        public void DispatchEvent(int systemID, int entityID, string eventName)
         {
-            Send("DispatchEventEntity|{0}|{1}|{2}", systemName, entityID, eventName);
+            Send("DispatchEventEntity|{0}|{1}|{2}", systemID, entityID, eventName);
         }
 
         public void Execute(string code)
@@ -86,14 +86,14 @@ namespace Event_ECS_WPF.SystemObjects
             Send("ReloadModule|{0}", modName);
         }
 
-        public void RemoveComponent(string systemName, int entityID, int componentID)
+        public void RemoveComponent(int systemID, int entityID, int componentID)
         {
-            Send("RemoveComponent|{0}|{1}|{2}", systemName, entityID, componentID);
+            Send("RemoveComponent|{0}|{1}|{2}", systemID, entityID, componentID);
         }
 
-        public void RemoveEntity(string systemName, int entityID)
+        public void RemoveEntity(int systemID, int entityID)
         {
-            Send("RemoveEntity|{0}|{1}", systemName, entityID);
+            Send("RemoveEntity|{0}|{1}", systemID, entityID);
         }
 
         public void Reset()
@@ -101,19 +101,14 @@ namespace Event_ECS_WPF.SystemObjects
             Send("Reset");
         }
 
-        public void SetComponentValue(string systemName, int entityID, int componentID, string key, object value)
+        public void SetEntityValue(int systemID, int entityID, string key, object value)
         {
-            Send("SetComponentValue|{0}|{1}|{2}|{3}|{4}", systemName, entityID, componentID, key, value);
+            Send("SetEntityValue|{0}|{1}|{2}|{3}", systemID, entityID, key, value);
         }
 
-        public void SetEntityValue(string systemName, int entityID, string key, object value)
+        public void SetSystemValue(int systemID, string key, object value)
         {
-            Send("SetEntityValue|{0}|{1}|{2}|{3}", systemName, entityID, key, value);
-        }
-
-        public void SetSystemValue(string systemName, string key, object value)
-        {
-            Send("SetSystemValue|{0}|{1}|{2}", systemName, key, value);
+            Send("SetSystemValue|{0}|{1}|{2}", systemID, key, value);
         }
         #endregion
     }

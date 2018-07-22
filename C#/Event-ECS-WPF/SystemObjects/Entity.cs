@@ -1,26 +1,28 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using Event_ECS_WPF.Misc;
-
+﻿using Event_ECS_WPF.Misc;
+using Event_ECS_WPF.SystemObjects.Communication;
+using Event_ECS_WPF.SystemObjects.EntityAttributes;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Event_ECS_WPF.SystemObjects
 {
-    public class Entity : NotifyPropertyChanged, IComparable<Entity>
+    public class Entity : ECS_Object
     {
-        private ObservableCollection<Component> m_components = new ObservableCollection<Component>();
+        private const string defaultName = "Entity";
 
-        private ObservableSet<string> m_events = new ObservableSet<string>();
+        private ObservableSet<Component> m_components = new ObservableSet<Component>();
+        
+        private ObservableSet<IEntityVariable> m_variables = new ObservableSet<IEntityVariable>();
 
-        private string m_name = "Entity";
-
-        public Entity(EntityComponentSystem system, int id)
+        public Entity(EntityComponentSystem system)
         {
             this.System = system ?? throw new ArgumentNullException(nameof(system));
             this.System.Entities.Add(this);
-            ID = id;
+            Name = defaultName;
         }
 
-        public ObservableCollection<Component> Components
+        public ObservableSet<Component> Components
         {
             get => m_components;
             set
@@ -30,46 +32,76 @@ namespace Event_ECS_WPF.SystemObjects
             }
         }
 
-        public ObservableSet<string> Events
+        public ObservableSet<IEntityVariable> Variables
         {
-            get => m_events;
+            get => m_variables;
             set
             {
-                m_events = value;
-                OnPropertyChanged("Events");
-            }
-        }
-
-        private bool m_isEnabled = false;
-        public bool IsEnabled
-        {
-            get => m_isEnabled;
-            set
-            {
-                m_isEnabled = value;
-                ECS.Instance.SetEntityValue(System.Name, ID, "enabled", value);
-                OnPropertyChanged("IsEnabled");
+                m_variables = value;
+                OnPropertyChanged("Variables");
             }
         }
 
         internal EntityComponentSystem System { get; }
 
-        public int ID { get; }
-
-        public string Name
+        public override void Deserialize(IEnumerable<ECSData> ecsDataList)
         {
-            get => m_name;
-            set
+            foreach (var ecsData in ecsDataList)
             {
-                m_name = value;
-                ECS.Instance.SetEntityValue(System.Name, ID, "name", value);
-                OnPropertyChanged("Name");
+                var variable = Variables.FirstOrDefault(v => v.Name == ecsData.Name);
+                if (variable != null)
+                {
+                    if (ecsData.Type == "table" && variable.Value is LuaTable dict)
+                    {
+                        variable.Value = ParseTable(ecsData.Value);
+                    }
+                    else
+                    {
+                        variable.Value = Convert.ChangeType(ecsData.Value, variable.Type);
+                    }
+                }
+                else
+                {
+                    if (ecsData.Type == "table")
+                    {
+                        var dictVar = new EntityVariable<LuaTable>(ecsData.Name, new LuaTable(ParseTable(ecsData.Value)));
+                    }
+                    else
+                    {
+                        Type type = GetType(ecsData.Type);
+                        Type generic = typeof(EntityVariable<>).MakeGenericType(type);
+                        Variables.Add((IEntityVariable)Activator.CreateInstance(generic, new object[] { ecsData.Name, Convert.ChangeType(ecsData.Value, type) }));
+                    }
+                }
             }
         }
 
-        public int CompareTo(Entity other)
+        public bool HasObject(ECS_Object obj)
         {
-            return ID.CompareTo(other.ID);
+            if(this == obj)
+            {
+                return true;
+            }
+
+            return Components.Contains(obj);
+        }
+
+        public bool HasObject(IEnumerable<ECS_Object> objs)
+        {
+            return objs.Any(obj => HasObject(obj));
+        }
+
+        public override bool Remove()
+        {
+            return System.Entities.Remove(this);
+        }
+
+        protected override void ValueChanged(string key, object value)
+        {
+            if (ID > 0)
+            {
+                ECS.Instance.SetEntityValue(System.ID, ID, key, value);
+            }
         }
     }
 }

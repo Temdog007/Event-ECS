@@ -3,9 +3,10 @@ local class = require('classlib')
 local sliderComponent = class('sliderComponent', Component)
 
 function sliderComponent:__init()
+  self:setDefault("name", classname(self))
+  
   local entity = self:getEntity(true)
 
-  entity.base = self
   entity.min = 0
   entity.max = 100
   entity.value = 0

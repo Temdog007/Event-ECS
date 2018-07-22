@@ -26,8 +26,6 @@ local testComponent = class("testComponent", component)
 function testComponent:__user_init(entity)
   checkEntity(entity)
 
-  self:setDefault("base", self)
-
   self:setDefault("name", "testComponent")
 
   entity:setDefault("addedComponentCalled", 0)

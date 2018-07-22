@@ -6,9 +6,9 @@ using System.Windows.Controls;
 
 namespace Event_ECS_WPF.Misc
 {
-    public class ComponentVariableValidation : ValidationRule
+    public class EntityVariableValidation : ValidationRule
     {
-        public ComponentVariableChecker Variable { get; set; }
+        public EntityVariableChecker Variable { get; set; }
 
         public override ValidationResult Validate(object value, CultureInfo cultureInfo)
         {
@@ -33,17 +33,17 @@ namespace Event_ECS_WPF.Misc
         }
     }
 
-    public class ComponentVariableChecker : DependencyObject
+    public class EntityVariableChecker : DependencyObject
     {
-        public IComponentVariable ComponentVariable
+        public IEntityVariable EntityVariable
         {
-            get { return (IComponentVariable)GetValue(ComponentProperty); }
+            get { return (IEntityVariable)GetValue(ComponentProperty); }
             set { SetValue(ComponentProperty, value); }
         }
 
         public static readonly DependencyProperty ComponentProperty =
-            DependencyProperty.Register("ComponentVariable", typeof(IComponentVariable), typeof(ComponentVariableChecker));
+            DependencyProperty.Register("EntityVariable", typeof(IEntityVariable), typeof(EntityVariableChecker));
 
-        public Type Type => ComponentVariable.Type;
+        public Type Type => EntityVariable.Type;
     }
 }

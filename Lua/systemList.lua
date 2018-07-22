@@ -46,9 +46,9 @@ function SystemMT.flushEvents()
   end
 end
 
-function SystemMT.getSystem(name)
+function SystemMT.getSystem(value)
   for _, system in ipairs(Systems) do
-    if system:getName() == name then
+    if system:getID() == tonumber(value) or system:getName() == value then
       return system
     end
   end

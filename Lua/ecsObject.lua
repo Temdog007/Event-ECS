@@ -53,4 +53,8 @@ function ecsObject:getName()
   return self:get("name")
 end
 
+function ecsObject:setName(name)
+  self:set("name", name)
+end
+
 return ecsObject

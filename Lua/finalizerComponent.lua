@@ -22,6 +22,10 @@ local class = require("classlib")
 
 local finalizerComponent = class("finalizerComponent", require("component"))
 
+function finalizerComponent:__init()
+	self:setDefault("name", classname(self))
+end
+
 local function throwError()
 	error("Cannot remove finalizer component or entity with finalizer component")
 end

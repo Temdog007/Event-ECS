@@ -3,6 +3,10 @@ local class = require("classlib")
 
 local debugComponent = class("debugComponent", Component)
 
+function debugComponent:__user_init()
+	self:setDefault("name", classname(self))
+end
+
 function debugComponent:eventToggleVsync()
 	local width, height, flags = love.window.getMode()
 	flags.vsync = not flags.vsync

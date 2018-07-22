@@ -37,37 +37,41 @@ ecsTests = {}
 
 function ecsTests:testParser()
   local system = Systems.addSystem(System("TestSystem"))
-  assertError(parser, "AddEntity|TestSystem3")
+  local sysID = system:getID()
+  assertError(parser, "AddEntity|1")
 
-  parser("AddEntity|TestSystem")
+  parser(string.format("AddEntity|%d", sysID))
   assertEquals(system:entityCount(), 1)
   assertError(parser, "AddEntity|NoSystem")
 
   local en = system:findEntity(function() return true end)
-  parser('AddComponent|TestSystem|'..tostring(en:getID())..'|testComponent')
+  local enID = en:getID()
+  parser(string.format('AddComponent|%d|%d|testComponent', sysID, enID))
+  assertEquals(en:componentCount(), 1)
   parser("BroadcastEvent|eventerror")
 
   assertError(parser, "Execute|error('Test error')")
 
-  assertError(parser, "DispatchEvent|TestSystem|eventerror")
-  assertError(parser, "DispatchEventEntity|TestSystem|1|eventerror")
+  assertError(parser, "DispatchEvent|%d|eventerror")
+  assertError(parser, "DispatchEventEntity|%d|1|eventerror")
 
-  parser(string.format('SetEntityValue|TestSystem|%d|test|test', en:getID()))
+  parser(string.format('SetEntityValue|%d|%d|test|test', sysID, enID))
   assertEquals(en:get("test"), "test")
-  parser(string.format('SetEntityValue|TestSystem|%d|test|True', en:getID()))
+  parser(string.format('SetEntityValue|%d|%d|test|True', sysID, enID))
   assertIsTrue(en:get("test"))
-  parser(string.format("SetEntityValue|TestSystem|%d|test|False", en:getID()))
+  parser(string.format("SetEntityValue|%d|%d|test|False", sysID, enID))
   assertIsFalse(en:get("test"))
-  parser(string.format("SetEntityValue|TestSystem|%d|enabled|FALSE", en:getID()))
+  parser(string.format("SetEntityValue|%d|%d|enabled|FALSE", sysID, enID))
   assertIsFalse(en:isEnabled())
-  parser("DispatchEvent|TestSystem|eventerror")
+  parser(string.format("DispatchEvent|%d|eventerror", sysID))
 
   local comp = en:findComponent(function() return true end)
-  parser(string.format("RemoveComponent|TestSystem|%d|%d", en:getID(), comp:getID()))
+  parser(string.format("RemoveComponent|%d|%d|%d", sysID, enID, comp:getID()))
+  assertEquals(en:componentCount(), 0)
 
-  assertError(parser, string.format("RemoveComponent|TestSystem|%d|f32wrfsad", en:getID()))
+  assertError(parser, string.format("RemoveComponent|%d|%d|f32wrfsad", sysID, enID))
 
-  parser(string.format("RemoveEntity|TestSystem|%d", en:getID()))
+  parser(string.format("RemoveEntity|%d|%d", sysID, enID))
   assertEquals(system:entityCount(), 0)
 end
 
@@ -299,20 +303,19 @@ function ecsTests:testComponentSerialization()
 
   assertEquals(comp:serialize(), 'enabled|boolean|true|name|string|testComponentAlt|id|number|10')
   comp:setEnabled(false)
-
   assertEquals(comp:serialize(), 'enabled|boolean|false|name|string|testComponentAlt|id|number|10')
 
   comp:set("test", {"test string", n = 4})
-  assertEquals(comp:serialize(), 'enabled|boolean|false|name|string|testComponentAlt|id|number|10')
-
-  comp:get("values")["test"] = true
-  assertEquals(comp:serialize(), 'enabled|boolean|false|test|table|{1|string|test string|n|number|4}|name|string|testComponentAlt|id|number|10')
-
-  comp:get("values")["test"] = false
-  assertEquals(comp:serialize(), 'enabled|boolean|false|name|string|testComponentAlt|id|number|10')
-
   assertEquals(entity:serialize(), 'entity|enabled|boolean|true|name|string|Entity|id|number|9\n'..
                                   'component|enabled|boolean|false|name|string|testComponentAlt|id|number|10')
+
+  comp:get("values").test = true
+  assertEquals(entity:serialize(), 'entity|enabled|boolean|true|test|table|{1,string,test string,n,number,4}|name|string|Entity|id|number|9\n'..
+                                  'component|enabled|boolean|false|name|string|testComponentAlt|id|number|10')
+
+  entity:get("values").test = false
+  assertEquals(entity:serialize(), 'entity|enabled|boolean|true|name|string|Entity|id|number|9\n'..
+    'component|enabled|boolean|false|name|string|testComponentAlt|id|number|10')
 
   assertEquals(system:serialize(),
     "system|enabled|boolean|true|name|string|System|id|number|8\n"..

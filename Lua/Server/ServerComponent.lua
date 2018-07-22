@@ -147,4 +147,6 @@ function serverComponent:eventQuit(args)
   self:close()
 end
 
+lowerEventName(serverComponent)
+
 return serverComponent

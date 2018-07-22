@@ -11,6 +11,7 @@
         xmlns:properties="clr-namespace:Event_ECS_WPF.Properties"
         xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
         xmlns:sysObj="clr-namespace:Event_ECS_WPF.SystemObjects"
+        xmlns:sysCom="clr-namespace:Event_ECS_WPF.SystemObjects.Communication"
         xmlns:forms="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d"
@@ -43,7 +44,7 @@
         <KeyBinding Key="E" Modifiers="Ctrl" Command="{Binding EditComponentCommand}"/>
         <KeyBinding Key="R" Modifiers="Ctrl" Command="{Binding CopyComponentsCommand}"/>
         
-        <KeyBinding Key="F2" Modifiers="Alt" Command="{Binding Source={x:Static sysObj:ECS.Instance}, Path=ResetProjectCommand}"/>
+        <KeyBinding Key="F2" Modifiers="Alt" Command="{Binding Source={x:Static sysCom:ECS.Instance}, Path=ResetProjectCommand}"/>
         
         <KeyBinding Key="F5" Command="{Binding StartProjectCommand}"/>
 
@@ -178,7 +179,7 @@
                     <Style TargetType="MenuItem">
                         <Setter Property="Background" Value="LightPink"/>
                         <Style.Triggers>
-                            <DataTrigger Binding="{Binding Source={x:Static sysObj:ECS.Instance}, Mode=TwoWay, Path=IsConnected}" Value="True">
+                            <DataTrigger Binding="{Binding Source={x:Static sysCom:ECS.Instance}, Mode=TwoWay, Path=IsConnected}" Value="True">
                                 <Setter Property="Background" Value="LightGreen"/>
                             </DataTrigger>
                         </Style.Triggers>

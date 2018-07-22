@@ -2,6 +2,7 @@
 using Event_ECS_WPF.Logger;
 using Event_ECS_WPF.Projects;
 using Event_ECS_WPF.SystemObjects;
+using Event_ECS_WPF.SystemObjects.Communication;
 using System;
 using System.ComponentModel;
 using System.IO;
@@ -80,7 +81,7 @@ namespace Event_ECS_WPF.Controls
 
         private void AddEntity()
         {
-            ECS.Instance.AddEntity(EntityComponentSystem.Name);
+            ECS.Instance.AddEntity(EntityComponentSystem.ID);
             LogManager.Instance.Add("Added entity");
         }
 
@@ -90,7 +91,7 @@ namespace Event_ECS_WPF.Controls
             {
                 ev = "event" + ev;
             }
-            ECS.Instance.DispatchEvent(EntityComponentSystem.Name, ev);
+            ECS.Instance.DispatchEvent(EntityComponentSystem.ID, ev);
         }
 
         private void BroadcastEvent(string ev)

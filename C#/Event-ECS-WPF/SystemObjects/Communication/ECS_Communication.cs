@@ -8,7 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace Event_ECS_WPF.SystemObjects
+namespace Event_ECS_WPF.SystemObjects.Communication
 {
     public partial class ECS : IECS
     {

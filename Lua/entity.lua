@@ -96,7 +96,8 @@ function entity:removeComponent(component)
 
   if type(component) == "number" then
     local id = component
-    component = assert(self:findComponent(id), string.format("A component with ID %d not found", id))
+    component = self:findComponent(id)
+    if not component then return false end
   end
 
   local name = classname(component)

@@ -80,11 +80,8 @@
     <Compile Include="Controls\AddComponentControl.xaml.cs">
       <DependentUpon>AddComponentControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controls\ComponentVariableControl.xaml.cs">
-      <DependentUpon>ComponentVariableControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Controls\ComponentVariableStringControl.xaml.cs">
-      <DependentUpon>ComponentVariableStringControl.xaml</DependentUpon>
+    <Compile Include="Controls\EntityVariableControl.xaml.cs">
+      <DependentUpon>EntityVariableControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\StringListControl.xaml.cs">
       <DependentUpon>StringListControl.xaml</DependentUpon>
@@ -93,7 +90,7 @@
     <Compile Include="Converters\ItemToItemIndexConverter.cs" />
     <Compile Include="Converters\LogLevelToColor.cs" />
     <Compile Include="Extensions\BindingProxy.cs" />
-    <Compile Include="Misc\ComponentVariableValidation.cs" />
+    <Compile Include="Misc\EntityVariableValidation.cs" />
     <Compile Include="Misc\ValueContainer.cs" />
     <Compile Include="Projects\FullscreenType.cs" />
     <Compile Include="Projects\Love\Modules.cs" />
@@ -103,23 +100,19 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
-    <Compile Include="SystemObjects\ECS_Communication.cs" />
-    <Compile Include="SystemObjects\ComponentVariable.cs" />
-    <Compile Include="SystemObjects\IECS.cs" />
-    <Compile Include="TemplateSelectors\ComponentTemplateSelector.cs" />
+    <Compile Include="SystemObjects\Communication\ECS_Communication.cs" />
+    <Compile Include="SystemObjects\Component.cs" />
+    <Compile Include="SystemObjects\ECSData.cs" />
+    <Compile Include="SystemObjects\EntityAttributes\EntityVariable.cs" />
+    <Compile Include="SystemObjects\ECS_Object.cs" />
+    <Compile Include="SystemObjects\EntityAttributes\IEntityVariable.cs" />
+    <Compile Include="SystemObjects\EntityAttributes\LuaTable.cs" />
+    <Compile Include="SystemObjects\Communication\IECS.cs" />
     <Page Include="Controls\AddComponentControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Controls\ComponentControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Controls\ComponentVariableControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Controls\ComponentVariableStringControl.xaml">
+    <Page Include="Controls\EntityVariableControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -159,9 +152,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Compile Include="Controls\ComponentControl.xaml.cs">
-      <DependentUpon>ComponentControl.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Controls\EntityControl.xaml.cs">
       <DependentUpon>EntityControl.xaml</DependentUpon>
     </Compile>
@@ -192,6 +182,8 @@
     <Compile Include="Converters\EnumToBoolConverter.cs" />
     <Compile Include="Converters\NullCheckVisibilityConverter.cs" />
     <Compile Include="Converters\NullCheckConverter.cs" />
+    <Compile Include="TemplateSelectors\ColorVariableTemplateSelector.cs" />
+    <Compile Include="TemplateSelectors\EntityVariableTemplateSelector.cs" />
     <Compile Include="Windows\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -222,8 +214,7 @@
     <Compile Include="Projects\ProjectType.cs" />
     <Compile Include="Projects\LoveProject.cs" />
     <Compile Include="Projects\Project.cs" />
-    <Compile Include="SystemObjects\Component.cs" />
-    <Compile Include="SystemObjects\ECS.cs" />
+    <Compile Include="SystemObjects\Communication\ECS.cs" />
     <Compile Include="SystemObjects\Entity.cs" />
     <Compile Include="SystemObjects\EntityComponentSystem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">

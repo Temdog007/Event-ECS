@@ -2,6 +2,7 @@
 using Event_ECS_WPF.Logger;
 using Event_ECS_WPF.Misc;
 using Event_ECS_WPF.SystemObjects;
+using Event_ECS_WPF.SystemObjects.Communication;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -20,8 +21,7 @@ namespace Event_ECS_WPF.Projects
         // Components that are compiled in the lua code
         public static readonly string[] DefaultComponents = 
         {
-            "ColorComponent",
-            "FinalizerComponent"
+            "finalizerComponent"
         };
 
         private ObservableCollection<ValueContainer<string>> _componentPath;

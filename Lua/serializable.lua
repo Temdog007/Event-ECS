@@ -56,7 +56,8 @@ function serializable:setDefaultsAndValues(...)
   self:set("values", values)
 end
 
-local function serializeTable(t)
+local function serializeTable(t, delim)
+  delim = delim or ","
   local rval = {}
   for k,v in pairs(t) do
     k = tostring(k)
@@ -71,10 +72,11 @@ local function serializeTable(t)
       table.insert(rval, serializeTable(v))
     end
   end
-  return "{"..table.concat(rval, "|").."}"
+  return "{"..table.concat(rval, delim).."}"
 end
 
-function serializable:serialize(t)
+function serializable:serialize(t, delim)
+  delim = delim or "|"
   t = t or {}
   for k, set in pairs(self:get("values") or {}) do
     if set then
@@ -92,7 +94,7 @@ function serializable:serialize(t)
       end
     end
   end
-  return table.concat(t, "|")
+  return table.concat(t, delim)
 end
 
 return serializable

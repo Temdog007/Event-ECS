@@ -3,6 +3,10 @@ local class = require('classlib')
 
 local labelDrawerComponent = class('labelDrawerComponent', Component)
 
+function labelDrawerComponent:__init()
+  self:setDefault("name", classname(self))
+end
+
 function labelDrawerComponent:eventDraw(args)
   local entity = self:getEntity()
 
@@ -10,7 +14,7 @@ function labelDrawerComponent:eventDraw(args)
 
   local label = entity.labelComponent
   if not label then return end
-  
+
   label:draw()
 end
 

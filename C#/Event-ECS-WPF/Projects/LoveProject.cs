@@ -1,7 +1,7 @@
 ﻿using Event_ECS_WPF.Extensions;
 using Event_ECS_WPF.Logger;
 using Event_ECS_WPF.Projects.Love;
-using Event_ECS_WPF.SystemObjects;
+using Event_ECS_WPF.SystemObjects.Communication;
 using System;
 using System.Diagnostics;
 using System.IO;

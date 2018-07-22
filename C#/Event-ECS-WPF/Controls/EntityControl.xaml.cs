@@ -1,8 +1,7 @@
 ﻿using Event_ECS_WPF.Commands;
-using Event_ECS_WPF.Logger;
 using Event_ECS_WPF.Projects;
 using Event_ECS_WPF.SystemObjects;
-
+using Event_ECS_WPF.SystemObjects.Communication;
 using System;
 using System.ComponentModel;
 using System.Windows;
@@ -27,8 +26,6 @@ namespace Event_ECS_WPF.Controls
         private IActionCommand m_removeEntityCommand;
 
         private string m_selectedEvent = string.Empty;
-
-        private bool m_showEvents = false;
 
         public EntityControl()
         {
@@ -62,17 +59,7 @@ namespace Event_ECS_WPF.Controls
                 OnPropertyChanged("SelectedEvent");
             }
         } 
-
-        public bool ShowEvents
-        {
-            get => m_showEvents;
-            set
-            {
-                m_showEvents = value;
-                OnPropertyChanged("ShowEvents");
-            }
-        }
-
+        
         protected void OnPropertyChanged(string propName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
@@ -80,7 +67,7 @@ namespace Event_ECS_WPF.Controls
 
         private void AddComponent(string compName)
         {
-            ECS.Instance.AddComponent(Entity.System.Name, Entity.ID, compName);
+            ECS.Instance.AddComponent(Entity.System.ID, Entity.ID, compName);
         }
 
         private void DispatchButton_Click(object sender, RoutedEventArgs e)
@@ -94,7 +81,7 @@ namespace Event_ECS_WPF.Controls
             {
                 ev = "event" + ev;
             }
-            ECS.Instance.DispatchEvent(Entity.System.Name, Entity.ID, ev);
+            ECS.Instance.DispatchEvent(Entity.System.ID, Entity.ID, ev);
         }
 
         private void Expander_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
@@ -107,7 +94,15 @@ namespace Event_ECS_WPF.Controls
 
         private void Remove()
         {
-           ECS.Instance.RemoveEntity(Entity.System.Name, Entity.ID);
+           ECS.Instance.RemoveEntity(Entity.System.ID, Entity.ID);
+        }
+
+        private void RemoveComponent_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.Tag is SystemObjects.Component component)
+            {
+                ECS.Instance.RemoveComponent(Entity.System.ID, Entity.ID, component.ID);
+            }
         }
     }
 }

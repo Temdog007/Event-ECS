@@ -1,7 +1,10 @@
 local Component = require('drawableComponent')
 local class = require('classlib')
-local Colors = require("eventecscolors")
 local buttonDrawerComponent = class('buttonDrawerComponent', Component)
+
+function buttonDrawerComponent:__init()
+  self:setDefault("name", classname(self))
+end
 
 function buttonDrawerComponent:eventDraw(args)
   local entity = self:getEntity()

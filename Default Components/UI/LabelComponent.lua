@@ -4,9 +4,10 @@ local class = require('classlib')
 local labelComponent = class('labelComponent', Component)
 
 function labelComponent:__init()
+  self:setDefault("name", classname(self))
+  
   local entity = self:getEntity()
 
-  entity.base = self
   entity.text = ""
   entity.alignment = "center"
   entity.scaleX = 1

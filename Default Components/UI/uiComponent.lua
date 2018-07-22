@@ -5,6 +5,7 @@ local uiComponent = class('uiComponent', Component)
 local valueKeys = {"x", "y", "width", "height"}
 
 function uiComponent:__init()
+  self:setDefault("name", classname(self))
 
   local entity = self:getEntity(true)
 

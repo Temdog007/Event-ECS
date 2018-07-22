@@ -3,10 +3,12 @@ local class = require("classlib")
 
 local LogTest = class("logTestComponent", Component)
 
-function LogTest:__init()
-  local entity = self:getEntity(true)
+function LogTest:__user_init()
+  self:setDefault("name", classname(self))
+  
+  local entity = self:getEntity()
 
-  entity.base = self
+  entity.name = classname(self)
   entity.text = "This is a test string"
   entity.showFps = false
   entity.x = 0
@@ -38,9 +40,11 @@ end
 function LogTest:eventDraw(args)
   if not args or args.drawOrder ~= self.drawOrder then return end
 
-	local color = self:getComponent("colorComponent")
-	if not color then color = defaultColor end
-	love.graphics.setColor(color)
+	local color = self:get("color")
+	if color then
+	   love.graphics.setColor(color)
+   end
+
 	if self.showFps then
 		love.graphics.print(love.timer.getFPS(), self.x, self.y, self.rotation, self.scaleX, self.scaleY)
 		love.graphics.print(self.text, self.x, self.y + self.space, self.rotation, self.scaleX, self.scaleY)
