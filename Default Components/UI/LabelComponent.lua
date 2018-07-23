@@ -18,7 +18,7 @@ function labelComponent:__init(en)
   entity.bgColor = {0,0,0,0}
   entity.highlightColor = {0,0,0,0}
   entity.pressedColor = {0,0,0,0}
-  entity.draw = {ui = self, draw = labelComponent.draw}
+  entity.main = classname(self)
 
   local values = entity.values or {}
   values.text = true

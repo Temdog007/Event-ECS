@@ -1,5 +1,6 @@
 ﻿using Event_ECS_WPF.Commands;
 using Event_ECS_WPF.Logger;
+using Event_ECS_WPF.Misc;
 using Event_ECS_WPF.Projects;
 using Event_ECS_WPF.Properties;
 using Event_ECS_WPF.SystemObjects;

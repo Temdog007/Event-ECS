@@ -22,7 +22,7 @@ function sliderComponent:__init(en)
   entity.scaleY = 1
   entity.cursorColor = {1,1,1,1}
   entity.fontColor = {1,1,1,1}
-  entity.draw = {ui = self, draw = sliderComponent.draw}
+  entity.main = classname(self)
 
   local values = entity.values or {}
   values.min = true
@@ -98,6 +98,9 @@ function sliderComponent:eventMousePressed(args)
     local entity = self:getEntity()
     entity.isClicked = true
     self:updatePosition(x, y)
+    if entity.isMouseOver and entity.action then
+      entity.action(entity.value, self:getPercentage())
+    end
   end
 end
 

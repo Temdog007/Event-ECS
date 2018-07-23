@@ -51,14 +51,23 @@ namespace Event_ECS_WPF.SystemObjects
                 var variable = Variables.FirstOrDefault(v => v.Name == ecsData.Name);
                 if (variable != null)
                 {
-                    if (ecsData.Type == "table" && variable.Value is LuaTable dict)
+                    if (ecsData.Type == "table" && variable.Value is LuaTable table)
                     {
-                        LuaTable table = (LuaTable)variable.Value;
                         foreach (var newTable in ParseTable(this, ecsData.Value))
                         {
-                            IEntityVariable t = table[newTable.Key];
-                            t.Value = Convert.ChangeType(newTable.Value.Value, newTable.Value.Type);
-                            t.Parent = variable;
+                            var key = newTable.Key;
+                            if (table.ContainsKey(key))
+                            {
+                                IEntityVariable t;
+                                t = table[key];
+                                t.Value = Convert.ChangeType(newTable.Value.Value, newTable.Value.Type);
+                                t.Parent = variable;
+                            }
+                            else
+                            {
+                                table.Add(key, newTable.Value);
+                                newTable.Value.Parent = table[key];
+                            }
                         }
                     }
                     else

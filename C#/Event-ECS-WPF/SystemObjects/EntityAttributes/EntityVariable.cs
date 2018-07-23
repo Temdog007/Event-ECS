@@ -76,6 +76,11 @@ namespace Event_ECS_WPF.SystemObjects.EntityAttributes
             return EqualityComparer<EntityVariable<T>>.Default.Equals(variable1, variable2);
         }
 
+        public object Clone()
+        {
+            return this.MemberwiseClone();
+        }
+
         public int CompareTo(IEntityVariable other)
         {
             if (Equals(other))

@@ -14,7 +14,7 @@ function buttonComponent:__init(en)
   entity.drawingText = true
   entity.alignment = "center"
   entity.fontColor = {1,1,1,1}
-  entity.draw = {ui = self, draw = buttonComponent.draw}
+  entity.main = classname(self)
 
   local values = entity.values or {}
   values.text = true

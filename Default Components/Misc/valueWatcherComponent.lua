@@ -12,6 +12,22 @@ function valueWatcherComponent:__init(en)
   entity.valueKeys = {}
 end
 
+function valueWatcherComponent:setValues(val, ...)
+  local entity = self:getEntity()
+  local keys = entity.valueKeys
+  for _, key in pairs({...}) do
+    keys[key] = val
+  end
+end
+
+function valueWatcherComponent:watchValues(...)
+  self:setValues(true, ...)
+end
+
+function valueWatcherComponent:stopWatchValues(...)
+  self:setValues(false, ...)
+end
+
 function valueWatcherComponent:eventUpdate(args)
   local entity = self:getEntity()
   for value, watch in pairs(entity.valueKeys) do

@@ -98,13 +98,22 @@
     </DataTemplate>
 
     <DataTemplate x:Key="tableEntityVariable">
-        <DataGrid ItemsSource="{Binding Value, UpdateSourceTrigger=PropertyChanged}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" 
-                  CanUserReorderColumns="True" CanUserResizeColumns="False" CanUserResizeRows="False" CanUserSortColumns="True">
-            <DataGrid.Columns>
-                <DataGridTextColumn IsReadOnly="True" Header="Key" Binding="{Binding Name, UpdateSourceTrigger=PropertyChanged}" Width="auto"/>
-                <DataGridTemplateColumn Header="Value" CellTemplateSelector="{StaticResource entityVariableTemplateSelector}" Width="*"/>
-            </DataGrid.Columns>
-        </DataGrid>
+        <Expander>
+            <DataGrid ItemsSource="{Binding Value, UpdateSourceTrigger=PropertyChanged}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" 
+                      CanUserReorderColumns="True" CanUserResizeColumns="False" CanUserResizeRows="False" CanUserSortColumns="True">
+                <DataGrid.Columns>
+                    <DataGridTextColumn IsReadOnly="True" Header="Key" Binding="{Binding Key, UpdateSourceTrigger=PropertyChanged}" Width="auto"/>
+                    <DataGridTemplateColumn Header="Value" Width="*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <ContentPresenter ContentTemplateSelector="{StaticResource entityVariableTemplateSelector}" 
+                                                  Content="{Binding Value, UpdateSourceTrigger=PropertyChanged}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Expander>
     </DataTemplate>
     
 </ResourceDictionary>

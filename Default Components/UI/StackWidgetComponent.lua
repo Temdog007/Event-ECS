@@ -19,7 +19,8 @@ function stackWidgetComponent:__init(en)
   entity.width = 0
   entity.height = 0
   entity.space = 10
-
+  entity.main = classname(self)
+  
   -- scissor
   entity.scissorX = 0
   entity.scissorY = 0
@@ -82,7 +83,8 @@ function stackWidgetComponent:addItems(...)
 end
 
 function stackWidgetComponent:addItem(item)
-  assert(item and item:get("x") and item:get("y") and item:get("width") and item:get("height"),
+  assert(item and item:get("x") and item:get("y")
+    and item:get("width") and item:get("height") and item:get("main"),
 		"Cannot add item because it is not considered a UI drawable object")
   table.insert(self:get("items"), item)
   self:dispatchEvent("eventItemAdded", {widget = self, item = item})
@@ -219,8 +221,7 @@ end
 local function widgetDraw(widget)
   for _, item in ipairs(widget.items) do
     if item:isEnabled() then
-      local d = item:get("draw")
-      d.draw(d.ui)
+      item[item:get("main")]:draw()
     end
   end
 end

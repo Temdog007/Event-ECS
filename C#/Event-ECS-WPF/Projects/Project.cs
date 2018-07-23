@@ -53,7 +53,7 @@ namespace Event_ECS_WPF.Projects
         [XmlArrayItem("ComponentDirectory")]
         public ObservableCollection<ValueContainer<string>> ComponentPaths
         {
-            get => _componentPath ?? (_componentPath = new ObservableCollection<ValueContainer<string>>());
+            get => _componentPath ?? (_componentPath = new System.Collections.ObjectModel.ObservableCollection<ValueContainer<string>>());
             set
             {
                 _componentPath = value;
@@ -98,7 +98,7 @@ namespace Event_ECS_WPF.Projects
         [XmlArrayItem("LibraryDirectory")]
         public ObservableCollection<ValueContainer<string>> LibraryPaths
         {
-            get => m_libraryPaths ?? (m_libraryPaths = new ObservableCollection<ValueContainer<string>>());
+            get => m_libraryPaths ?? (m_libraryPaths = new System.Collections.ObjectModel.ObservableCollection<ValueContainer<string>>());
             set
             {
                 m_libraryPaths = value;
