@@ -83,7 +83,10 @@
     <Compile Include="Controls\StringListControl.xaml.cs">
       <DependentUpon>StringListControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Converters\ColorIndexToForegroundConverter.cs" />
+    <Compile Include="Converters\ColorIndexToBackgroundConverter.cs" />
     <Compile Include="Converters\ColorIndexToNameConverter.cs" />
+    <Compile Include="Converters\ColorsCombinedConverted.cs" />
     <Compile Include="Converters\ItemToItemIndexConverter.cs" />
     <Compile Include="Converters\LogLevelToColor.cs" />
     <Compile Include="Extensions\BindingProxy.cs" />

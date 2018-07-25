@@ -25,10 +25,10 @@ namespace Event_ECS_WPF.Controls
            DependencyProperty.Register("Project", typeof(Project), typeof(EntityComponentSystemControl));
 
         private IActionCommand m_addEntityCommand;
-        
-        private ActionCommand<string> m_dispatchEventCommand;
 
         private ActionCommand<string> m_broadcastEventCommand;
+
+        private ActionCommand<string> m_dispatchEventCommand;
 
         private ActionCommand m_executeCodeCommand;
 
@@ -40,33 +40,18 @@ namespace Event_ECS_WPF.Controls
         public event PropertyChangedEventHandler PropertyChanged;
 
         public IActionCommand AddEntityCommand => m_addEntityCommand ?? (m_addEntityCommand = new ActionCommand(AddEntity));
-        
-        public IActionCommand DispatchEventCommand => m_dispatchEventCommand ?? (m_dispatchEventCommand = new ActionCommand<string>(DispatchEvent));
 
         public IActionCommand BroadcastEventCommand => m_broadcastEventCommand ?? (m_broadcastEventCommand = new ActionCommand<string>(BroadcastEvent));
 
-        public IActionCommand ExecuteCodeCommand => m_executeCodeCommand ?? (m_executeCodeCommand = new ActionCommand(ExecuteCode));
-
-        private void ExecuteCode()
-        {
-            using (var dialog = new Forms.OpenFileDialog
-            {
-                Filter = string.Format(MainWindowViewModel.DefaultFilterFormat, "lua")
-            })
-            {
-                if (dialog.ShowDialog() == Forms.DialogResult.OK)
-                {
-                    string code = File.ReadAllText(dialog.FileName);
-                    ECS.Instance.Execute(code);
-                }
-            }
-        }
+        public IActionCommand DispatchEventCommand => m_dispatchEventCommand ?? (m_dispatchEventCommand = new ActionCommand<string>(DispatchEvent));
 
         public EntityComponentSystem EntityComponentSystem
         {
             get { return (EntityComponentSystem)GetValue(EntityProperty); }
             set { SetValue(EntityProperty, value); }
         }
+
+        public IActionCommand ExecuteCodeCommand => m_executeCodeCommand ?? (m_executeCodeCommand = new ActionCommand(ExecuteCode));
 
         public Project Project
         {
@@ -85,15 +70,6 @@ namespace Event_ECS_WPF.Controls
             LogManager.Instance.Add("Added entity");
         }
 
-        private void DispatchEvent(string ev)
-        {
-            if (!ev.StartsWith("event", StringComparison.OrdinalIgnoreCase))
-            {
-                ev = "event" + ev;
-            }
-            ECS.Instance.DispatchEvent(EntityComponentSystem.ID, ev);
-        }
-
         private void BroadcastEvent(string ev)
         {
             if (!ev.StartsWith("event", StringComparison.OrdinalIgnoreCase))
@@ -103,15 +79,34 @@ namespace Event_ECS_WPF.Controls
             ECS.Instance.BroadcastEvent(ev);
         }
 
-        private void System_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        private void DispatchEvent(string ev)
         {
-            AddEntityCommand.UpdateCanExecute(this, e);
+            if (!ev.StartsWith("event", StringComparison.OrdinalIgnoreCase))
+            {
+                ev = "event" + ev;
+            }
+            ECS.Instance.DispatchEvent(EntityComponentSystem.ID, ev);
         }
 
         private void EventText_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
             DispatchEventCommand.UpdateCanExecute(sender, e);
             BroadcastEventCommand.UpdateCanExecute(sender, e);
+        }
+
+        private void ExecuteCode()
+        {
+            using (var dialog = new Forms.OpenFileDialog
+            {
+                Filter = string.Format(MainWindowViewModel.DefaultFilterFormat, "lua")
+            })
+            {
+                if (dialog.ShowDialog() == Forms.DialogResult.OK)
+                {
+                    string code = File.ReadAllText(dialog.FileName);
+                    ECS.Instance.Execute(code);
+                }
+            }
         }
 
         private void ScrollViewer_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
@@ -121,6 +116,11 @@ namespace Event_ECS_WPF.Controls
                 scv.ScrollToVerticalOffset(scv.VerticalOffset - e.Delta);
                 e.Handled = true;
             }
+        }
+
+        private void System_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            AddEntityCommand.UpdateCanExecute(this, e);
         }
     }
 }

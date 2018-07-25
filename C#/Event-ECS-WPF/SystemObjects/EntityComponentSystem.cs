@@ -126,7 +126,7 @@ namespace Event_ECS_WPF.SystemObjects
 
         protected override void ValueChanged(string key, object value)
         {
-            if(key == "enabled")
+            if(key == "enabled" && ID > 0)
             {
                 ECS.Instance.SetSystemEnabled(ID, Convert.ToBoolean(value));
             }

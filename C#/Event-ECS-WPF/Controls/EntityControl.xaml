@@ -68,10 +68,11 @@
                 <DataGrid ItemsSource="{Binding ElementName=m_entityControl, Path=Entity.Variables, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                          ItemTemplateSelector="{StaticResource entityVariableTemplateSelector}" CanUserAddRows="False" CanUserDeleteRows="False"
                           CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False" CanUserSortColumns="True"
-                          AutoGenerateColumns="False" MaxWidth="500">
+                          AutoGenerateColumns="False">
+
                     <DataGrid.Columns>
                         <DataGridTextColumn IsReadOnly="True" Header="Key" Binding="{Binding Name, UpdateSourceTrigger=PropertyChanged}" Width="auto"/>
-                        <DataGridTemplateColumn Header="Value" CellTemplateSelector="{StaticResource entityVariableTemplateSelector}" Width="*"/>
+                        <DataGridTemplateColumn Header="Value" CellTemplateSelector="{StaticResource entityVariableTemplateSelector}" Width="*" MaxWidth="250"/>
                     </DataGrid.Columns>
                 </DataGrid>
             </Expander>

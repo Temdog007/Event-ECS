@@ -42,10 +42,19 @@ namespace Event_ECS_WPF.Windows
 
         private void Window_Closing(object sender, CancelEventArgs e)
         {
+            if(ECS.Instance.TargetAppIsRunning)
+            {
+                switch(MessageBox.Show("Application is still running. Do you want to close?", "Close?", MessageBoxButton.YesNo, MessageBoxImage.Question))
+                {
+                    case MessageBoxResult.No:
+                        e.Cancel = true;
+                        return;
+                }
+                ECS.Instance.CloseTargetApp();
+            }
             ECS.Instance.Dispose();
             Settings.Default.Save();
         }
-        
 
         private void UpdateCommands(object sender, EventArgs e)
         {

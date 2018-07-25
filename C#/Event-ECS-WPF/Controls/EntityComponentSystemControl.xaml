@@ -33,7 +33,7 @@
             </ContextMenu>
         </GroupBox.ContextMenu>
 
-        <DockPanel>
+        <DockPanel IsEnabled="{Binding ElementName=m_system, Path=EntityComponentSystem.IsEnabled, UpdateSourceTrigger=PropertyChanged}">
             <Expander Header="Dispatch Events" DockPanel.Dock="Bottom" Background="LightSeaGreen">
                 <DockPanel>
                     <UniformGrid Columns="2" DockPanel.Dock="Bottom" Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">

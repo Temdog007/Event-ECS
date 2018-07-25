@@ -8,4 +8,7 @@
     <converter:LogLevelToColor x:Key="logToColor"/>
     <converter:ItemToItemIndexConverter x:Key="itemListConv"/>
     <converter:ColorIndexToNameConverter x:Key="colorIndexConv"/>
+    <converter:ColorIndexToBackgroundConverter x:Key="colorBackgroundConv"/>
+    <converter:ColorIndexToForegroundConverter x:Key="colorForegroundConv"/>
+    <converter:ColorsCombinedConverted x:Key="colorComboConv"/>
 </ResourceDictionary>

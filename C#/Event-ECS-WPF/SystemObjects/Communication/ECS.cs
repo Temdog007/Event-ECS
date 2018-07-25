@@ -50,6 +50,16 @@ namespace Event_ECS_WPF.SystemObjects.Communication
 
         public bool TargetAppIsRunning => Process.GetProcessesByName(AppName).Any();
 
+        public void CloseTargetApp()
+        {
+            Process[] processes = Process.GetProcessesByName(AppName);
+            foreach(var process in processes)
+            {
+                process.Kill();
+                process.WaitForExit(1000);
+            }
+        }
+
         #region IECS
         public void AddComponent(int systemID, int entityID, string componentName)
         {

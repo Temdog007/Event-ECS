@@ -340,4 +340,22 @@ function ecsTests:testComponentSerialization()
     'component|enabled|boolean|false|name|string|testComponentAlt|id|number|10')
 end
 
+function ecsTests:testReloading()
+  package.preload['test'] = function() return 1 end
+  assertEquals(require("test"), 1)
+
+  package.loaded['test'] = nil
+  assertEquals(require("test"), 1)
+
+  package.preload['test'] = function() return 2 end
+  assertEquals(require("test"), 1)
+
+  package.loaded['test'] = nil
+  assertEquals(require("test"), 2)
+
+  package.preload['test'] = function() return 3 end
+  parser("ReloadModule|test")
+  assertEquals(require("test"), 3)
+end
+
 LuaUnit:run('ecsTests')

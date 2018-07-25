@@ -17,6 +17,16 @@ namespace Event_ECS_WPF.Extensions
             return list.ToList().AsReadOnly();
         }
 
+        public static bool Contains(this string str1, string str2, StringComparison comp)
+        {
+            if (str1.Contains(str2))
+            {
+                return true;
+            }
+
+            return str1.IndexOf(str2, comp) >= 0;
+        }
+
         public static System.Windows.Input.Key Convert(this System.Windows.Forms.Keys key)
         {
             try
@@ -86,6 +96,28 @@ namespace Event_ECS_WPF.Extensions
             }
         }
 
+        public static T Max<T>(params T[] para) where T : IComparable<T>
+        {
+            T max = default(T);
+            foreach(T t in para)
+            {
+                max = t.CompareTo(max) > 0 ? t : max;
+            }
+            return max;
+        }
+
+        public static Color Invert(this Color color)
+        {
+            byte max = (byte)Math.Abs(255 - Max(color.R, color.G, color.B));
+            return new Color()
+            {
+                A = 255,
+                R = max,
+                G = max,
+                B = max
+            };
+        }
+
         public static bool IsConnected(this Socket socket)
         {
             try
@@ -137,14 +169,10 @@ namespace Event_ECS_WPF.Extensions
             }
         }
 
-        public static bool Contains(this string str1, string str2, StringComparison comp)
+        public static SolidColorBrush ToBrush(this int t)
         {
-            if(str1.Contains(str2))
-            {
-                return true;
-            }
-
-            return str1.IndexOf(str2, comp) >= 0;
+            byte[] bytes = BitConverter.GetBytes(t);
+            return new SolidColorBrush(Color.FromArgb(bytes[3], bytes[2], bytes[1], bytes[0]));
         }
     }
 }
