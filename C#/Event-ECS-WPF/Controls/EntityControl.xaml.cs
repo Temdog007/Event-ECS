@@ -96,8 +96,8 @@ namespace Event_ECS_WPF.Controls
         {
             if (sender is Button button && button.Tag is SystemObjects.Component component)
             {
-                ECS.Instance.ReloadModule(component.Name);
                 ECS.Instance.RemoveComponent(Entity.System.ID, Entity.ID, component.ID);
+                Project.CopyComponentsToOutputPath();
                 ECS.Instance.AddComponent(Entity.System.ID, Entity.ID, component.Name);
             }
         }

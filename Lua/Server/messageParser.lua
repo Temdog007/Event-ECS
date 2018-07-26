@@ -39,8 +39,12 @@ local function parseFunction(l)
 
   elseif command == "ReloadModule" then
     local modName = message[2]
-    package.loaded[modName] = nil
-    require(modName)
+    if package.loaded[modName] then
+      package.loaded[modName] = nil
+      print(string.format("Reloaded: '%s'", tostring(modName)))
+    else
+      print(string.format("Module '%s' was not loaded", tostring(modName)))
+    end
 
   elseif command == "RemoveComponent" then
     local systemID = message[2]

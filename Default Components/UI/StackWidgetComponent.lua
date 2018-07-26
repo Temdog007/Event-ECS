@@ -20,7 +20,7 @@ function stackWidgetComponent:__init(en)
   entity.height = 0
   entity.space = 10
   entity.main = classname(self)
-  
+
   -- scissor
   entity.scissorX = 0
   entity.scissorY = 0
@@ -221,7 +221,8 @@ end
 local function widgetDraw(widget)
   for _, item in ipairs(widget.items) do
     if item:isEnabled() then
-      item[item:get("main")]:draw()
+      local target = item[item:get("main") or 0]
+      if target then target:draw() end
     end
   end
 end
