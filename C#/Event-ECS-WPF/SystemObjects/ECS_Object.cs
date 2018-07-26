@@ -85,26 +85,27 @@ namespace Event_ECS_WPF.SystemObjects
 
         public static LuaTable ParseTable(Entity entity, string data)
         {
-            var list = data.Replace("{", string.Empty).Replace("}", string.Empty).Split(TableDelim).ToList();
-            var dict = new LuaTable();
-
-            for (int i = 0; i < list.Count; i += 3)
+            LuaTable dict = new LuaTable();
+            string[] list = data.Replace("{", string.Empty).Replace("}", string.Empty).Split(TableDelim);
+            if (list.Length >= 3)
             {
-                string name = list[i];
-                Type type = GetType(list[i + 1]);
-                object value = Convert.ChangeType(list[i + 2], type);
-                if (!dict.ContainsKey(name))
+                for (int i = 0; i < list.Length; i += 3)
                 {
-                    Type generic = typeof(EntityVariable<>).MakeGenericType(type);
-                    dict[name] = (IEntityVariable)Activator.CreateInstance(generic, new object[] { entity, name, value });
-                }
-                else
-                {
-                    IEntityVariable enVar = dict[name];
-                    enVar.Value = value;
+                    string name = list[i];
+                    Type type = GetType(list[i + 1]);
+                    object value = Convert.ChangeType(list[i + 2], type);
+                    if (!dict.ContainsKey(name))
+                    {
+                        Type generic = typeof(EntityVariable<>).MakeGenericType(type);
+                        dict[name] = (IEntityVariable)Activator.CreateInstance(generic, new object[] { entity, name, value });
+                    }
+                    else
+                    {
+                        IEntityVariable enVar = dict[name];
+                        enVar.Value = value;
+                    }
                 }
             }
-
             return dict;
         }
 

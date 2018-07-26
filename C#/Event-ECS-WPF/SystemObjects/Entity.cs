@@ -53,21 +53,29 @@ namespace Event_ECS_WPF.SystemObjects
                 {
                     if (ecsData.Type == "table" && variable.Value is LuaTable table)
                     {
-                        foreach (var newTable in ParseTable(this, ecsData.Value))
+                        var newTable = ParseTable(this, ecsData.Value);
+                        if (newTable.Count == table.Count)
                         {
-                            var key = newTable.Key;
-                            if (table.ContainsKey(key))
+                            foreach (var tableVar in newTable)
                             {
-                                IEntityVariable t;
-                                t = table[key];
-                                t.Value = Convert.ChangeType(newTable.Value.Value, newTable.Value.Type);
-                                t.Parent = variable;
+                                var key = tableVar.Key;
+                                if (table.ContainsKey(key))
+                                {
+                                    IEntityVariable t;
+                                    t = table[key];
+                                    t.Value = Convert.ChangeType(tableVar.Value.Value, tableVar.Value.Type);
+                                    t.Parent = variable;
+                                }
+                                else
+                                {
+                                    table.Add(key, tableVar.Value);
+                                    tableVar.Value.Parent = table[key];
+                                }
                             }
-                            else
-                            {
-                                table.Add(key, newTable.Value);
-                                newTable.Value.Parent = table[key];
-                            }
+                        }
+                        else
+                        {
+                            variable.Value = newTable;
                         }
                     }
                     else
