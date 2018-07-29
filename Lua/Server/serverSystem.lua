@@ -8,6 +8,6 @@ local System = require(DEBUG_MODE and "debugSystem" or "system")
 
 local system = systems.addSystem(System("Server System"))
 local en = system:createEntity()
-en.name = "System Entity"
+en:set('name', "System Entity")
 en:addComponent(Server)
 en:addComponent("finalizerComponent")

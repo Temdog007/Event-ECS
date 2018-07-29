@@ -10,6 +10,7 @@ function sliderComponent:__init(en)
 
   entity.min = 0
   entity.max = 100
+  entity.increment = 0.1
   entity.value = 0
   entity.text = ""
   entity.alignment = "center"
