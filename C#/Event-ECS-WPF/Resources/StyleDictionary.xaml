@@ -12,6 +12,11 @@
         </Style.Triggers>
     </Style>
 
+    <Style TargetType="DataGridColumnHeader">
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+    </Style>
+
     <Style TargetType="DataGridRow">
         <Style.Triggers>
             <Trigger Property="IsSelected" Value="True">
