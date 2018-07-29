@@ -21,7 +21,7 @@
 local class = require("classlib")
 local entity = class("entity", require("ecsObject"))
 local ComponentBase = require("component")
-require("stringExtensions")
+require("extensions")
 
 local function removeAll()
   return true

@@ -15,6 +15,13 @@ function string.ends(str, endStr)
   return string.sub(str, -string.len(endStr)) == endStr
 end
 
+function table:isEmpty()
+  for _ in pairs(self) do
+    return false
+  end
+  return true
+end
+
 function lowerEventName(t)
   local temp = {}
   for k,v in pairs(t) do

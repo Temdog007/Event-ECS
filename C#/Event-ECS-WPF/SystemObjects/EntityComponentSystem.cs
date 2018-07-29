@@ -1,6 +1,7 @@
 ﻿using Event_ECS_WPF.Extensions;
 using Event_ECS_WPF.Logger;
 using Event_ECS_WPF.SystemObjects.Communication;
+using Event_ECS_WPF.SystemObjects.EntityAttributes;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -12,20 +13,32 @@ namespace Event_ECS_WPF.SystemObjects
     {        
         private const string defaultName = "Entity Component System";
 
-        private ObservableCollection<Entity> m_entities = new ObservableCollection<Entity>();
+        private static EntityComponentSystem s_system;
+
+        private ObservableCollection<Entity> m_entities;
+
+        private ObservableCollection<string> m_registeredEntities;
 
         public EntityComponentSystem()
         {
             Name = defaultName;
         }
 
-        public EntityComponentSystem(string systemName, bool isSystemEnabled, int id, IList<string> list)
+        public EntityComponentSystem(string systemName, bool isSystemEnabled, int id, LuaTable table, IList<string> list)
+            : this(systemName, isSystemEnabled, id, table.Select(pair => pair.Value.Value.ToString()), list)
+        {
+        }
+
+        public EntityComponentSystem(string systemName, bool isSystemEnabled, int id, IEnumerable<string> registeredEntities, IList<string> list)
         {
             Name = systemName;
             IsEnabled = isSystemEnabled;
             ID = id;
+            RegisteredEntities = new ObservableCollection<string>(registeredEntities);
             Deserialize(list);
         }
+
+        public static EntityComponentSystem Empty => s_system ?? (s_system = new EntityComponentSystem());
 
         public IEnumerable<ECS_Object> AllObjects
         {
@@ -44,11 +57,35 @@ namespace Event_ECS_WPF.SystemObjects
 
         public ObservableCollection<Entity> Entities
         {
-            get => m_entities;
+            get => m_entities ?? (m_entities = new ObservableCollection<Entity>());
             set
             {
                 m_entities = value;
                 OnPropertyChanged("Entities");
+            }
+        }
+
+        public ObservableCollection<string> RegisteredEntities
+        {
+            get => m_registeredEntities ?? (m_registeredEntities = new ObservableCollection<string>());
+            set
+            {
+                m_registeredEntities = value;
+                OnPropertyChanged("RegisteredEntities");
+            }
+        }
+
+        public void SetRegisteredEntities(LuaTable table)
+        {
+            foreach(var pair in table)
+            {
+                if(pair.Value is EntityVariable<string> v)
+                {
+                    if(!RegisteredEntities.Contains(v.Value))
+                    {
+                        RegisteredEntities.Add(v.Value);
+                    }
+                }
             }
         }
 

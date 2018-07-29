@@ -39,4 +39,6 @@ function labelComponent:draw()
   love.graphics.printf(entity.text, entity.x, entity.y, entity.width, entity.alignment, 0, entity.scaleX, entity.scaleY)
 end
 
+lowerEventName(labelComponent)
+
 return labelComponent

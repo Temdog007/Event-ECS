@@ -10,6 +10,8 @@
 
         void AddEntity(int systemID);
 
+        void AddEntity(int systemID, string entityName);
+
         void BroadcastEvent(string eventName);
 
         void DispatchEvent(int systemID, string eventName);

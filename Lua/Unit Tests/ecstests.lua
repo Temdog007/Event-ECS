@@ -36,8 +36,10 @@ local testComponentAlt = require("Unit Tests/testComponentAlt")
 ecsTests = {}
 
 function ecsTests:testParser()
-  local system = Systems.addSystem(System("TestSystem"))
+  local system = Systems.addSystem(DebugSystem("TestSystem"))
   local sysID = system:getID()
+
+  system:registerEntity("testEntity", testComponent)
 
   parser(string.format('SetSystemEnabled|%d|false', sysID))
   assertIsFalse(system:isEnabled())
@@ -51,6 +53,9 @@ function ecsTests:testParser()
 
   local en = system:findEntity(function() return true end)
   local enID = en:getID()
+
+  parser(string.format("AddEntity|%d|%s", sysID, "testEntity"))
+  assertEquals(system:entityCount(), 2)
 
   parser(string.format('AddComponent|%d|%d|testComponent', sysID, enID))
   assertEquals(en:componentCount(), 1)
@@ -89,7 +94,7 @@ function ecsTests:testParser()
   assertError(parser, string.format("RemoveComponent|%d|%d|f32wrfsad", sysID, enID))
 
   parser(string.format("RemoveEntity|%d|%d", sysID, enID))
-  assertEquals(system:entityCount(), 0)
+  assertEquals(system:entityCount(), 1)
 end
 
 function ecsTests:testStringSplit()
@@ -297,6 +302,10 @@ function ecsTests:testEntityFunctions()
   local entity = system:createEntity()
   assertError(entity.addComponent, entity)
   assertError(entity.addComponent, entity, 6)
+
+  assertError(entity, entity.setDefaultsAndValues, "test", 3)
+  entity:setDefaultsAndValues{test = 3}
+  assertEquals(entity:get("test"), 3)
 end
 
 function ecsTests:testAddingRemovingEntities()
@@ -335,7 +344,25 @@ function ecsTests:testComponentSerialization()
     'component|enabled|boolean|false|name|string|testComponentAlt|id|number|10')
 
   assertEquals(system:serialize(),
-    "system|enabled|boolean|true|name|string|System|id|number|8\n"..
+    "system|enabled|boolean|true|id|number|8|name|string|System|registeredEntitiesList|table|{}\n"..
+    'entity|enabled|boolean|true|name|string|Entity|id|number|9\n'..
+    'component|enabled|boolean|false|name|string|testComponentAlt|id|number|10')
+
+  system:registerEntity("testEntity1", "testComponent")
+  assertEquals(system:serialize(),
+    "system|enabled|boolean|true|id|number|8|name|string|System|registeredEntitiesList|table|{1,string,testEntity1}\n"..
+    'entity|enabled|boolean|true|name|string|Entity|id|number|9\n'..
+    'component|enabled|boolean|false|name|string|testComponentAlt|id|number|10')
+
+  system:registerEntity("testEntity2", "testComponent", "testComponentAlt")
+  assertEquals(system:serialize(),
+    "system|enabled|boolean|true|id|number|8|name|string|System|registeredEntitiesList|table|{1,string,testEntity1,2,string,testEntity2}\n"..
+    'entity|enabled|boolean|true|name|string|Entity|id|number|9\n'..
+    'component|enabled|boolean|false|name|string|testComponentAlt|id|number|10')
+
+  system:registerEntity("testEntity3", "testComponent", "testComponentAlt", testComponent)
+  assertEquals(system:serialize(),
+    "system|enabled|boolean|true|id|number|8|name|string|System|registeredEntitiesList|table|{1,string,testEntity1,2,string,testEntity2,3,string,testEntity3}\n"..
     'entity|enabled|boolean|true|name|string|Entity|id|number|9\n'..
     'component|enabled|boolean|false|name|string|testComponentAlt|id|number|10')
 end

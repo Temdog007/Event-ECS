@@ -80,6 +80,9 @@
     <Compile Include="Controls\AddComponentControl.xaml.cs">
       <DependentUpon>AddComponentControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\AddEntityControl.xaml.cs">
+      <DependentUpon>AddEntityControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\StringListControl.xaml.cs">
       <DependentUpon>StringListControl.xaml</DependentUpon>
     </Compile>
@@ -109,6 +112,10 @@
     <Compile Include="SystemObjects\EntityAttributes\LuaTable.cs" />
     <Compile Include="SystemObjects\Communication\IECS.cs" />
     <Page Include="Controls\AddComponentControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\AddEntityControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

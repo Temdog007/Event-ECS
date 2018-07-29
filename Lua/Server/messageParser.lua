@@ -16,7 +16,7 @@ local function parseFunction(l)
   elseif command == "AddEntity" then
     local systemID = message[2]
     local system = assert(Systems.getSystem(systemID), string.format("No system with the ID %d found", systemID))
-    system:createEntity()
+    system:createEntity(message[3])
 
   elseif command == "BroadcastEvent" then
     Systems.pushEvent(message[2])

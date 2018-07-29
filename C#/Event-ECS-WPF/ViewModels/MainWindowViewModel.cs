@@ -1,10 +1,10 @@
 ﻿using Event_ECS_WPF.Commands;
 using Event_ECS_WPF.Logger;
-using Event_ECS_WPF.Misc;
 using Event_ECS_WPF.Projects;
 using Event_ECS_WPF.Properties;
 using Event_ECS_WPF.SystemObjects;
 using Event_ECS_WPF.SystemObjects.Communication;
+using Event_ECS_WPF.SystemObjects.EntityAttributes;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -31,7 +31,7 @@ local {0} = class('{0}', Component)
 
 function {0}:__init(en)
   self:setDefault('name', classname(self))
-  self:set('entity', en)entity
+  self:set('entity', en)
 end
 
 function {0}:eventUpdate(args)
@@ -265,13 +265,14 @@ return {0}";
                     dataString.RemoveAt(0);
 
                     ECSSystem system = Systems.FirstOrDefault(s => s.Name == nameData.Value);
-
+                    LuaTable registeredData = ECS_Object.ParseTable(Entity.Empty, dataList.First(d => d.Name == "registeredEntitiesList").Value);
                     if (system == null)
                     {
                         Systems.Add(new ECSSystem(
                             nameData.Value,
                             Convert.ToBoolean(enabledData.Value),
                             Convert.ToInt32(idData.Value),
+                            registeredData,
                             dataString
                         ));
                     }
@@ -280,6 +281,7 @@ return {0}";
                         system.Name = nameData.Value;
                         system.IsEnabled = Convert.ToBoolean(enabledData.Value);
                         system.ID = Convert.ToInt32(idData.Value);
+                        system.SetRegisteredEntities(registeredData);
                         system.Deserialize(dataString);
                     }
                 }

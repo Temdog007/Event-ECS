@@ -11,8 +11,10 @@ namespace Event_ECS_WPF.SystemObjects
     {
         private const string defaultName = "Entity";
 
+        private static Entity s_empty;
+
         private ObservableSet<Component> m_components = new ObservableSet<Component>();
-        
+
         private ObservableSet<IEntityVariable> m_variables = new ObservableSet<IEntityVariable>();
 
         public Entity(EntityComponentSystem system)
@@ -21,6 +23,8 @@ namespace Event_ECS_WPF.SystemObjects
             this.System.Entities.Add(this);
             Name = defaultName;
         }
+
+        public static Entity Empty => s_empty ?? (s_empty = new Entity(EntityComponentSystem.Empty));
 
         public ObservableSet<Component> Components
         {

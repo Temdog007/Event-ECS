@@ -25,8 +25,11 @@
 
         <GroupBox.ContextMenu>
             <ContextMenu>
-                <MenuItem Header="Add Entity" Command="{Binding Source={StaticResource SystemControl}, Path=Data.AddEntityCommand}"/>
+                <MenuItem Header="Add Emtpy Entity" Command="{Binding Source={StaticResource SystemControl}, Path=Data.AddEntityCommand}"/>
                 <Separator/>
+                <MenuItem Header="Add Registered Enttiy">
+                    <controls:AddEntityControl EntityComponentSystem="{Binding Source={StaticResource SystemControl}, Path=Data.EntityComponentSystem}"/>
+                </MenuItem>
                 <MenuItem Header="Is Enabled" IsCheckable="True" IsChecked="{Binding Source={StaticResource SystemControl}, Path=Data.EntityComponentSystem.IsEnabled, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
                 <Separator/>
                 <MenuItem Header="Execute Code" Command="{Binding Source={StaticResource SystemControl}, Path=Data.ExecuteCodeCommand}"/>

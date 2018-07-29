@@ -26,14 +26,23 @@ function system:__user_init(name)
   self:set("name", name or "System")
   self:set("entities", {})
   self:set("registeredEntities", {})
+  self:set("registeredEntitiesList", {})
   self:set("dispatchEvent", function(eventName, args)
     return self:dispatchEvent(eventName, args)
    end)
+
+   local values = self:get("values") or {}
+   values.registeredEntitiesList = true
+   self:set("values", values)
 end
 
 function system:registerEntity(name, ...)
   assert(not self:get("registeredEntities")[name], string.format("Entity with name '%s' is already registered", tostring(name)))
   self:get("registeredEntities")[name] = {...}
+
+  local reg = self:get("registeredEntitiesList") or {}
+  table.insert(reg, name)
+  self:set("registeredEntitiesList", reg)
 end
 
 function system:createEntity(name)

@@ -20,7 +20,7 @@
 
 local ecsObject = require("ecsObject")
 local class = require("classlib")
-require("stringExtensions")
+require("extensions")
 local component = class("component", ecsObject)
 
 function component:__user_init(entity)

@@ -71,6 +71,11 @@ namespace Event_ECS_WPF.SystemObjects.Communication
             Send("AddEntity|{0}", systemID);
         }
 
+        public void AddEntity(int systemID, string entityName)
+        {
+            Send("AddEntity|{0}|{1}", systemID, entityName);
+        }
+
         public void BroadcastEvent(string eventName)
         {
             Send("BroadcastEvent|{0}", eventName);

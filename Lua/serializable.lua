@@ -41,15 +41,17 @@ function serializable:setDefault(key, value)
   end
 end
 
-function serializable:setDefaults(...)
-  for k,v in pairs({...}) do
+function serializable:setDefaults(args)
+  assert(type(args) == "table", "Must pass a table to setDefaults")
+  for k,v in pairs(args) do
     self:setDefault(k,v)
   end
 end
 
-function serializable:setDefaultsAndValues(...)
+function serializable:setDefaultsAndValues(args)
+  assert(type(args) == "table", "Must pass a table to setDefaultsAndValues")
   local values = self:get("values") or {}
-  for k,v in pairs({...}) do
+  for k,v in pairs(args) do
     self:setDefault(k,v)
     values[k] = true
   end
@@ -66,6 +68,10 @@ local function serializeTable(t, delim)
       table.insert(rval, k) -- key
       table.insert(rval, typ) -- type
       table.insert(rval, tostring(v)) -- value
+    elseif classname(v) then
+      table.insert(t, k) -- key
+      table.insert(t, "string") -- type
+      table.insert(t, classname(v)) -- value
     elseif typ == "table" then
       table.insert(rval, k) -- key
       table.insert(rval, "table")
@@ -87,7 +93,11 @@ function serializable:serialize(t, delim)
         table.insert(t, k) -- key
         table.insert(t, typ) -- type
         table.insert(t, tostring(v)) -- value
-      elseif typ == "table" and not classname(v) then
+      elseif classname(v) then
+        table.insert(t, k) -- key
+        table.insert(t, "string") -- type
+        table.insert(t, classname(v)) -- value
+      elseif typ == "table" then
         table.insert(t, k) -- key
         table.insert(t, "table")
         table.insert(t, serializeTable(v))

@@ -21,6 +21,11 @@ namespace Event_ECS_WPF.SystemObjects
         {
             get => _iD; set
             {
+                if(ID == value)
+                {
+                    return;
+                }
+
                 _iD = value;
                 OnPropertyChanged("ID");
             }
@@ -31,6 +36,11 @@ namespace Event_ECS_WPF.SystemObjects
             get => _isEnabled;
             set
             {
+                if(IsEnabled == value)
+                {
+                    return;
+                }
+
                 _isEnabled = value;
                 OnPropertyChanged("IsEnabled");
                 ValueChanged("enabled", _isEnabled);
@@ -42,6 +52,11 @@ namespace Event_ECS_WPF.SystemObjects
             get => _name;
             set
             {
+                if(Name == value)
+                {
+                    return;
+                }
+
                 _name = value;
                 OnPropertyChanged("Name");
                 ValueChanged("name", _name);
