@@ -83,18 +83,29 @@
 
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Name" Binding="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="auto" IsReadOnly="True"/>
-                        <DataGridCheckBoxColumn Header="Is&#10;Enabled?" Binding="{Binding IsEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="auto"/>
-                        <DataGridTemplateColumn Header="Remove&#10;Component" Width="auto">
+
+                        <DataGridTemplateColumn Header="Is&#10;Enabled?" Width="auto" IsReadOnly="False">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <Button Content="Remove" Click="RemoveComponent_Click" Tag="{Binding}" MaxWidth="75"/>
+                                    <CheckBox Content="" IsChecked="{Binding IsEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                              HorizontalAlignment="Center" HorizontalContentAlignment="Center"
+                                              VerticalAlignment="Center" VerticalContentAlignment="Center"/>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
+
+                        <DataGridTemplateColumn Header="Remove&#10;Component" Width="auto">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Content="Remove" Click="RemoveComponent_Click" Tag="{Binding}"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        
                         <DataGridTemplateColumn Header="Reload&#10;Component" Width="auto">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <Button Content="Reload" Click="ReloadComponent_Click" Tag="{Binding}" MaxWidth="75"/>
+                                    <Button Content="Reload" Click="ReloadComponent_Click" Tag="{Binding}"/>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
