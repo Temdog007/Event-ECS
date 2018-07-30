@@ -66,13 +66,18 @@ end
 
 function stackWidgetComponent:setEnabled(bool)
   self.ecsObject:setEnabled(bool)
+  self:setItemsEnabled(bool)
   if self:isEnabled() then
     self:layoutItems()
   end
 end
 
+function stackWidgetComponent:eventUpdate(args)
+  local entity = self:getEntity()
+  self:update(entity)
+end
+
 function stackWidgetComponent:eventItemChanged(args)
-  self.valueWatcherComponent:eventItemChanged(args)
   self:layoutItems()
 end
 

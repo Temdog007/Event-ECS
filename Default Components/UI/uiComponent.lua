@@ -1,6 +1,6 @@
-local Component = require('valueWatcherComponent')
+local Component = require('component')
 local class = require('classlib')
-local uiComponent = class('uiComponent', Component)
+local uiComponent = class('uiComponent', Component, require("valueWatcher"))
 
 function uiComponent:__init(en)
   self:set("entity", en)
@@ -45,6 +45,11 @@ function uiComponent:__init(en)
   values.drawOrder = true
   values.drawingHighlight = true
   entity.values = values
+end
+
+function uiComponent:eventUpdate(args)
+  local entity = self:getEntity()
+  self:update(entity)
 end
 
 function uiComponent:eventAddedComponent(args)
