@@ -47,6 +47,12 @@ function uiComponent:__init(en)
   entity.values = values
 end
 
+function uiComponent:eventAddedComponent(args)
+  if not args or args.component ~= self then return end
+
+  self:watchValues("x", "y", "width", "height")
+end
+
 function uiComponent:canDraw(args)
   local entity = self:getEntity()
   return args and args.drawOrder == entity.drawOrder

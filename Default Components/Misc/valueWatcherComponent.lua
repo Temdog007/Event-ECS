@@ -1,5 +1,6 @@
 local Component = require('component')
 local class = require('classlib')
+local System = require("systemList")
 
 local valueWatcherComponent = class('valueWatcherComponent', Component)
 
@@ -33,7 +34,7 @@ function valueWatcherComponent:eventUpdate(args)
   for value, watch in pairs(entity.valueKeys) do
     if watch then
       if entity[value] ~= entity.lastValues[value] then
-        entity.system:dispatchEvent("eventItemChanged", {id = entity.id})
+        System.pushEvent("eventItemChanged", {id = entity.id})
       end
     end
   end
@@ -43,9 +44,10 @@ function valueWatcherComponent:eventItemChanged(args)
   local entity = self:getEntity()
   if not args or args.id ~= entity.id then return end
 
+  print(args.id, self.ecsObject:get("name"))
   local entity = self:getEntity()
-  for _, value in pairs(entity.valueKeys) do
-    entity.lastValues[value] = entity[value]
+  for key in pairs(entity.valueKeys) do
+    entity.lastValues[key] = entity[key]
   end
 end
 

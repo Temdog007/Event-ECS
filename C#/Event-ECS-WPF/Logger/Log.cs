@@ -18,7 +18,7 @@ namespace Event_ECS_WPF.Logger
         High = 2
     }
 
-    public class Log
+    public struct Log
     {
         internal Log(string message, LogLevel level)
         {
@@ -35,6 +35,7 @@ namespace Event_ECS_WPF.Logger
     public class LogManager : INotifyPropertyChanged
     {
         private static LogManager m_instance;
+
         private readonly object m_lock = new object();
 
         private readonly ObservableCollection<Log> m_logs;
@@ -45,11 +46,11 @@ namespace Event_ECS_WPF.Logger
             Settings.Default.SettingChanging += Default_SettingChanging;
         }
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
         public static LogManager Instance => m_instance ?? (m_instance = new LogManager());
 
         public IEnumerable<Log> FilteredLogs => m_logs.Where(log => log.Level >= Settings.Default.LogLevel);
-
-        public event PropertyChangedEventHandler PropertyChanged;
 
         public void Add(string message, LogLevel level = LogLevel.Low)
         {
@@ -121,7 +122,8 @@ namespace Event_ECS_WPF.Logger
                 lock (m_lock)
                 {
                     m_logs.Insert(0, log);
-                    while (FilteredLogs.Count() > Settings.Default.MaxLogs)
+                    int count = FilteredLogs.Count();
+                    while (count-- > Settings.Default.MaxLogs)
                     {
                         m_logs.RemoveAt(m_logs.Count - 1);
                     }
