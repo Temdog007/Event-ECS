@@ -30,7 +30,7 @@ function valueWatcherComponent:stopWatchValues(...)
 end
 
 function valueWatcherComponent:eventUpdate(args)
-  if self == nil then print(debug.traceback()) return end
+  
   local entity = self:getEntity()
   for value, watch in pairs(entity.valueKeys) do
     if watch then

@@ -95,7 +95,7 @@ function stackWidgetComponent:removeItem(item)
   local items = self:get("items")
   for k,v in pairs(items) do
     if v == item then
-      items[k] = nil
+      table.remove(items, k)
       self:dispatchEvent("eventItemRemoved", {widget = self, item = item})
       break
     end
