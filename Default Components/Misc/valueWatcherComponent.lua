@@ -30,6 +30,7 @@ function valueWatcherComponent:stopWatchValues(...)
 end
 
 function valueWatcherComponent:eventUpdate(args)
+  if self == nil then print(debug.traceback()) return end
   local entity = self:getEntity()
   for value, watch in pairs(entity.valueKeys) do
     if watch then
@@ -41,10 +42,12 @@ function valueWatcherComponent:eventUpdate(args)
 end
 
 function valueWatcherComponent:eventItemChanged(args)
+  local f = self:get("OnValueChange")
+  if f then f(args) end
+
   local entity = self:getEntity()
   if not args or args.id ~= entity.id then return end
 
-  print(args.id, self.ecsObject:get("name"))
   local entity = self:getEntity()
   for key in pairs(entity.valueKeys) do
     entity.lastValues[key] = entity[key]
