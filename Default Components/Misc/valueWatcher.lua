@@ -1,4 +1,3 @@
-local Component = require('component')
 local class = require('classlib')
 local System = require("systemList")
 
