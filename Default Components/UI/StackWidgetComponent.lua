@@ -19,6 +19,7 @@ function stackWidgetComponent:__init(en)
   entity.width = 0
   entity.height = 0
   entity.space = 10
+  entity.drawOnEvent = true
   entity.main = classname(self)
 
   -- scissor
@@ -41,6 +42,8 @@ function stackWidgetComponent:__init(en)
   entity.valueKeys.verticalPadding = true
   entity.valueKeys.horizontalAlignment = true
   entity.valueKeys.horizontalPadding = true
+
+  entity.valueKeys.drawOnEvent = true
 
   local values = entity.values or {}
   values.bgColor = true
@@ -73,12 +76,23 @@ function stackWidgetComponent:setEnabled(bool)
 end
 
 function stackWidgetComponent:eventUpdate(args)
-  local entity = self:getEntity()
-  self:update(entity)
+  self:update(self:getEntity())
 end
 
 function stackWidgetComponent:eventItemChanged(args)
   self:layoutItems()
+end
+
+function stackWidgetComponent:matchHeight(height)
+  for _, item in pairs(self:get("items")) do
+    item:set("height", height)
+  end
+end
+
+function stackWidgetComponent:matchWidth(width)
+  for _, item in pairs(self:get("items")) do
+    item:set("width", width)
+  end
 end
 
 function stackWidgetComponent:addItems(...)
@@ -232,9 +246,20 @@ local function widgetDraw(widget)
   end
 end
 
-function stackWidgetComponent:eventDraw(args)
-  if not self:canDraw(args) then return end
+function stackWidgetComponent:canDraw(args)
+  if self.uiComponent:canDraw(args) then
+    return self:get("drawOnEvent")
+  end
+  return false
+end
 
+function stackWidgetComponent:eventDraw(args)
+  if not self:canDraw(args)  then return end
+
+  self:draw()
+end
+
+function stackWidgetComponent:draw()
   local entity = self:getEntity()
   if entity.useScissor then
     love.graphics.setScissor(entity.scissorX, entity.scissorY,
