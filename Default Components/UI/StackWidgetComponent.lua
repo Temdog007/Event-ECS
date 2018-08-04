@@ -162,7 +162,7 @@ end
 function stackWidgetComponent:alignHorizontalPosition()
   local entity = self:getEntity()
   if entity.horizontalAlignment == "left" then
-    entity.x = self.horizontalPadding
+    entity.x = entity.horizontalPadding
   elseif entity.horizontalAlignment == "right" then
     entity.x = love.graphics.getWidth() - entity.width - entity.horizontalPadding
   elseif entity.horizontalAlignment == "center" then
