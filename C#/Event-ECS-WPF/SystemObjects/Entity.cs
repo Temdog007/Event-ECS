@@ -53,40 +53,53 @@ namespace Event_ECS_WPF.SystemObjects
             foreach (var ecsData in ecsDataList)
             {
                 var variable = Variables.FirstOrDefault(v => v.Name == ecsData.Name);
-                if (variable != null && ecsData.Type == "table" && variable.Value is LuaTable table)
+                if (variable != null)
                 {
-                    var newTable = ParseTable(this, ecsData.Value);
-                    if (newTable.Count == table.Count)
+                    if (ecsData.Type == "table")
                     {
-                        foreach (var tableVar in newTable)
+                        if (variable.Value is LuaTable table)
                         {
-                            var key = tableVar.Key;
-                            if (table.ContainsKey(key))
+                            var newTable = ParseTable(this, ecsData.Value);
+                            if (newTable.Count == table.Count)
                             {
-                                IEntityVariable t;
-                                t = table[key];
-                                t.Value = Convert.ChangeType(tableVar.Value.Value, tableVar.Value.Type);
-                                t.Parent = variable;
+                                foreach (var tableVar in newTable)
+                                {
+                                    var key = tableVar.Key;
+                                    if (table.ContainsKey(key))
+                                    {
+                                        IEntityVariable t;
+                                        t = table[key];
+                                        t.Value = Convert.ChangeType(tableVar.Value.Value, tableVar.Value.Type);
+                                        t.Parent = variable;
+                                    }
+                                    else
+                                    {
+                                        table.Add(key, tableVar.Value);
+                                        tableVar.Value.Parent = table[key];
+                                    }
+                                }
                             }
                             else
                             {
-                                table.Add(key, tableVar.Value);
-                                tableVar.Value.Parent = table[key];
+                                variable.Value = newTable;
                             }
+                        }
+                        else
+                        {
+                            Variables.Remove(variable);
+                            var t = new LuaTable(ParseTable(this, ecsData.Value));
+                            var v = new EntityVariable<LuaTable>(this, ecsData.Name, t);
+                            t.Parent = v;
+                            Variables.Add(v);
                         }
                     }
                     else
                     {
-                        variable.Value = newTable;
+                        variable.Value = Convert.ChangeType(ecsData.Value, variable.Type);
                     }
                 }
                 else
                 {
-                    if(variable != null)
-                    {
-                        Variables.Remove(variable);
-                    }
-
                     if (ecsData.Type == "table")
                     {
                         var t = new LuaTable(ParseTable(this, ecsData.Value));

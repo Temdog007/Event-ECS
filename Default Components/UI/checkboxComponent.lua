@@ -35,9 +35,6 @@ end
 
 function checkboxComponent:eventAddedComponent(args)
   if not args or args.component ~= self then return end
-
-  args.component = self.uiComponent
-  self.uiComponent:eventAddedComponent(args)
   self:watchValues("isChecked")
 end
 
@@ -45,8 +42,7 @@ function checkboxComponent:eventItemChanged(args)
   local entity = self:getEntity()
   if not args or args.id ~= entity.id then return end
 
-  print("Found change")
-  local action = entity.checkedAction
+  local action = assert(entity.checkedAction)
   if action then action(entity.isChecked) end
 end
 
