@@ -23,6 +23,8 @@ namespace Event_ECS_WPF.Projects
             "finalizerComponent"
         };
 
+        protected ObservableCollection<char> componentLetters;
+
         private ObservableCollection<ValueContainer<string>> _componentPath;
 
         private string _name;
@@ -59,6 +61,8 @@ namespace Event_ECS_WPF.Projects
             }
         }
 
+        public ObservableCollection<char> ComponentLetters => componentLetters ?? (componentLetters = new ObservableCollection<char>());
+
         /// <summary>
         /// Directory containing all of the lua component files
         /// </summary>
@@ -66,7 +70,7 @@ namespace Event_ECS_WPF.Projects
         [XmlArrayItem("ComponentDirectory")]
         public ObservableCollection<ValueContainer<string>> ComponentPaths
         {
-            get => _componentPath ?? (_componentPath = new System.Collections.ObjectModel.ObservableCollection<ValueContainer<string>>());
+            get => _componentPath ?? (_componentPath = new ObservableCollection<ValueContainer<string>>());
             set
             {
                 _componentPath = value;
@@ -89,7 +93,6 @@ namespace Event_ECS_WPF.Projects
                 }
             }
         }
-
         public IEnumerable<string> Files
         {
             get
@@ -203,29 +206,29 @@ namespace Event_ECS_WPF.Projects
 
         private static IEnumerable<string> GetComponents(string directory)
         {
-            if (!directory.IsHidden() && Directory.Exists(directory))
+            foreach (var file in Directory.GetFiles(directory).Where(f => !f.IsHidden() && IsCopyable(f)))
             {
-                foreach (var file in Directory.GetFiles(directory).Where(f => !f.IsHidden() && IsCopyable(f)))
-                {
-                    yield return file;
-                }
+                yield return file;
             }
         }
 
         private IEnumerable<string> GetFilesInDirectory(string componentDir)
         {
-            foreach (var file in GetComponents(componentDir))
+            if (!componentDir.IsHidden() && Directory.Exists(componentDir))
             {
-                yield return file;
-            }
-
-            if (IncludeDirectories)
-            {
-                foreach (var dir in Directory.GetDirectories(componentDir))
+                foreach (var file in GetComponents(componentDir))
                 {
-                    foreach (var file in GetFilesInDirectory(dir))
+                    yield return file;
+                }
+
+                if (IncludeDirectories)
+                {
+                    foreach (var dir in Directory.GetDirectories(componentDir))
                     {
-                        yield return file;
+                        foreach (var file in GetFilesInDirectory(dir))
+                        {
+                            yield return file;
+                        }
                     }
                 }
             }

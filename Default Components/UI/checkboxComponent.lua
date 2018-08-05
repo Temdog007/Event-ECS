@@ -35,6 +35,7 @@ end
 
 function checkboxComponent:setEnabled(enabled)
   self.uiComponent:setEnabled(enabled)
+  self:updateBinding()
 end
 
 function checkboxComponent:eventSystemEnabled(args)

@@ -75,6 +75,20 @@ function stackWidgetComponent:setEnabled(bool)
   end
 end
 
+function stackWidgetComponent:eventSystemEnabled(args)
+  if not args or args.system ~= self:get("system") then return end
+
+  self:setItemsEnabled(args.system:isEnabled())
+  self:layoutItems()
+end
+
+function stackWidgetComponent:eventEntityEnabled(args)
+  if not args or args.entity ~= self:get("entity") then return end
+
+  self:setItemsEnabled(args.entity:isEnabled())
+  self:layoutItems()
+end
+
 function stackWidgetComponent:eventUpdate(args)
   self:update(self:getEntity())
 end
@@ -132,7 +146,7 @@ function stackWidgetComponent:hasItem(item)
 end
 
 function stackWidgetComponent:setItemsEnabled(enable)
-  assert(type(enable) == "boolean", "Must enter a boolean to setEnable")
+  assert(type(enable) == "boolean", "Must enter a boolean to setEnabled")
   for _, item in pairs(assert(self:get("items"), "stack widget must have items")) do
     item:setEnabled(enable)
   end

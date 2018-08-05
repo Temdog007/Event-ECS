@@ -49,7 +49,8 @@
                 <ContextMenu.ItemsSource>
                     <CompositeCollection>
                         <MenuItem Header="Add Component">
-                            <controls:AddComponentControl Project="{Binding Source={StaticResource EntityControl}, Path=Data.Project}" 
+                            <controls:AddComponentControl RelevantLetters="{Binding Source={StaticResource EntityControl}, Path=Data.Project.ComponentLetters}" 
+                                                          Components="{Binding Source={StaticResource EntityControl}, Path=Data.Project.Components}"
                                                           Command="{Binding Source={StaticResource EntityControl}, Path=Data.AddComponentCommand}"/>
                         </MenuItem>
                         <Separator/>

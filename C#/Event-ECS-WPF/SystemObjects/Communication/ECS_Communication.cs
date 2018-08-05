@@ -150,6 +150,7 @@ namespace Event_ECS_WPF.SystemObjects.Communication
 
                     if (bytesRead > 0)
                     {
+                        LogManager.Instance.Add(LogLevel.SuperLow, "Received message from client. {0} bytes", bytesRead);
                         try
                         {
                             string message = Encoding.ASCII.GetString(buffer, 0, bytesRead);

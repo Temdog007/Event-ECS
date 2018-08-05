@@ -1,5 +1,4 @@
-﻿using Event_ECS_WPF.Projects;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -14,21 +13,14 @@ namespace Event_ECS_WPF.Controls
     /// </summary>
     public partial class AddComponentControl : UserControl, INotifyPropertyChanged
     {
-        public static readonly DependencyProperty ProjectProperty =
-            DependencyProperty.Register("Project", typeof(Project), typeof(AddComponentControl), new PropertyMetadata(null, OnProjectChanged));
-
-        private static void OnProjectChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            if(d is AddComponentControl ctrl)
-            {
-                ctrl.OnPropertyChanged("RelevantLetters");
-                ctrl.SelectedLetter = ctrl.RelevantLetters.FirstOrDefault();
-                ctrl.OnPropertyChanged("SelectableComponents");
-            }
-        }
-
         public static readonly DependencyProperty CommandProperty =
             DependencyProperty.Register("Command", typeof(ICommand), typeof(AddComponentControl));
+
+        public static readonly DependencyProperty ComponentsProperty =
+            DependencyProperty.Register("Components", typeof(IEnumerable<string>), typeof(AddComponentControl));
+
+        public static readonly DependencyProperty RelevantLettersProperty =
+                    DependencyProperty.Register("RelevantLetters", typeof(IEnumerable<char>), typeof(AddComponentControl));
 
         private char m_selectedLetter = default(char);
 
@@ -39,41 +31,29 @@ namespace Event_ECS_WPF.Controls
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public Project Project
-        {
-            get { return (Project)GetValue(ProjectProperty); }
-            set { SetValue(ProjectProperty, value); }
-        }
-
         public ICommand Command
         {
             get { return (ICommand)GetValue(CommandProperty); }
             set { SetValue(CommandProperty, value); }
         }
 
+        public IEnumerable<string> Components
+        {
+            get { return (IEnumerable<string>)GetValue(ComponentsProperty); }
+            set { SetValue(ComponentsProperty, value); }
+        }
+
         public IEnumerable<char> RelevantLetters
         {
-            get
-            {
-                if (Project == null)
-                {
-                    yield break;
-                }
-                for (char c = 'A'; c <= 'Z'; ++c)
-                {
-                    if (Project.Components.Any(comp => comp.StartsWith(c.ToString(), StringComparison.OrdinalIgnoreCase)))
-                    {
-                        yield return c;
-                    }
-                }
-            }
+            get { return (IEnumerable<char>)GetValue(RelevantLettersProperty); }
+            set { SetValue(RelevantLettersProperty, value); }
         }
 
         public IEnumerable<string> SelectableComponents
         {
             get
             {
-                return Project?.Components.Where(comp => comp.StartsWith(SelectedLetter.ToString(), StringComparison.OrdinalIgnoreCase));
+                return Components?.Where(comp => comp.StartsWith(SelectedLetter.ToString(), StringComparison.OrdinalIgnoreCase)) ?? Enumerable.Empty<string>();
             }
         }
 
@@ -82,10 +62,6 @@ namespace Event_ECS_WPF.Controls
             get => m_selectedLetter;
             set
             {
-                if (Project == null)
-                {
-                    return;
-                }
                 m_selectedLetter = value;
                 OnPropertyChanged("SelectedLetter");
                 OnPropertyChanged("SelectableComponents");

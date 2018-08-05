@@ -93,6 +93,8 @@ return {0}";
 
         public ActionCommand<Window> CloseCommand => m_closeCommand ?? (m_closeCommand = new ActionCommand<Window>(CloseWindow));
 
+        public IEnumerable<char> ComponentLetters => Project?.ComponentLetters ?? null;
+
         public IActionCommand CopyComponentsCommand => m_copyComponentsCommand ?? (m_copyComponentsCommand = new ActionCommand(CopyComponents, () => HasProject));
 
         public ICommand CreateComponentCommand => m_createComponentCommand ?? (m_createComponentCommand = new ActionCommand(CreateComponent));
@@ -130,6 +132,7 @@ return {0}";
                     OnPropertyChanged("Project");
                     OnPropertyChanged("HasProject");
                     OnPropertyChanged("ProjectBackground");
+                    OnPropertyChanged("ComponentLetters");
                     SaveProjectCommand.UpdateCanExecute(this, EventArgs.Empty);
                     CopyComponentsCommand.UpdateCanExecute(this, EventArgs.Empty);
                 }

@@ -80,6 +80,14 @@ namespace Event_ECS_WPF.Projects
                 }
 
                 CopyComponentsToOutputPath();
+                componentLetters.Clear();
+                for (char c = 'A'; c <= 'Z'; ++c)
+                {
+                    if (Components.Any(comp => comp.StartsWith(c.ToString(), StringComparison.OrdinalIgnoreCase)))
+                    {
+                        componentLetters.Add(c);
+                    }
+                }
                 return true;
             }
             catch (Exception e)

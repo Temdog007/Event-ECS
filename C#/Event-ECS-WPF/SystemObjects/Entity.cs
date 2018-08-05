@@ -65,7 +65,7 @@ namespace Event_ECS_WPF.SystemObjects
                                 foreach (var tableVar in newTable)
                                 {
                                     var key = tableVar.Key;
-                                    if (table.ContainsKey(key))
+                                    if (table.ContainsKey(key) && table[key] != tableVar.Value)
                                     {
                                         IEntityVariable t;
                                         t = table[key];
