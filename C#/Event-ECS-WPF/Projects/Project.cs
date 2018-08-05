@@ -1,7 +1,6 @@
 ﻿using Event_ECS_WPF.Extensions;
 using Event_ECS_WPF.Logger;
 using Event_ECS_WPF.Misc;
-using Event_ECS_WPF.SystemObjects;
 using Event_ECS_WPF.SystemObjects.Communication;
 using System;
 using System.Collections.Generic;
@@ -30,6 +29,8 @@ namespace Event_ECS_WPF.Projects
 
         private string _outputPath = Location;
 
+        private bool includeDirectories;
+
         private ObservableCollection<ValueContainer<string>> m_libraryPaths;
 
         public Project() : this(false) { }
@@ -45,6 +46,18 @@ namespace Event_ECS_WPF.Projects
         }
 
         public static string Location => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
+        public IEnumerable<string> AllLibraryPaths
+        {
+            get
+            {
+                yield return Location;
+                foreach (var path in LibraryPaths)
+                {
+                    yield return path;
+                }
+            }
+        }
 
         /// <summary>
         /// Directory containing all of the lua component files
@@ -83,14 +96,22 @@ namespace Event_ECS_WPF.Projects
             {
                 foreach (var componentPath in ComponentPaths.Select(c => c.Value))
                 {
-                    if (!componentPath.IsHidden() && Directory.Exists(componentPath))
+                    foreach (var file in GetFilesInDirectory(componentPath))
                     {
-                        foreach (var file in Directory.GetFiles(componentPath).Where(f => !f.IsHidden() && Path.GetExtension(f) == ".lua"))
-                        {
-                            yield return file;
-                        }
+                        yield return file;
                     }
                 }
+            }
+        }
+
+        [XmlAttribute]
+        public bool IncludeDirectories
+        {
+            get => includeDirectories;
+            set
+            {
+                includeDirectories = value;
+                OnPropertyChanged("IncludeDirectories");
             }
         }
 
@@ -103,18 +124,6 @@ namespace Event_ECS_WPF.Projects
             {
                 m_libraryPaths = value;
                 OnPropertyChanged("LibraryPaths");
-            }
-        }
-
-        public IEnumerable<string> AllLibraryPaths
-        {
-            get
-            {
-                yield return Location;
-                foreach(var path in LibraryPaths)
-                {
-                    yield return path;
-                }
             }
         }
 
@@ -141,7 +150,30 @@ namespace Event_ECS_WPF.Projects
         }
 
         public virtual ProjectType Type => ProjectType.NORMAL;
-        
+
+        public static bool IsCopyable(string file)
+        {
+            switch (Path.GetExtension(file))
+            {
+                case ".lua":
+                case ".png":
+                case ".ogg":
+                    return true;
+                default:
+                    break;
+            }
+            return false;
+        }
+
+        public bool CheckOutDir()
+        {
+            if (!Directory.Exists(OutputPath))
+            {
+                Directory.CreateDirectory(OutputPath);
+            }
+            return true;
+        }
+
         public void CopyComponentsToOutputPath(bool reload = true)
         {
             foreach (string file in Files)
@@ -164,18 +196,39 @@ namespace Event_ECS_WPF.Projects
             }
         }
 
-        public bool CheckOutDir()
-        {
-            if(!Directory.Exists(OutputPath))
-            {
-                Directory.CreateDirectory(OutputPath);
-            }
-            return true;
-        }
-
         public virtual bool Start()
         {
             throw new NotImplementedException("Start is not applicable for a generic project");
+        }
+
+        private static IEnumerable<string> GetComponents(string directory)
+        {
+            if (!directory.IsHidden() && Directory.Exists(directory))
+            {
+                foreach (var file in Directory.GetFiles(directory).Where(f => !f.IsHidden() && IsCopyable(f)))
+                {
+                    yield return file;
+                }
+            }
+        }
+
+        private IEnumerable<string> GetFilesInDirectory(string componentDir)
+        {
+            foreach (var file in GetComponents(componentDir))
+            {
+                yield return file;
+            }
+
+            if (IncludeDirectories)
+            {
+                foreach (var dir in Directory.GetDirectories(componentDir))
+                {
+                    foreach (var file in GetFilesInDirectory(dir))
+                    {
+                        yield return file;
+                    }
+                }
+            }
         }
     }
 }

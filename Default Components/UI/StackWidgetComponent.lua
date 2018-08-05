@@ -133,7 +133,7 @@ end
 
 function stackWidgetComponent:setItemsEnabled(enable)
   assert(type(enable) == "boolean", "Must enter a boolean to setEnable")
-  for _, item in pairs(self:get("items")) do
+  for _, item in pairs(assert(self:get("items"), "stack widget must have items")) do
     item:setEnabled(enable)
   end
 end

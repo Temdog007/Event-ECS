@@ -24,14 +24,17 @@
         </GroupBox.Header>
 
         <StackPanel Margin="5">
-            
+
+            <Button Content="Clear Output" Click="ClearOutputDirectory"/>
+
             <GroupBox Header="Output Path">
                 <DockPanel>
-                    <Button Content="..." DockPanel.Dock="Right" Click="Button_Click"/>
+                    <Button Content="..." DockPanel.Dock="Right" Click="AddComponentDirectory"/>
                     <TextBlock Margin="5" Text="{Binding ElementName=m_project, Path=Project.OutputPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                 </DockPanel>
             </GroupBox>
-            
+
+            <CheckBox Content="Include Sub Directories" IsChecked="{Binding ElementName=m_project, Path=Project.IncludeDirectories, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5"/>
         </StackPanel>
     </GroupBox>
 </UserControl>

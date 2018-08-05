@@ -1,4 +1,5 @@
 ﻿using Event_ECS_WPF.Projects;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using Forms = System.Windows.Forms;
@@ -24,7 +25,7 @@ namespace Event_ECS_WPF.Controls
             set { SetValue(ProjectProperty, value); }
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void AddComponentDirectory(object sender, RoutedEventArgs e)
         {
             using (Forms.FolderBrowserDialog dialog = new Forms.FolderBrowserDialog())
             {
@@ -35,6 +36,14 @@ namespace Event_ECS_WPF.Controls
                         Project.OutputPath = dialog.SelectedPath;
                         break;
                 }
+            }
+        }
+
+        private void ClearOutputDirectory(object sender, RoutedEventArgs e)
+        {
+            if(Directory.Exists(Project.OutputPath))
+            {
+                Directory.Delete(Project.OutputPath, true);
             }
         }
     }

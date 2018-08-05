@@ -48,8 +48,7 @@ function uiComponent:__init(en)
 end
 
 function uiComponent:eventUpdate(args)
-  local entity = self:getEntity()
-  self:update(entity)
+  self:update(self:getEntity())
 end
 
 function uiComponent:canDraw(args)

@@ -27,13 +27,15 @@ function system:__user_init(name)
   self:set("entities", {})
   self:set("registeredEntities", {})
   self:set("registeredEntitiesList", {})
-  self:set("dispatchEvent", function(eventName, args)
-    return self:dispatchEvent(eventName, args)
-   end)
 
    local values = self:get("values") or {}
    values.registeredEntitiesList = true
    self:set("values", values)
+end
+
+function system:setEnabled(enabled)
+  self.ecsObject:setEnabled(enabled)
+  self:dispatchEvent("eventsystemenabled", {system = self, enabled = enabled})
 end
 
 function system:registerEntity(name, ...)

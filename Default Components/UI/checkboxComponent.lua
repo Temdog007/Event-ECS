@@ -7,7 +7,7 @@ function checkboxComponent:__init(en)
   self:setDefault('name', classname(self))
   self:set('entity', en)
 
-  local entity = self:getEntity(true)
+  local entity = self:getEntity()
   entity.isChecked = false
   entity.checkedText = "Yes"
   entity.space = 25
@@ -33,6 +33,26 @@ function checkboxComponent:__init(en)
   entity.values = values
 end
 
+function checkboxComponent:setEnabled(enabled)
+  self.uiComponent:setEnabled(enabled)
+end
+
+function checkboxComponent:eventSystemEnabled(args)
+  if not args or args.system ~= self:get("system") then return end
+  self:updateBinding()
+end
+
+function checkboxComponent:eventEntityEnabled(args)
+  if not args or args.entity ~= self:get("entity") then return end
+  self:updateBinding()
+end
+
+function checkboxComponent:updateBinding()
+  local en = self:getEntity()
+  local action =  assert(en.bindingAction)
+  self:set("isChecked", action())
+end
+
 function checkboxComponent:eventAddedComponent(args)
   if not args or args.component ~= self then return end
   self:watchValues("isChecked")
@@ -43,7 +63,7 @@ function checkboxComponent:eventItemChanged(args)
   if not args or args.id ~= entity.id then return end
 
   local action = assert(entity.checkedAction)
-  if action then action(entity.isChecked) end
+  action(entity.isChecked)
 end
 
 function checkboxComponent:drawCheckedText()

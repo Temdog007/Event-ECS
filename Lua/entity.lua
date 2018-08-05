@@ -38,12 +38,11 @@ function entity:__user_init(system)
   self:set("name", "Entity")
   self:set("system", system)
   self:set("components", {})
-  self:set("dispatchEvent", function(eventName, args)
-    return system:dispatchEvent(eventName, args)
-  end)
-  self:set("dispatchEventLocal", function(eventName, args)
-    return self:dispatchEvent(eventName, args)
-  end)
+end
+
+function entity:setEnabled(enabled)
+  self.ecsObject:setEnabled(enabled)
+  self:dispatchEvent("evententityenabled", {entity = self, enabled = enabled})
 end
 
 function entity:getEntity(useDefault)
