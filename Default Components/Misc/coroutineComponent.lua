@@ -8,15 +8,15 @@ function coroutineComponent:__init(en)
   self:set('entity', en)
 
   en:setDefaultsAndValues({
-    current = 0,
+    coroutineCurrent = 0,
     target = 0
   })
   self:setEnabled(false)
 end
 
-function coroutineComponent:setRoutine(routine)
-  if self:isEnabled() then return end
-  self:set("current", 0)
+function coroutineComponent:setRoutine(routine, override)
+  if self:isEnabled() and not override then return end
+  self:set("coroutineCurrent", 0)
   self:set("target", 0)
   self:set("routine", coroutine.create(routine))
   self:setEnabled(true)
@@ -31,10 +31,10 @@ function coroutineComponent:eventUpdate(args)
 
   local target = self:get("target") or 0
   if type(target) == "number" then
-    local current = self:get("current")
-    current = current + args.dt
-    self:set("current", current)
-    if current < target then return end
+    local coroutineCurrent = self:get("coroutineCurrent")
+    coroutineCurrent = coroutineCurrent + args.dt
+    self:set("coroutineCurrent", coroutineCurrent)
+    if coroutineCurrent < target then return end
   elseif type(target) == "coroutineComponent" then
     if target:isEnabled() then return end
   end
@@ -43,7 +43,7 @@ function coroutineComponent:eventUpdate(args)
   if status then
     if type(rval) == "number" or type(rval) == "nil" then
       self:set("target", rval or 0)
-      self:set("current", 0)
+      self:set("coroutineCurrent", 0)
     elseif classname(rval) == "coroutineComponent" then
       self:set("target", rval)
     end

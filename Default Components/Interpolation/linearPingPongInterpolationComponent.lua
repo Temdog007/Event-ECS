@@ -12,7 +12,7 @@ function linearPingPongInterpolationComponent:__user_init(en)
     start = 0,
     value = 0,
     speed = 1,
-    current = 0,
+    linearPingPongInterpolationCurrent = 0,
   }
   d['end'] = 1
   en:setDefaultsAndValues(d)
@@ -26,11 +26,11 @@ function linearPingPongInterpolationComponent:eventUpdate(args)
   local en = entity['end']
   local speed = entity.speed
 
-  entity.current = ((entity.current + args.dt) * speed) % 2
-  if entity.current < 1 then
-    entity.value = start + (en - start) * entity.current
+  entity.linearPingPongInterpolationCurrent = ((entity.linearPingPongInterpolationCurrent + args.dt) * speed) % 2
+  if entity.linearPingPongInterpolationCurrent < 1 then
+    entity.value = start + (en - start) * entity.linearPingPongInterpolationCurrent
   else
-    local c = (entity.current - 1) / 1
+    local c = (entity.linearPingPongInterpolationCurrent - 1) / 1
     entity.value = en + (start - en) * c
   end
 

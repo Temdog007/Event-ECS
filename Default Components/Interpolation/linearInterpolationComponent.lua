@@ -12,7 +12,7 @@ function linearInterpolationComponent:__user_init(en)
     start = 0,
     value = 0,
     speed = 1,
-    current = 0,
+    linearInterpolationCurrent = 0,
   }
   d['end'] = 1
   en:setDefaultsAndValues(d)
@@ -26,8 +26,8 @@ function linearInterpolationComponent:eventUpdate(args)
   local en = entity['end']
   local speed = entity.speed
 
-  entity.current = ((entity.current + args.dt) * speed) % 1
-  entity.value = start + (en - start) * entity.current
+  entity.linearInterpolationCurrent = ((entity.linearInterpolationCurrent + args.dt) * speed) % 1
+  entity.value = start + (en - start) * entity.linearInterpolationCurrent
 
   for handler in pairs(self.interpolationBase.handlers) do
     handler(entity.value)
