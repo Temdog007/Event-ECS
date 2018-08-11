@@ -9,33 +9,37 @@ function linearPingPongInterpolationComponent:__user_init(en)
 
   local d =
   {
-    start = 0,
-    value = 0,
-    speed = 1,
+    linearPingPongInterpolationStart = 0,
+    linearPingPongInterpolationEnd = 1,
+    linearPingPongInterpolationValue = 0,
+    linearPingPongInterpolationSpeed = 1,
     linearPingPongInterpolationCurrent = 0,
   }
-  d['end'] = 1
   en:setDefaultsAndValues(d)
+end
+
+function linearPingPongInterpolationComponent.interpolate(a)
+  if a < 1 then
+    return a
+  else
+    return math.abs(1 - ((a - 1) / 1))
+  end
 end
 
 function linearPingPongInterpolationComponent:eventUpdate(args)
   if not args or not args.dt then return end
 
   local entity = self:getEntity()
-  local start = entity.start
-  local en = entity['end']
-  local speed = entity.speed
 
-  entity.linearPingPongInterpolationCurrent = ((entity.linearPingPongInterpolationCurrent + args.dt) * speed) % 2
-  if entity.linearPingPongInterpolationCurrent < 1 then
-    entity.value = start + (en - start) * entity.linearPingPongInterpolationCurrent
-  else
-    local c = (entity.linearPingPongInterpolationCurrent - 1) / 1
-    entity.value = en + (start - en) * c
-  end
+  entity.linearPingPongInterpolationCurrent = ((entity.linearPingPongInterpolationCurrent + args.dt) * entity.linearPingPongInterpolationSpeed) % 2
+  entity.linearPingPongInterpolationValue =
+    self:apply(entity.linearPingPongInterpolationStart,
+      entity.linearPingPongInterpolationEnd,
+      entity.linearPingPongInterpolationCurrent,
+      linearPingPongInterpolationComponent.interpolate)
 
   for handler in pairs(self.interpolationBase.handlers) do
-    handler(entity.value)
+    handler(entity.linearPingPongInterpolationValue)
   end
 end
 

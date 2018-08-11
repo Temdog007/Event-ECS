@@ -9,12 +9,12 @@ function linearInterpolationComponent:__user_init(en)
 
   local d =
   {
-    start = 0,
-    value = 0,
-    speed = 1,
+    linearInterpolationStart = 0,
+    linearInterpolationEnd = 1,
+    linearInterpolationValue = 0,
+    linearInterpolationSpeed = 1,
     linearInterpolationCurrent = 0,
   }
-  d['end'] = 1
   en:setDefaultsAndValues(d)
 end
 
@@ -22,15 +22,15 @@ function linearInterpolationComponent:eventUpdate(args)
   if not args or not args.dt then return end
 
   local entity = self:getEntity()
-  local start = entity.start
-  local en = entity['end']
-  local speed = entity.speed
-
-  entity.linearInterpolationCurrent = ((entity.linearInterpolationCurrent + args.dt) * speed) % 1
-  entity.value = start + (en - start) * entity.linearInterpolationCurrent
+  entity.linearInterpolationCurrent = ((entity.linearInterpolationCurrent + args.dt) * entity.linearInterpolationSpeed) % 1
+  entity.linearInterpolationValue =
+    self:apply(
+    entity.linearInterpolationStart,
+    entity.linearInterpolationEnd,
+    entity.linearInterpolationCurrent)
 
   for handler in pairs(self.interpolationBase.handlers) do
-    handler(entity.value)
+    handler(entity.linearInterpolationValue)
   end
 end
 
