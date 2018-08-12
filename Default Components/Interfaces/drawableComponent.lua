@@ -13,9 +13,10 @@ function drawableComponent:__init(en)
   entity.values = values
 end
 
-function drawableComponent:canDraw(args)
+function drawableComponent:canDraw(args, drawOrder)
   local entity = self:getData()
-  return args and args.drawOrder == entity.drawOrder
+  drawOrder = drawOrder or entity.drawOrder
+  return args and args.drawOrder == drawOrder
 end
 
 return drawableComponent
