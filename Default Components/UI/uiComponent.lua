@@ -6,7 +6,7 @@ function uiComponent:__init(en)
   self:set("entity", en)
   self:setDefault("name", classname(self))
 
-  local entity = self:getEntity(true)
+  local entity = self:getData(true)
 
   entity.x = 0
   entity.y = 0
@@ -48,11 +48,11 @@ function uiComponent:__init(en)
 end
 
 function uiComponent:eventUpdate(args)
-  self:update(self:getEntity())
+  self:update(self:getData())
 end
 
 function uiComponent:canDraw(args)
-  local entity = self:getEntity()
+  local entity = self:getData()
   return args and args.drawOrder == entity.drawOrder
 end
 
@@ -61,12 +61,12 @@ function uiComponent:eventMouseMoved(args)
   local x, y = args[1], args[2]
   if not x or not y then return end
 
-  local entity = self:getEntity()
+  local entity = self:getData()
   entity.isMouseOver = self:isOver(x, y)
 end
 
 function uiComponent:isOver(x, y)
-  local entity = self:getEntity()
+  local entity = self:getData()
 
   assert(type(x) == "number" and type(y) == "number",
     string.format("Must enter numbers to 'isOver' %s %s", tostring(s), tostring(s)))
@@ -75,7 +75,7 @@ function uiComponent:isOver(x, y)
 end
 
 function uiComponent:drawHighlight()
-  local entity = self:getEntity()
+  local entity = self:getData()
 
   local c = entity.isClicked and entity.pressedColor or entity.highlightColor
   if c then
@@ -86,7 +86,7 @@ function uiComponent:drawHighlight()
 end
 
 function uiComponent:drawBg()
-  local entity = self:getEntity()
+  local entity = self:getData()
 
   local color = entity.bgColor
   if color then love.graphics.setColor(color) end
@@ -94,7 +94,7 @@ function uiComponent:drawBg()
 end
 
 function uiComponent:draw()
-  local entity = self:getEntity()
+  local entity = self:getData()
   if entity.drawingHighlight and entity.isMouseOver then self:drawHighlight() end
   if entity.drawingBg then self:drawBg() end
 end

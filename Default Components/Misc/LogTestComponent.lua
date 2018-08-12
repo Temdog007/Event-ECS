@@ -6,7 +6,7 @@ local LogTest = class("logTestComponent", Component)
 function LogTest:__user_init(en)
   self:setDefault("name", classname(self))
   self:set("entity", en)
-  local entity = self:getEntity(true)
+  local entity = self:getData(true)
 
   entity.text = "This is a test string"
   entity.showFps = false
@@ -40,7 +40,7 @@ end
 function LogTest:eventDraw(args)
   if not self:canDraw(args) then return end
 
-  local entity = self:getEntity()
+  local entity = self:getData()
 
 	local color = entity.color
 	if color then

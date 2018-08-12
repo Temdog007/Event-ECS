@@ -6,7 +6,7 @@ function sliderComponent:__init(en)
   self:set("entity", en)
   self:setDefault("name", classname(self))
 
-  local entity = self:getEntity(true)
+  local entity = self:getData(true)
 
   entity.min = 0
   entity.max = 100
@@ -46,7 +46,7 @@ end
 function sliderComponent:updatePosition(x, y)
   assert(tonumber(x) and tonumber(y), "Must update position with number")
 
-  local entity = self:getEntity()
+  local entity = self:getData()
 
   if entity.isClicked then
     local minX, maxX = self:getXBoundary()
@@ -65,17 +65,17 @@ function sliderComponent:updatePosition(x, y)
 end
 
 function sliderComponent:getXBoundary()
-  local entity = self:getEntity()
+  local entity = self:getData()
   return entity.x, entity.x + entity.width
 end
 
 function sliderComponent:getYXBoundary()
-  local entity = self:getEntity()
+  local entity = self:getData()
   return entity.y, entity.y + entity.height
 end
 
 function sliderComponent:getPercentage()
-  local entity = self:getEntity()
+  local entity = self:getData()
   return (entity.value - entity.min) / (entity.max - entity.min)
 end
 
@@ -83,7 +83,7 @@ function sliderComponent:eventMouseMoved(args)
   self.uiComponent:eventMouseMoved(args)
   self:updatePosition(args[1], args[2])
 
-  local entity = self:getEntity()
+  local entity = self:getData()
   if entity.isClicked and entity.isMouseOver and entity.action then
     entity.action(entity.value, self:getPercentage())
   end
@@ -96,7 +96,7 @@ function sliderComponent:eventMousePressed(args)
   if not x or not y or not b then return end
 
   if b == 1 and self:isOver(x, y) then
-    local entity = self:getEntity()
+    local entity = self:getData()
     entity.isClicked = true
     self:updatePosition(x, y)
     if entity.isMouseOver and entity.action then
@@ -111,13 +111,13 @@ function sliderComponent:eventMouseReleased(args)
   if not b then return end
 
   if b == 1 then
-    local entity = self:getEntity()
+    local entity = self:getData()
     entity.isClicked = false
   end
 end
 
 function sliderComponent:drawCursor()
-  local entity = self:getEntity()
+  local entity = self:getData()
 
   local color = entity.cursorColor
   if color then love.graphics.setColor(color) end
@@ -130,7 +130,7 @@ function sliderComponent:drawCursor()
 end
 
 function sliderComponent:drawText()
-  local entity = self:getEntity()
+  local entity = self:getData()
 
   local color = entity.fontColor
   if color then love.graphics.setColor(color) end
@@ -139,7 +139,7 @@ function sliderComponent:drawText()
 end
 
 function sliderComponent:draw()
-  local entity = self:getEntity()
+  local entity = self:getData()
 
   self.uiComponent:draw()
 

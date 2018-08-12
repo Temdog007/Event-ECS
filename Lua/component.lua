@@ -37,7 +37,7 @@ function component:get(key)
   else return self.entity:get(key) end
 end
 
-function component:getEntity(useDefault)
+function component:getData(useDefault)
 
   if not self.entityTable then
     self.entityTable = setmetatable({},

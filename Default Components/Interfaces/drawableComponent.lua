@@ -5,7 +5,7 @@ function drawableComponent:__init(en)
   self:set("entity", en)
   self:setDefault("name", classname(self))
 
-  local entity = self:getEntity(true)
+  local entity = self:getData(true)
   entity.drawOrder = 0
 
   local values = entity.values or {}
@@ -14,7 +14,7 @@ function drawableComponent:__init(en)
 end
 
 function drawableComponent:canDraw(args)
-  local entity = self:getEntity()
+  local entity = self:getData()
   return args and args.drawOrder == entity.drawOrder
 end
 

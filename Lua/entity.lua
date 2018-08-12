@@ -45,10 +45,10 @@ function entity:setEnabled(enabled)
   self:dispatchEvent("evententityenabled", {entity = self, enabled = enabled})
 end
 
-function entity:getEntity(useDefault)
+function entity:getData(useDefault)
 
-  if not self.entityTable then
-    self.entityTable = setmetatable({},
+  if not self.dataTable then
+    self.dataTable = setmetatable({},
     {
         __index = function(obj, k)
           return self:get(k)
@@ -59,8 +59,8 @@ function entity:getEntity(useDefault)
     })
   end
 
-  if not self.defaultEntityTable then
-    self.defaultEntityTable = setmetatable({},
+  if not self.defaultDataTable then
+    self.defaultDataTable = setmetatable({},
     {
         __index = function(obj, k)
           return self:get(k)
@@ -71,7 +71,7 @@ function entity:getEntity(useDefault)
     })
   end
 
-  return useDefault and self.defaultEntityTable or self.entityTable
+  return useDefault and self.defaultDataTable or self.dataTable
 end
 
 local function addComponentsFromTable(s, t, i)

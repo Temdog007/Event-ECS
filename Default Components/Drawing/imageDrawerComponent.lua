@@ -25,7 +25,7 @@ function imageDrawerComponent:eventDraw(args)
   local d = self:get("drawable")
   if not d then return end
 
-  local entity = self:getEntity()
+  local entity = self:getData()
   if entity.color then love.graphics.setColor(entity.color) end
   love.graphics.draw(d, entity.x, entity.y, entity.rotation,
     entity.scaleX, entity.scaleY, entity.offsetX, entity.offsetY)

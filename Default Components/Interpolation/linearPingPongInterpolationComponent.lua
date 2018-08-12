@@ -29,7 +29,7 @@ end
 function linearPingPongInterpolationComponent:eventUpdate(args)
   if not args or not args.dt then return end
 
-  local entity = self:getEntity()
+  local entity = self:getData()
 
   entity.linearPingPongInterpolationCurrent = ((entity.linearPingPongInterpolationCurrent + args.dt) * entity.linearPingPongInterpolationSpeed) % 2
   entity.linearPingPongInterpolationValue =

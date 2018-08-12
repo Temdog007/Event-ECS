@@ -403,6 +403,10 @@ return {0}";
                     throw new Exception("Failed to start project");
                 }
             }
+            else
+            {
+                LogManager.Instance.Add("No project loaded", LogLevel.Medium);
+            }
         }
 
         private void UpdateRecentProjects(string filename)

@@ -6,7 +6,7 @@ function buttonComponent:__init(en)
   self:set("entity", en)
   self:setDefault("name", classname(self))
 
-  local entity = self:getEntity(true)
+  local entity = self:getData(true)
   entity.text = ""
   entity.scaleX = 1.1
   entity.scaleY = 1.1
@@ -30,7 +30,7 @@ end
 function buttonComponent:eventMouseMoved(args)
   self.uiComponent:eventMouseMoved(args)
 
-  local entity = self:getEntity()
+  local entity = self:getData()
   if not entity.isMouseOver then
     entity.isClicked = false
   end
@@ -41,7 +41,7 @@ function buttonComponent:eventMousePressed(args)
   local x, y, b = args[1], args[2], args[3]
   if not x or not y or not b then return end
 
-  local entity = self:getEntity()
+  local entity = self:getData()
   if b == 1 and self:isOver(x, y) then
     entity.isClicked = true
   end
@@ -52,7 +52,7 @@ function buttonComponent:eventMouseReleased(args)
   local b = args[3]
   if not b then return end
 
-  local entity = self:getEntity()
+  local entity = self:getData()
   if b == 1 then
     if entity.isClicked and entity.isMouseOver and entity.action then
       entity.action()
@@ -62,14 +62,14 @@ function buttonComponent:eventMouseReleased(args)
 end
 
 function buttonComponent:drawText()
-  local entity = self:getEntity()
+  local entity = self:getData()
   local color = entity.fontColor
   if color then love.graphics.setColor(color) end
   love.graphics.printf(entity.text, entity.x, entity.y, entity.width, entity.alignment, 0, entity.scaleX, entity.scaleY)
 end
 
 function buttonComponent:draw()
-  local entity = self:getEntity()
+  local entity = self:getData()
   self.uiComponent:draw()
   if entity.drawingText then self:drawText() end
 end

@@ -8,7 +8,7 @@ function ColorRandomizer:__init(en)
   self:setDefault("name", classname(self))
   self:set("entity", en)
 
-  local entity = self:getEntity(true)
+  local entity = self:getData(true)
   entity.current = 0
   entity.interval = 1
   entity.changeAlpha = false
@@ -21,7 +21,7 @@ function ColorRandomizer:__init(en)
 end
 
 function ColorRandomizer:eventUpdate(args)
-  local entity = self:getEntity()
+  local entity = self:getData()
 	local color = entity.color
 	if not color then return end
 

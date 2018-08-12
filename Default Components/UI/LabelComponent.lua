@@ -8,7 +8,7 @@ function labelComponent:__init(en)
   self:set("entity", en)
   self:setDefault("name", classname(self))
 
-  local entity = self:getEntity(true)
+  local entity = self:getData(true)
 
   entity.text = ""
   entity.alignment = "center"
@@ -30,7 +30,7 @@ function labelComponent:__init(en)
 end
 
 function labelComponent:draw()
-  local entity = self:getEntity()
+  local entity = self:getData()
   self.uiComponent:draw()
 
   local color = entity.fontColor

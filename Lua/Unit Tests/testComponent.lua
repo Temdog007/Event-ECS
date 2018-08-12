@@ -70,7 +70,7 @@ end
 function testComponent:eventDraw(args)
   if not args or not args.drawOrder then print("no args") return end
 
-  local entity = self:getEntity()
+  local entity = self:getData()
   if args.drawOrder >= 0 then
     local x, y = entity.x + 25 * args.drawOrder, entity.y + 25 * args.drawOrder
     local color = entity.color

@@ -7,7 +7,7 @@ function fpsDisplayerComponent:__init(en)
   self:set("entity", en)
   self:setDefault("name", classname(self))
 
-  local entity = self:getEntity(true)
+  local entity = self:getData(true)
 
   entity.x = 0
   entity.y = 0
@@ -27,7 +27,7 @@ function fpsDisplayerComponent:__init(en)
 end
 
 function fpsDisplayerComponent:eventDraw(args)
-  local entity = self:getEntity()
+  local entity = self:getData()
 
   if not args or args.drawOrder ~= entity.drawOrder then return end
 

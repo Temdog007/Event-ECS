@@ -7,7 +7,7 @@ function checkboxComponent:__init(en)
   self:setDefault('name', classname(self))
   self:set('entity', en)
 
-  local entity = self:getEntity()
+  local entity = self:getData()
   entity.isChecked = false
   entity.checkedText = "Yes"
   entity.space = 25
@@ -49,7 +49,7 @@ function checkboxComponent:eventEntityEnabled(args)
 end
 
 function checkboxComponent:updateBinding()
-  local en = self:getEntity()
+  local en = self:getData()
   local action =  assert(en.bindingAction)
   self:set("isChecked", action())
 end
@@ -60,7 +60,7 @@ function checkboxComponent:eventAddedComponent(args)
 end
 
 function checkboxComponent:eventItemChanged(args)
-  local entity = self:getEntity()
+  local entity = self:getData()
   if not args or args.id ~= entity.id then return end
 
   local action = assert(entity.checkedAction)
@@ -68,7 +68,7 @@ function checkboxComponent:eventItemChanged(args)
 end
 
 function checkboxComponent:drawCheckedText()
-  local entity = self:getEntity()
+  local entity = self:getData()
   local color = entity.isChecked and entity.checkedColor or entity.uncheckedColor
   if color then love.graphics.setColor(color) end
   love.graphics.printf(entity.isChecked and entity.checkedText or entity.uncheckedText,
@@ -77,7 +77,7 @@ function checkboxComponent:drawCheckedText()
 end
 
 function checkboxComponent:draw()
-  local entity = self:getEntity()
+  local entity = self:getData()
   self.buttonComponent:draw()
   if entity.showCheckState then self:drawCheckedText() end
 end

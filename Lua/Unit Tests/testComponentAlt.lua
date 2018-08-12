@@ -33,7 +33,7 @@ end
 function testComponentAlt:eventUpdate(args)
   if not args or not args.dt then return end
 
-  local entity = self:getEntity()
+  local entity = self:getData()
   entity.current = entity.current + args.dt
   if entity.current > entity.rate then
     print("Test Component Update Called")

@@ -15,7 +15,7 @@ namespace Event_ECS_WPF.Projects
     {
         public const string LoadColors = "local Colors = require('eventecscolors')";
         public const string LoadEventECS = "require('eventecs')";
-        public const string LoadEventECSServer = "require('eventecsserver')";
+        public const string LoadEventECSServer = "require('eventecsserver') -- Remove this when releasing game";
         public const string LoadLoveRun = "require('eventecsloverun')\nrequire('loveRun')";
         public const string LoadServerEntity = "require('serverSystem') -- Remove this when releasing game";
 

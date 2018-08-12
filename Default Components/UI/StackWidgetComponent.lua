@@ -7,7 +7,7 @@ function stackWidgetComponent:__init(en)
   self:set("entity", en)
   self:setDefault("name", classname(self))
 
-  local entity = self:getEntity(true)
+  local entity = self:getData(true)
 
   entity.bgColor = {0,0,0,0}
   entity.pressedColor = {0,0,0,0}
@@ -90,7 +90,7 @@ function stackWidgetComponent:eventEntityEnabled(args)
 end
 
 function stackWidgetComponent:eventUpdate(args)
-  self:update(self:getEntity())
+  self:update(self:getData())
 end
 
 function stackWidgetComponent:eventItemChanged(args)
@@ -163,7 +163,7 @@ function stackWidgetComponent:reorderItems()
 end
 
 function stackWidgetComponent:alignVerticalPosition()
-  local entity = self:getEntity()
+  local entity = self:getData()
   if entity.verticalAlignment == "top" then
     entity.y = entity.verticalPadding
   elseif entity.verticalAlignment == "bottom" then
@@ -174,7 +174,7 @@ function stackWidgetComponent:alignVerticalPosition()
 end
 
 function stackWidgetComponent:alignHorizontalPosition()
-  local entity = self:getEntity()
+  local entity = self:getData()
   if entity.horizontalAlignment == "left" then
     entity.x = entity.horizontalPadding
   elseif entity.horizontalAlignment == "right" then
@@ -190,7 +190,7 @@ function stackWidgetComponent:alignPosition()
 end
 
 function stackWidgetComponent:calculateSize()
-  local entity = self:getEntity()
+  local entity = self:getData()
   entity.width = 0
   entity.height = 0
   if entity.stackVertically then
@@ -218,7 +218,7 @@ function stackWidgetComponent:layoutItems()
 end
 
 function stackWidgetComponent:layoutItemsVertically()
-  local entity = self:getEntity()
+  local entity = self:getData()
   local x, y, space = entity.x, entity.y, entity.space
   entity.width = 0
   for i, item in ipairs(entity.items) do
@@ -233,7 +233,7 @@ function stackWidgetComponent:layoutItemsVertically()
 end
 
 function stackWidgetComponent:layoutItemsHorizontally()
-  local entity = self:getEntity()
+  local entity = self:getData()
   local x, y, space = entity.x, entity.y, entity.space
   entity.height = 0
   for i, item in ipairs(entity.items) do
@@ -274,7 +274,7 @@ function stackWidgetComponent:eventDraw(args)
 end
 
 function stackWidgetComponent:draw()
-  local entity = self:getEntity()
+  local entity = self:getData()
   if entity.useScissor then
     love.graphics.setScissor(entity.scissorX, entity.scissorY,
                     entity.scissorWidth, entity.scissorHeight)
