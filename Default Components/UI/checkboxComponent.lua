@@ -18,6 +18,7 @@ function checkboxComponent:__init(en)
   entity.showCheckState = true
   entity.action = function()
     self:set("isChecked", not self:get("isChecked"))
+    self:get("checkedAction")(self:get("isChecked"))
   end
   entity.main = classname(self)
 
@@ -31,21 +32,6 @@ function checkboxComponent:__init(en)
   values.uncheckedColor = true
   values.showCheckState = true
   entity.values = values
-end
-
-function checkboxComponent:updateBinding()
-  local en = self:getData()
-  local action =  assert(en.bindingAction)
-  self:set("isChecked", action())
-end
-
-function checkboxComponent:eventValueChanged(args)
-  local data = self:getData()
-  if not args or args.id ~= data.id then return end
-
-  self:updateBinding()
-  local action = assert(data.checkedAction)
-  action(data.isChecked)
 end
 
 function checkboxComponent:drawCheckedText()

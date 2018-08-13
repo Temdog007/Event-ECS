@@ -15,6 +15,7 @@ function buttonComponent:__init(en)
   entity.alignment = "center"
   entity.fontColor = {1,1,1,1}
   entity.main = classname(self)
+  entity.updateValues = {isMouseOver = false}
 
   local values = entity.values or {}
   values.text = true
@@ -29,9 +30,15 @@ end
 
 function buttonComponent:eventValueChanged(args)
   local data = self:getData()
-  if not args or (args.id ~= data.id and args.id ~= data.system:getID()) then return end
+  if not args or args.id ~= data.id then return end
 
-  if not data.enabled or not data.system:isEnabled() then self:set("isMosueOver", false) end
+  if self.en ~= data.enabled then
+    for k,v in pairs(self:get("updateValues")) do
+      if type(v) == "function" then self:set(k,v())
+      else self:set(k,v) end
+    end
+  end
+  self.en = data.enabled
 end
 
 function buttonComponent:eventMouseMoved(args)
