@@ -40,11 +40,6 @@ function entity:__user_init(system)
   self:set("components", {})
 end
 
-function entity:setEnabled(enabled)
-  self.ecsObject:setEnabled(enabled)
-  self:dispatchEvent("evententityenabled", {entity = self, enabled = enabled})
-end
-
 function entity:getData(useDefault)
 
   if not self.dataTable then

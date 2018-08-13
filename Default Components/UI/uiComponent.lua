@@ -1,6 +1,6 @@
 local Component = require('component')
 local class = require('classlib')
-local uiComponent = class('uiComponent', Component, require("valueWatcher"))
+local uiComponent = class('uiComponent', Component)
 
 function uiComponent:__init(en)
   self:set("entity", en)
@@ -57,10 +57,6 @@ function uiComponent:eventSystemEnabled(args)
   if not args or args.system ~= self:get("system") then return end
 
   if not args.enabled then self:set("isMouseOver", false) end
-end
-
-function uiComponent:eventUpdate(args)
-  self:update(self:getData())
 end
 
 function uiComponent:canDraw(args)

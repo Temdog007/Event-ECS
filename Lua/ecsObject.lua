@@ -45,9 +45,7 @@ end
 
 function ecsObject:setEnabled(pEnabled)
   assert(type(pEnabled) == "boolean", "Must call setEnabled with a boolean")
-  if pEnabled ~= self:get("enabled") then
-    self:set("enabled", pEnabled)
-  end
+  self:set("enabled", pEnabled, true)
 end
 
 function ecsObject:getName()

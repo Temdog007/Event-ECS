@@ -20,14 +20,29 @@
 
 local class = require("classlib")
 local serializable = class("serializable")
+local Systemlist = require("systemList")
 
-function serializable:__init()
+function serializable:__init(metatable)
+  self:setDefault("dispatchEventOnValueChange", false)
   self:setDefault("values", {})
 end
 
-function serializable:set(name, value)
+function serializable:set(name, value, ignoreEnabled)
   assert(name, "Must enter a name in set() function")
-  rawset(self, name, value)
+  local oldValue = rawget(self, name)
+  if oldValue == nil or name == "dispatchEventOnValueChange" then
+    rawset(self, name, value)
+  elseif oldValue ~= value then
+    rawset(self, name, value)
+    if rawget(self, "dispatchEventOnValueChange") then
+      if self.event and Systemlist.hasEvent("eventValueChanged", self.event) then
+        self.event.ignoreEnabled = self.event.ignoreEnabled or ignoreEnabled
+      else
+        self.event = {id = self:get("id"), ignoreEnabled = ignoreEnabled}
+        Systemlist.pushEvent("eventValueChanged", self.event)
+      end
+    end
+  end
 end
 
 function serializable:get(name)

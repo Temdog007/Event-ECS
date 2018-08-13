@@ -65,10 +65,12 @@ function stackWidgetComponent:__init(en)
   values.horizontalPadding = true
   values.stackVertically = true
   entity.values = values
+
+  en:set("dispatchEventOnValueChange", true)
+  en:get("system"):set("dispatchEventOnValueChange", true)
 end
 
 function stackWidgetComponent:setEnabled(bool)
-  print("set enabled stack widget")
   self.ecsObject:setEnabled(bool)
   self:setItemsEnabled(bool)
   if self:isEnabled() then
@@ -76,25 +78,11 @@ function stackWidgetComponent:setEnabled(bool)
   end
 end
 
-function stackWidgetComponent:eventSystemEnabled(args)
-  if not args or args.system ~= self:get("system") then return end
+function stackWidgetComponent:eventValueChanged(args)
+  local data = self:getData()
+  if not args or (args.id ~= data.id and args.id ~= data.system:getID() and not self:hasItem(args.id)) then return end
 
-  self:setItemsEnabled(args.enabled)
-  self:layoutItems()
-end
-
-function stackWidgetComponent:eventEntityEnabled(args)
-  if not args or args.entity ~= self:get("entity") then return end
-
-  self:setItemsEnabled(args.enabled)
-  self:layoutItems()
-end
-
-function stackWidgetComponent:eventUpdate(args)
-  self:update(self:getData())
-end
-
-function stackWidgetComponent:eventItemChanged(args)
+  self:setItemsEnabled(self:get("entity"):isEnabled() and self:get("system"):isEnabled())
   self:layoutItems()
 end
 
@@ -151,7 +139,6 @@ function stackWidgetComponent:setItemsEnabled(enable)
   for _, item in pairs(assert(self:get("items"), "stack widget must have items")) do
     item:setEnabled(enable)
   end
-  print("set items")
 end
 
 function stackWidgetComponent:reorderItems()

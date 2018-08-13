@@ -95,6 +95,10 @@ function ecsTests:testParser()
 
   parser(string.format("RemoveEntity|%d|%d", sysID, enID))
   assertEquals(system:entityCount(), 1)
+
+  Systems.removeAllSystems()
+  assertEquals(Systems.getCount(), 0)
+  Systems.flushEvents()
 end
 
 function ecsTests:testStringSplit()
@@ -298,18 +302,25 @@ function ecsTests:testEntityComponents4()
 end
 
 function ecsTests:testEntityComponents5()
-  local system = System()
+  local system = Systems.addSystem(System())
   local entity = system:createEntity()
   local comp = entity:addComponent("testComponent")
 
+  assertEquals(Systems.getCount(), 1)
   system:setEnabled(false)
+  Systems.flushEvents()
   assertEquals(entity:get("enabledChanged"), 1)
+
   entity:setEnabled(false)
+  Systems.flushEvents()
   assertEquals(entity:get("enabledChanged"), 2)
 
   entity:setEnabled(true)
+  Systems.flushEvents()
   assertEquals(entity:get("enabledChanged"), 3)
+
   system:setEnabled(true)
+  Systems.flushEvents()
   assertEquals(entity:get("enabledChanged"), 4)
 end
 

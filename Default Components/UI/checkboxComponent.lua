@@ -54,12 +54,7 @@ function checkboxComponent:updateBinding()
   self:set("isChecked", action())
 end
 
-function checkboxComponent:eventAddedComponent(args)
-  if not args or args.component ~= self then return end
-  self:watchValues("isChecked")
-end
-
-function checkboxComponent:eventItemChanged(args)
+function checkboxComponent:eventValueChanged(args)
   local entity = self:getData()
   if not args or args.id ~= entity.id then return end
 

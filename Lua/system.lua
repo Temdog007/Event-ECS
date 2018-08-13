@@ -28,14 +28,9 @@ function system:__user_init(name)
   self:set("registeredEntities", {})
   self:set("registeredEntitiesList", {})
 
-   local values = self:get("values") or {}
-   values.registeredEntitiesList = true
-   self:set("values", values)
-end
-
-function system:setEnabled(enabled)
-  self.ecsObject:setEnabled(enabled)
-  self:dispatchEvent("eventsystemenabled", {system = self, enabled = enabled})
+  local values = self:get("values") or {}
+  values.registeredEntitiesList = true
+  self:set("values", values)
 end
 
 function system:registerEntity(name, ...)
@@ -138,7 +133,7 @@ function system:dispatchEvent(event, args)
   local eventsHandled = 0
   if args then args.callingSystem = self end
   for _, entity in pairs(self:get("entities")) do
-    if entity:isEnabled() then
+    if entity:isEnabled() or (args and args.ignoreEnabled) then
       eventsHandled = eventsHandled + entity:dispatchEvent(event, args)
     end
   end

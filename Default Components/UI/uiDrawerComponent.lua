@@ -8,7 +8,8 @@ function uiDrawerComponent:__init(en)
   self:set('entity', en)
 
   en:setDefaultsAndValues({target = ""})
-
+  en:set("dispatchEventOnValueChange", true)
+  en:get("system"):set("dispatchEventOnValueChange", true)
 end
 
 function uiDrawerComponent:eventDraw(args)

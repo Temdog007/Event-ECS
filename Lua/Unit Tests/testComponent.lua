@@ -34,6 +34,10 @@ function testComponent:__user_init(entity)
   entity:setDefault("removingComponentCalled", 0)
   entity:setDefault("space", 10)
   entity:setDefault("added", false)
+  entity:setDefault("enabledChanged", 0)
+
+  entity:get("system"):set("dispatchEventOnValueChange", true)
+  entity:set("dispatchEventOnValueChange", true)
 end
 
 function testComponent:eventAddedComponent(args)
@@ -56,21 +60,21 @@ function testComponent:eventRemovingComponent(args)
   end
 end
 
-function testComponent:eventSystemEnabled(args)
+function testComponent:eventValueChanged(args)
   if not args then return end
 
-  if args.system == self:get("system") then
-    local data = self:getData()
-    data.enabledChanged = (data.enabledChanged or 0) + 1
-  end
-end
-
-function testComponent:eventEntityEnabled(args)
-  if not args then return end
-
-  if args.entity == self:get("entity") then
-    local data = self:getData()
-    data.enabledChanged = (data.enabledChanged or 0) + 1
+  local id = args.id
+  local data = self:getData()
+  if self:get("entity"):getID() == id then
+    if self.en ~= self:get("entity"):isEnabled() then
+      data.enabledChanged = (data.enabledChanged or 0) + 1
+      self.en = self:get("entity"):isEnabled()
+    end
+  elseif self:get("system"):getID() == id then
+    if self.sy ~= self:get("system"):isEnabled() then
+      data.enabledChanged = (data.enabledChanged or 0) + 1
+      self.sy = self:get("system"):isEnabled()
+    end
   end
 end
 

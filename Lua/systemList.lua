@@ -18,20 +18,25 @@ function SystemMT.addSystems(...)
   return insertSystem({...})
 end
 
+function SystemMT.removeAllSystems()
+  Systems = {}
+end
+
 function SystemMT.removeSystem(system)
-
-  local newSystems = {}
-  for _,s in ipairs(Systems) do
-    if s ~= system then
-      table.insert(newSystems, s)
-    end
-  end
-
-  Systems = newSystems
+  table.remove(system)
 end
 
 function SystemMT.pushEvent(eventName, args)
   table.insert(EventQueue, {eventName, args})
+end
+
+function SystemMT.hasEvent(eventName, args)
+  for _, ev in pairs(EventQueue) do
+    if ev[1] == eventName and ev[2] == args then
+      return true
+    end
+  end
+  return false
 end
 
 function SystemMT.flushEvents()
@@ -40,7 +45,7 @@ function SystemMT.flushEvents()
   for i, event in ipairs(EventQueue) do
     local eventName, eventArgs = event[1], event[2]
     for _, system in ipairs(Systems) do
-      if system:isEnabled() then
+      if system:isEnabled() or (eventArgs and eventArgs.ignoreEnabled) then
         system:dispatchEvent(eventName, eventArgs)
       end
     end
