@@ -33,21 +33,6 @@ function checkboxComponent:__init(en)
   entity.values = values
 end
 
-function checkboxComponent:setEnabled(enabled)
-  self.uiComponent:setEnabled(enabled)
-  self:updateBinding()
-end
-
-function checkboxComponent:eventSystemEnabled(args)
-  if not args or args.system ~= self:get("system") then return end
-  self:updateBinding()
-end
-
-function checkboxComponent:eventEntityEnabled(args)
-  if not args or args.entity ~= self:get("entity") then return end
-  self:updateBinding()
-end
-
 function checkboxComponent:updateBinding()
   local en = self:getData()
   local action =  assert(en.bindingAction)
@@ -55,11 +40,12 @@ function checkboxComponent:updateBinding()
 end
 
 function checkboxComponent:eventValueChanged(args)
-  local entity = self:getData()
-  if not args or args.id ~= entity.id then return end
+  local data = self:getData()
+  if not args or args.id ~= data.id then return end
 
-  local action = assert(entity.checkedAction)
-  action(entity.isChecked)
+  self:updateBinding()
+  local action = assert(data.checkedAction)
+  action(data.isChecked)
 end
 
 function checkboxComponent:drawCheckedText()

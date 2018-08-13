@@ -37,8 +37,10 @@ function serializable:set(name, value, ignoreEnabled)
     if rawget(self, "dispatchEventOnValueChange") then
       if self.event and Systemlist.hasEvent("eventValueChanged", self.event) then
         self.event.ignoreEnabled = self.event.ignoreEnabled or ignoreEnabled
+        self.event.changes[name] = value
       else
-        self.event = {id = self:get("id"), ignoreEnabled = ignoreEnabled}
+        self.event = {id = self:get("id"), ignoreEnabled = ignoreEnabled, changes = {}}
+        self.event.changes[name] = value
         Systemlist.pushEvent("eventValueChanged", self.event)
       end
     end

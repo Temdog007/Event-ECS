@@ -7,7 +7,8 @@ function uiComponent:__init(en)
   self:setDefault("name", classname(self))
 
   local entity = self:getData(true)
-
+  en:set("dispatchEventOnValueChange", true)
+  
   entity.x = 0
   entity.y = 0
   entity.highlightScaleX = 1.1
@@ -45,18 +46,6 @@ function uiComponent:__init(en)
   values.drawOrder = true
   values.drawingHighlight = true
   entity.values = values
-end
-
-function uiComponent:eventEntityEnabled(args)
-  if not args or args.entity ~= self:get("entity") then return end
-
-  if not args.enabled then self:set("isMouseOver", false) end
-end
-
-function uiComponent:eventSystemEnabled(args)
-  if not args or args.system ~= self:get("system") then return end
-
-  if not args.enabled then self:set("isMouseOver", false) end
 end
 
 function uiComponent:canDraw(args)

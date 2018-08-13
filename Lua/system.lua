@@ -131,7 +131,6 @@ end
 
 function system:dispatchEvent(event, args)
   local eventsHandled = 0
-  if args then args.callingSystem = self end
   for _, entity in pairs(self:get("entities")) do
     if entity:isEnabled() or (args and args.ignoreEnabled) then
       eventsHandled = eventsHandled + entity:dispatchEvent(event, args)

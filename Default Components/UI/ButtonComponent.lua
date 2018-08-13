@@ -27,6 +27,13 @@ function buttonComponent:__init(en)
   entity.values = values
 end
 
+function buttonComponent:eventValueChanged(args)
+  local data = self:getData()
+  if not args or (args.id ~= data.id and args.id ~= data.system:getID()) then return end
+
+  if not data.enabled or not data.system:isEnabled() then self:set("isMosueOver", false) end
+end
+
 function buttonComponent:eventMouseMoved(args)
   self.uiComponent:eventMouseMoved(args)
 
