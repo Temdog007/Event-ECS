@@ -297,6 +297,22 @@ function ecsTests:testEntityComponents4()
   assertEquals(entity:componentCount(), 1)
 end
 
+function ecsTests:testEntityComponents5()
+  local system = System()
+  local entity = system:createEntity()
+  local comp = entity:addComponent("testComponent")
+
+  system:setEnabled(false)
+  assertEquals(entity:get("enabledChanged"), 1)
+  entity:setEnabled(false)
+  assertEquals(entity:get("enabledChanged"), 2)
+
+  entity:setEnabled(true)
+  assertEquals(entity:get("enabledChanged"), 3)
+  system:setEnabled(true)
+  assertEquals(entity:get("enabledChanged"), 4)
+end
+
 function ecsTests:testEntityFunctions()
   local system = System()
   local entity = system:createEntity()

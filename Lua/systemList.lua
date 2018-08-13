@@ -40,7 +40,9 @@ function SystemMT.flushEvents()
   for i, event in ipairs(EventQueue) do
     local eventName, eventArgs = event[1], event[2]
     for _, system in ipairs(Systems) do
-      system:dispatchEvent(eventName, eventArgs)
+      if system:isEnabled() then
+        system:dispatchEvent(eventName, eventArgs)
+      end
     end
     EventQueue[i] = nil
   end

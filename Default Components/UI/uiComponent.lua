@@ -59,11 +59,6 @@ function uiComponent:eventSystemEnabled(args)
   if not args.enabled then self:set("isMouseOver", false) end
 end
 
-function uiComponent:setEnabled(enabled)
-  self.ecsObject:setEnabled(enabled)
-  self:set("isMouseOver", false)
-end
-
 function uiComponent:eventUpdate(args)
   self:update(self:getData())
 end

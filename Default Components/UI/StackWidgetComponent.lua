@@ -68,6 +68,7 @@ function stackWidgetComponent:__init(en)
 end
 
 function stackWidgetComponent:setEnabled(bool)
+  print("set enabled stack widget")
   self.ecsObject:setEnabled(bool)
   self:setItemsEnabled(bool)
   if self:isEnabled() then
@@ -78,14 +79,14 @@ end
 function stackWidgetComponent:eventSystemEnabled(args)
   if not args or args.system ~= self:get("system") then return end
 
-  self:setItemsEnabled(args.system:isEnabled())
+  self:setItemsEnabled(args.enabled)
   self:layoutItems()
 end
 
 function stackWidgetComponent:eventEntityEnabled(args)
   if not args or args.entity ~= self:get("entity") then return end
 
-  self:setItemsEnabled(args.entity:isEnabled())
+  self:setItemsEnabled(args.enabled)
   self:layoutItems()
 end
 
@@ -150,6 +151,7 @@ function stackWidgetComponent:setItemsEnabled(enable)
   for _, item in pairs(assert(self:get("items"), "stack widget must have items")) do
     item:setEnabled(enable)
   end
+  print("set items")
 end
 
 function stackWidgetComponent:reorderItems()
