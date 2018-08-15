@@ -186,7 +186,7 @@ function entity:dispatchEvent(event, args)
 
   local count = 0
   for _, comp in pairs(self:get("components")) do
-    if comp:isEnabled() then
+    if comp:isEnabled() or (args and args.ignoreEnabled) then
       local func = comp[event]
       if func then
         func(comp, args)
