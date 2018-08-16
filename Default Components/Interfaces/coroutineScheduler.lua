@@ -3,39 +3,37 @@ local coroutineScheduler = class('coroutineScheduler')
 
 function coroutineScheduler:__user_init()
   self.routines = {}
-  self.current = 0
-  self.target = 0
 end
 
-function coroutineScheduler:setRoutine(routine, override)
+function coroutineScheduler:addRoutine(routine, restart)
   assert(type(routine) == "function", "Must enter a function for a coroutine")
 
-  if #self.routines > 0 then
-    if override then
-      self.routines = {}
-    else
-      return
+  if restart then
+    for _, value in pairs(self.routines) do
+      if value.func == routine then
+        value.routine = coroutine.create(routine)
+        return
+      end
     end
   end
 
-  table.insert(self.routines, coroutine.create(routine))
-end
-
-function coroutineScheduler:addRoutine(routine)
-  assert(type(routine) == "function", "Must enter a function for a coroutine")
-
-  table.insert(self.routines, coroutine.create(routine))
-  return true
+  table.insert(self.routines,
+  {
+    current = 0,
+    target = 0,
+    func = routine,
+    routine = coroutine.create(routine)
+  })
 end
 
 function coroutineScheduler:update(dt)
-  for i, routine in pairs(self.routines) do
-
-    local target = self.target
+  for i, value in pairs(self.routines) do
+    local routine = assert(value.routine, "No routine")
+    local target = assert(value.target, "No target")
     if type(target) == "number" then
-      local coroutineCurrent = self.current
+      local coroutineCurrent = assert(value.current, "No current")
       coroutineCurrent = coroutineCurrent + dt
-      self.current = coroutineCurrent
+      value.current = coroutineCurrent
       if coroutineCurrent < target then return end
     elseif classname(target) == "coroutineScheduler" then
       if coroutine.status(target.routine) == "running" then return end
@@ -44,10 +42,10 @@ function coroutineScheduler:update(dt)
     local status, rval = coroutine.resume(routine)
     if status then
       if type(rval) == "number" or type(rval) == "nil" then
-        self.target = rval or 0
-        self.current = 0
+        value.target = rval or 0
+        value.current = 0
       elseif classname(rval) == "coroutineScheduler" then
-        self.target = rval
+        value.target = rval
       end
     else
       self.routines[i] = nil
