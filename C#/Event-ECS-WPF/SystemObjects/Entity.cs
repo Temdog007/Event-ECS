@@ -95,7 +95,18 @@ namespace Event_ECS_WPF.SystemObjects
                     }
                     else
                     {
-                        variable.Value = Convert.ChangeType(ecsData.Value, variable.Type);
+                        var dataType = GetType(ecsData.Type);
+                        if (dataType == variable.Type)
+                        {
+                            variable.Value = Convert.ChangeType(ecsData.Value, variable.Type);
+                        }
+                        else
+                        {
+                            Variables.Remove(variable);
+                            Type type = GetType(ecsData.Type);
+                            Type generic = typeof(EntityVariable<>).MakeGenericType(type);
+                            Variables.Add((IEntityVariable)Activator.CreateInstance(generic, new object[] { this, ecsData.Name, Convert.ChangeType(ecsData.Value, type) }));
+                        }
                     }
                 }
                 else

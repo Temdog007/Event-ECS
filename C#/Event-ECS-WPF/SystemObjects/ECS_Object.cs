@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace Event_ECS_WPF.SystemObjects
 {
@@ -101,14 +102,39 @@ namespace Event_ECS_WPF.SystemObjects
         public static LuaTable ParseTable(Entity entity, string data)
         {
             LuaTable dict = new LuaTable();
-            string[] list = data.Replace("{", string.Empty).Replace("}", string.Empty).Split(TableDelim);
+            StringBuilder buildStr = new StringBuilder(data);
+            buildStr.Remove(data.Length-1, 1);
+            buildStr.Remove(0, 1);
+            data = buildStr.ToString();
+
+            while (true)
+            {
+                int start = data.IndexOf("{");
+                int end = data.LastIndexOf("}");
+                if(start == -1 || end == -1) { break; }
+
+                var tabStr = new StringBuilder(data.Substring(start, end - start+1));
+
+                string str = tabStr.ToString();
+                data = data.Replace(str, str.Replace(TableDelim, '|').Replace("{", string.Empty).Replace("}", string.Empty));
+            }
+
+            string[] list = data.Split(TableDelim);
             if (list.Length >= 3)
             {
                 for (int i = 0; i < list.Length; i += 3)
                 {
                     string name = list[i];
                     Type type = GetType(list[i + 1]);
-                    object value = Convert.ChangeType(list[i + 2], type);
+                    object value;
+                    if (type == typeof(LuaTable))
+                    {
+                        value = ParseTable(entity, "{"+list[i + 2].Replace('|', TableDelim)+"}");
+                    }
+                    else
+                    {
+                        value = Convert.ChangeType(list[i + 2], type);
+                    }
                     if (!dict.ContainsKey(name))
                     {
                         Type generic = typeof(EntityVariable<>).MakeGenericType(type);
