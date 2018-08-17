@@ -5,17 +5,8 @@ function coroutineScheduler:__user_init()
   self.routines = {}
 end
 
-function coroutineScheduler:addRoutine(routine, restart)
+function coroutineScheduler:addRoutine(routine)
   assert(type(routine) == "function", "Must enter a function for a coroutine")
-
-  if restart then
-    for _, value in pairs(self.routines) do
-      if value.func == routine then
-        value.routine = coroutine.create(routine)
-        return
-      end
-    end
-  end
 
   table.insert(self.routines,
   {
@@ -24,6 +15,22 @@ function coroutineScheduler:addRoutine(routine, restart)
     func = routine,
     routine = coroutine.create(routine)
   })
+end
+
+function coroutineScheduler:finishRoutine(routine)
+  for _, value in pairs(self.routines) do
+    if value.func == routine then
+      local stauts
+      repeat status = coroutine.resume(value.routine) until not status
+      break
+    end
+  end
+end
+
+function coroutineScheduler:hasRoutine(routine)
+  for _, value in pairs(self.routines) do
+    if value.func == routine then return true end
+  end
 end
 
 function coroutineScheduler:update(dt)
