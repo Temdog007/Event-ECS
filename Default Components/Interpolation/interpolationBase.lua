@@ -15,14 +15,4 @@ function interpolationBase:apply(s, e, a, func)
   return s + (e - s) * func(a)
 end
 
-function interpolationBase:addHandler(func)
-  assert(type(func) == "function", "Handlers must a be function")
-  self.handlers[func] = true
-end
-
-function interpolationBase:removeHandler(func)
-  assert(type(func) == "function", "Handlers must a be function")
-  self.handlers[func] = nil
-end
-
 return interpolationBase

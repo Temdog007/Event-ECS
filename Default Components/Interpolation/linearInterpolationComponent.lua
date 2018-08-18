@@ -1,6 +1,6 @@
 local Component = require('component')
 local class = require('classlib')
-
+local Systems = require("systemList")
 local linearInterpolationComponent = class('linearInterpolationComponent', Component, require('interpolationBase'))
 
 function linearInterpolationComponent:__user_init(en)
@@ -29,9 +29,7 @@ function linearInterpolationComponent:eventUpdate(args)
     entity.linearInterpolationEnd,
     entity.linearInterpolationCurrent)
 
-  for handler in pairs(self.interpolationBase.handlers) do
-    handler(entity.linearInterpolationValue)
-  end
+  Systems.pushEvent("eventlinearinterpolation", {value = entity.linearInterpolationValue, id = entity.id})
 end
 
 lowerEventName(linearInterpolationComponent)

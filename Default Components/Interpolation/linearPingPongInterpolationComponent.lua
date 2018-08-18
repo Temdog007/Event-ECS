@@ -1,6 +1,6 @@
 local Component = require('component')
 local class = require('classlib')
-
+local Systems = require("systemList")
 local linearPingPongInterpolationComponent = class('linearPingPongInterpolationComponent', Component, require('interpolationBase'))
 
 function linearPingPongInterpolationComponent:__user_init(en)
@@ -38,9 +38,7 @@ function linearPingPongInterpolationComponent:eventUpdate(args)
       entity.linearPingPongInterpolationCurrent,
       linearPingPongInterpolationComponent.interpolate)
 
-  for handler in pairs(self.interpolationBase.handlers) do
-    handler(entity.linearPingPongInterpolationValue)
-  end
+  Systems.pushEvent("eventlinearpingponginterpolation", {value = entity.linearPingPongInterpolationValue, id = entity.id})
 end
 
 lowerEventName(linearPingPongInterpolationComponent)
