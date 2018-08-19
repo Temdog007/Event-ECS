@@ -23,7 +23,20 @@ function SystemMT.removeAllSystems()
 end
 
 function SystemMT.removeSystem(system)
-  table.remove(system)
+  assert(is_a(system, require("system")) or type(system) == "number", "Must enter a system or an id number to 'removeSystem.'")
+  local newSystems = {}
+  local removed = false
+  for _, curSystem in pairs(Systems) do
+    if curSystem == system or curSystem:getID() == system then
+      removed = true
+    else
+      table.insert(newSystems, curSystem)
+    end
+  end
+  if removed then
+    Systems = newSystems
+  end
+  return removed
 end
 
 function SystemMT.pushEvent(eventName, args)

@@ -13,6 +13,7 @@ using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Timers;
 using System.Windows;
 using System.Windows.Input;
 using System.Xml.Serialization;
@@ -29,9 +30,8 @@ local class = require('classlib')
 
 local {0} = class('{0}', Component)
 
-function {0}:__init(en)
+function {0}:__init(entity)
   self:setDefault('name', classname(self))
-  self:set('entity', en)
 end
 
 function {0}:eventUpdate(args)
@@ -46,7 +46,9 @@ return {0}";
 
         public const string DefaultFilterFormat = "{0} files (*.{0})|*.{0}|All files (*.*)|*.*";
 
-        private static readonly string[] SystemDelim = new string[] { "System" };
+        private static readonly double systemTimeout = TimeSpan.FromSeconds(5).TotalMilliseconds;
+
+        private readonly Dictionary<ECSSystem, Timer> m_timerDictionary = new Dictionary<ECSSystem, Timer>();
 
         private ICommand m_clearLogCommand;
 
@@ -76,7 +78,7 @@ return {0}";
 
         private ActionCommand m_startProjectCommand;
 
-        private ObservableCollection<ECSSystem> m_systems = new ObservableCollection<ECSSystem>();
+        private ObservableCollection<ECSSystem> m_systems;
 
         public MainWindowViewModel()
         {
@@ -147,7 +149,7 @@ return {0}";
 
         public ObservableCollection<ECSSystem> Systems
         {
-            get => m_systems;
+            get => m_systems ?? (m_systems = new ObservableCollection<ECSSystem>());
             set
             {
                 m_systems = value;
@@ -271,13 +273,21 @@ return {0}";
                     LuaTable registeredData = ECS_Object.ParseTable(Entity.Empty, dataList.First(d => d.Name == "registeredEntitiesList").Value);
                     if (system == null)
                     {
-                        Systems.Add(new ECSSystem(
+                        Systems.Add(system = new ECSSystem(
                             nameData.Value,
                             Convert.ToBoolean(enabledData.Value),
                             Convert.ToInt32(idData.Value),
                             registeredData,
                             dataString
                         ));
+                        Timer timer;
+                        m_timerDictionary.Add(system, timer = new Timer(systemTimeout));
+                        timer.Elapsed += (o, e) => 
+                        {
+                            Application.Current.Dispatcher.Invoke(() => Systems.Remove(system));
+                            m_timerDictionary.Remove(system);
+                        };
+                        timer.Start();
                     }
                     else
                     {
@@ -286,6 +296,8 @@ return {0}";
                         system.ID = Convert.ToInt32(idData.Value);
                         system.SetRegisteredEntities(registeredData);
                         system.Deserialize(dataString);
+                        m_timerDictionary[system].Stop();
+                        m_timerDictionary[system].Start();
                     }
                 }
                 else
