@@ -32,6 +32,7 @@ local {0} = class('{0}', Component)
 
 function {0}:__init(entity)
   self:setDefault('name', classname(self))
+  self:set('entity', entity)
 end
 
 function {0}:eventUpdate(args)
