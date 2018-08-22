@@ -35,7 +35,7 @@ function labelComponent:draw()
 
   local color = entity.fontColor
   if color then love.graphics.setColor(color) end
-
+  if entity.font then love.graphics.setFont(entity.font) end
   love.graphics.printf(entity.text, entity.x, entity.y, entity.width, entity.alignment, 0, entity.scaleX, entity.scaleY)
 end
 

@@ -34,6 +34,7 @@ function fpsDisplayerComponent:eventDraw(args)
   local color = entity.color
   if color then love.graphics.setColor(color) end
 
+  if entity.font then love.graphics.setFont(entity.font) end
   love.graphics.print(love.timer.getFPS(), entity.x, entity.y, 0, entity.scaleX, entity.scaleY)
 end
 
