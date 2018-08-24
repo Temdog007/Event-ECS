@@ -29,9 +29,12 @@ function colorTests.testAddColor()
   colors.testColor = {}
   assertEquals(colors.testColor, {1,1,1,1})
 
+  colors.testColor2 = 0xff00ffff
+  assertEquals(colors.testColor2, {1,0,1,1})
+
   assertError(function() colors.error = {324,1231,"L"} end)
   assertError(function() colors.error = "L" end)
-  assertError(function() colors.error = 1 end)
+  assertError(function() colors.testColor = 1 end)
   assertError(function() colors.darkBrown = {0.5, 0.25, 0.1} end)
 end
 
