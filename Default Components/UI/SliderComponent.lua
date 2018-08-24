@@ -22,6 +22,7 @@ function sliderComponent:__init(en)
   entity.scaleX = 1
   entity.scaleY = 1
   entity.printValue = true
+  entity.fitInBackground = true
   entity.round = false
   entity.cursorColor = {1,1,1,1}
   entity.fontColor = {1,1,1,1}
@@ -40,6 +41,7 @@ function sliderComponent:__init(en)
   values.scaleX = true
   values.scaleY = true
   values.cursorColor = true
+  values.fitInBackground = true
   values.printValue = true
   values.fontColor = true
   values.drawingCursor = true
@@ -141,11 +143,28 @@ function sliderComponent:drawText()
   if color then love.graphics.setColor(color) end
   if entity.font then love.graphics.setFont(entity.font) end
 
+  local text
   if entity.printValue then
-    love.graphics.printf(string.format("%s: %2.2f", entity.text, entity.value),
-      entity.x, entity.y, entity.width, entity.alignment, 0, entity.scaleX, entity.scaleY)
+    if string.len(entity.text) > 0 then
+      text = string.format("%s: %2.2f", entity.text, entity.value)
+    else
+      text = string.format("%2.2f", entity.value)
+    end
   else
-    love.graphics.printf(entity.text, entity.x, entity.y, entity.width, entity.alignment, 0, entity.scaleX, entity.scaleY)
+    text = entity.text
+  end
+
+  if entity.fitInBackground then
+    local font = love.graphics.getFont()
+    local w = font:getWrap(text, entity.width)
+    local h = font:getHeight()
+    if w * entity.scaleX > entity.width or h * entity.scaleY > entity.height then
+      love.graphics.printf(text, entity.x, entity.y, entity.width, entity.alignment, 0, entity.width / w, entity.height / h)
+    else
+      love.graphics.printf(text, entity.x, entity.y, entity.width, entity.alignment, 0, entity.scaleX, entity.scaleY)
+    end
+  else
+    love.graphics.printf(text, entity.x, entity.y, entity.width, entity.alignment, 0, entity.scaleX, entity.scaleY)
   end
 end
 
