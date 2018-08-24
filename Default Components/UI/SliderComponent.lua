@@ -21,6 +21,8 @@ function sliderComponent:__init(en)
   entity.cursorScale = 0.1
   entity.scaleX = 1
   entity.scaleY = 1
+  entity.printValue = true
+  entity.round = false
   entity.cursorColor = {1,1,1,1}
   entity.fontColor = {1,1,1,1}
   entity.main = classname(self)
@@ -32,11 +34,13 @@ function sliderComponent:__init(en)
   values.text = true
   values.isClicked = true
   values.vertical = true
+  values.round = false
   values.cursorScale = true
   values.alignment = true
   values.scaleX = true
   values.scaleY = true
   values.cursorColor = true
+  values.printValue = true
   values.fontColor = true
   values.drawingCursor = true
   values.drawingText = true
@@ -58,6 +62,7 @@ function sliderComponent:updatePosition(x, y)
       else
         entity.value = entity.min + (entity.max - entity.min) * (x - minX) / (maxX - minX)
       end
+      if entity.round then entity.value = math.floor(entity.value) end
     else
       love.mouse.setPosition(math.min(maxX, math.max(minX, x)), math.min(maxY, math.max(minY, y)))
     end
@@ -135,7 +140,13 @@ function sliderComponent:drawText()
   local color = entity.fontColor
   if color then love.graphics.setColor(color) end
   if entity.font then love.graphics.setFont(entity.font) end
-  love.graphics.printf(entity.text, entity.x, entity.y, entity.width, entity.alignment, 0, entity.scaleX, entity.scaleY)
+
+  if entity.printValue then
+    love.graphics.printf(string.format("%s: %2.2f", entity.text, entity.value),
+      entity.x, entity.y, entity.width, entity.alignment, 0, entity.scaleX, entity.scaleY)
+  else
+    love.graphics.printf(entity.text, entity.x, entity.y, entity.width, entity.alignment, 0, entity.scaleX, entity.scaleY)
+  end
 end
 
 function sliderComponent:draw()

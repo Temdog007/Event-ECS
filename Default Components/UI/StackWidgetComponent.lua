@@ -1,4 +1,4 @@
-local Component = require('uiComponent')
+local Component = require('component')
 local class = require('classlib')
 
 local stackWidgetComponent = class('stackWidgetComponent', Component)
@@ -19,8 +19,6 @@ function stackWidgetComponent:__init(en)
   entity.width = 0
   entity.height = 0
   entity.space = 10
-  entity.drawOnEvent = true
-  entity.main = classname(self)
 
   -- scissor
   entity.scissorX = 0
@@ -42,8 +40,6 @@ function stackWidgetComponent:__init(en)
   entity.valueKeys.verticalPadding = true
   entity.valueKeys.horizontalAlignment = true
   entity.valueKeys.horizontalPadding = true
-
-  entity.valueKeys.drawOnEvent = true
 
   local values = entity.values or {}
   values.bgColor = true
@@ -238,40 +234,6 @@ end
 
 function stackWidgetComponent:eventResize(args)
   self:layoutItems()
-end
-
-local function widgetDraw(widget)
-  for _, item in ipairs(widget.items) do
-    if item:isEnabled() then
-      local target = item[item:get("main") or 0]
-      if target then target:draw() end
-    end
-  end
-end
-
-function stackWidgetComponent:canDraw(args)
-  if self.uiComponent:canDraw(args) then
-    return self:get("drawOnEvent")
-  end
-  return false
-end
-
-function stackWidgetComponent:eventDraw(args)
-  if not self:canDraw(args)  then return end
-
-  self:draw()
-end
-
-function stackWidgetComponent:draw()
-  local entity = self:getData()
-  if entity.useScissor then
-    love.graphics.setScissor(entity.scissorX, entity.scissorY,
-                    entity.scissorWidth, entity.scissorHeight)
-    widgetDraw(entity)
-    love.graphics.setScissor()
-  else
-    widgetDraw(entity)
-  end
 end
 
 lowerEventName(stackWidgetComponent)
