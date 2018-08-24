@@ -15,11 +15,46 @@ function string.ends(str, endStr)
   return string.sub(str, -string.len(endStr)) == endStr
 end
 
-function table:isEmpty()
-  for _ in pairs(self) do
+function string.unCamelCase(str)
+  local tab = {}
+  for c in str:gmatch(".") do
+    if #tab == 0 then
+      table.insert(tab, string.upper(c))
+    elseif c:match("^[A-Z]") then
+      table.insert(tab, " ")
+      table.insert(tab, string.upper(c))
+    else
+      table.insert(tab, c)
+    end
+  end
+  return table.concat(tab, "")
+end
+
+function table.isEmpty(str)
+  for _ in pairs(str) do
     return false
   end
   return true
+end
+
+function table.copy(t)
+  local rval = setmetatable({}, getmetatable(t))
+  for k,v in pairs(t) do
+    rval[k] = v
+  end
+  return rval
+end
+
+function table.random(t)
+  return t[love.math.random(#t)]
+end
+
+function table.contains(t, value)
+  for k,v in pairs(t) do
+    if k == value or v == value then
+      return true
+    end
+  end
 end
 
 function lowerEventName(t)

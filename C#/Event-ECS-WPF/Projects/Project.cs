@@ -161,6 +161,8 @@ namespace Event_ECS_WPF.Projects
                 case ".lua":
                 case ".png":
                 case ".ogg":
+                case ".bmp":
+                case ".ttf":
                     return true;
                 default:
                     break;

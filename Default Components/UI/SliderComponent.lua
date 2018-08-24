@@ -92,7 +92,7 @@ function sliderComponent:eventMouseMoved(args)
 
   local entity = self:getData()
   if entity.isClicked and entity.isMouseOver and entity.action then
-    entity.action(entity.value, self:getPercentage())
+    entity.action(entity)
   end
 end
 
@@ -107,7 +107,7 @@ function sliderComponent:eventMousePressed(args)
     entity.isClicked = true
     self:updatePosition(x, y)
     if entity.isMouseOver and entity.action then
-      entity.action(entity.value, self:getPercentage())
+      entity.action(entity)
     end
   end
 end
