@@ -1,5 +1,6 @@
 local Component = require('component')
 local class = require('classlib')
+local Systems = require("systemList")
 
 local stackWidgetComponent = class('stackWidgetComponent', Component)
 
@@ -200,6 +201,7 @@ function stackWidgetComponent:layoutItems()
   self:alignPosition()
   if self:get("stackVertically") then self:layoutItemsVertically()
   else self:layoutItemsHorizontally() end
+  Systems.pushEvent("eventlayoutupdated", {id = self:get("entity"):getID()})
 end
 
 function stackWidgetComponent:layoutItemsVertically()
