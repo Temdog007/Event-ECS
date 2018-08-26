@@ -134,10 +134,6 @@ end
 function system:dispatchEvent(event, args)
   event = string.lower(event)
 
-  if event == "eventvaluechanged" and table.contains(args.changes or {}, "enabled") then
-    self:updateEnabledEntities()
-  end
-
   local eventsHandled = 0
   if args and args.ignoreEnabled then
     for _, entity in pairs(self:get("entities")) do

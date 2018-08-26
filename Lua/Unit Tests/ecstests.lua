@@ -312,8 +312,9 @@ function ecsTests:testEntityComponents5()
   assertEquals(entity:get("enabledChanged"), 1)
 
   entity:setEnabled(false)
+  assertIsTrue(table.contains(entity.serializable.event.changes, "enabled"))
   Systems.flushEvents()
-  assertEquals(#system:get("enabledEntities"), 0)
+  assertIsFalse(Systems.hasEvent(entity.serializable.event))
   assertEquals(entity:get("enabledChanged"), 2)
 
   entity:setEnabled(true)

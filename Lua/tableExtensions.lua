@@ -49,7 +49,7 @@ function table.newqueue()
   return {first = 0, last = -1}
 end
 
-function table.queueSize(t)
+function table.queuesize(t)
   if t.first > t.last then return 0 end
   return t.last - t.first + 1
 end
@@ -77,7 +77,7 @@ function table.popleft(t)
 end
 
 function table.popright(t)
-  local last = self.last
+  local last = t.last
   if t.first > last then error("queue is empty") end
 
   local value = t[last]
@@ -86,7 +86,7 @@ function table.popright(t)
   return value
 end
 
-function table.queuePairs(t)
+function table.queuepairs(t)
   local i = t.first-1
   local n = t.last
   return function()

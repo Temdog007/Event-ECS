@@ -28,13 +28,13 @@ local DebugSystem = require("system")
 local testComponent = require("Unit Tests/testComponent")
 local System = require("debugSystem")
 local Systems = require("systemList")
-local Colors = require("eventecscolors")
+local colors = require("eventecscolors")
 
 local system = Systems.addSystem(System("Love Test System"))
 local en = system:createEntity()
 en:addComponent(testComponent)
 en:set("text", "Test text")
-en:set("color", {Colors.getColor("blue")})
+en:set("color", colors.blue)
 
 local result, err
 repeat

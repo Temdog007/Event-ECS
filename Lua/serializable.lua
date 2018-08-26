@@ -39,7 +39,7 @@ function serializable:set(name, value, ignoreEnabled)
         self.event.ignoreEnabled = self.event.ignoreEnabled or ignoreEnabled
         self.event.changes[name] = true
       else
-        self.event = {id = self:get("id"), ignoreEnabled = ignoreEnabled, changes = table.newqueue()}
+        self.event = {id = self:get("id"), ignoreEnabled = ignoreEnabled, changes = {}}
         self.event.changes[name] = true
         Systemlist.pushEvent("eventvaluechanged", self.event)
       end
