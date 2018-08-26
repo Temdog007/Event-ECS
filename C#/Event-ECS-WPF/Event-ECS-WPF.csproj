@@ -92,6 +92,7 @@
     <Compile Include="Converters\ColorsCombinedConverted.cs" />
     <Compile Include="Converters\ItemToItemIndexConverter.cs" />
     <Compile Include="Converters\LogLevelToColor.cs" />
+    <Compile Include="Converters\RelativeSizeConverter.cs" />
     <Compile Include="Extensions\BindingProxy.cs" />
     <Compile Include="Misc\EntityVariableValidation.cs" />
     <Compile Include="Misc\ValueContainer.cs" />

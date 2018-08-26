@@ -191,7 +191,8 @@
             </MenuItem>
         </Menu>
 
-        <Expander Header="Logs" ExpandDirection="Up" IsExpanded="True" DockPanel.Dock="Bottom" MaxHeight="200">
+        <Expander Header="Logs" ExpandDirection="Up" IsExpanded="True" DockPanel.Dock="Bottom" MaxHeight="{Binding Path=ActualHeight, ElementName=m_window, Converter={StaticResource relativeConv}, ConverterParameter=50}">
+
             <Expander.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Clear Logs" Command="{Binding ClearLogCommand}"/>

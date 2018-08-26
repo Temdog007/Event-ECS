@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Configuration;
-using System.Linq;
 using System.Windows;
 
 namespace Event_ECS_WPF.Logger
@@ -38,11 +37,16 @@ namespace Event_ECS_WPF.Logger
 
         private readonly object m_lock = new object();
 
-        private readonly ObservableCollection<Log> m_logs;
+        private readonly Dictionary<LogLevel, ObservableCollection<Log>> m_dictLogs;
 
         private LogManager()
         {
-            m_logs = new ObservableCollection<Log>();
+            m_dictLogs = new Dictionary<LogLevel, ObservableCollection<Log>>();
+            foreach(LogLevel level in Enum.GetValues(typeof(LogLevel)))
+            {
+                m_dictLogs[level] = new ObservableCollection<Log>();
+            }
+
             Settings.Default.SettingChanging += Default_SettingChanging;
         }
 
@@ -50,7 +54,7 @@ namespace Event_ECS_WPF.Logger
 
         public static LogManager Instance => m_instance ?? (m_instance = new LogManager());
 
-        public IEnumerable<Log> FilteredLogs => m_logs.Where(log => log.Level >= Settings.Default.LogLevel);
+        public IEnumerable<Log> FilteredLogs => m_dictLogs[Settings.Default.LogLevel];
 
         public void Add(string message, LogLevel level = LogLevel.Low)
         {
@@ -108,7 +112,11 @@ namespace Event_ECS_WPF.Logger
         {
             lock (m_lock)
             {
-                m_logs.Clear();
+                foreach(var pair in m_dictLogs)
+                {
+                    pair.Value.Clear();
+                }
+
                 Default_SettingChanging(null, null);
             }
         }
@@ -121,11 +129,18 @@ namespace Event_ECS_WPF.Logger
             {
                 lock (m_lock)
                 {
-                    m_logs.Insert(0, log);
-                    int count = FilteredLogs.Count();
-                    while (count-- > Settings.Default.MaxLogs)
+                    foreach(var pair in m_dictLogs)
                     {
-                        m_logs.RemoveAt(m_logs.Count - 1);
+                        var level = pair.Key;
+                        var list = pair.Value;
+                        if(log.Level >= level)
+                        {
+                            list.Insert(0, log);
+                        }
+                        while (list.Count > Settings.Default.MaxLogs)
+                        {
+                            list.RemoveAt(list.Count - 1);
+                        }
                     }
                 }
             }));

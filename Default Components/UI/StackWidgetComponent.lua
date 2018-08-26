@@ -84,12 +84,14 @@ function stackWidgetComponent:eventValueChanged(args)
 end
 
 function stackWidgetComponent:matchHeight(height)
+  assert(type(height) == "number", "Height must be a number")
   for _, item in pairs(self:get("items")) do
     item:set("height", height)
   end
 end
 
 function stackWidgetComponent:matchWidth(width)
+  assert(type(width) == "number", "Width must be a number")
   for _, item in pairs(self:get("items")) do
     item:set("width", width)
   end
@@ -104,9 +106,9 @@ end
 function stackWidgetComponent:addItem(item)
   assert(item and item:get("x") and item:get("y")
     and item:get("width") and item:get("height") and item:get("main"),
-		"Cannot add item because it is not considered a UI drawable object")
+		string.format("Cannot add item '%s' because it is not considered a UI drawable object", item:get("name") or "unknown"))
   table.insert(self:get("items"), item)
-  self:dispatchEvent("eventItemAdded", {widget = self, item = item})
+  self:dispatchEvent("eventitemadded", {widget = self, item = item, id = self:get("entity"):getID()})
   self:layoutItems()
 end
 

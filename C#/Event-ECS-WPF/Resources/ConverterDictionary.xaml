@@ -11,4 +11,5 @@
     <converter:ColorIndexToBackgroundConverter x:Key="colorBackgroundConv"/>
     <converter:ColorIndexToForegroundConverter x:Key="colorForegroundConv"/>
     <converter:ColorsCombinedConverted x:Key="colorComboConv"/>
+    <converter:RelativeSizeConverter x:Key="relativeConv"/>
 </ResourceDictionary>
