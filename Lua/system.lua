@@ -25,6 +25,7 @@ local system = class("system", require("ecsObject"))
 function system:__user_init(name)
   self:set("name", name or "System")
   self:set("entities", {})
+  self:set("enabledEntities", {})
   self:set("registeredEntities", {})
   self:set("registeredEntitiesList", {})
 
@@ -47,6 +48,7 @@ function system:createEntity(name)
 
   local entity = Entity(self)
   table.insert(self:get("entities"), entity)
+  table.insert(self:get("enabledEntities"), entity)
   if name then
     for _, comp in pairs(self:get("registeredEntities")[name]) do
       entity:addComponent(comp)
@@ -130,13 +132,33 @@ function system:findEntities(findFunc)
 end
 
 function system:dispatchEvent(event, args)
+  event = string.lower(event)
+
+  if event == "eventvaluechanged" and table.contains(args.changes or {}, "enabled") then
+    self:updateEnabledEntities()
+  end
+
   local eventsHandled = 0
-  for _, entity in pairs(self:get("entities")) do
-    if entity:isEnabled() or (args and args.ignoreEnabled) then
+  if args and args.ignoreEnabled then
+    for _, entity in pairs(self:get("entities")) do
+      eventsHandled = eventsHandled + entity:dispatchEvent(event, args)
+    end
+  else
+    for _, entity in pairs(self:get("enabledEntities")) do
       eventsHandled = eventsHandled + entity:dispatchEvent(event, args)
     end
   end
   return eventsHandled
+end
+
+function system:updateEnabledEntities()
+  local enabledEntities = {}
+  for _, entity in pairs(self:get('entities')) do
+    if entity:isEnabled() then
+      table.insert(enabledEntities, entity)
+    end
+  end
+  self:set("enabledEntities", enabledEntities)
 end
 
 function system:serialize()

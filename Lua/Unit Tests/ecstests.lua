@@ -313,10 +313,12 @@ function ecsTests:testEntityComponents5()
 
   entity:setEnabled(false)
   Systems.flushEvents()
+  assertEquals(#system:get("enabledEntities"), 0)
   assertEquals(entity:get("enabledChanged"), 2)
 
   entity:setEnabled(true)
   Systems.flushEvents()
+  assertEquals(#system:get("enabledEntities"), 1)
   assertEquals(entity:get("enabledChanged"), 3)
 
   system:setEnabled(true)
