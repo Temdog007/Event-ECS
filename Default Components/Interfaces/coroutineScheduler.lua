@@ -33,6 +33,18 @@ function coroutineScheduler:hasRoutine(routine)
   end
 end
 
+function coroutineScheduler:getStatus(routine)
+  for _, value in pairs(self.routines) do
+    if value.func == routine then
+      return coroutine.status(value.routine)
+    end
+  end
+end
+
+function coroutineScheduler:clear()
+  self.routines = {}
+end
+
 function coroutineScheduler:update(dt)
   for i, value in pairs(self.routines) do
     local routine = assert(value.routine, "No routine")

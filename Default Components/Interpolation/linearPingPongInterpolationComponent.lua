@@ -31,7 +31,7 @@ function linearPingPongInterpolationComponent:eventUpdate(args)
 
   local entity = self:getData()
 
-  entity.linearPingPongInterpolationCurrent = math.min(2, ((entity.linearPingPongInterpolationCurrent + args.dt) * entity.linearPingPongInterpolationSpeed) % 2)
+  entity.linearPingPongInterpolationCurrent = math.min(2, (entity.linearPingPongInterpolationCurrent + (args.dt * entity.linearPingPongInterpolationSpeed)) % 2)
   entity.linearPingPongInterpolationValue =
     self:apply(entity.linearPingPongInterpolationStart,
       entity.linearPingPongInterpolationEnd,

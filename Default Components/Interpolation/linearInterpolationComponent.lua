@@ -22,7 +22,7 @@ function linearInterpolationComponent:eventUpdate(args)
   if not args or not args.dt then return end
 
   local entity = self:getData()
-  entity.linearInterpolationCurrent = math.min(1, ((entity.linearInterpolationCurrent + args.dt) * entity.linearInterpolationSpeed) % 1)
+  entity.linearInterpolationCurrent = math.min(1, (entity.linearInterpolationCurrent + (args.dt * entity.linearInterpolationSpeed)) % 1)
   entity.linearInterpolationValue =
     self:apply(
     entity.linearInterpolationStart,

@@ -11,7 +11,7 @@ function interpolationBase.interpolate(a)
 end
 
 function interpolationBase:apply(s, e, a, func)
-  func = func or self.interpolate
+  func = func or interpolationBase.interpolate
   return s + (e - s) * func(a)
 end
 

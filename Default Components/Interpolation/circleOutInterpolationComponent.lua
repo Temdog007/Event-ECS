@@ -27,7 +27,7 @@ function circleOutInterpolationComponent:eventUpdate(args)
   if not args or not args.dt then return end
 
   local entity = self:getData()
-  entity.circleOutInterpolationCurrent = math.min(1, ((entity.circleOutInterpolationCurrent + args.dt) * entity.circleOutInterpolationSpeed) % 1)
+  entity.circleOutInterpolationCurrent = math.min(1, (entity.circleOutInterpolationCurrent + (args.dt * entity.circleOutInterpolationSpeed)) % 1)
   entity.circleOutInterpolationValue =
     self:apply(
     entity.circleOutInterpolationStart,
