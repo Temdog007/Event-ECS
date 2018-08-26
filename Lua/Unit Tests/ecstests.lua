@@ -96,7 +96,7 @@ function ecsTests:testParser()
   parser(string.format("RemoveEntity|%d|%d", sysID, enID))
   assertEquals(system:entityCount(), 1)
 
-  assertIsTrue(Systems.removeSystem(system))
+  assertIsTrue(Systems.removeSystem(system:getID()))
   assertEquals(Systems.getCount(), 0)
   Systems.flushEvents()
 end
@@ -323,7 +323,7 @@ function ecsTests:testEntityComponents5()
   Systems.flushEvents()
   assertEquals(entity:get("enabledChanged"), 4)
 
-  assertIsTrue(Systems.removeSystem(system))
+  assertIsTrue(Systems.removeSystem(system:getID()))
   assertEquals(Systems.getCount(), 0)
 end
 

@@ -1,6 +1,8 @@
+require("tableExtensions")
+
 local Systems = {}
 local SystemMT = {}
-local EventQueue = {}
+local EventQueue = table.newqueue()
 
 function SystemMT.addSystem(sys)
   table.insert(Systems, sys)
@@ -39,12 +41,8 @@ function SystemMT.removeSystem(system)
   return removed
 end
 
-function SystemMT.pushEvent(eventName, args)
-  table.insert(EventQueue, {eventName, args})
-end
-
 function SystemMT.hasEvent(eventName, args)
-  for _, ev in pairs(EventQueue) do
+  for ev in table.queuePairs(EventQueue) do
     if ev[1] == eventName and ev[2] == args then
       return true
     end
@@ -52,17 +50,22 @@ function SystemMT.hasEvent(eventName, args)
   return false
 end
 
-function SystemMT.flushEvents()
-  if #EventQueue == 0 or #Systems == 0 then return end
+function SystemMT.pushEvent(eventName, args)
+  table.pushright(EventQueue, {eventName, args})
+end
 
-  for i, event in ipairs(EventQueue) do
-    local eventName, eventArgs = event[1], event[2]
+function SystemMT.flushEvents()
+  if #Systems == 0 then return end
+
+  local event, name, args
+  while table.queueSize(EventQueue) > 0 do
+    event = table.popleft(EventQueue)
+    name, args = event[1], event[2]
     for _, system in ipairs(Systems) do
-      if system:isEnabled() or (eventArgs and eventArgs.ignoreEnabled) then
-        system:dispatchEvent(eventName, eventArgs)
+      if system:isEnabled() or (args and args.ignoreEnabled) then
+        system:dispatchEvent(name, args)
       end
     end
-    EventQueue[i] = nil
   end
 end
 
