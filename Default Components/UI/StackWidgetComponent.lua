@@ -155,7 +155,7 @@ function stackWidgetComponent:alignVerticalPosition()
   if entity.verticalAlignment == "top" then
     entity.y = entity.verticalPadding
   elseif entity.verticalAlignment == "bottom" then
-    entity.y = love.graphics.getHeight() - entity.height - entity.verticalPadding
+    entity.y = (love.graphics.getHeight() - entity.height) - entity.verticalPadding
   elseif entity.verticalAlignment == "center" then
     entity.y = (love.graphics.getHeight() - entity.height) * 0.5
   end
@@ -164,11 +164,11 @@ end
 function stackWidgetComponent:alignHorizontalPosition()
   local entity = self:getData()
   if entity.horizontalAlignment == "left" then
-    entity.x = entity.horizontalPadding
+    entity.x = entity.width * 0.5 + entity.horizontalPadding
   elseif entity.horizontalAlignment == "right" then
-    entity.x = love.graphics.getWidth() - entity.width - entity.horizontalPadding
+    entity.x = love.graphics.getWidth() - entity.width * 0.5 - entity.horizontalPadding
   elseif entity.horizontalAlignment == "center" then
-    entity.x = (love.graphics.getWidth() - entity.width) * 0.5
+    entity.x = love.graphics.getWidth() * 0.5
   end
 end
 
@@ -210,12 +210,15 @@ function stackWidgetComponent:layoutItemsVertically()
   local entity = self:getData()
   local x, y, space = entity.x, entity.y, entity.space
   entity.width = 0
+  local w,h
   for i, item in ipairs(entity.items) do
     if item:isEnabled() then
-      item:set("x", x)
-      item:set("y", y)
-      y = y + space + item:get("height")
-      entity.width = math.max(entity.width, item:get("width"))
+      w = item:get('width')
+      h = item:get("height")
+      item:set("x", x - w * 0.5)
+      item:set("y", y + h * 0.5)
+      y = y + space + h
+      entity.width = math.max(entity.width, w)
     end
   end
   entity.height = y - entity.y
@@ -225,12 +228,15 @@ function stackWidgetComponent:layoutItemsHorizontally()
   local entity = self:getData()
   local x, y, space = entity.x, entity.y, entity.space
   entity.height = 0
+  local w,h
   for i, item in ipairs(entity.items) do
     if item:isEnabled() then
-      item:set("x", x)
-      item:set("y", y)
-      x = x + space + item:get("width")
-      entity.height = math.max(entity.height, item:get("height"))
+      w = item:get('width')
+      h = item:get("height")
+      item:set("x", x - w * 0.5)
+      item:set("y", y + h * 0.5)
+      x = x + space + w
+      entity.height = math.max(entity.height, h)
     end
   end
   entity.width = x - entity.x
