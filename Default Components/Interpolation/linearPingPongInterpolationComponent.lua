@@ -3,6 +3,14 @@ local class = require('classlib')
 local Systems = require("systemList")
 local linearPingPongInterpolationComponent = class('linearPingPongInterpolationComponent', Component, require('interpolationBase'))
 
+function linearPingPongInterpolationComponent.interpolate(a)
+  if a < 1 then
+    return a
+  else
+    return math.abs(1 - ((a - 1) / 1))
+  end
+end
+
 function linearPingPongInterpolationComponent:__user_init(en)
   self:setDefault("name", classname(self))
   self:set("entity", en)
@@ -16,14 +24,7 @@ function linearPingPongInterpolationComponent:__user_init(en)
     linearPingPongInterpolationCurrent = 0,
   }
   en:setDefaultsAndValues(d)
-end
-
-function linearPingPongInterpolationComponent.interpolate(a)
-  if a < 1 then
-    return a
-  else
-    return math.abs(1 - ((a - 1) / 1))
-  end
+  self.interpolationBase.interpolation = linearPingPongInterpolationComponent.interpolate
 end
 
 function linearPingPongInterpolationComponent:eventUpdate(args)
@@ -35,8 +36,7 @@ function linearPingPongInterpolationComponent:eventUpdate(args)
   entity.linearPingPongInterpolationValue =
     self:apply(entity.linearPingPongInterpolationStart,
       entity.linearPingPongInterpolationEnd,
-      entity.linearPingPongInterpolationCurrent,
-      linearPingPongInterpolationComponent.interpolate)
+      entity.linearPingPongInterpolationCurrent)
 
   Systems.pushEvent("eventlinearpingponginterpolation", {value = entity.linearPingPongInterpolationValue, id = entity.id})
 end

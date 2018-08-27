@@ -3,6 +3,10 @@ local class = require('classlib')
 local Systems = require("systemList")
 local linearInterpolationComponent = class('linearInterpolationComponent', Component, require('interpolationBase'))
 
+function linearInterpolationComponent.interpolate(a)
+  return a
+end
+
 function linearInterpolationComponent:__user_init(en)
   self:setDefault("name", classname(self))
   self:set("entity", en)
@@ -16,6 +20,7 @@ function linearInterpolationComponent:__user_init(en)
     linearInterpolationCurrent = 0,
   }
   en:setDefaultsAndValues(d)
+  self.interpolationBase.interpolation = linearInterpolationComponent.interpolate
 end
 
 function linearInterpolationComponent:eventUpdate(args)

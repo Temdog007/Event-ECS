@@ -3,6 +3,11 @@ local class = require('classlib')
 
 local circleOutInterpolationComponent = class('circleOutInterpolationComponent', Component, require('interpolationBase'))
 
+function circleOutInterpolationComponent.interpolate(a)
+  a = a - 1
+  return math.sqrt(1 - a * a)
+end
+
 function circleOutInterpolationComponent:__init(entity)
   self:setDefault('name', classname(self))
   self:set('entity', entity)
@@ -16,11 +21,8 @@ function circleOutInterpolationComponent:__init(entity)
     circleOutInterpolationCurrent = 0,
   }
   en:setDefaultsAndValues(d)
-end
 
-function circleOutInterpolationComponent.interpolate(a)
-  a = a - 1
-  return math.sqrt(1 - a * a)
+  self.interpolationBase.interpolation = circleOutInterpolationComponent.interpolate
 end
 
 function circleOutInterpolationComponent:eventUpdate(args)
@@ -32,8 +34,7 @@ function circleOutInterpolationComponent:eventUpdate(args)
     self:apply(
     entity.circleOutInterpolationStart,
     entity.circleOutInterpolationEnd,
-    entity.circleOutInterpolationCurrent,
-    interpolate)
+    entity.circleOutInterpolationCurrent)
 
   Systems.pushEvent("eventcircleOutinterpolation", {value = entity.circleOutInterpolationValue, id = entity.id})
 end
