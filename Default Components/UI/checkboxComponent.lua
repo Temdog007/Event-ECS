@@ -10,12 +10,7 @@ function checkboxComponent:__init(en)
   local entity = self:getData()
   entity.isChecked = false
   entity.checkedText = "Yes"
-  entity.space = 25
-  entity.checkedColor = {0,1,0,1}
   entity.uncheckedText = "No"
-  entity.uncheckedColor = {1, 0, 0, 1}
-  entity.checkedAlignment = "center"
-  entity.showCheckState = true
   entity.action = function()
     self:set("isChecked", not self:get("isChecked"))
     self:get("checkedAction")(self:get("isChecked"))
@@ -24,29 +19,14 @@ function checkboxComponent:__init(en)
 
   local values = entity.values or {}
   values.isChecked = true
-  values.space = true
-  values.checkedAlignment = true
   values.checkedText = true
-  values.checkedColor = true
   values.uncheckedText = true
-  values.uncheckedColor = true
-  values.showCheckState = true
   entity.values = values
-end
-
-function checkboxComponent:drawCheckedText()
-  local entity = self:getData()
-  local color = entity.isChecked and entity.checkedColor or entity.uncheckedColor
-  if color then love.graphics.setColor(color) end
-  love.graphics.printf(entity.isChecked and entity.checkedText or entity.uncheckedText,
-    entity.x, entity.y + entity.space, entity.width,
-    entity.checkedAlignment, 0, entity.scaleX, entity.scaleY)
 end
 
 function checkboxComponent:draw()
   local entity = self:getData()
-  self.buttonComponent:draw()
-  if entity.showCheckState then self:drawCheckedText() end
+  self.buttonComponent:draw(string.format("%s: %s", entity.text, entity.isChecked and entity.checkedText or entity.uncheckedText))
 end
 
 lowerEventName(checkboxComponent)

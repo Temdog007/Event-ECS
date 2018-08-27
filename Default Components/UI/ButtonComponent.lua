@@ -77,30 +77,31 @@ function buttonComponent:eventMouseReleased(args)
   end
 end
 
-function buttonComponent:drawText()
+function buttonComponent:drawText(text)
   local entity = self:getData()
+  text = text or entity.text
   local color = entity.fontColor
   if color then love.graphics.setColor(color) end
   if entity.font then love.graphics.setFont(entity.font) end
 
   if entity.fitInBackground then
     local font = love.graphics.getFont()
-    local w = font:getWrap(entity.text, entity.width)
+    local w = font:getWrap(text, entity.width)
     local h = font:getHeight()
     if w * entity.scaleX > entity.width or h * entity.scaleY > entity.height then
-      love.graphics.printf(entity.text, entity.x, entity.y, entity.width, entity.alignment, 0, entity.width / w, entity.height / h)
+      love.graphics.printf(text, entity.x, entity.y, entity.width, entity.alignment, 0, entity.width / w, entity.height / h)
     else
-      love.graphics.printf(entity.text, entity.x, entity.y, entity.width, entity.alignment, 0, entity.scaleX, entity.scaleY)
+      love.graphics.printf(text, entity.x, entity.y, entity.width, entity.alignment, 0, entity.scaleX, entity.scaleY)
     end
   else
-    love.graphics.printf(entity.text, entity.x, entity.y, entity.width, entity.alignment, 0, entity.scaleX, entity.scaleY)
+    love.graphics.printf(text, entity.x, entity.y, entity.width, entity.alignment, 0, entity.scaleX, entity.scaleY)
   end
 end
 
-function buttonComponent:draw()
+function buttonComponent:draw(text)
   local entity = self:getData()
   self.uiComponent:draw()
-  if entity.drawingText then self:drawText() end
+  if entity.drawingText then self:drawText(text) end
 end
 
 lowerEventName(buttonComponent)
