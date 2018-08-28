@@ -1043,6 +1043,7 @@ Gspot.scroll = {
 		if step > 0 then this.values.current = math.max(this.values.current - this.values.step, this.values.min)
 		elseif step < 0 then this.values.current = math.min(this.values.current + this.values.step, this.values.max)
 		end
+		if this.dragging then this:dragging() end
 	end,
 	drag = function(this, x, y)
 		local pos = this:getpos()
