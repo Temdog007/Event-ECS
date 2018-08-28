@@ -49,6 +49,12 @@ function guiHandlerComponent:eventMousePressed(args)
   gui:mousepress(args[1], args[2], args[3])
 end
 
+function guiHandlerComponent:eventMouseMoved(args)
+  if not args or not args[1] or not args[2] then return end
+
+  gui:mousemoved(args[1], args[2])
+end
+
 function guiHandlerComponent:eventMouseReleased(args)
   if not args or not args[1] or not args[2] or not args[3] then return end
 

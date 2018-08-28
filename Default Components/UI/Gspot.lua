@@ -302,6 +302,13 @@ Gspot.mousepress = function(this, x, y, button)
 	this.mousedt = 0
 end
 
+Gspot.mousemoved = function(this, x, y)
+	if this.drag then
+		local element = this.drag
+		if element.dragging then element:dragging(this.mouseover) end
+	end
+end
+
 Gspot.mouserelease = function(this, x, y, button)
 	if this.drag then
 		local element = this.drag
