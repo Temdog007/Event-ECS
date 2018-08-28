@@ -602,10 +602,10 @@ Gspot.util = {
 		pos = pos.pos or pos
 		rect = rect.pos or rect
 		if scissor then
-			return pos.x >= rect.x and pos.x < (rect.x + rect.w) and pos.y >= rect.y and pos.y < (rect.y + rect.h)
-				and pos.x >= scissor.x and pos.x < scissor.x + scissor.w and pos.y >= scissor.y and pos.y < scissor.y + scissor.h
+			return pos.x >= rect.x and pos.x <= (rect.x + rect.w) and pos.y >= rect.y and pos.y <= (rect.y + rect.h)
+				and pos.x >= scissor.x and pos.x <= scissor.x + scissor.w and pos.y >= scissor.y and pos.y <= scissor.y + scissor.h
 		end
-		return pos.x >= rect.x and pos.x < (rect.x + rect.w) and pos.y >= rect.y and pos.y < (rect.y + rect.h)
+		return pos.x >= rect.x and pos.x <= (rect.x + rect.w) and pos.y >= rect.y and pos.y <= (rect.y + rect.h)
 	end,
 
 	getdist = function(pos, target)
