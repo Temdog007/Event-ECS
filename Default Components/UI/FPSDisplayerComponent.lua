@@ -27,15 +27,14 @@ function fpsDisplayerComponent:__init(en)
 end
 
 function fpsDisplayerComponent:eventDraw(args)
-  local entity = self:getData()
+  if not self:canDraw(args) then return end
 
-  if not args or args.drawOrder ~= entity.drawOrder then return end
-
-  local color = entity.color
+  local data = self:getData()
+  local color = data.color
   if color then love.graphics.setColor(color) end
 
-  if entity.font then love.graphics.setFont(entity.font) end
-  love.graphics.print(love.timer.getFPS(), entity.x, entity.y, 0, entity.scaleX, entity.scaleY)
+  if data.font then love.graphics.setFont(data.font) end
+  love.graphics.print(love.timer.getFPS(), data.x, data.y, 0, data.scaleX, data.scaleY)
 end
 
 lowerEventName(fpsDisplayerComponent)
