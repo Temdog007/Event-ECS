@@ -48,4 +48,15 @@ function colorTests.testInverse()
   assertEquals({inverseColor(0.5,0.65,0.25, 12, "dfkal3")}, {0.5, .35, .75})
 end
 
+function colorTests.testAllColors()
+  assertIs(colors.getAllColors, "function")
+  local tab = colors.getAllColors()
+  assertIs(tab, "table")
+  assertIsTrue(#tab > 0)
+  for k,v in pairs(tab) do
+    -- print(v.name)
+    print(string.format("%d (%s) => {%2.2f, %2.2f, %2.2f, %2.2f}", k, v.name, v.color[1], v.color[2], v.color[3], v.color[4]))
+  end
+end
+
 LuaUnit:run('colorTests')
