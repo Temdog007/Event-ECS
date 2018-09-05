@@ -25,6 +25,7 @@ function graphableComponent:__init(entity)
     label = "graph",
     dx = 0,
     dy = 0,
+    lineWidth = 1,
     isDown = false,
     font = love.graphics.newFont(8)
   })
@@ -78,6 +79,7 @@ function graphableComponent:eventDraw(args)
   local len = #data.vals
   local step = data.width / len
 
+  love.graphics.setLineWidth(data.lineWidth)
   for i = 2, len do
     local a = data.vals[i-1]
     local b = data.vals[i]

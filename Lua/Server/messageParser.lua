@@ -103,6 +103,7 @@ local function parseFunction(l)
         entity:set(key, tonumber(value))
       elseif key == "enabled" then
         entity:setEnabled(value:lower() == "true")
+        system:updateEnabledEntities()
       elseif value:lower() == "true" then
         entity:set(key, true)
       elseif value:lower() == "false" then
