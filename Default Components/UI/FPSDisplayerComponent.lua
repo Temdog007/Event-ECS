@@ -13,7 +13,6 @@ function fpsDisplayerComponent:__init(en)
   entity.y = 0
   entity.scaleX = 1
   entity.scaleY = 1
-  entity.limit = 100
   entity.color = {1,1,1,1}
 
   local values = entity.values or {}
@@ -21,7 +20,6 @@ function fpsDisplayerComponent:__init(en)
   values.y = true
   values.scaleX = true
   values.scaleY = true
-  values.limit = true
   values.color = true
   entity.values = values
 end
