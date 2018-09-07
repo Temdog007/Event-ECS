@@ -418,4 +418,26 @@ function ecsTests:testReloading()
   assertEquals(require("test"), 3)
 end
 
+function ecsTests:testForEachSystem()
+  for i = 1, 5 do
+    local system = Systems.addSystem(System("Test"..tostring(i)))
+    for j = 1, i * 2 do
+      system:createEntity()
+    end
+  end
+
+  local count1, count2, count3, count4, count5, count6 = Systems.forEachSystem(function(system)
+    return system:entityCount()
+  end)
+
+  assertEquals(count1, 2)
+  assertEquals(count2, 4)
+  assertEquals(count3, 6)
+  assertEquals(count4, 8)
+  assertEquals(count5, 10)
+  assertIsNil(count6)
+
+  Systems.removeAllSystems()
+end
+
 LuaUnit:run('ecsTests')
