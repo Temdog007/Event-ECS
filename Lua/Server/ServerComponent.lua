@@ -32,32 +32,35 @@ local consolePrint = print
 
 local eos = string.char(3)
 
-function serverComponent:__init()
+function serverComponent:__init(entity)
   self:setDefault("name", classname(self))
 
-  self.host = "*"
-  self.port = 32485
-  self.timeout = 0
-
-  self.current = 0
-  self.rate = 1
+  entity:setDefaultsAndValues({
+    host = "*",
+    port = 32485,
+    current = 0,
+    rate = 1,
+    timeout = 0
+  })
 end
 
 function serverComponent:close()
-  if self.client then self.client:close() end
-  if self.server then self.server:close() end
+  local data = self:getData()
+  if data.client then data.client:close() end
+  if data.server then data.server:close() end
 end
 
 function serverComponent:connect()
   self:close()
 
-  self.client = nil
-  self.messages = {}
+  local data = self:getData()
+  data.client = nil
+  data.messages = table.newqueue()
 
-  self.server = assert(socket.bind(self.host, self.port))
-  self.server:settimeout(self.timeout)
+  data.server = assert(socket.bind(data.host, data.port))
+  data.server:settimeout(data.timeout)
 
-  local i, p = self.server:getsockname()
+  local i, p = data.server:getsockname()
   assert(i,p)
 
   print = function(...)
@@ -65,33 +68,11 @@ function serverComponent:connect()
     self:enqueueMessages(...)
   end
 
-  print(string.format("Starting server {%s:%u}", self.host, self.port))
-end
-
-function serverComponent:enqueueMessages(...)
-  for _, m in pairs({...}) do
-    local message = tostring(m)
-    if message:ends(eos) then
-      table.insert(self.messages, message)
-    else
-      table.insert(self.messages, message..eos)
-    end
-  end
+  print(string.format("Starting server {%s:%u}", data.host, data.port))
 end
 
 function serverComponent:eventAddedComponent(args)
-  if not args then return end
-  if args.component ~= self then return end
-
-  self:connect()
-end
-
-function serverComponent:eventUpdateSocket(args)
-  args = args or {}
-
-  self.host = args.host or self.host
-  self.port = args.port or self.port
-  self.timeout = args.timeout or self.timeout
+  if not args and args.component ~= self then return end
 
   self:connect()
 end
@@ -100,13 +81,24 @@ local function serialize(system)
   return system:serialize()
 end
 
-function serverComponent:eventUpdate(args)
+function serverComponent:eventUpdateSocket(args)
+  args = args or {}
 
-  if not self.client then
+  local data = self:getData()
+  data.host = args.host or data.host
+  data.port = args.port or data.port
+  data.timeout = args.timeout or data.timeout
+
+  self:connect()
+end
+
+function serverComponent:eventUpdate(args)
+  local data = self:getData()
+  if not data.client then
     local err
-    self.client, err = self.server:accept()
-    if self.client then
-      self.client:settimeout(self.timeout)
+    data.client, err = data.server:accept()
+    if data.client then
+      data.client:settimeout(data.timeout)
       print("Found client")
     else
       if err ~= "timeout" then
@@ -115,18 +107,18 @@ function serverComponent:eventUpdate(args)
     end
   end
 
-  if self.client then
-    for i, message in pairs(self.messages) do
-      local status, err = pcall(self.client.send, self.client, message)
+  if data.client then
+    while table.queuesize(data.messages) > 0 do
+      local message = table.popleft(data.messages)
+      local status, err = pcall(data.client.send, data.client, message)
       if not status then
         print(err)
-        self.client = nil
+        data.client = nil
         return
       end
-      self.messages[i] = nil
     end
 
-    local l,e = self.client:receive()
+    local l,e = data.client:receive()
     if l then
       parser(l)
     else
@@ -137,10 +129,23 @@ function serverComponent:eventUpdate(args)
 
     if not args or not args.dt then return end
 
-    self.current = self.current + args.dt
-    if self.current > self.rate then
+    local data = self:getData()
+    data.current = data.current + args.dt
+    if data.current > data.rate then
       self:enqueueMessages(Systems.forEachSystem(serialize))
-      self.current = 0
+      data.current = 0
+    end
+  end
+end
+
+function serverComponent:enqueueMessages(...)
+  local data = self:getData()
+  for _, m in pairs({...}) do
+    local message = tostring(m)
+    if message:ends(eos) then
+      table.pushright(data.messages, message)
+    else
+      table.pushright(data.messages, message..eos)
     end
   end
 end
