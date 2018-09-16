@@ -27,6 +27,15 @@ function coroutineScheduler:finishRoutine(routine)
   end
 end
 
+function coroutineScheduler:cancelRoutine(routine)
+  for i, value in pairs(self.routines) do
+    if value.func == routine then
+      self.routines[i] = nil
+      break
+    end
+  end
+end
+
 function coroutineScheduler:hasRoutine(routine)
   for _, value in pairs(self.routines) do
     if value.func == routine then return true end
