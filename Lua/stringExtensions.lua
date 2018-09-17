@@ -50,10 +50,28 @@ function string.unCamelCase(str)
   return table.concat(tab, "")
 end
 
+function string.isUpper(str)
+  for c in str:gmatch(".") do
+    if not c:match("^[A-Z]") then
+      return false
+    end
+  end
+  return true
+end
+
+function string.isLower(str)
+  for c in str:gmatch(".") do
+    if not c:match("^[a-z]") then
+      return false
+    end
+  end
+  return true
+end
+
 function lowerEventName(t)
   local temp = {}
   for k,v in pairs(t) do
-    if string.starts(k, "event") and type(v) == "function" then
+    if type(v) == "function"  and not string.isLower(k) and string.starts(k, "event") then
       temp[string.lower(k)] = v
     end
   end
