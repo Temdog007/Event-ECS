@@ -58,8 +58,6 @@ function lowerEventName(t)
     end
   end
   for k,v in pairs(temp) do
-    if not t[k] then
-      t[k] = v
-    end
+    t[k] = v
   end
 end
