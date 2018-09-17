@@ -58,27 +58,30 @@ function coroutineScheduler:update(dt)
   for i, value in pairs(self.routines) do
     local routine = assert(value.routine, "No routine")
     local target = assert(value.target, "No target")
+    local continue = true
     if type(target) == "number" then
       local coroutineCurrent = assert(value.current, "No current")
       coroutineCurrent = coroutineCurrent + dt
       value.current = coroutineCurrent
-      if coroutineCurrent < target then return end
+      if coroutineCurrent < target then continue = false end
     elseif classname(target) == "coroutineScheduler" then
-      if coroutine.status(target.routine) == "running" then return end
+      if coroutine.status(target.routine) == "running" then continue = false end
     end
 
-    local status, rval = coroutine.resume(routine)
-    if status then
-      if type(rval) == "number" or type(rval) == "nil" then
-        value.target = rval or 0
-        value.current = 0
-      elseif classname(rval) == "coroutineScheduler" then
-        value.target = rval
-      end
-    else
-      self.routines[i] = nil
-      if rval ~= "cannot resume dead coroutine" then
-        print(rval)
+    if continue then
+      local status, rval = coroutine.resume(routine)
+      if status then
+        if type(rval) == "number" or type(rval) == "nil" then
+          value.target = rval or 0
+          value.current = 0
+        elseif classname(rval) == "coroutineScheduler" then
+          value.target = rval
+        end
+      else
+        self.routines[i] = nil
+        if rval ~= "cannot resume dead coroutine" then
+          print(rval)
+        end
       end
     end
   end
