@@ -22,7 +22,7 @@ local class = require("classlib")
 local serializable = class("serializable")
 local Systemlist = require("systemList")
 
-function serializable:__init(metatable)
+function serializable:__init()
   self:setDefault("dispatchEventOnValueChange", false)
   self:setDefault("values", {})
 end

@@ -58,25 +58,13 @@ function system:createEntity(name)
 end
 
 function system:removeEntity(entity)
-  if type(entity) == "number" then
-    for k, en in pairs(self:get("entities")) do
-      if en:getID() == entity then
-        self:dispatchEvent("eventRemovingEntity", {entity = entity, system = self})
-        self:get("entities")[k] = nil
-        self:dispatchEvent("eventRemovedEntity", {entity = entity, system = self})
-        return true
-      end
-    end
-  else
-    checkEntity(entity)
-
-    for k, en in pairs(self:get("entities")) do
-      if en == entity then
-        self:dispatchEvent("eventRemovingEntity", {entity = entity, system = self})
-        self:get("entities")[k] = nil
-        self:dispatchEvent("eventRemovedEntity", {entity = entity, system = self})
-        return true
-      end
+  for k, en in pairs(self:get("entities")) do
+    if en == entity or en:getID() == entity then
+      self:dispatchEvent("eventRemovingEntity", {entity = en, system = self})
+      self:get("entities")[k] = nil
+      self:dispatchEvent("eventRemovedEntity", {entity = en, system = self})
+      self:updateEnabledEntities()
+      return true
     end
   end
 end

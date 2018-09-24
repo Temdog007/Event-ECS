@@ -1,4 +1,0 @@
-class Component extends ECSObject
-{
-
-}
