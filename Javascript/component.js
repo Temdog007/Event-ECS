@@ -43,13 +43,18 @@ class Component extends EcsObject
     return this.entity.data;
   }
 
+  get system()
+  {
+    return this.entity.system;
+  }
+
   remove()
   {
-    this.entity.removeComponent(this.id);
+    return this.entity.removeComponent(this.id);
   }
 
   dispatchEvent(eventName, args)
   {
-    this.entity.dispatchEvent(eventName, args);
+    return this.entity.dispatchEvent(eventName, args);
   }
 }

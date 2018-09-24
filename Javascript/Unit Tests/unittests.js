@@ -6,6 +6,9 @@ class TestComponent extends Component
     this.name = "TestComponent";
     this.setDefault("addedComponentCalls", 0);
     this.setDefault("updateCalls", 0);
+    this.system.set("dispatchEventOnValueChange", true);
+    this.set("dispatchEventOnValueChange", true);
+    this.setDefault("enabledChanged", 0);
   }
 
   eventAddedComponent(args)
@@ -19,6 +22,29 @@ class TestComponent extends Component
   eventUpdate(args)
   {
     ++this.data.updateCalls;
+  }
+
+  eventValueChanged(args)
+  {
+    if(args.changes.enabled)
+    {
+      if(this.entity.id == args.id)
+      {
+        if(this.en != this.entity.enabled)
+        {
+          ++this.data.enabledChanged;
+          this.en = this.entity.enabled;
+        }
+      }
+      else if(this.system.id == args.id)
+      {
+        if(this.sy != this.system.enabled)
+        {
+          ++this.data.enabledChanged;
+          this.sy = this.system.enabled;
+        }
+      }
+    }
   }
 }
 
@@ -68,30 +94,88 @@ console.assertError(function() {entity.addComponent(TestComponent)});
 console.log("%cComponent Test Complete", "color:green");
 
 console.log("%cRunning System List Test", "color:green");
-var systemList = new SystemList();
-console.assertEquals(typeof systemList, "object");
-console.assertIs(systemList, SystemList);
-console.assertIsNot(systemList, EcsObject);
-var tempSystem = systemList.addSystem(system);
+var Systems = new SystemList();
+console.assertEquals(typeof Systems, "object");
+console.assertIs(Systems, SystemList);
+console.assertIsNot(Systems, EcsObject);
+var tempSystem = Systems.addSystem(system);
 console.assertEquals(system, tempSystem);
 
-systemList.pushEvent("eventUpdate");
+Systems.pushEvent("eventUpdate");
 console.assertEquals(entity.get("updateCalls"), 0);
-systemList.flushEvents();
+Systems.flushEvents();
 console.assertEquals(entity.get("updateCalls"), 1);
+console.assertTrue(entity.remove());
+console.assertEquals(system.entityCount, 0);
 console.log("%cSystem List Test Complete", "color:green");
 
 console.log("%cRunning Component Register Test", "color:green");
 system.registerEntity("test", TestComponent2);
 system.registerEntity("test2", [TestComponent, TestComponent2]);
+console.assertError(function() {system.registerEntity('test')});
 
 var entity2 = system.createEntity('test');
 console.assertEquals(entity2.componentCount, 1);
 console.assertEquals(entity2.get("addedComponentCalls"), 1);
+console.assertFalse(entity.remove());
+console.assertTrue(entity2.remove());
+console.assertEquals(system.entityCount, 0);
 
 var entity3 = system.createEntity('test2');
 console.assertEquals(entity3.componentCount, 2);
+console.assertEquals(system.entityCount, 1);
 console.assertEquals(entity3.get("addedComponentCalls"), 2);
-
-console.assertEquals(system.entityCount, 3);
+console.assertTrue(entity3.TestComponent.remove());
+console.assertEquals(entity3.componentCount, 1);
+console.assertTrue(entity3.remove());
+console.assertEquals(system.entityCount, 0);
 console.log("%cComponent Register Test Complete", "color:green");
+
+console.log("%cRunning System Finding Test", "color:green");
+var system2 = new System("Test System 2");
+console.assertEquals(system2.name, "Test System 2");
+var en = system2.createEntity();
+console.assertEquals(system2.entityCount, 1);
+var list = system2.findEntities(function() {return true;});
+console.assertNotNull(list);
+console.assertTrue(Array.isArray(list));
+console.assertEquals(list.length, 1);
+console.assertEquals(list[0], en);
+
+en.addComponent(TestComponent);
+console.assertEquals(en.componentCount, 1);
+console.log("%cSystem Finding Test Complete", "color:green");
+
+console.log("%cRunning System List Finding Test", "color:green");
+Systems.removeAllSystems();
+console.assertEquals(Systems.count, 0);
+
+var system3 = Systems.addSystem(new System("Test 3"));
+console.assertEquals(system3.name, "Test 3");
+console.assertEquals(Systems.count, 1);
+var entity = system3.createEntity();
+entity.addComponent(TestComponent);
+for(var i = 0; i < 5; ++i)
+{
+  Systems.pushEvent("eventUpdate");
+}
+Systems.flushEvents();
+console.assertEquals(entity.get("updateCalls"), 5);
+system3.enabled = false;
+Systems.pushEvent("eventUpdate");
+Systems.flushEvents();
+console.assertEquals(entity.get("enabledChanged"), 1);
+console.assertEquals(entity.get("updateCalls"), 5);
+
+system3.enabled = true;
+Systems.pushEvent("eventUpdate");
+Systems.flushEvents();
+console.assertEquals(entity.get("enabledChanged"), 2);
+console.assertEquals(entity.get("updateCalls"), 6);
+
+entity.enabled = false;
+Systems.pushEvent("eventUpdate");
+Systems.flushEvents();
+console.assertEquals(entity.get("enabledChanged"), 3);
+console.assertEquals(entity.get("updateCalls"), 6);
+console.log("%cSystem List Finding Test Complete", "color:green");

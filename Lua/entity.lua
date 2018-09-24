@@ -40,6 +40,11 @@ function entity:__user_init(system)
   self:set("components", {})
 end
 
+function entity:setEnabled(enabled)
+  self.ecsObject:setEnabled(enabled)
+  self:get("system"):updateEnabledEntities()
+end
+
 function entity:getData(useDefault)
 
   if not self.dataTable then
@@ -184,10 +189,6 @@ end
 local emptyTable = {}
 function entity:dispatchEvent(event, args)
   event = string.lower(event)
-
-  if event == "eventvaluechanged" and args.id == self:getID() and table.contains(args.changes or emptyTable, "enabled") then
-    self:get("system"):updateEnabledEntities()
-  end
 
   local count = 0
   for _, comp in pairs(self:get("components")) do

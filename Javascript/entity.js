@@ -48,6 +48,17 @@ class Entity extends EcsObject
     return comp;
   }
 
+  set enabled(enabled)
+  {
+    super.enabled = enabled;
+    this.system.updateEnabledEntities();
+  }
+
+  get enabled()
+  {
+    return super.enabled;
+  }
+
   removeComponent(id)
   {
     for(var i = 0; i < this.components.length; ++i)
@@ -73,15 +84,16 @@ class Entity extends EcsObject
 
   forEach(func)
   {
-    for(var comp in this.components)
+    for(var i = 0; i < this.components.length; ++i)
     {
+      var comp = this.components[i];
       func(comp);
     }
   }
 
   remove()
   {
-    forEach(removeAll);
+    this.forEach(removeAll);
     return this._system.removeEntity(this);
   }
 
@@ -100,11 +112,6 @@ class Entity extends EcsObject
 
   dispatchEvent(eventName, args)
   {
-    if (eventName == "eventValueChanged" && args.id == this.id && contains(args, "enabled"))
-    {
-      this._system.updateEnabledEntities();
-    }
-
     var count = 0;
     for(var i = 0; i < this.components.length; ++i)
     {

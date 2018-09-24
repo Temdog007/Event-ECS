@@ -33,8 +33,9 @@ class SystemList
 
   hasEvent(eventName, args)
   {
-    for(var ev in this.events)
+    for(var i = 0; i < this.events.length; ++i)
     {
+      var ev = this.events[i];
       if(ev.name == eventName && ev.args == args)
       {
         return true;
@@ -58,7 +59,7 @@ class SystemList
       for(var i = 0; i < this.systems.length; ++i)
       {
         var sys = this.systems[i];
-        if(sys.enabled || (ev.args && ev.args.ignoreEnabled))
+        if(sys.enabled || (ev.args != null && ev.args.ignoreEnabled))
         {
           sys.dispatchEvent(ev.name, ev.args);
         }
@@ -68,8 +69,9 @@ class SystemList
 
   getSystem(value)
   {
-    for(var sys in this.systems)
+    for(var i = 0; i < this.systems.length; ++i)
     {
+      var sys = this.systems[i];
       if(sys.id == value || sys.name == value)
       {
         return sys;
@@ -79,8 +81,9 @@ class SystemList
 
   forEachSystem(func, args)
   {
-    for(var sys in this.systems)
+    for(var i = 0; i < this.systems.length; ++i)
     {
+      var sys = this.systems[i];
       func(sys, args);
     }
   }
@@ -90,3 +93,5 @@ class SystemList
     return this.systems.length;
   }
 }
+
+var Systems = new SystemList();

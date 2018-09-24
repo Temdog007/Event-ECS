@@ -10,7 +10,7 @@ class EcsObject
   {
     this._name = "ECS Object";
     this._enabled = true;
-    this._data = {};
+    this._data = {enabled : true};
     this._id = GetUniqueID();
     this.eventArgs =
     {
@@ -39,6 +39,7 @@ class EcsObject
   set enabled(_enabled)
   {
     this._enabled = _enabled;
+    this.set("enabled", _enabled, true);
   }
 
   get name()
@@ -61,9 +62,9 @@ class EcsObject
     else if (oldValue != value)
     {
       this._data[_name] = value;
-      if(this._data.dispatchEventOnValueChange == true)
+      if(this.get("dispatchEventOnValueChange") == true)
       {
-        if(systems.hasEvent("eventValueChanged", this.eventArgs))
+        if(Systems.hasEvent("eventValueChanged", this.eventArgs))
         {
           this.eventArgs.ignoreEnabled = this.eventArgs.ignoreEnabled || ignoreEnabled;
           this.eventArgs.changes[_name] = true;
@@ -73,6 +74,7 @@ class EcsObject
           this.eventArgs.ignoreEnabled = ignoreEnabled || false;
           this.eventArgs.changes = {};
           this.eventArgs.changes[_name] = true;
+          Systems.pushEvent("eventValueChanged", this.eventArgs);
         }
       }
     }

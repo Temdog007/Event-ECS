@@ -12,6 +12,11 @@ class System extends EcsObject
 
   registerEntity(name, args)
   {
+    if(this.registeredEntities[name] != null)
+    {
+      throw {msg : "An entity with this name has already by registered", name : name};
+    }
+
     this.registeredEntities[name] = args;
   }
 
@@ -42,6 +47,7 @@ class System extends EcsObject
   {
     for(var i = 0; i < this.entities.length; ++i)
     {
+      var en = this.entities[i];
       if(en == entity || en.id == entity)
       {
         this.dispatchEvent('eventRemovingEntity', {entity : en, system : this});
@@ -99,11 +105,11 @@ class System extends EcsObject
   {
     if(typeof arg == "function")
     {
-      return findEntitiesByFunction(arg);
+      return this.findEntitiesByFunction(arg);
     }
     else if(typeof arg == "number")
     {
-      return findEntitiesByID(arg);
+      return this.findEntitiesByID(arg);
     }
   }
 
@@ -117,21 +123,20 @@ class System extends EcsObject
 
   dispatchEvent(eventName, args)
   {
-    if(args && args.ignoreEnabled)
+    var list;
+    if(args != null && args.ignoreEnabled)
     {
-      for(var i = 0; i < this.entities.length; ++i)
-      {
-        var en = this.entities[i];
-        en.dispatchEvent(eventName, args);
-      }
+      list = this.entities;
     }
     else
     {
-      for(var i = 0; i < this.entities.length; ++i)
-      {
-        var en = this.entities[i];
-        en.dispatchEvent(eventName, args);
-      }
+      list = this.enabledEntities;
+    }
+
+    for(var i = 0; i < list.length; ++i)
+    {
+      var en = list[i];
+      en.dispatchEvent(eventName, args);
     }
   }
 
@@ -143,7 +148,7 @@ class System extends EcsObject
       var en = this.entities[i];
       if(en.enabled)
       {
-        en.push(en);
+        entities.push(en);
       }
     }
     this.enabledEntities = entities;
