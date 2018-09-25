@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8"/>
+
+<html>
+<head>
+  <script src="../ecsevent.js"></script>
+  <script src="../ecsobject.js"></script>
+  <script src="../component.js"></script>
+  <script src="../entity.js"></script>
+  <script src="../system.js"></script>
+  <script src="../systemList.js"></script>
+  <script src="../Default Components/Interfaces/drawableComponent.js"></script>
+  <script src="../Default Components/Misc/logTestComponent.js"></script>
+</head>
+
+<title>ECS Game Test</title>
+
+<body>
+  <canvas id="canvas" width = 800 height = 600 style="border:1px solid #000000"></canvas>
+  <script src="game.js"></script>
+  <script>
+    var system = Systems.addSystem(new System("Test"));
+    var entity = system.createEntity();
+    var comp = entity.addComponent(LogTestComponent);
+  </script>
+</body>
+</html>
