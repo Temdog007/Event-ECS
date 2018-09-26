@@ -11,7 +11,9 @@
   <script src="../system.js"></script>
   <script src="../systemList.js"></script>
   <script src="../Default Components/Interfaces/drawableComponent.js"></script>
-  <script src="../Default Components/Misc/logTestComponent.js"></script>
+  <script src="../Default Components/Interfaces/coroutineScheduler.js"></script>
+  <script src="../Default Components/Test/logTestComponent.js"></script>
+  <script src="../Default Components/Test/coroutineTesterComponent.js"></script>
 </head>
 
 <title>ECS Game Test</title>
@@ -21,8 +23,8 @@
   <script src="game.js"></script>
   <script>
     var system = Systems.addSystem(new System("Test"));
-    var entity = system.createEntity();
-    var comp = entity.addComponent(LogTestComponent);
+    system.registerEntity("Test", [LogTestComponent, CoroutineTesterComponent]);
+    var entity = system.createEntity("Test");
   </script>
 </body>
 </html>

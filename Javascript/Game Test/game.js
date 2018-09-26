@@ -1,8 +1,6 @@
 var canvas = document.getElementById("canvas");
 var context = canvas.getContext("2d");
 
-var fps = 30;
-
 var frames = 0;
 var frameRate = 30;
 
@@ -17,19 +15,36 @@ setInterval(function()
   frames = 0;
 }, 1000);
 
-Systems.drawOrders = [0];
-setInterval(function()
+var now;
+var start = Date.now();
+var updateArgs = {dt : 0};
+
+var drawOrders = {[0] : {drawOrder : 0}};
+
+function addDrawOrder(value)
 {
+  drawOrders[value] = {drawOrder : value};
+}
+
+function update()
+{
+  now = Date.now();
+  updateArgs.dt = (now - start) / 1000;
+  start = Date.now();
+
   ++frames;
 
-  Systems.pushEvent("eventUpdate");
+  Systems.pushEvent("eventUpdate", updateArgs);
   Systems.flushEvents();
 
   context.clearRect(0, 0, canvas.width, canvas.height);
-  for(var i = 0; i < Systems.drawOrders.length; ++i)
+  for(var order in drawOrders)
   {
-    Systems.pushEvent("eventDraw", {drawOrder : i});
+    Systems.pushEvent("eventDraw", drawOrders[order]);
   }
   Systems.flushEvents();
 
-}, 1000 / fps);
+  window.requestAnimationFrame(update);
+};
+
+window.requestAnimationFrame(update);
