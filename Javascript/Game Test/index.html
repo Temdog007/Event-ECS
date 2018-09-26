@@ -14,22 +14,43 @@
   <script src="../Default Components/Interfaces/coroutineScheduler.js"></script>
   <script src="../Default Components/Interfaces/graphableComponent.js"></script>
   <script src="../Default Components/Test/logTestComponent.js"></script>
+  <script src="../Default Components/Test/eventTesterComponent.js"></script>
   <script src="../Default Components/Test/coroutineTesterComponent.js"></script>
   <script src="../Default Components/UI/fpsGraphComponent.js"></script>
+  <script src="../Default Components/UI/fpsDisplayerComponent.js"></script>
 </head>
 
 <title>ECS Game Test</title>
 
 <body>
-  <canvas id="canvas" width = 800 height = 600 style="border:1px solid #000000; position:absolute; left: 50%;margin-left:-400px"/>
+  <canvas id="canvas" tabindex='1' width = 800 height = 600 style="border:1px solid #000000; position:absolute; left: 50%;margin-left:-400px"/>
   <script src="game.js"></script>
   <script>
+    class RectangleComponent extends DrawableComponent
+    {
+      eventDraw(args)
+      {
+        if(!this.canDraw(args)){return;}
+
+        context.fillStyle = "blue";
+        context.fillRect(0,0,100,100);
+      }
+    }
+
     var system = Systems.addSystem(new System("Test"));
-    system.registerEntity("Test1", [LogTestComponent]);
+    system.registerEntity("Test1", [RectangleComponent, EventTesterComponent]);
     system.registerEntity("Test2", [LogTestComponent, CoroutineTesterComponent]);
     system.registerEntity("Test3", [FpsGraphComponent]);
-    system.createEntity("Test2");
-    system.createEntity("Test3");
+    system.registerEntity("Test4", [FpsDisplayerComponent]);
+
+    var e1 = system.createEntity("Test1");
+    e1.set("drawOrder", 0);
+
+    var e = system.createEntity("Test3");
+    e.set("drawOrder", -1);
+    e.set("lineColor", "orange");
+
+    addDrawOrder(-1);
   </script>
 </body>
 </html>

@@ -40,22 +40,6 @@ class LogTestComponent extends DrawableComponent
     context.fillStyle = data.color;
     context.fillText(data.text, data.x, data.y);
 
-    context.fillText(Systems.getFps(), data.x, data.y + data.space);
+    context.fillText(getFPS(), data.x, data.y + data.space);
   }
-
-  // eventMouseMoved(args)
-  // {
-  //   console.log("%c" + args.x, "color:blue");
-  //   console.log("%c" + args.y, "color:cyan");
-  // }
-  //
-  // eventMouseDown(args)
-  // {
-  //   console.log("%c" + args.which, "color:orange");
-  // }
-  //
-  // eventMouseUp(args)
-  // {
-  //   console.log("%c" + args.which, "color:orangered");
-  // }
 }

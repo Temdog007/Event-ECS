@@ -38,19 +38,15 @@ class GraphableComponent extends DrawableComponent
 
     if(data.draggable)
     {
-      if(data.isDown || (data.x < data.mx && data.mx < data.x + data.width
-        && data.y < data.my && data.my < data.y + data.height))
+      if(data.isDown)
       {
-        if(data.isDown)
-        {
-          data.x = data.mx - data.dx;
-          data.y = data.my - data.y;
-        }
-        else
-        {
-          data.dx = data.mx - data.x;
-          data.dy = data.my - data.y;
-        }
+        data.x = data.mx - data.dx;
+        data.y = data.my - data.dy;
+      }
+      else
+      {
+        data.dx = data.mx - data.x;
+        data.dy = data.my - data.y;
       }
     }
 
@@ -83,7 +79,7 @@ class GraphableComponent extends DrawableComponent
     var len = data.vals.length;
     var step = data.width / len;
 
-    context.strokeStyle = data.color;
+    context.strokeStyle = data.lineColor;
     context.lineWidth = data.lineWidth;
     context.beginPath();
     for(var i = 1; i < len; ++i)
@@ -102,7 +98,9 @@ class GraphableComponent extends DrawableComponent
 
   eventMouseDown(args)
   {
-    this.data.isDown = true;
+    var data = this.data;
+    data.isDown = data.isDown || (data.x < data.mx && data.mx < data.x + data.width
+      && data.y < data.my && data.my < data.y + data.height);
   }
 
   eventMouseUp(args)

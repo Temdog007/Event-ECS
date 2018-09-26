@@ -55,7 +55,7 @@ class SystemList
     var current = 0;
     while(current < count && this.events.length > 0)
     {
-      var ev = this.events.pop();
+      var ev = this.events.shift();
       for(var i = 0; i < this.systems.length; ++i)
       {
         var sys = this.systems[i];
@@ -64,6 +64,7 @@ class SystemList
           sys.dispatchEvent(ev.name, ev.args);
         }
       }
+      ++current;
     }
   }
 
