@@ -12,19 +12,24 @@
   <script src="../systemList.js"></script>
   <script src="../Default Components/Interfaces/drawableComponent.js"></script>
   <script src="../Default Components/Interfaces/coroutineScheduler.js"></script>
+  <script src="../Default Components/Interfaces/graphableComponent.js"></script>
   <script src="../Default Components/Test/logTestComponent.js"></script>
   <script src="../Default Components/Test/coroutineTesterComponent.js"></script>
+  <script src="../Default Components/UI/fpsGraphComponent.js"></script>
 </head>
 
 <title>ECS Game Test</title>
 
 <body>
-  <canvas id="canvas" width = 800 height = 600 style="border:1px solid #000000"></canvas>
+  <canvas id="canvas" width = 800 height = 600 style="border:1px solid #000000; position:absolute; left: 50%;margin-left:-400px"/>
   <script src="game.js"></script>
   <script>
     var system = Systems.addSystem(new System("Test"));
-    system.registerEntity("Test", [LogTestComponent, CoroutineTesterComponent]);
-    var entity = system.createEntity("Test");
+    system.registerEntity("Test1", [LogTestComponent]);
+    system.registerEntity("Test2", [LogTestComponent, CoroutineTesterComponent]);
+    system.registerEntity("Test3", [FpsGraphComponent]);
+    system.createEntity("Test2");
+    system.createEntity("Test3");
   </script>
 </body>
 </html>

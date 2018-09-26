@@ -1,5 +1,6 @@
 var canvas = document.getElementById("canvas");
 var context = canvas.getContext("2d");
+var canvasRect = canvas.getBoundingClientRect();
 
 var frames = 0;
 var frameRate = 30;
@@ -24,6 +25,56 @@ var drawOrders = {[0] : {drawOrder : 0}};
 function addDrawOrder(value)
 {
   drawOrders[value] = {drawOrder : value};
+}
+
+canvas.onmousemove = function(event)
+{
+  event = event || window.event;
+  Systems.pushEvent("eventMouseMoved", {x : event.clientX - canvasRect.left, y : event.clientY - canvasRect.top});
+}
+
+canvas.onmousedown = function(event)
+{
+  event = event || window.event;
+
+  var button;
+  if("which" in event)
+  {
+    button = event.which == 3;
+  }
+  else if ("button" in event)
+  {
+    button = e.button == 2;
+  }
+  Systems.pushEvent('eventMouseDown', {which : button});
+}
+
+canvas.onmouseup = function(event)
+{
+  event = event || window.event;
+
+  var button;
+  if("which" in event)
+  {
+    button = event.which == 3;
+  }
+  else if ("button" in event)
+  {
+    button = e.button == 2;
+  }
+  Systems.pushEvent('eventMouseUp', {which : button});
+}
+
+canvas.onmouseleave = function(event)
+{
+  event = event || window.event;
+  Systems.pushEvent('eventMouseLeave');
+}
+
+canvas.onmouseenter = function(event)
+{
+  event = event || window.event;
+  Systems.pushEvent('eventMouseEnter');
 }
 
 function update()

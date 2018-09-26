@@ -8,7 +8,7 @@ class CoroutineTesterComponent extends Component
     {
       for(var i = 0; i < 100; ++i)
       {
-        console.log(i);
+        console.log("%c" + i, "color:red");
         yield 1;
       }
     });
@@ -16,6 +16,6 @@ class CoroutineTesterComponent extends Component
 
   eventUpdate(step)
   {
-    this.scheduler.update(step);
+    this.scheduler.update(step.dt);
   }
 }

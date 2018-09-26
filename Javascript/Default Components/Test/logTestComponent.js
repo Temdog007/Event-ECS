@@ -17,7 +17,7 @@ class LogTestComponent extends DrawableComponent
   {
     if(args.component == this)
     {
-      console.log("print Game Test Component");
+      console.log("%cprint Game Test Component", "color:black");
     }
   }
 
@@ -42,4 +42,20 @@ class LogTestComponent extends DrawableComponent
 
     context.fillText(Systems.getFps(), data.x, data.y + data.space);
   }
+
+  // eventMouseMoved(args)
+  // {
+  //   console.log("%c" + args.x, "color:blue");
+  //   console.log("%c" + args.y, "color:cyan");
+  // }
+  //
+  // eventMouseDown(args)
+  // {
+  //   console.log("%c" + args.which, "color:orange");
+  // }
+  //
+  // eventMouseUp(args)
+  // {
+  //   console.log("%c" + args.which, "color:orangered");
+  // }
 }
