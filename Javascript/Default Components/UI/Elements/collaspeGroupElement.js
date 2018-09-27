@@ -2,7 +2,7 @@ class CollapseGroupElement extends Element
 {
   constructor(guiComponent, label, pos, parent)
   {
-    super(guiComponent, labe, pos, parent);
+    super(guiComponent, label, pos, parent);
     this.view = true;
     this.orig = new Position(pos);
     
