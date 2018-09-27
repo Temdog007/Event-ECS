@@ -2,9 +2,6 @@ class Element
 {
   constructor(guiComponent, label, pos, parent)
   {
-    this.guiComponent = guiComponent;
-    guiComponent:addChild(this);
-
     this._pos = new Position(pos);
     this._label = label;
     this._display = true;
@@ -12,6 +9,9 @@ class Element
     this._parent = parent;
     this._children = [];
     this._style = new Style();
+
+    this.guiComponent = guiComponent;
+    guiComponent:addChild(this);
   }
 
   get x()
@@ -122,6 +122,11 @@ class Element
   set font(f)
   {
     this.style.font = f;
+  }
+
+  get mousePosition()
+  {
+    return {x : this.guiComponent.mx, y : this.guiComponent.my};
   }
 
   drawImage(pos)
@@ -303,10 +308,21 @@ class Element
     return child;
   }
 
+  static getIndex(list, val)
+  {
+    for(var i = 0; i < list.length; ++i)
+    {
+      if(list[i] == val)
+      {
+        return i;
+      }
+    }
+  }
+
   remchild(child)
   {
     child.pos = child.getPosition();
-    this.children.splice(this.getIndex(child), 1);
+    this.children.splice(Element.getIndex(this.children, child), 1);
     child.parent = null;
   }
 

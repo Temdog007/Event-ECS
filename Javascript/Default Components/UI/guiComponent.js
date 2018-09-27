@@ -37,9 +37,45 @@ class GuiComponent extends DrawableCompnent
     return this._elements;
   }
 
-  addElement(element)
+  add(element)
   {
-    this.elements.push(element());
+    this.elements.push(element);
+    if(element.parent)
+    {
+      element.parent.addChild(element);
+    }
+  }
+
+  rem(element)
+  {
+    if(element.parent)
+    {
+      element.parent.remchild(element);
+    }
+    while(element.children.length > 0)
+    {
+      for(var i = 0; i < element.children.length; ++i)
+      {
+        this.rem(element.children[i]);
+      }
+    }
+    if(element == this.mousein){ this.mousein = null;}
+    if(element == this.drag){this.drag = null;}
+    if(element == this.focus) {this.unfocus();}
+    this.elements.splice(Element.getIndex(this.elements, element), 1);
+  }
+
+  setfocus(element)
+  {
+    if(element)
+    {
+      this.focus = element;
+    }
+  }
+
+  unfocus()
+  {
+    this.focus = null;
   }
 
   eventUpdate(args)
