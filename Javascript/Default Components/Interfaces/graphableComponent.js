@@ -69,10 +69,8 @@ class GraphableComponent extends DrawableComponent
     }
   }
 
-  eventDraw(args)
+  doDraw(args)
   {
-    if(!this.canDraw(args)){return;}
-
     var data = this.data;
 
     var maxval = Math.ceil(data.vmax / 10) * 10 + 20;
@@ -93,6 +91,7 @@ class GraphableComponent extends DrawableComponent
 
     context.font = data.font;
     context.fillStyle = data.fontColor;
+    context.textBaseline = "top";
     context.fillText(data.label, data.x, data.height + data.y);
   }
 

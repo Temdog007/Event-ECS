@@ -1,5 +1,6 @@
 var canvas = document.getElementById("canvas");
 var context = canvas.getContext("2d");
+var gl = canvas.getContext("webl") || canvas.getContext("experimental-webgl");
 var canvasRect = canvas.getBoundingClientRect();
 
 var frames = 0;

@@ -6,7 +6,7 @@ class LogTestComponent extends DrawableComponent
     this.setDefaults({
       text : "This is a test string",
       x : 10,
-      y : 50,
+      y : 30,
       font : "30px Arial",
       space : 100,
       color : "black"
@@ -21,23 +21,22 @@ class LogTestComponent extends DrawableComponent
     }
   }
 
-  eventUpdate(args)
-  {
-    var data = this.data;
-    data.x += 10;
-    data.x %= canvas.width;
-  }
+  // eventUpdate(args)
+  // {
+  //   var data = this.data;
+  //   data.x += 10;
+  //   data.x %= canvas.width;
+  // }
 
-  eventDraw(args)
+  doDraw(args)
   {
-    if (!this.canDraw(args)) {return;}
-
     var data = this.data;
     if(data.font != null)
     {
       context.font = data.font;
     }
     context.fillStyle = data.color;
+    context.textBaseline = "top";
     context.fillText(data.text, data.x, data.y);
 
     context.fillText(getFPS(), data.x, data.y + data.space);

@@ -11,4 +11,13 @@ class DrawableComponent extends Component
   {
     return args != null && args.drawOrder == this.get("drawOrder");
   }
+
+  eventDraw(args)
+  {
+    if(!this.canDraw(args)){return;}
+
+    this.doDraw(args);
+  }
+
+  doDraw(){}
 }

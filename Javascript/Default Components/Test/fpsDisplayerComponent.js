@@ -12,14 +12,13 @@ class FpsDisplayerComponent extends DrawableComponent
     });
   }
 
-  eventDraw(args)
+  doDraw(args)
   {
-    if(!this.canDraw(args)){return;}
-
     var data = this.data;
     context.fillStyle = data.color;
 
     context.font = data.font;
+    context.textBaseline = "top";
     context.fillText(getFPS(), data.x, data.y);
   }
 }
