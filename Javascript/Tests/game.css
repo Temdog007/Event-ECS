@@ -5,3 +5,8 @@ canvas
   padding : 0;
   border : 1px solid #000000;
 }
+
+img
+{
+  display : none;
+}

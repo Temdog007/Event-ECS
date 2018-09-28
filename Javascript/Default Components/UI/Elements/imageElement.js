@@ -10,7 +10,14 @@ class ImageElement extends UIElement
   {
     if(this.img)
     {
-      this.drawImg(pos);
+      this.drawImage(pos);
+    }
+    if(this.label)
+    {
+      context.fillStyle = this.labelfg;
+      context.textAlign = this.textAlign;
+      context.textBaseline = this.textBaseline;
+      context.fillText(this.label, pos.x, pos.y + pos.height);
     }
   }
 }

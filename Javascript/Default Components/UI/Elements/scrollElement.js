@@ -12,7 +12,7 @@ class ScrollElement extends UIElement
 
   update(dt)
   {
-    if(this.withinRect(this.mx, this.my, this.getPosition()) && this.guiComponent.drag)
+    if(UIElement.withinRect(this.mx, this.my, this.getPosition()) && !this.guiComponent.drag)
     {
       this.guiComponent.mousein = this;
     }
@@ -43,12 +43,12 @@ class ScrollElement extends UIElement
       if(this.values.axis == 'vertical')
       {
         var h = this.parent ? this.parent.height : pos.height;
-        hs = Math.max(4, Math.min(pos.height, pos.height * h / (this.values.max - this.values.min + h)));
+        hs = Math.max(this.unit * 0.25, Math.min(pos.height, pos.height * h / (this.values.max - this.values.min + h)));
       }
       else
       {
         var w = this.parent ? this.parent.width : pos.width;
-        hs = Math.max(4, Math.min(pos.width, pos.width * w / (this.values.max - this.values.min + w)));
+        hs = Math.max(this.unit * 0.25, Math.min(pos.width, pos.width * w / (this.values.max - this.values.min + w)));
       }
     }
     if(this.values.axis == 'vertical' && pos.height == hs || this.values.axis != 'vertical' && pos.width == hs)
@@ -60,13 +60,13 @@ class ScrollElement extends UIElement
       this.values.current = this.values.min + ((this.values.max - this.values.min) *
         ((this.values.axis == 'vertical' ?
           ((Math.min(Math.max(pos.y, y - Math.floor(hs / 2)), (pos.y + pos.height - hs)) - pos.y) / (pos.height - hs)) :
-          ((Math.min(Math.max(pos.x, x - Math.floor(hs / 2)), (pos.x + pos.width - hs)) - pos.x) / (pos.width -hs)))));
+          ((Math.min(Math.max(pos.x, x - Math.floor(hs / 2)), (pos.x + pos.width - hs)) - pos.x) / (pos.width - hs)))));
     }
   }
 
-  rdrag()
+  rdrag(x,y)
   {
-    this.drag();
+    this.drag(x,y);
   }
 
   wheelup()
@@ -81,6 +81,18 @@ class ScrollElement extends UIElement
     }
   }
 
+  wheeldown()
+  {
+    if(this.values.axis == 'horizontal')
+    {
+      this.step(1);
+    }
+    else
+    {
+      this.step(-1);
+    }
+  }
+
   done()
   {
     this.guiComponent.unfocus();
@@ -90,56 +102,58 @@ class ScrollElement extends UIElement
   {
     if(this == this.guiComponent.mousein || this == this.guiComponent.drag || this == this.guiComponent.focus)
     {
-      context.fillStyle = this.style.default;
+      context.fillStyle = this.default;
     }
     else
     {
-      context.fillStyle = this.style.bg;
+      context.fillStyle = this.bg;
     }
     this.rect(pos);
 
     if(this == this.guiComponent.mousein || this == this.guiComponent.drag || this == this.guiComponent.focus)
     {
-      context.fillStyle = this.style.fg;
+      context.fillStyle = this.fg;
     }
     else
     {
-      context.fillStyle = this.style.hilite;
+      context.fillStyle = this.hilite;
     }
 
-    var hs = this.style.hs;
+    var hs = this.hs;
     if(hs == 'auto')
     {
       if(this.values.axis == 'vertical')
       {
         var h = this.parent ? this.parent.height : pos.height;
-        hs = Math.max(4, Math.min(pos.height, pos.height * h / (this.values.max - htis.values.min + h)));
+        hs = Math.max(this.unit * 0.25, Math.min(pos.height, pos.height * h / (this.values.max - this.values.min + h)));
       }
       else
       {
         var w = this.parent ? this.parent.width : pos.width;
-        hs = Math.max(4, Math.min(pos.width, pos.width * w / (this.values.max - this.values.min + w)));
+        hs = Math.max(this.unit * 0.25, Math.min(pos.width, pos.width * w / (this.values.max - this.values.min + w)));
       }
     }
-
     var handlepos = new Position();
     handlepos.x = this.values.axis == 'horizontal' ?
-      Math.min(pos.x, + pos.width - hs,
+      Math.min(pos.x + pos.width - hs,
         Math.max(pos.x, pos.x + ((pos.width - hs) * ((this.values.current - this.values.min) / (this.values.max - this.values.min)))))
           : pos.x;
 
     handlepos.y = this.values.axis == 'vertical' ?
-      Math.max(pos.y, pos.y + ((pos.height - hs) * ((this.values.current - this.values.min) / (this.values.max - this.values.min))))
-        : pos.y;
+      Math.min(pos.y + pos.height - hs,
+        Math.max(pos.y, pos.y + ((pos.height - hs) * ((this.values.current - this.values.min) / (this.values.max - this.values.min)))))
+          : pos.y;
 
-    handlepos.width = this.values.axis == 'horizontal' ? hs : pos.width;
-    handlepos.height = this.values.axis == 'vertical' ? hs : pos.height;
+    handlepos.width = this.values.axis == 'horizontal' ? hs : this.unit;
+    handlepos.height = this.values.axis == 'vertical' ? hs : this.unit;
     handlepos.radius = pos.radius;
 
     this.drawShape(handlepos);
     if(this.label)
     {
-      context.fillStyle = this.style.labelfg;
+      context.textAlign = this.textAlign;
+      context.textBaseline = this.textBaseline;
+      context.fillStyle = this.labelfg;
       context.fillText(this.label,
         (this.values.axis == 'horizontal' ? pos.x - pos.width : pos.x + pos.width * 0.5),
         (this.values.axis == 'vertical' ? pos.y + pos.height * 0.5 : pos.y + pos.height * 0.5));

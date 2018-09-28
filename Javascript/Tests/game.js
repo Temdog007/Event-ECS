@@ -23,7 +23,6 @@ function sortDrawOrders()
     drawOrderKeys.push(order);
   }
   drawOrderKeys.sort();
-  // drawOrderKeys.forEach(function(value) {console.log(value);});
 }
 
 function addDrawOrder(value, dontSort)
@@ -50,6 +49,11 @@ var canvasRect = canvas.getBoundingClientRect();
 
 var updateArgs = {dt : 0};
 
+canvas.oncontextmenu = function(e)
+{
+  return false;
+};
+
 canvas.onkeydown = function(event)
 {
   event = event || window.event;
@@ -75,13 +79,42 @@ canvas.onmousedown = function(event)
   var button;
   if("which" in event)
   {
-    button = event.which == 3;
+    switch(event.which)
+    {
+      case 1:
+        button = "left";
+        break;
+      case 2:
+        button = "middle";
+        break;
+      case 3:
+        button = "right";
+        break;
+      default:
+        button = "unknown";
+        break;
+    }
   }
   else if ("button" in event)
   {
-    button = e.button == 2;
+    switch(event.button)
+    {
+      case 0:
+        button = "left";
+        break;
+      case 1:
+        button = "middle";
+        break;
+      case 2:
+        button = "right";
+        break;
+      default:
+        button = "unknown";
+        break;
+    }
   }
-  Systems.pushEvent('eventMouseDown', {which : button});
+
+  Systems.pushEvent('eventMouseDown', {x : event.clientX - canvasRect.left, y : event.clientY - canvasRect.top, buttonName : button});
 }
 
 canvas.onmouseup = function(event)
@@ -91,25 +124,60 @@ canvas.onmouseup = function(event)
   var button;
   if("which" in event)
   {
-    button = event.which == 3;
+    switch(event.which)
+    {
+      case 1:
+        button = "left";
+        break;
+      case 2:
+        button = "middle";
+        break;
+      case 3:
+        button = "right";
+        break;
+      default:
+        button = "unknown";
+        break;
+    }
   }
   else if ("button" in event)
   {
-    button = e.button == 2;
+    switch(event.button)
+    {
+      case 0:
+        button = "left";
+        break;
+      case 1:
+        button = "middle";
+        break;
+      case 2:
+        button = "right";
+        break;
+      default:
+        button = "unknown";
+        break;
+    }
   }
-  Systems.pushEvent('eventMouseUp', {which : button});
+
+  Systems.pushEvent('eventMouseUp', {x : event.clientX - canvasRect.left, y : event.clientY - canvasRect.top, buttonName : button});
 }
 
 canvas.onmouseleave = function(event)
 {
   event = event || window.event;
-  Systems.pushEvent('eventMouseLeave');
+  Systems.pushEvent('eventMouseLeave', event);
 }
 
 canvas.onmouseenter = function(event)
 {
   event = event || window.event;
-  Systems.pushEvent('eventMouseEnter');
+  Systems.pushEvent('eventMouseEnter', event);
+}
+
+canvas.onwheel = function(event)
+{
+  event = event || window.event;
+  Systems.pushEvent('eventMouseWheel', event);
 }
 
 function dispatchDraw(value)
@@ -128,6 +196,7 @@ function update(now)
   Systems.pushEvent("eventUpdate", updateArgs);
   Systems.flushEvents();
 
+  context.clearRect(0, 0, canvas.width, canvas.height);
   drawOrderKeys.forEach(dispatchDraw);
   Systems.flushEvents();
 

@@ -11,16 +11,20 @@ class Style
       this._default = s.default;
       this._hilite = s.hilite;
       this._focus = s.focus;
+      this._textAlign = s.textAlign;
+      this._textBaseline = s.textBaseline;
     }
     else
     {
       this._unit = 16;
       this._font = "16px Arial";
-      this._fg = "white";
-      this._bg = "rgb(0.25,0.25,0.25)";
-      this._default = "rgb(0.375,0.375;0.375)";
-      this._hilite = "rgb(0.5,0.5,0.5)";
-      this._focus = "rgb(0.6274509803921569,0.6274509803921569,0.6274509803921569)";
+      this._fg = "rgba(255,255,255)";
+      this._bg = "rgb(64,64,64)";
+      this._default = "rgb(96,96,96)";
+      this._hilite = "rgb(128,128,128)";
+      this._focus = "rgb(160,160,160)";
+      this._textAlign = "left";
+      this._textBaseline = "top";
     }
   }
 
@@ -86,7 +90,7 @@ class Style
 
   get hilite()
   {
-    this._hilite;
+    return this._hilite;
   }
 
   set hitlite(d)
@@ -96,7 +100,7 @@ class Style
 
   get focus()
   {
-    this._focus;
+    return this._focus;
   }
 
   set focus(d)
@@ -106,11 +110,31 @@ class Style
 
   get hs()
   {
-    this._hs;
+    return this._hs;
   }
 
   set hs(d)
   {
     this._hs = d;
+  }
+
+  get textAlign()
+  {
+    return this._textAlign;
+  }
+
+  set textAlign(f)
+  {
+    this._textAlign = f;
+  }
+
+  get textBaseline()
+  {
+    return this._textBaseline;
+  }
+
+  set textBaseline(f)
+  {
+    this._textBaseline = f;
   }
 }

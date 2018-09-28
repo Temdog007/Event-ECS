@@ -15,18 +15,17 @@ class CheckboxElement extends UIElement
   {
     if(this == this.guiComponent.mousein)
     {
-      context.fillStyle = this.style.hilite;
+      context.fillStyle = this.hilite;
     }
     else
     {
-      context.fillStyle = this.style.default;
+      context.fillStyle = this.default;
     }
-
     this.drawShape(pos);
 
     if(this.value)
     {
-      context.fillStyle = this.style.fg;
+      context.fillStyle = this.fg;
       var tpos = new Position(pos);
       tpos.x += tpos.width * 0.25;
       tpos.y += tpos.height * 0.25;
@@ -37,8 +36,10 @@ class CheckboxElement extends UIElement
     }
     if(this.label)
     {
-      context.fillStyle = this.style.labelfg;
-      context.fillText(this.label, this.x, this.y, this.radius * 2);
+      context.fillStyle = this.labelfg;
+      this.textAlign = this.textAlign;
+      this.textBaseline = this.textBaseline;
+      context.fillText(this.label, pos.x, pos.y, pos.radius * 2);
     }
   }
 }

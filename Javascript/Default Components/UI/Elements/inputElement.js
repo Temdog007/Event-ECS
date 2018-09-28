@@ -47,6 +47,9 @@ class InputElement extends UIElement
 
     this.drawShape(pos);
 
+    context.textAlign = this.textAlign;
+    context.textBaseline = this.textBaseline;
+    
     var editw = this.width - 8;
     if(editw >= 1)
     {
@@ -73,7 +76,7 @@ class InputElement extends UIElement
     }
     if(this.label)
     {
-      context.fillStyle = this.style.labelfg;
+      context.fillStyle = this.labelfg;
       context.fillText(this.label, pos.x, pos.y + pos.height - 8);
     }
   }

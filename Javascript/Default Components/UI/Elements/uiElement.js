@@ -8,7 +8,14 @@ class UIElement
     this._dt = 0;
     this._parent = parent;
     this._children = [];
-    this._style = new Style();
+    if(parent)
+    {
+      this._style = new Style(parent.style);
+    }
+    else
+    {
+      this._style = new Style();
+    }
 
     if(guiComponent instanceof GuiComponent)
     {
@@ -86,6 +93,16 @@ class UIElement
     this._display = b;
   }
 
+  get bg()
+  {
+    return this.style.bg;
+  }
+
+  set bg(f)
+  {
+    this.style.bg = f;
+  }
+
   get label()
   {
     return this._label;
@@ -94,6 +111,36 @@ class UIElement
   set label(b)
   {
     this._label = b;
+  }
+
+  get labelfg()
+  {
+    return this.style.labelfg;
+  }
+
+  set labelfg(f)
+  {
+    this.style.labelfg = f;
+  }
+
+  get hilite()
+  {
+    return this.style.hilite;
+  }
+
+  set hilite(f)
+  {
+    this.style.hilite = f;
+  }
+
+  get default()
+  {
+    return this.style.default;
+  }
+
+  set default(f)
+  {
+    this.style.default = f;
   }
 
   get dt()
@@ -131,6 +178,46 @@ class UIElement
     this.style.font = f;
   }
 
+  get unit()
+  {
+    return this.style.unit;
+  }
+
+  set unit(value)
+  {
+    this.style.unit = value;
+  }
+
+  set hs(f)
+  {
+    this.style.hs = f;
+  }
+
+  get hs()
+  {
+    return this.style.hs;
+  }
+
+  get textAlign()
+  {
+    return this.style.textAlign;
+  }
+
+  set textAlign(f)
+  {
+    this.style.textAlign = f;
+  }
+
+  get textBaseline()
+  {
+    return this.style.textBaseline;
+  }
+
+  set textBaseline(f)
+  {
+    this.style.textBaseline = f;
+  }
+
   get mousePosition()
   {
     return {x : this.guiComponent.mx, y : this.guiComponent.my};
@@ -146,7 +233,7 @@ class UIElement
     if(this.shape == "circle")
     {
       context.beginPath();
-      context.arc(pos.x + pos.radius, pos.y + pos.radius, 0, Math.PI * 2);
+      context.arc(pos.x + pos.radius, pos.y + pos.radius, pos.radius, 0, Math.PI * 2);
       context.fill();
     }
     else
@@ -177,7 +264,7 @@ class UIElement
       var p = new Position(pos);
       p.x += this.radius;
       p.y += this.radius;
-      if(!this.withinRadius(x, y, p, this.scissor))
+      if(!UIElement.withinRadius(x, y, p, this.scissor))
       {
         contains = false;
       }
@@ -207,14 +294,14 @@ class UIElement
     return Math.sqrt((pos.x - target.x) * (pos.x - target.x) + (pos.y - target.y) * (pos.y - target.y));
   }
 
-  static withinRadius(pos, circ, scissor)
+  static withinRadius(x, y, circ, scissor)
   {
-    if((pos.x - circ.x) * (pos.x - circ.x) + (pos.y - circ.y) * (pos.y - circ.y) < circ.radius * circ.radius)
+    if((x - x) * (x - circ.x) + (y - circ.y) * (y - circ.y) < circ.radius * circ.radius)
     {
       if(scissor)
       {
-        return scissor.x <= pos.x && pos.x <= scissor.x + scissor.width &&
-              scissor.y <= pos.y && pos.y <= scissor.y + scissor.height;
+        return scissor.x <= x && x <= scissor.x + scissor.width &&
+              scissor.y <= y && y <= scissor.y + scissor.height;
       }
       else
       {
@@ -263,6 +350,11 @@ class UIElement
 
   addChild(child, autostack)
   {
+    if(!(child instanceof UIElement))
+    {
+      throw new TypeError("Must add UI element children");
+    }
+
     if(autostack)
     {
       if(typeof autostack == "number" || typeof autostack == "grid")
@@ -301,8 +393,8 @@ class UIElement
     }
 
     this.children.push(child);
-    child.parent = this;
-    child.style = new Style(this.style);
+    child._parent = this;
+    child._style = new Style(this.style);
     if(this.scrollh)
     {
       this.scrollh.values.max = Math.max(this.getMaxW() - this.width, 0);
@@ -360,8 +452,7 @@ class UIElement
     var pos = new Position(this.pos);
     if(this.parent)
     {
-      var ppos = 0;
-      ppos = this.parent.getPosition();
+      var ppos = this.parent.getPosition();
       pos.x += ppos.x;
       pos.y += ppos.y;
       if(this.parent instanceof ScrollGroupElement && this != this.parent.scrollv && this != this.parent.scrollh)
@@ -369,6 +460,9 @@ class UIElement
         if(this.parent.scrollv)
         {
           pos.y -= this.parent.scrollv.values.current;
+        }
+        if(this.parent.scrollh)
+        {
           pos.x -= this.parent.scrollh.values.current;
         }
       }
@@ -386,6 +480,30 @@ class UIElement
         scissor = new Position(this.parent.getPosition());
       }
       return scissor;
+    }
+  }
+
+  setLevel(level)
+  {
+    if(level)
+    {
+      this.guiComponent.elements.splice(UIElement.getIndex(this.guiComponent.elements, this), 1);
+      this.guiComponent.elements.splice(level, 0, this);
+      for(var i = 0; i < this.children.length; ++i)
+      {
+        var child = this.children[i];
+        child.setLevel(level + 1);
+      }
+    }
+    else
+    {
+      this.guiComponent.elements.splice(UIElement.getIndex(this.guiComponent.elements, this), 1);
+      this.guiComponent.elements.push(this);
+      for(var i = 0; i < this.children.length; ++i)
+      {
+        var child = this.children[i];
+        child.setLevel();
+      }
     }
   }
 }

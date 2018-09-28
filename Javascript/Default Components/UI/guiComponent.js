@@ -10,6 +10,7 @@ class GuiComponent extends DrawableComponent
 
     this._mx = 0;
     this._my = 0;
+    this.style = new Style();
   }
 
   get mx()
@@ -99,7 +100,7 @@ class GuiComponent extends DrawableComponent
       }
       if(mousein && mousein.leave)
       {
-        this.mousein.leave();
+        mousein.leave();
       }
     }
   }
@@ -107,7 +108,7 @@ class GuiComponent extends DrawableComponent
   handleDrag()
   {
     var element = this.drag;
-    if(this.mouseDown == "left")
+    if(this.leftMouseDown)
     {
       if(typeof element.drag == "function")
       {
@@ -119,7 +120,7 @@ class GuiComponent extends DrawableComponent
         element.y = this.my - element.offset.y;
       }
     }
-    else if(this.mouseDown == "right")
+    else if(this.rightMouseDown)
     {
       if(typeof element.rdrag == "function")
       {
@@ -206,7 +207,6 @@ class GuiComponent extends DrawableComponent
           context.save();
           context.beginPath();
           context.rect(scissor.x, scissor.y, scissor.width, scissor.height);
-          context.stroke();
           context.clip();
         }
         context.font = element.font;
@@ -215,6 +215,148 @@ class GuiComponent extends DrawableComponent
         {
           context.restore();
         }
+      }
+    }
+    if(this.mousein && this.mousein.tip)
+    {
+      var element = this.mousein;
+      var tippos = element.getPosition();
+      tippos.x += this.style.unit * 0.5;
+      tippos.y += this.style.unit * 0.5;
+      pos.width = context.measureText(element.tip).width + this.style.unit;
+
+      context.fillStyle = this.style.bg;
+      var pos = new Position();
+      pos.x = Math.max(0,
+        Math.min(tippos.x, canvas.width - context.measureText(element.tip).width + this.style.unit));
+      pos.y = Math.max(0,
+        Math.min(tippos.y, canvas.height - this.style.unit));
+      pos.width = tippos.width;
+      pos.height= this.style.unit;
+      this.mousein.rect(pos);
+
+      context.fillStyle = this.style.fg;
+      context.textAlign = this.style.textAlign;
+      context.textBaseline = this.style.textBaseline;
+      if(element.width > context.measureText(element.tip).width)
+      {
+        context.fillText(element.tip, pos.x, pos.y, element.width);
+      }
+      else
+      {
+        context.fillText(element.tip, pos.x, pos.y);
+      }
+    }
+  }
+
+  eventMouseMoved(args)
+  {
+    this._mx = args.x;
+    this._my = args.y;
+  }
+
+  eventMouseDown(args)
+  {
+    this.unfocus();
+    if(this.mousein)
+    {
+      var element = this.mousein;
+      if(!(element instanceof HiddenElement))
+      {
+        element.getParent().setLevel();
+      }
+      if(args.buttonName == "left")
+      {
+        this.leftMouseDown = true;
+        if(element.drag)
+        {
+          this.drag = element;
+          var pos = element.getPosition();
+          element.offset = {x : args.x - pos.x, y : args.y - pos.y};
+        }
+        if(this.mousedt < this.dblclickinterval && element.dblclick)
+        {
+          element.dblclick(args.x, args.y, args.buttonName);
+        }
+        else if(element.click)
+        {
+          element.click(args.x, args.y);
+        }
+      }
+      else if(args.buttonName == "right" && element.rclick)
+      {
+        this.rightMouseDown = true;
+        element.rclick(args.x, args.y);
+      }
+      else if(args.buttonName == "wu" && element.wheelup)
+      {
+        element.wheelup(args.x, args.y);
+      }
+      else if(args.buttonName == "wd" && element.wheeldown)
+      {
+        element.wheeldown(args.x, args.y);
+      }
+    }
+    this._mousedt = 0;
+  }
+
+  eventMouseUp(args)
+  {
+    if(this.drag)
+    {
+      var element = this.drag;
+      if(args.buttonName == "right")
+      {
+        this.rightMouseDown = false;
+        if(element.rdrop)
+        {
+          element.rdrop(this.mouseover);
+        }
+        if(this.mouseover && this.mouseover.rcatch)
+        {
+          this.mouseover.rcatch(element);
+        }
+      }
+      else
+      {
+        this.leftMouseDown = false;
+        if(element.drop)
+        {
+          element.drop(this.mouseover);
+        }
+        if(this.mouseover && this.mouseover.catch)
+        {
+          this.mouseover.catch(element);
+        }
+      }
+    }
+    this.drag = null;
+  }
+
+  eventMouseWheel(args)
+  {
+    if(args.deltaY != 0 && this.mousein)
+    {
+      var element = this.mousein;
+      var func = args.deltaY > 0 ? element.wheeldown : element.wheelup;
+      if(func)
+      {
+        func.call(this.mx, this.my);
+      }
+    }
+  }
+
+  eventKeyDown(args)
+  {
+    if(this.focus)
+    {
+      if((args.key == "return" || args.key == "kpenter") && this.focus.done)
+      {
+        this.focus.done();
+      }
+      if(this.focus && this.focus.keypress)
+      {
+        this.focus.keypress(args.key);
       }
     }
   }
@@ -257,10 +399,10 @@ loadElements(["../position", "../style", "uielement"], function()
 
 window.addEventListener("uielementloaded", function()
 {
-  loadElements(["buttonElement", "checkboxElement", "collapseGroupElement",
-    "feedbackElement", "groupElement", "hiddenElement", "imageElement",
+  loadElements(["buttonElement", "checkboxElement", "groupElement",
+    "collapseGroupElement", "feedbackElement", "hiddenElement", "imageElement",
     "inputElement", "optionElement", "progressElement", "scrollElement",
-     "textElement", "typeTextElement"],
+     "scrollGroupElement", "textElement", "typeTextElement"],
     function()
      {
        window.dispatchEvent(new Event('guiLoaded'));

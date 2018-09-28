@@ -2,8 +2,17 @@ class TextElement extends UIElement
 {
   draw(pos)
   {
-    context.textBaseline = "top";
-    context.fillText(this.label, pos.x, pos.y, this.width);
+    context.fillStyle = this.labelfg;
+    context.textBaseline = this.textBaseline;
+    context.textAlign = this.textAlign;
+    if(this.fitWidth)
+    {
+      context.fillText(this.label, pos.x, pos.y, pos.width);
+    }
+    else
+    {
+      context.fillText(this.label, pos.x, pos.y);
+    }
   }
 
   static utf8char_begin(s, idx)

@@ -25,13 +25,51 @@ class ScrollGroupElement extends UIElement
     }
   }
 
+  get width()
+  {
+    return super.width;
+  }
+
+  set width(f)
+  {
+    super.width = f;
+    if(this.scrollv)
+    {
+      this.scrollv.x = this.width;
+    }
+    if(this.scrollh)
+    {
+      this.scrollh.width = this.width;
+    }
+  }
+
+  get height()
+  {
+    return super.height;
+  }
+
+  set height(f)
+  {
+    super.height = f;
+    if(this.scrollv)
+    {
+      this.scrollv.height = this.height;
+    }
+    if(this.scrollh)
+    {
+      this.scrollh.y = this.height;
+    }
+  }
+
   draw(pos)
   {
-    context.fillStyle = this.style.bg;
+    context.fillStyle = this.bg;
     this.drawShape(pos);
     if(this.label)
     {
-      context.fillStyle = this.style.labelfg;
+      context.textAlign = this.textAlign;
+      context.textBaseline = this.textBaseline;
+      context.fillStyle = this.labelfg;
       context.fillText(this.label, pos.x, pos.y, pos.width);
     }
   }

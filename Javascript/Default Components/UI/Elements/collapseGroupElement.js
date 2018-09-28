@@ -1,14 +1,27 @@
-class CollapseGroupElement extends UIElement
+class CollapseGroupElement extends GroupElement
 {
   constructor(guiComponent, label, pos, parent)
   {
     super(guiComponent, label, pos, parent);
     this.view = true;
     this.orig = new Position(pos);
-    
+
     this.control = new ButtonElement(guiComponent, '-', null, this);
-    this.control.x = this.width - 16;
-    this.control.click = this.parent.toggle;
+    this.control.click = function()
+    {
+      this.parent.toggle();
+    }
+  }
+
+  set width(f)
+  {
+    super.width = f;
+    this.control.x = this.width - this.control.width;
+  }
+
+  get width()
+  {
+    return super.width;
   }
 
   toggle()

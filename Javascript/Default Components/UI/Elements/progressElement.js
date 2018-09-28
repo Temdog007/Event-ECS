@@ -41,7 +41,9 @@ class ProgressElement extends UIElement
     this.rect({x : pos.x, y : pos.y, width : pos.width * (this.values.current / this.values.max), height : pos.h});
     if(this.label)
     {
-      context.fillStyle = this.style.labelfg;
+      context.fillStyle = this.labelfg;
+      context.textAlign = this.textAlign;
+      context.textBaseline = this.textBaseline;
       context.fillText(this.label, pos.x, pos.y, pos.width);
     }
   }

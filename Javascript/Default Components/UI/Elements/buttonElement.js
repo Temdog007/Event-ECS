@@ -1,5 +1,15 @@
 class ButtonElement extends UIElement
 {
+  constructor(guiComponent, label, pos, parent, autosize)
+  {
+    super(guiComponent, label, pos, parent);
+    if(autosize)
+    {
+      context.fillStyle = this.default;
+      this.width = context.measureText(label).width;
+    }
+  }
+
   draw(pos)
   {
     if(this.parent && this.value == this.parent.value)
@@ -10,24 +20,25 @@ class ButtonElement extends UIElement
       }
       else
       {
-        context.fillStyle = this.style.hilite;
+        context.fillStyle = this.hilite;
       }
     }
     else
     {
       if(this == this.guiComponent.mousein)
       {
-        context.fillStyle = this.style.hilite;
+        context.fillStyle = this.hilite;
       }
       else
       {
-        context.fillStyle = this.style.default;
+        context.fillStyle = this.default;
       }
     }
-
     this.drawShape(pos);
-    context.fillStyle = this.style.labelfg;
 
+    context.textBaseline = this.textBaseline;
+    context.textAlign = this.textAlign;
+    context.fillStyle = this.labelfg;
     if(this.shape == 'circle')
     {
       if(this.img)
@@ -36,9 +47,8 @@ class ButtonElement extends UIElement
       }
       if(this.label)
       {
-        context.textBaseline = "top";
-        var y = this.img ? this.y + this.radius * 2 : this.y;
-        context.fillText(this.label, this.x + this.radius, y, this.width);
+        var y = this.img ? pos.y + this.radius * 2 : pos.y;
+        context.fillText(this.label, pos.x, y, pos.radius * 2);
       }
     }
     else
@@ -49,9 +59,8 @@ class ButtonElement extends UIElement
       }
       if(this.label)
       {
-        context.textBaseline = "top";
-        var y = this.img ? this.y + this.height : this.y;
-        context.fillText(this.label, this.x + this.radius, y, this.width);
+        var y = this.img ? pos.y + this.height : pos.y;
+        context.fillText(this.label, pos.x, y, pos.width);
       }
     }
   }

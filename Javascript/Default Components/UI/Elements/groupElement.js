@@ -6,9 +6,17 @@ class GroupElement extends UIElement
     this.drawShape(pos);
     if(this.label)
     {
-      context.fillStyle = this.style.labelfg;
-      context.textBaseline = "top";
-      context.fillText(this.label, this.x, this.y, this.width);
+      context.fillStyle = this.labelfg;
+      context.textBaseline = this.textBaseline;
+      context.textAlign = this.textAlign;
+      if(this.fitWidth)
+      {
+        context.fillText(this.label, pos.x, pos.y, this.width);
+      }
+      else
+      {
+        context.fillText(this.label, pos.x, pos.y);
+      }
     }
   }
 }
