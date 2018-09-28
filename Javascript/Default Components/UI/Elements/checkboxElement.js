@@ -1,4 +1,4 @@
-class CheckboxElement extends Element
+class CheckboxElement extends UIElement
 {
   constructor(guiComponent, label, pos, parent, value)
   {

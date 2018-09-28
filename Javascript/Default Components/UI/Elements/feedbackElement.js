@@ -1,4 +1,4 @@
-class FeedbackElement extends Element
+class FeedbackElement extends UIElement
 {
   constructor(guiComponent, label, pos, parent, autopos)
   {
@@ -9,7 +9,7 @@ class FeedbackElement extends Element
       for(var i = 0; i < guiComponent.elements.length; ++i)
       {
         var element = this.elements[i];
-        if(element != this && element instancoef FeedbackElement && element.autopos)
+        if(element != this && element instanceof FeedbackElement && element.autopos)
         {
           element.y += element.style.unit;
         }

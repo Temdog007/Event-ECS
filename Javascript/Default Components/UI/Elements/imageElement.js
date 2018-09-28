@@ -1,4 +1,4 @@
-class ImageElement extends Element
+class ImageElement extends UIElement
 {
   constructor(guiComponent, label, pos, parent, img)
   {

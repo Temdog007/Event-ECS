@@ -1,4 +1,4 @@
-class CollapseGroupElement extends Element
+class CollapseGroupElement extends UIElement
 {
   constructor(guiComponent, label, pos, parent)
   {

@@ -1,14 +1,14 @@
-class InputElement extends Element
+class InputElement extends UIElement
 {
   constructor(guiComponent, label, pos, parent, value, ispassword, passwordchar)
   {
     super(guiComponent, label, pos, parent);
-    this.value = value ? value.toString() || '';
+    this.value = value ? value.toString() : '';
     this.cursor = this.value.length;
     this.textorigin = 0;
     this.cursorlife = 0;
     this.keyrepeat = true;
-    this.ispassword = passwordchar ? passwordchar.toString() || '*';
+    this.ispassword = passwordchar ? passwordchar.toString() : '*';
   }
 
   update(dt)
@@ -51,7 +51,7 @@ class InputElement extends Element
     if(editw >= 1)
     {
       context.fillStyle = this.style.fg;
-      var str = this.ispassword ? this.ispasswordchar.repeat(TextElement.utf8len(this.value.toString())) || this.value.toString();
+      var str = this.ispassword ? this.ispasswordchar.repeat(TextElement.utf8len(this.value.toString())) : this.value.toString();
 
       var cursorx = this.textorigin + pos.width;
       if(cursorx < 0)
@@ -125,9 +125,9 @@ class InputElement extends Element
     {
       this.cursor = this.value.length;
     }
-    else if(key == "tab" && this.next and this.next instanceof Element)
+    else if(key == "tab" && this.next && this.next instanceof UIElement)
     {
-      this.next:focus();
+      this.next.focus();
     }
     else if(key == "escape")
     {

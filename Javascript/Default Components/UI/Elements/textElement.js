@@ -1,10 +1,9 @@
-class TextElement extends Element
+class TextElement extends UIElement
 {
   draw(pos)
   {
-    context.fillStyle = this.color;
     context.textBaseline = "top";
-    context.fillText(this.label, this.x, this.y, this.width);
+    context.fillText(this.label, pos.x, pos.y, this.width);
   }
 
   static utf8char_begin(s, idx)

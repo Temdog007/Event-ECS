@@ -1,4 +1,4 @@
-class GroupElement extends Element
+class GroupElement extends UIElement
 {
   draw(pos)
   {

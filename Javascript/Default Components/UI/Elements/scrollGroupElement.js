@@ -1,4 +1,4 @@
-class ScrollGroupElement extends Element
+class ScrollGroupElement extends UIElement
 {
   constructor(guiComponent, label, pos, parent, axis)
   {

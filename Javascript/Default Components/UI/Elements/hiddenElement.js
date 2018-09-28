@@ -1,4 +1,4 @@
-class HiddenElement extends Element
+class HiddenElement extends UIElement
 {
   draw(){}
 }

@@ -1,4 +1,4 @@
-class ButtonElement extends Element
+class ButtonElement extends UIElement
 {
   draw(pos)
   {

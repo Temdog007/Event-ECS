@@ -1,4 +1,4 @@
-class ScrollElement extends Element
+class ScrollElement extends UIElement
 {
   constructor(guiComponent, label, pos, parent, values)
   {
@@ -59,8 +59,8 @@ class ScrollElement extends Element
     {
       this.values.current = this.values.min + ((this.values.max - this.values.min) *
         ((this.values.axis == 'vertical' ?
-          ((Math.min(Math.max(pos.y, y - Math.floor(hs / 2)), (pos.y + pos.height - hs)) - pos.y) / (pos.height - hs))) :
-          ((Math.min(Math.max(pos.x, x - Math.floor(hs / 2)), (pos.x + pos.width - hs)) - pos.x) / (pos.width -hs))));
+          ((Math.min(Math.max(pos.y, y - Math.floor(hs / 2)), (pos.y + pos.height - hs)) - pos.y) / (pos.height - hs)) :
+          ((Math.min(Math.max(pos.x, x - Math.floor(hs / 2)), (pos.x + pos.width - hs)) - pos.x) / (pos.width -hs)))));
     }
   }
 

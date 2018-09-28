@@ -1,4 +1,4 @@
-class GuiComponent extends DrawableCompnent
+class GuiComponent extends DrawableComponent
 {
   constructor(entity)
   {
@@ -44,6 +44,7 @@ class GuiComponent extends DrawableCompnent
     {
       element.parent.addChild(element);
     }
+    return element;
   }
 
   rem(element)
@@ -62,7 +63,7 @@ class GuiComponent extends DrawableCompnent
     if(element == this.mousein){ this.mousein = null;}
     if(element == this.drag){this.drag = null;}
     if(element == this.focus) {this.unfocus();}
-    this.elements.splice(Element.getIndex(this.elements, element), 1);
+    this.elements.splice(UIElement.getIndex(this.elements, element), 1);
   }
 
   setfocus(element)
@@ -202,13 +203,66 @@ class GuiComponent extends DrawableCompnent
         var scissor = element.scissor;
         if(scissor)
         {
-          gl.enable(gl.SCISSOR_TEST);
-          gl.scissor();
+          context.save();
+          context.beginPath();
+          context.rect(scissor.x, scissor.y, scissor.width, scissor.height);
+          context.stroke();
+          context.clip();
         }
         context.font = element.font;
         element.draw(pos);
-        gl.disable(gl.SCISSOR_TEST);
+        if(scissor)
+        {
+          context.restore();
+        }
       }
     }
   }
 }
+
+if(path == null)
+{
+  var path = "";
+}
+
+function loadElement(elementSource, func)
+{
+  var s = document.createElement("script");
+  s.src = path+"Elements/"+elementSource+".js";
+  s.onload = func;
+  document.body.appendChild(s);
+}
+
+function loadElements(elements, onelementsloaded)
+{
+  var scriptsLoaded = 0;
+  function scriptLoaded()
+  {
+    if(++scriptsLoaded == elements.length)
+    {
+      onelementsloaded();
+    }
+  }
+
+  for(var index in elements)
+  {
+    loadElement(elements[index], scriptLoaded);
+  }
+}
+
+loadElements(["../position", "../style", "uielement"], function()
+{
+  window.dispatchEvent(new Event('uielementloaded'));
+});
+
+window.addEventListener("uielementloaded", function()
+{
+  loadElements(["buttonElement", "checkboxElement", "collapseGroupElement",
+    "feedbackElement", "groupElement", "hiddenElement", "imageElement",
+    "inputElement", "optionElement", "progressElement", "scrollElement",
+     "textElement", "typeTextElement"],
+    function()
+     {
+       window.dispatchEvent(new Event('guiLoaded'));
+     });
+});

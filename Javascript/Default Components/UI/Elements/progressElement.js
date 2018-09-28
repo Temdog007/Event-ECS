@@ -1,4 +1,4 @@
-class ProgressElement extends Element
+class ProgressElement extends UIElement
 {
   constructor(guiComponent, label, pos, parent)
   {
@@ -38,7 +38,7 @@ class ProgressElement extends Element
     context.fillStyle = this.style.default;
     this.drawShape(pos);
     context.fillStyle = this.style.fg;
-    this.rect({x : pos.x, y : pos.y, : width : pos.width * (this.values.current / this.values.max), h = pos.h});
+    this.rect({x : pos.x, y : pos.y, width : pos.width * (this.values.current / this.values.max), height : pos.h});
     if(this.label)
     {
       context.fillStyle = this.style.labelfg;

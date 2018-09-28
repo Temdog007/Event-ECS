@@ -1,8 +1,3 @@
-var canvas = document.getElementById("canvas");
-var context = canvas.getContext("2d");
-var gl = canvas.getContext("webl") || canvas.getContext("experimental-webgl");
-var canvasRect = canvas.getBoundingClientRect();
-
 var frames = 0;
 var frameRate = 30;
 
@@ -16,10 +11,6 @@ setInterval(function()
   frameRate = frames;
   frames = 0;
 }, 1000);
-
-var now;
-var start = Date.now();
-var updateArgs = {dt : 0};
 
 var drawOrders = {[0] : {drawOrder : 0}};
 var drawOrderKeys = [0];
@@ -52,6 +43,12 @@ function addDrawOrders(arr)
   }
   sortDrawOrders();
 }
+
+var canvas = document.getElementById("canvas");
+var context = canvas.getContext("2d");
+var canvasRect = canvas.getBoundingClientRect();
+
+var updateArgs = {dt : 0};
 
 canvas.onkeydown = function(event)
 {
@@ -120,18 +117,17 @@ function dispatchDraw(value)
   Systems.pushEvent("eventDraw", drawOrders[value]);
 }
 
-function update()
+var last = 0;
+function update(now)
 {
-  now = Date.now();
-  updateArgs.dt = (now - start) / 1000;
-  start = Date.now();
+  updateArgs.dt = (now - last) / 1000;
+  last = now;
 
   ++frames;
 
   Systems.pushEvent("eventUpdate", updateArgs);
   Systems.flushEvents();
 
-  context.clearRect(0, 0, canvas.width, canvas.height);
   drawOrderKeys.forEach(dispatchDraw);
   Systems.flushEvents();
 

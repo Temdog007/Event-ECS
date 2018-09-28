@@ -1,4 +1,4 @@
-class Element
+class UIElement
 {
   constructor(guiComponent, label, pos, parent)
   {
@@ -10,8 +10,15 @@ class Element
     this._children = [];
     this._style = new Style();
 
-    this.guiComponent = guiComponent;
-    guiComponent:addChild(this);
+    if(guiComponent instanceof GuiComponent)
+    {
+      this.guiComponent = guiComponent;
+      guiComponent.add(this);
+    }
+    else
+    {
+      throw new TypeError("Must pass a Gui Component to the element constructor. Got: " + guiComponent);
+    }
   }
 
   get x()
@@ -175,7 +182,7 @@ class Element
         contains = false;
       }
     }
-    else if(!this.withinRect(x, y, pos, this.scissor))
+    else if(!UIElement.withinRect(x, y, pos, this.scissor))
     {
       contains = false;
     }
@@ -186,11 +193,10 @@ class Element
   {
     if(scissor)
     {
-      return
-        rect.x <= x     && x <= rect.x + rect.width &&
-        rect.y <= y     && y <= rect.y + rect.height &&
-        scissor.x <= x  && x <= scissor.x + scissor.width &&
-        scissor.y <= y  && y <= scissor.y + scissor.height;
+      return  rect.x <= x     && x <= rect.x + rect.width &&
+              rect.y <= y     && y <= rect.y + rect.height &&
+              scissor.x <= x  && x <= scissor.x + scissor.width &&
+              scissor.y <= y  && y <= scissor.y + scissor.height;
     }
     return rect.x <= x && x <= rect.x + rect.width &&
           rect.y <= y && y <= rect.y + rect.height;
@@ -322,7 +328,7 @@ class Element
   remchild(child)
   {
     child.pos = child.getPosition();
-    this.children.splice(Element.getIndex(this.children, child), 1);
+    this.children.splice(UIElement.getIndex(this.children, child), 1);
     child.parent = null;
   }
 
