@@ -1,12 +1,12 @@
 class CollapseGroupElement extends GroupElement
 {
-  constructor(guiComponent, label, pos, parent)
+  constructor(label, pos, parent)
   {
-    super(guiComponent, label, pos, parent);
+    super(label, pos, parent);
     this.view = true;
     this.orig = new Position(pos);
 
-    this.control = new ButtonElement(guiComponent, '-', null, this);
+    this.control = new ButtonElement('-', null, this);
     this.control.click = function()
     {
       this.parent.toggle();

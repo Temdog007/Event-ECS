@@ -3,7 +3,7 @@ class System extends EcsObject
   constructor(name, systemList)
   {
     super();
-    this.name = name || "System";
+    this.systemName = name;
     this.systemList = systemList;
     this.entities = [];
     this.enabledEntities = [];

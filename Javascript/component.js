@@ -13,7 +13,6 @@ class Component extends EcsObject
     temp = entity;
     super();
     this._entity = entity;
-    this.name = "Component";
     temp = null;
   }
 

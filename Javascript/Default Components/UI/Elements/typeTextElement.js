@@ -1,8 +1,8 @@
 class TypeTextElement extends TextElement
 {
-  constructor(guiComponent, label, pos, parent)
+  constructor(label, pos, parent)
   {
-    super(guiComponent, '', pos, parent);
+    super('', pos, parent);
     this.values = {text : label, cursor : 0};
     this.updateInterval = 0.1;
   }

@@ -8,7 +8,6 @@ class EcsObject
 {
   constructor()
   {
-    this._name = "ECS Object";
     this._enabled = true;
     this._data = {enabled : true};
     this._id = GetUniqueID();
@@ -44,12 +43,7 @@ class EcsObject
 
   get name()
   {
-    return this._name;
-  }
-
-  set name(_name)
-  {
-    this._name = _name;
+    return this.constructor.name;
   }
 
   set(_name, value, ignoreEnabled = false)

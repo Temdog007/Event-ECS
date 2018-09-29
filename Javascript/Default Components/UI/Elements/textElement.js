@@ -1,13 +1,12 @@
 class TextElement extends UIElement
 {
-  constructor(guiComponent, label, pos, parent, autosize)
+  constructor(label, pos, parent, autosize)
   {
-    super(guiComponent, label, pos, parent);
+    super(label, pos, parent);
     if(autosize)
     {
       context.font = this.font;
       this.width = context.measureText(this.label).width;
-      console.log(this.label, this.width);
     }
   }
 

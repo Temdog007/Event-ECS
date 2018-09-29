@@ -1,14 +1,14 @@
 class FeedbackElement extends UIElement
 {
-  constructor(guiComponent, label, pos, parent, autopos)
+  constructor(label, pos, parent, autopos)
   {
-    super(guiComponent, label, pos, parent);
+    super(label, pos, parent);
     autopos = autopos == null ? true : autopos;
     if(autopos)
     {
-      for(var i = 0; i < guiComponent.elements.length; ++i)
+      for(var i = 0; i < this.guiComponent.elements.length; ++i)
       {
-        var element = guiComponent.elements[i];
+        var element = this.guiComponent.elements[i];
         if(element != this && element instanceof FeedbackElement && element.autopos)
         {
           element.y += element.style.unit;
@@ -30,7 +30,7 @@ class FeedbackElement extends UIElement
       return;
     }
 
-    this.fg = "rgba(255,255,255," + Math.floor(this.alpha * 255) +")";
+    this.fg = "rgba(255,255,255, " + this.alpha + ")";
   }
 
   draw(pos)

@@ -1,31 +1,33 @@
 class UIElement
 {
-  constructor(guiComponent, label, pos, parent)
+  constructor(label, pos, parent)
   {
+    if(guiComponentInstance == null)
+    {
+      throw "GUI Component must be defined before creating an element.";
+    }
+    if(label instanceof GuiComponent)
+    {
+      throw "Passed GUI Component as first argument.";
+    }
+    this.guiComponent = guiComponentInstance;
+
     this._pos = new Position(pos);
     this._label = label;
     this._display = true;
     this._dt = 0;
     this._parent = parent;
     this._children = [];
+
     if(parent)
     {
       this._style = new Style(parent.style);
     }
     else
     {
-      this._style = new Style();
+      this._style = new Style(this.guiComponent.style);
     }
-
-    if(guiComponent instanceof GuiComponent)
-    {
-      this.guiComponent = guiComponent;
-      guiComponent.add(this);
-    }
-    else
-    {
-      throw new TypeError("Must pass a Gui Component to the element constructor. Got: " + guiComponent);
-    }
+    this.guiComponent.add(this);
   }
 
   get x()
@@ -101,6 +103,16 @@ class UIElement
   set bg(f)
   {
     this.style.bg = f;
+  }
+
+  get fg()
+  {
+    return this.style.fg;
+  }
+
+  set fg(f)
+  {
+    this.style.fg = f;
   }
 
   get label()
@@ -325,7 +337,7 @@ class UIElement
     return this;
   }
 
-  getMaxW()
+  get maxW()
   {
     var maxw = 0;
     for(var i = 0; i < this.children.length; ++i)
@@ -339,7 +351,7 @@ class UIElement
     return maxw;
   }
 
-  getMaxH()
+  get maxH()
   {
     var maxh = 0;
     for(var i = 0; i < this.children.length; ++i)
@@ -347,7 +359,7 @@ class UIElement
       var child = this.children[i];
       if(child != this.scrollv && child != this.scrollh && child.y + child.height > maxh)
       {
-        maxh = child.x + child.width;
+        maxh = child.y + child.height;
       }
     }
     return maxh;
@@ -362,13 +374,14 @@ class UIElement
 
     if(autostack)
     {
-      if(typeof autostack == "number" || typeof autostack == "grid")
+      if(typeof autostack == "number" || autostack == "grid")
       {
         var limitx = typeof autostack == "number" ? autostack : this.width;
         var maxx = 0;
         var maxy = 0;
         for(var i = 0; i < this.children.length; ++i)
         {
+          var element = this.children[i];
           if(element != this.scrollh && element != this.scrollv)
           {
             if(element.y > maxy)
@@ -386,27 +399,29 @@ class UIElement
             }
           }
         }
+        child.x = maxx;
+        child.y = maxy;
       }
       else if(autostack == "horizontal")
       {
-        chid.pos.x = this.getMaxW();
+        child.x = this.maxW;
       }
       else if(autostack == "vertical")
       {
-        child.pos.y = this.getMaxH();
+        child.y = this.maxH;
       }
     }
 
     this.children.push(child);
     child._parent = this;
-    child._style = new Style(this.style);
+    child._style.append(this.style);
     if(this.scrollh)
     {
-      this.scrollh.values.max = Math.max(this.getMaxW() - this.width, 0);
+      this.scrollh.values.max = Math.max(this.maxW - this.width, 0);
     }
     if(this.scrollv)
     {
-      this.scrollv.values.max = Math.max(this.getMaxH() - this.height, 0);
+      this.scrollv.values.max = Math.max(this.maxH - this.height, 0);
     }
     return child;
   }
@@ -424,9 +439,9 @@ class UIElement
 
   remchild(child)
   {
-    child.pos = child.getPosition();
+    child._pos = child.getPosition();
     this.children.splice(UIElement.getIndex(this.children, child), 1);
-    child.parent = null;
+    child._parent = null;
   }
 
   show()
@@ -449,7 +464,7 @@ class UIElement
 
   focus()
   {
-    this.guiComponent.setFocus(this);
+    this.guiComponent.setfocus(this);
   }
 
   getPosition()
@@ -488,27 +503,53 @@ class UIElement
     }
   }
 
-  setLevel(level)
+  set level(level)
   {
     if(level)
     {
-      this.guiComponent.elements.splice(UIElement.getIndex(this.guiComponent.elements, this), 1);
+      this.guiComponent.elements.splice(this.index, 1);
       this.guiComponent.elements.splice(level, 0, this);
       for(var i = 0; i < this.children.length; ++i)
       {
         var child = this.children[i];
-        child.setLevel(level + 1);
+        child.level = level + 1;
       }
     }
     else
     {
-      this.guiComponent.elements.splice(UIElement.getIndex(this.guiComponent.elements, this), 1);
+      this.guiComponent.elements.splice(this.index, 1);
       this.guiComponent.elements.push(this);
       for(var i = 0; i < this.children.length; ++i)
       {
         var child = this.children[i];
-        child.setLevel();
+        child.level = null;
       }
     }
+  }
+
+  get level()
+  {
+    for(var i = 0; i < this.guiComponent.elements.length; ++i)
+    {
+      if(this.guiComponent.elements[i] == this)
+      {
+        return i;
+      }
+    }
+  }
+
+  get index()
+  {
+    return UIElement.getIndex(this.guiComponent.elements, this);
+  }
+
+  replace(replacement)
+  {
+    var newindex = this.index;
+    this.guiComponent.rem(this);
+    var oldindex = replacement.index;
+    this.guiComponent.elements.splice(oldindex, 1);
+    this.guiComponent.elements.splice(newindex, 0, replacement);
+    return replacement;
   }
 }

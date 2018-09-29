@@ -1,13 +1,13 @@
 class ScrollGroupElement extends UIElement
 {
-  constructor(guiComponent, label, pos, parent, axis)
+  constructor(label, pos, parent, axis)
   {
-    super(guiComponent, label, pos, parent);
+    super(label, pos, parent);
     axis = axis || 'both';
     this.maxh = 0;
     if(axis != 'horizontal')
     {
-      this.scrollv = new ScrollElement(guiComponent, null, null, this,
+      this.scrollv = new ScrollElement(null, null, this,
         {min : 0, max : 0, current : 0, step : this.style.unit, axis : 'vertical'});
       this.scrollv.x = this.width;
       this.scrollv.y = 0;
@@ -16,7 +16,7 @@ class ScrollGroupElement extends UIElement
     }
     if(axis != 'vertical')
     {
-      this.scrollh = new ScrollElement(guiComponent, null, null, this,
+      this.scrollh = new ScrollElement(null, null, this,
         {min : 0, max : 0, current : 0, step : this.style.unit, axis : 'horizontal'});
       this.scrollh.x = 0;
       this.scrollh.y = this.height;

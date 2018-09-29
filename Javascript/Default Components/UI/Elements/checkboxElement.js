@@ -1,8 +1,8 @@
 class CheckboxElement extends UIElement
 {
-  constructor(guiComponent, label, pos, parent, value)
+  constructor(label, pos, parent, value)
   {
-    super(guiComponent, label, pos, parent);
+    super(label, pos, parent);
     this.value = value;
   }
 

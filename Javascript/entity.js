@@ -21,7 +21,6 @@ class Entity extends EcsObject
   {
     super();
     this._system = _system;
-    this.name = "Entity";
     this.components = [];
   }
 

@@ -2,30 +2,43 @@ class Style
 {
   constructor(s)
   {
+    this._unit = 16;
+    this._font = "16px Arial";
+    this._fg = "rgb(255,255,255)";
+    this._bg = "rgb(64,64,64)";
+    this._default = "rgb(96,96,96)";
+    this._hilite = "rgb(128,128,128)";
+    this._focus = "rgb(160,160,160)";
+    this._textAlign = "left";
+    this._textBaseline = "top";
+
     if(s)
     {
-      this._unit = s.unit;
-      this._font = s.font;
-      this._fg = s.fg;
-      this._bg = s.bg;
-      this._default = s.default;
-      this._hilite = s.hilite;
-      this._focus = s.focus;
-      this._textAlign = s.textAlign;
-      this._textBaseline = s.textBaseline;
+      this._unit = s.unit || this.unit;
+      this._font = s.font || this.font;
+      this._fg = s.fg || this.fg;
+      this._bg = s.bg || this.bg;
+      this._default = s.default || this.default;
+      this._hilite = s.hilite || this.hilite;
+      this.labelfg = s.labelfg;
+      this._focus = s.focus || this.focus;
+      this._textAlign = s.textAlign || this.textAlign;
+      this._textBaseline = s.textBaseline || this.textBaseline;
     }
-    else
-    {
-      this._unit = 16;
-      this._font = "16px Arial";
-      this._fg = "rgba(255,255,255)";
-      this._bg = "rgb(64,64,64)";
-      this._default = "rgb(96,96,96)";
-      this._hilite = "rgb(128,128,128)";
-      this._focus = "rgb(160,160,160)";
-      this._textAlign = "left";
-      this._textBaseline = "top";
-    }
+  }
+
+  append(s)
+  {
+    this.unit = this.unit || s.unit;
+    this.font = this.font || s.font;
+    this.fg = this.fg || s.fg;
+    this.bg = this.bg || s.bg;
+    this.labelfg = s.labelfg;
+    this.default = this.default || s.default;
+    this.hilite = this.hilite || s.hilite;
+    this.focus = this.focus || s.focus;
+    this.textAlign = this.textAlign || s.textAlign;
+    this.textBaseline = this.textBaseline || s.textBaseline;
   }
 
   get unit()
@@ -93,7 +106,7 @@ class Style
     return this._hilite;
   }
 
-  set hitlite(d)
+  set hilite(d)
   {
     this._hilite = d;
   }

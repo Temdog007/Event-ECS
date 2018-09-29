@@ -1,8 +1,8 @@
 class ProgressElement extends UIElement
 {
-  constructor(guiComponent, label, pos, parent)
+  constructor(label, pos, parent)
   {
-    super(guiComponent, label, pos, parent);
+    super(label, pos, parent);
     this.loaders = [];
     this.values = {min : 0, max : 0, current : 0, step : 1, axis : 'vertical'};
   }
@@ -11,6 +11,7 @@ class ProgressElement extends UIElement
   {
     for(var i = 0; i < this.loaders.length; ++i)
     {
+      var loader = this.loaders[i];
       if(loader.status == 'waiting')
       {
         try
@@ -26,7 +27,7 @@ class ProgressElement extends UIElement
         }
         break;
       }
-      if(i == this.loaders.length -1)
+      if(i == this.loaders.length - 1)
       {
         this.done();
       }
@@ -35,16 +36,23 @@ class ProgressElement extends UIElement
 
   draw(pos)
   {
-    context.fillStyle = this.style.default;
+    context.fillStyle = this.default;
     this.drawShape(pos);
-    context.fillStyle = this.style.fg;
-    this.rect({x : pos.x, y : pos.y, width : pos.width * (this.values.current / this.values.max), height : pos.h});
+    context.fillStyle = this.fg;
+    this.rect({x : pos.x, y : pos.y, width : pos.width * (this.values.current / this.values.max), height : pos.height});
     if(this.label)
     {
       context.fillStyle = this.labelfg;
       context.textAlign = this.textAlign;
       context.textBaseline = this.textBaseline;
-      context.fillText(this.label, pos.x, pos.y, pos.width);
+      if(this.fitWidth)
+      {
+        context.fillText(this.label, pos.x, pos.y, pos.width);
+      }
+      else
+      {
+        context.fillText(this.label, pos.x, pos.y);
+      }
     }
   }
 

@@ -1,3 +1,5 @@
+var guiComponentInstance;
+
 class GuiComponent extends DrawableComponent
 {
   constructor(entity)
@@ -11,6 +13,8 @@ class GuiComponent extends DrawableComponent
     this._mx = 0;
     this._my = 0;
     this.style = new Style();
+
+    guiComponentInstance = this;
   }
 
   get mx()
@@ -263,7 +267,7 @@ class GuiComponent extends DrawableComponent
       var element = this.mousein;
       if(!(element instanceof HiddenElement))
       {
-        element.getParent().setLevel();
+        element.getParent().level = null;
       }
       if(args.buttonName == "left")
       {
@@ -338,10 +342,19 @@ class GuiComponent extends DrawableComponent
     if(args.deltaY != 0 && this.mousein)
     {
       var element = this.mousein;
-      var func = args.deltaY > 0 ? element.wheeldown : element.wheelup;
-      if(func)
+      if(args.deltaY > 0)
       {
-        func.call(this.mx, this.my);
+        if(element.wheeldown)
+        {
+          element.wheeldown(this.mx, this.my);
+        }
+      }
+      else
+      {
+        if(element.wheelup)
+        {
+          element.wheelup(this.mx, this.my);
+        }
       }
     }
   }
@@ -350,7 +363,7 @@ class GuiComponent extends DrawableComponent
   {
     if(this.focus)
     {
-      if((args.key == "return" || args.key == "kpenter") && this.focus.done)
+      if((args.key == "Enter") && this.focus.done)
       {
         this.focus.done();
       }

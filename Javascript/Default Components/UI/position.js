@@ -4,10 +4,10 @@ class Position
   {
     if(p)
     {
-      this._x = p.x;
-      this._y = p.y;
-      this._width = p.width;
-      this._height = p.height;
+      this._x = p.x || 0;
+      this._y = p.y || 0;
+      this._width = p.width || 16;
+      this._height = p.height || 16;
     }
     else
     {
@@ -36,6 +36,11 @@ class Position
     newPos.width -= p.width;
     newPos.height -= p.height;
     return newPos;
+  }
+
+  toString()
+  {
+    return "[" + this.x + ", " + this.y + "]";
   }
 
   get x()

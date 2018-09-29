@@ -1,8 +1,8 @@
 class ImageElement extends UIElement
 {
-  constructor(guiComponent, label, pos, parent, img)
+  constructor(label, pos, parent, img)
   {
-    super(guiComponent, label, pos, parent);
+    super(label, pos, parent);
     this.img = img;
   }
 

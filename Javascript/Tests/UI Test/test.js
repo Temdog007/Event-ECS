@@ -4,12 +4,11 @@ window.addEventListener('guiLoaded', function()
   var entity = system.createEntity();
   var component = entity.addComponent(GuiComponent);
 
-  // var textout = new TypeTextElement(component,
-  //   "This is some text that will be typed out overtime. This text will not be wrapped.");
-  // textout.y = 32;
-  // textout.width = 128;
+  var sometext = "This is some text that will be typed out overtime. This text will not be wrapped.";
+  var textout = new TypeTextElement(sometext, {x : canvas.height / 2, width : canvas.height / 2});
+  textout.fitWidth = true;
 
-  var button = new ButtonElement(component, 'A Button', null, null, true);
+  var button = new ButtonElement('A Button', null, null, true);
   button.x = 128;
   button.y = button.unit;
   button.width = 128;
@@ -17,36 +16,36 @@ window.addEventListener('guiLoaded', function()
   button.fitWidth = true;
   button.click = function()
   {
-    new FeedbackElement(component, "Clicky");
+    new FeedbackElement("Clicky");
   };
 
-  var image = new ImageElement(component, "An Image");
+  var image = new ImageElement("An Image");
   image.img = document.getElementById("testimage");
   image.x = 160;
   image.y = 32;
   image.width = image.img.width;
   image.height = image.img.height;
-  image.click = function()
+  image.click = function(x,y)
   {
-    new FeedbackElement(component, this.pos.toString());
+    new FeedbackElement("["+ x + "," + y + "]");
   };
   image.enter = function()
   {
-    new FeedbackElement(this.guiComponent, "I'm In!");
+    new FeedbackElement("I'm In!");
   };
   image.leave = function()
   {
-    new FeedbackElement(this.guiComponent, "I'm Out!");
+    new FeedbackElement("I'm Out!");
   };
 
-  var hidden = new HiddenElement(component, '');
+  var hidden = new HiddenElement('');
   hidden.x = 128;
   hidden.y = 128;
   hidden.width = 128;
   hidden.height = 128;
   hidden.tip = "Can't see me, but I still respond";
 
-  var group1 = new CollapseGroupElement(component, 'Group 1');
+  var group1 = new CollapseGroupElement('Group 1');
   group1.fg = 'rgb(255,192,0)';
   group1.x = group1.unit;
   group1.y = group1.unit * 3;
@@ -58,17 +57,17 @@ window.addEventListener('guiLoaded', function()
   {
     if(bucket)
     {
-      new FeedbackElement(component, "Dropped on " + bucket.constructor.name);
+      new FeedbackElement("Dropped on " + bucket.constructor.name);
     }
     else
     {
-      new FeedbackElement(component, "Dropped on nothing");
+      new FeedbackElement("Dropped on nothing");
     }
   }
 
   for(var i = 1; i < 4; ++i)
   {
-    var option = new OptionElement(component, "Option " + i, null, group1, i);
+    var option = new OptionElement("Option " + i, null, group1, i);
     option.x = 0;
     option.y = option.unit * i;
     option.width = 128;
@@ -76,7 +75,7 @@ window.addEventListener('guiLoaded', function()
     option.tip = "Select " + option.value;
   }
 
-  var group2 = new GroupElement(component, "Group 2");
+  var group2 = new GroupElement("Group 2");
   group2.x = group2.unit;
   group2.y = 128;
   group2.width = 256;
@@ -85,39 +84,37 @@ window.addEventListener('guiLoaded', function()
   group2.tip = "Drag right-click, and catch";
   group2.rclick = function()
   {
-    new FeedbackElement(component, 'Right-Click');
-    var button = new ButtonElement(component, "A dynamic button");
+    new FeedbackElement('Right-Click');
+    var button = new ButtonElement("A dynamic button");
     button.x = component.mx;
     button.y = component.my;
     button.width = 128;
     button.height = component.style.unit;
     button.click = function()
     {
-      new FeedbackElement(component, "I'll be back!");
+      new FeedbackElement("I'll be back!");
       component.rem(this);
     }
   };
   group2.catch = function(ball)
   {
-    new FeedbackElement(component, "Caught " + ball.constructor.name);
+    new FeedbackElement("Caught " + ball.constructor.name);
   };
 
-  var scrollgroup = new ScrollGroupElement(component, null, null, group2);
-  scrollgroup.y = scrollgroup.unit;
-  scrollgroup.width = 256;
-  scrollgroup.height = 256;
+  var scrollgroup = new ScrollGroupElement(null, {y : component.style.unit, width : 256, height : 256}, group2);
 
   scrollgroup.scrollh.tip = "Scroll (mouse or wheel)";
   scrollgroup.scrollh.hs = scrollgroup.style.unit * 2;
   scrollgroup.scrollv.tip = scrollgroup.scrollh.tip;
-  scrollgroup.scrollh.drop = function()
+  var d = function(scroll)
   {
-    new FeedbackElement(component, "Scrolled to : " + this.values.current + " / " + this.values.min + " - " + this.values.max);
-  };
-  scrollgroup.scrollv.drop = function() {this.parent.scrollh.drop();};
+    new FeedbackElement("Scrolled to : " + scroll.values.current + " / " + scroll.values.min + " - " + scroll.values.max);
+  }
+  scrollgroup.scrollh.drop = function(){d(this);};
+  scrollgroup.scrollv.drop = function(){d(this);};
   scrollgroup.scrollv.hs = "auto";
 
-  var checkbox = new CheckboxElement(component, null, null, scrollgroup);
+  var checkbox = new CheckboxElement(null, null, scrollgroup);
   checkbox.shape = "circle";
   checkbox.radius = 8;
   checkbox.click = function()
@@ -126,10 +123,77 @@ window.addEventListener('guiLoaded', function()
     this.fg = this.value ? "rgb(255,128,0)" : "rgb(255,255,255)";
   };
 
-  var checklabel = new TextElement(component, 'check', null, checkbox, true);
+  var checklabel = new TextElement('check', null, checkbox, true);
   checklabel.x = 16;
   checklabel.click = function()
   {
     this.parent.click();
   };
+
+  var loader = new ProgressElement('Loading', {y : 16, width : 128}, scrollgroup);
+  loader.updateInterval = 0.25;
+  loader.fitWidth = true;
+  loader.labelfg = "red";
+  loader.done = function()
+  {
+    this.replace(new FeedbackElement('Done', {y : this.y}, this.parent, false));
+  };
+
+  for(var i = 0; i < 20; ++i)
+  {
+    loader.add(function()
+    {
+      var text = new TextElement(sometext, {width : 128}, null, true);
+      return scrollgroup.addChild(text, 'grid');
+    });
+  }
+
+  button = new ButtonElement("up", {x : group2.width}, group2);
+  button.click = function()
+  {
+    var scroll = scrollgroup.scrollv;
+    scroll.current = Math.max(scroll.min, scroll.current - scroll.values.step);
+    scroll.drop();
+  };
+  button = new ButtonElement("dn", {x : group2.width, y : group2.height + group2.unit}, group2);
+  button.click = function()
+  {
+    var scroll = scrollgroup.scrollv;
+    scroll.current = Math.min(scroll.max, scroll.current + scroll.values.step);
+    scroll.drop();
+  };
+
+  var input = new InputElement('Chat', {x : 64, y : canvas.height - 32, width : 256, height : component.style.unit});
+  input.done = function()
+  {
+    new FeedbackElement('I say ' + this.value);
+    this.value = '';
+    this.guiComponent.unfocus();
+  };
+
+  button = new ButtonElement('Speak', {x : input.width + input.style.unit, width : 64, height : input.style.gui}, input);
+  button.click = function()
+  {
+    this.parent.done();
+  };
+
+  text = new TextElement('Hit F1 to show/hide',
+    {x : canvas.width - 128, y : button.style.unit, width : 128, height : button.style.unit});
+  var showhider = new GroupElement("Mouse Below",
+    {x : canvas.width - 128, y : button.style.unit * 2, width : 128, height : 64});
+  var counter = new TextElement('0', {y : button.style.unit, width : 128, height : 0}, showhider);
+  counter.count = 0;
+  counter.update = function(dt)
+  {
+    if(this.guiComponent.mousein == this || this.guiComponent.mousein == this.parent)
+    {
+      this.count += dt;
+      if(this.count > 1)
+      {
+        this.count = 0;
+      }
+      this.label = this.count;
+    }
+  }
+  showhider.hide();
 });
