@@ -125,5 +125,11 @@ window.addEventListener('guiLoaded', function()
     CheckboxElement.prototype.click.call(this);
     this.fg = this.value ? "rgb(255,128,0)" : "rgb(255,255,255)";
   };
-  checkbox.label = 'check';
+
+  var checklabel = new TextElement(component, 'check', null, checkbox, true);
+  checklabel.x = 16;
+  checklabel.click = function()
+  {
+    this.parent.click();
+  };
 });

@@ -218,9 +218,14 @@ class UIElement
     this.style.textBaseline = f;
   }
 
-  get mousePosition()
+  get mx()
   {
-    return {x : this.guiComponent.mx, y : this.guiComponent.my};
+    return this.guiComponent.mx;
+  }
+
+  get my()
+  {
+    return this.guiComponent.my;
   }
 
   drawImage(pos)
@@ -296,7 +301,7 @@ class UIElement
 
   static withinRadius(x, y, circ, scissor)
   {
-    if((x - x) * (x - circ.x) + (y - circ.y) * (y - circ.y) < circ.radius * circ.radius)
+    if((x - circ.x) * (x - circ.x) + (y - circ.y) * (y - circ.y) < circ.radius * circ.radius)
     {
       if(scissor)
       {

@@ -26,12 +26,12 @@ class CheckboxElement extends UIElement
     if(this.value)
     {
       context.fillStyle = this.fg;
-      var tpos = new Position(pos);
-      tpos.x += tpos.width * 0.25;
-      tpos.y += tpos.height * 0.25;
-      tpos.width *= 0.5;
-      tpos.height *= 0.5;
-      tpos.radius = tpos.radius * 0.5;
+      var tpos = new Position();
+      tpos.x = pos.x + pos.width * 0.25;
+      tpos.y = pos.y + pos.height * 0.25;
+      tpos.width = pos.width * 0.5;
+      tpos.height = pos.height * 0.5;
+      tpos.radius = pos.radius * 0.5;
       this.drawShape(tpos);
     }
     if(this.label)

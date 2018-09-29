@@ -1,5 +1,16 @@
 class TextElement extends UIElement
 {
+  constructor(guiComponent, label, pos, parent, autosize)
+  {
+    super(guiComponent, label, pos, parent);
+    if(autosize)
+    {
+      context.font = this.font;
+      this.width = context.measureText(this.label).width;
+      console.log(this.label, this.width);
+    }
+  }
+
   draw(pos)
   {
     context.fillStyle = this.labelfg;
@@ -13,6 +24,7 @@ class TextElement extends UIElement
     {
       context.fillText(this.label, pos.x, pos.y);
     }
+
   }
 
   static utf8char_begin(s, idx)
