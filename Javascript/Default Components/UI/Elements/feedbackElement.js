@@ -1,50 +1,54 @@
-class FeedbackElement extends UIElement
+define(['uiElement', 'game'], function(UIElement, Game)
 {
-  constructor(label, pos, parent, autopos)
+  class FeedbackElement extends UIElement
   {
-    super(label, pos, parent);
-    autopos = autopos == null ? true : autopos;
-    if(autopos)
+    constructor(label, pos, parent, autopos)
     {
-      for(var i = 0; i < this.guiComponent.elements.length; ++i)
+      super(label, pos, parent);
+      autopos = autopos == null ? true : autopos;
+      if(autopos)
       {
-        var element = this.guiComponent.elements[i];
-        if(element != this && element instanceof FeedbackElement && element.autopos)
+        for(var i = 0; i < UIElement.guiComponent.elements.length; ++i)
         {
-          element.y += element.style.unit;
+          var element = UIElement.guiComponent.elements[i];
+          if(element != this && element instanceof FeedbackElement && element.autopos)
+          {
+            element.y += element.style.unit;
+          }
         }
       }
-    }
-    this.fg = "rgb(255,255,255)";
-    this.alpha = 1;
-    this.life = 5;
-    this.autopos = autopos;
-  }
-
-  update(dt)
-  {
-    this.alpha -= dt / this.life;
-    if(this.alpha < 0)
-    {
-      this.guiComponent.rem(this);
-      return;
+      this.fg = "rgb(255,255,255)";
+      this.alpha = 1;
+      this.life = 5;
+      this.autopos = autopos;
     }
 
-    this.fg = "rgba(255,255,255, " + this.alpha + ")";
-  }
+    update(dt)
+    {
+      this.alpha -= dt / this.life;
+      if(this.alpha < 0)
+      {
+        UIElement.guiComponent.rem(this);
+        return;
+      }
 
-  draw(pos)
-  {
-    context.fillStyle = this.fg;
-    context.textAlign = this.textAlign;
-    context.textBaseline = this.textBaseline;
-    if(this.fitWidth)
-    {
-      context.fillText(this.label, pos.x, pos.y, pos.width);
+      this.fg = "rgba(255,255,255, " + this.alpha + ")";
     }
-    else
+
+    draw(pos)
     {
-      context.fillText(this.label, pos.x, pos.y);
+      Game.context.fillStyle = this.fg;
+      Game.context.textAlign = this.textAlign;
+      Game.context.textBaseline = this.textBaseline;
+      if(this.fitWidth)
+      {
+        Game.context.fillText(this.label, pos.x, pos.y, pos.width);
+      }
+      else
+      {
+        Game.context.fillText(this.label, pos.x, pos.y);
+      }
     }
   }
-}
+  return FeedbackElement;
+});

@@ -1,67 +1,71 @@
-class TextElement extends UIElement
+define(['uiElement', 'game'], function(UIElement, Game)
 {
-  constructor(label, pos, parent, autosize)
+  class TextElement extends UIElement
   {
-    super(label, pos, parent);
-    if(autosize)
+    constructor(label, pos, parent, autosize)
     {
-      context.font = this.font;
-      this.width = context.measureText(this.label).width;
-    }
-  }
-
-  draw(pos)
-  {
-    context.fillStyle = this.labelfg;
-    context.textBaseline = this.textBaseline;
-    context.textAlign = this.textAlign;
-    if(this.fitWidth)
-    {
-      context.fillText(this.label, pos.x, pos.y, pos.width);
-    }
-    else
-    {
-      context.fillText(this.label, pos.x, pos.y);
+      super(label, pos, parent);
+      if(autosize)
+      {
+        Game.context.font = this.font;
+        this.width = Game.context.measureText(this.label).width;
+      }
     }
 
-  }
-
-  static utf8char_begin(s, idx)
-  {
-    var b = s.charCodeAt(idx);
-    while(b && b >= 0x80 && b < 0xC0)
+    draw(pos)
     {
-      b = s.charCodeAt(--idx);
+      Game.context.fillStyle = this.labelfg;
+      Game.context.textBaseline = this.textBaseline;
+      Game.context.textAlign = this.textAlign;
+      if(this.fitWidth)
+      {
+        Game.context.fillText(this.label, pos.x, pos.y, pos.width);
+      }
+      else
+      {
+        Game.context.fillText(this.label, pos.x, pos.y);
+      }
+
     }
-    return idx;
-  }
 
-  static utf8char_after(s, idx)
-  {
-    if(idx <= s.length)
+    static utf8char_begin(s, idx)
     {
-      ++idx;
       var b = s.charCodeAt(idx);
       while(b && b >= 0x80 && b < 0xC0)
       {
-        b = s.charCodeAt(++idx);
+        b = s.charCodeAt(--idx);
       }
+      return idx;
     }
 
-    return idx;
-  }
-
-  static utf8len(s)
-  {
-    var p = 0;
-    for(var i = 0; i < s.length; ++i)
+    static utf8char_after(s, idx)
     {
-      var c = s.charCodeAt(i);
-      if(c >= 0x80 && x < 0xC0)
+      if(idx <= s.length)
       {
-        ++p;
+        ++idx;
+        var b = s.charCodeAt(idx);
+        while(b && b >= 0x80 && b < 0xC0)
+        {
+          b = s.charCodeAt(++idx);
+        }
       }
+
+      return idx;
     }
-    return p;
+
+    static utf8len(s)
+    {
+      var p = 0;
+      for(var i = 0; i < s.length; ++i)
+      {
+        var c = s.charCodeAt(i);
+        if(c >= 0x80 && x < 0xC0)
+        {
+          ++p;
+        }
+      }
+      return p;
+    }
   }
-}
+  return TextElement;
+});

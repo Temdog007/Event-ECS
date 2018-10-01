@@ -1,4 +1,4 @@
-define(['./ecsevent'], function(ECSEvent)
+define(['ecsevent'], function(ECSEvent)
 {
   class SystemList
   {

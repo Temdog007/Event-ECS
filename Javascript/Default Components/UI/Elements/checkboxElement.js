@@ -1,45 +1,49 @@
-class CheckboxElement extends UIElement
+define(['uiElement', 'game', 'position'], function(UIElement, Game, Position)
 {
-  constructor(label, pos, parent, value)
+  class CheckboxElement extends UIElement
   {
-    super(label, pos, parent);
-    this.value = value;
-  }
+    constructor(label, pos, parent, value)
+    {
+      super(label, pos, parent);
+      this.value = value;
+    }
 
-  click()
-  {
-    this.value = !this.value;
-  }
+    click()
+    {
+      this.value = !this.value;
+    }
 
-  draw(pos)
-  {
-    if(this == this.guiComponent.mousein)
+    draw(pos)
     {
-      context.fillStyle = this.hilite;
-    }
-    else
-    {
-      context.fillStyle = this.default;
-    }
-    this.drawShape(pos);
+      if(this == UIElement.guiComponent.mousein)
+      {
+        Game.context.fillStyle = this.hilite;
+      }
+      else
+      {
+        Game.context.fillStyle = this.default;
+      }
+      this.drawShape(pos);
 
-    if(this.value)
-    {
-      context.fillStyle = this.fg;
-      var tpos = new Position();
-      tpos.x = pos.x + pos.width * 0.25;
-      tpos.y = pos.y + pos.height * 0.25;
-      tpos.width = pos.width * 0.5;
-      tpos.height = pos.height * 0.5;
-      tpos.radius = pos.radius * 0.5;
-      this.drawShape(tpos);
-    }
-    if(this.label)
-    {
-      context.fillStyle = this.labelfg;
-      this.textAlign = this.textAlign;
-      this.textBaseline = this.textBaseline;
-      context.fillText(this.label, pos.x, pos.y, pos.radius * 2);
+      if(this.value)
+      {
+        Game.context.fillStyle = this.fg;
+        var tpos = new Position();
+        tpos.x = pos.x + pos.width * 0.25;
+        tpos.y = pos.y + pos.height * 0.25;
+        tpos.width = pos.width * 0.5;
+        tpos.height = pos.height * 0.5;
+        tpos.radius = pos.radius * 0.5;
+        this.drawShape(tpos);
+      }
+      if(this.label)
+      {
+        Game.context.fillStyle = this.labelfg;
+        this.textAlign = this.textAlign;
+        this.textBaseline = this.textBaseline;
+        Game.context.fillText(this.label, pos.x, pos.y, pos.radius * 2);
+      }
     }
   }
-}
+  return CheckboxElement;
+});

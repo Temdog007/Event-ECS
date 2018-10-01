@@ -1,4 +1,4 @@
-define(['./ecsobject'], function(EcsObject)
+define(['ecsobject'], function(EcsObject)
 {
   function contains(obj, value)
   {

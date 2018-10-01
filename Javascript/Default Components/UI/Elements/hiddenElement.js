@@ -1,4 +1,8 @@
-class HiddenElement extends UIElement
+define(['uiElement'], function(UIElement)
 {
-  draw(){}
-}
+  class HiddenElement extends UIElement
+  {
+    draw(){}
+  }
+  return HiddenElement;
+});

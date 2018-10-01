@@ -1,48 +1,52 @@
-class CollapseGroupElement extends GroupElement
+define(['groupElement', 'position', 'buttonElement'], function(GroupElement, Position, ButtonElement)
 {
-  constructor(label, pos, parent)
+  class CollapseGroupElement extends GroupElement
   {
-    super(label, pos, parent);
-    this.view = true;
-    this.orig = new Position(pos);
-
-    this.control = new ButtonElement('-', null, this);
-    this.control.click = function()
+    constructor(label, pos, parent)
     {
-      this.parent.toggle();
-    }
-  }
+      super(label, pos, parent);
+      this.view = true;
+      this.orig = new Position(pos);
 
-  set width(f)
-  {
-    super.width = f;
-    this.control.x = this.width - this.control.width;
-  }
-
-  get width()
-  {
-    return super.width;
-  }
-
-  toggle()
-  {
-    this.view = !this.view;
-    this.height = this.view ? this.orig.height : 16;
-    for(var i = 0; i < this.children.length; ++i)
-    {
-      var child = this.children[i];
-      if(child != this.control)
+      this.control = new ButtonElement('-', null, this);
+      this.control.click = function()
       {
-        if(this.view)
-        {
-          child.show();
-        }
-        else
-        {
-          child.hide();
-        }
+        this.parent.toggle();
       }
     }
-    this.control.label = this.view ? '-' : '=';
+
+    set width(f)
+    {
+      super.width = f;
+      this.control.x = this.width - this.control.width;
+    }
+
+    get width()
+    {
+      return super.width;
+    }
+
+    toggle()
+    {
+      this.view = !this.view;
+      this.height = this.view ? this.orig.height : 16;
+      for(var i = 0; i < this.children.length; ++i)
+      {
+        var child = this.children[i];
+        if(child != this.control)
+        {
+          if(this.view)
+          {
+            child.show();
+          }
+          else
+          {
+            child.hide();
+          }
+        }
+      }
+      this.control.label = this.view ? '-' : '=';
+    }
   }
-}
+  return CollapseGroupElement;
+});

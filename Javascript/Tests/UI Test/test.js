@@ -1,6 +1,44 @@
-window.addEventListener('guiLoaded', function()
+require.config({
+  baseUrl : '../..',
+  paths :
+  {
+    guiComponent : 'Default Components/UI/guiComponent',
+    position : 'Default Components/UI/position',
+    style : 'Default Components/UI/style',
+    drawableComponent : 'Default Components/Interfaces/drawableComponent',
+    game : 'Tests/game',
+
+    uiElement : 'Default Components/UI/Elements/uiElement',
+    typeTextElement : 'Default Components/UI/Elements/typeTextElement',
+    feedbackElement : 'Default Components/UI/Elements/feedbackElement',
+    imageElement : 'Default Components/UI/Elements/imageElement',
+    hiddenElement : 'Default Components/UI/Elements/hiddenElement',
+    collapseGroupElement : 'Default Components/UI/Elements/collapseGroupElement',
+    optionElement : 'Default Components/UI/Elements/optionElement',
+    checkboxElement : 'Default Components/UI/Elements/checkboxElement',
+    textElement : 'Default Components/UI/Elements/textElement',
+    progressElement : 'Default Components/UI/Elements/progressElement',
+    buttonElement : 'Default Components/UI/Elements/buttonElement',
+    groupElement : 'Default Components/UI/Elements/groupElement',
+    scrollElement : 'Default Components/UI/Elements/scrollElement',
+    scrollGroupElement : 'Default Components/UI/Elements/scrollGroupElement',
+    inputElement : 'Default Components/UI/Elements/inputElement',
+  }
+});
+
+require(
+[
+  'system', 'guiComponent', 'typeTextElement', 'feedbackElement', 'imageElement',
+  'hiddenElement', 'collapseGroupElement', 'optionElement', 'checkboxElement',
+  'textElement', 'progressElement', 'buttonElement', 'groupElement', 'scrollElement',
+  'scrollGroupElement', 'inputElement', 'uiElement'
+],
+function(System, GuiComponent, TypeTextElement, FeedbackElement, ImageElement,
+  HiddenElement, CollapseGroupElement, OptionElement, CheckboxElement,
+  TextElement, ProgressElement, ButtonElement, GroupElement, ScrollElement,
+  ScrollGroupElement, InputElement, UIElement)
 {
-  var system = Systems.addSystem(new System("GUI Test"));
+  var system = System.Systems.addSystem(new System("GUI Test"));
   var entity = system.createEntity();
   var component = entity.addComponent(GuiComponent);
 
@@ -168,7 +206,7 @@ window.addEventListener('guiLoaded', function()
   {
     new FeedbackElement('I say ' + this.value);
     this.value = '';
-    this.guiComponent.unfocus();
+    UIElement.guiComponent.unfocus();
   };
 
   button = new ButtonElement('Speak', {x : input.width + input.style.unit, width : 64, height : input.style.gui}, input);
@@ -176,24 +214,4 @@ window.addEventListener('guiLoaded', function()
   {
     this.parent.done();
   };
-
-  text = new TextElement('Hit F1 to show/hide',
-    {x : canvas.width - 128, y : button.style.unit, width : 128, height : button.style.unit});
-  var showhider = new GroupElement("Mouse Below",
-    {x : canvas.width - 128, y : button.style.unit * 2, width : 128, height : 64});
-  var counter = new TextElement('0', {y : button.style.unit, width : 128, height : 0}, showhider);
-  counter.count = 0;
-  counter.update = function(dt)
-  {
-    if(this.guiComponent.mousein == this || this.guiComponent.mousein == this.parent)
-    {
-      this.count += dt;
-      if(this.count > 1)
-      {
-        this.count = 0;
-      }
-      this.label = this.count;
-    }
-  }
-  showhider.hide();
 });

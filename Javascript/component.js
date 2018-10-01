@@ -1,7 +1,5 @@
-define(['./ecsobject'], function(EcsObject)
+define(['ecsobject'], function(EcsObject)
 {
-  var temp;
-  
   class Component extends EcsObject
   {
     constructor(entity)
@@ -12,10 +10,8 @@ define(['./ecsobject'], function(EcsObject)
         throw "Must have an entity attached to the component";
       }
 
-      temp = entity;
       super();
       this._entity = entity;
-      temp = null;
     }
 
     set(key, value)
@@ -30,14 +26,7 @@ define(['./ecsobject'], function(EcsObject)
 
     get entity()
     {
-      if(this._entity == null)
-      {
-        return temp;
-      }
-      else
-      {
-        return this._entity;
-      }
+      return this._entity;
     }
 
     get data()

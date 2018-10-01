@@ -1,4 +1,4 @@
-define(['./ecsobject', './entity'], function(EcsObject, Entity)
+define(['ecsobject', 'entity'], function(EcsObject, Entity)
 {
   class System extends EcsObject
   {

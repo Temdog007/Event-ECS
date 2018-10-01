@@ -1,4 +1,4 @@
-define(['./systemlist'], function(Systems)
+define(['systemlist'], function(Systems)
 {
   var GetUniqueID = (function ()
   {
@@ -19,8 +19,6 @@ define(['./systemlist'], function(Systems)
           ignoreEnabled : false,
           id : this._id
       };
-      this.setDefault("dispatchEventOnValueChange", false);
-      Systems.id = 32;
     }
 
     static get Systems()

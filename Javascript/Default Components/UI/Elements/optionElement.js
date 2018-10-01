@@ -1,13 +1,17 @@
-class OptionElement extends ButtonElement
+define(['buttonElement'], function(ButtonElement)
 {
-  constructor(label, pos, parent, value)
+  class OptionElement extends ButtonElement
   {
-    super(label, pos, parent);
-    this.value = value;
-  }
+    constructor(label, pos, parent, value)
+    {
+      super(label, pos, parent);
+      this.value = value;
+    }
 
-  click()
-  {
-    this.parent.value = this.value;
+    click()
+    {
+      this.parent.value = this.value;
+    }
   }
-}
+  return OptionElement;
+});

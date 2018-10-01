@@ -1,22 +1,26 @@
-class GroupElement extends UIElement
+define(['uiElement', 'game'], function(UIElement, Game)
 {
-  draw(pos)
+  class GroupElement extends UIElement
   {
-    context.fillStyle = this.style.bg;
-    this.drawShape(pos);
-    if(this.label)
+    draw(pos)
     {
-      context.fillStyle = this.labelfg;
-      context.textBaseline = this.textBaseline;
-      context.textAlign = this.textAlign;
-      if(this.fitWidth)
+      Game.context.fillStyle = this.style.bg;
+      this.drawShape(pos);
+      if(this.label)
       {
-        context.fillText(this.label, pos.x, pos.y, this.width);
-      }
-      else
-      {
-        context.fillText(this.label, pos.x, pos.y);
+        Game.context.fillStyle = this.labelfg;
+        Game.context.textBaseline = this.textBaseline;
+        Game.context.textAlign = this.textAlign;
+        if(this.fitWidth)
+        {
+          Game.context.fillText(this.label, pos.x, pos.y, this.width);
+        }
+        else
+        {
+          Game.context.fillText(this.label, pos.x, pos.y);
+        }
       }
     }
   }
-}
+  return GroupElement;
+});

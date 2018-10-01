@@ -1,67 +1,71 @@
-class ButtonElement extends UIElement
+define(['uiElement', 'game'], function(UIElement, Game)
 {
-  constructor(label, pos, parent, autosize)
+  class ButtonElement extends UIElement
   {
-    super(label, pos, parent);
-    if(autosize)
+    constructor(label, pos, parent, autosize)
     {
-      context.fillStyle = this.default;
-      this.width = context.measureText(label).width;
-    }
-  }
-
-  draw(pos)
-  {
-    if(this.parent && this.value == this.parent.value)
-    {
-      if(this == this.guiComponent.mousein)
+      super(label, pos, parent);
+      if(autosize)
       {
-        context.fillStyle = this.style.focus;
+        Game.context.fillStyle = this.default;
+        this.width = Game.context.measureText(label).width;
+      }
+    }
+
+    draw(pos)
+    {
+      if(this.parent && this.value == this.parent.value)
+      {
+        if(this == UIElement.guiComponent.mousein)
+        {
+          Game.context.fillStyle = this.style.focus;
+        }
+        else
+        {
+          Game.context.fillStyle = this.hilite;
+        }
       }
       else
       {
-        context.fillStyle = this.hilite;
+        if(this == UIElement.guiComponent.mousein)
+        {
+          Game.context.fillStyle = this.hilite;
+        }
+        else
+        {
+          Game.context.fillStyle = this.default;
+        }
       }
-    }
-    else
-    {
-      if(this == this.guiComponent.mousein)
+      this.drawShape(pos);
+
+      Game.context.textBaseline = this.textBaseline;
+      Game.context.textAlign = this.textAlign;
+      Game.context.fillStyle = this.labelfg;
+      if(this.shape == 'circle')
       {
-        context.fillStyle = this.hilite;
+        if(this.img)
+        {
+          this.drawImage(pos);
+        }
+        if(this.label)
+        {
+          var y = this.img ? pos.y + this.radius * 2 : pos.y;
+          Game.context.fillText(this.label, pos.x, y, pos.radius * 2);
+        }
       }
       else
       {
-        context.fillStyle = this.default;
-      }
-    }
-    this.drawShape(pos);
-
-    context.textBaseline = this.textBaseline;
-    context.textAlign = this.textAlign;
-    context.fillStyle = this.labelfg;
-    if(this.shape == 'circle')
-    {
-      if(this.img)
-      {
-        this.drawImage(pos);
-      }
-      if(this.label)
-      {
-        var y = this.img ? pos.y + this.radius * 2 : pos.y;
-        context.fillText(this.label, pos.x, y, pos.radius * 2);
-      }
-    }
-    else
-    {
-      if(this.img)
-      {
-        this.drawImage(pos);
-      }
-      if(this.label)
-      {
-        var y = this.img ? pos.y + this.height : pos.y;
-        context.fillText(this.label, pos.x, y, pos.width);
+        if(this.img)
+        {
+          this.drawImage(pos);
+        }
+        if(this.label)
+        {
+          var y = this.img ? pos.y + this.height : pos.y;
+          Game.context.fillText(this.label, pos.x, y, pos.width);
+        }
       }
     }
   }
-}
+  return ButtonElement;
+});

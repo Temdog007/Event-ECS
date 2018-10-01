@@ -17,11 +17,11 @@ define(['drawableComponent'], function(DrawableComponent)
     doDraw(args)
     {
       var data = this.data;
-      context.fillStyle = data.color;
+      Game.context.fillStyle = data.color;
 
-      context.font = data.font;
-      context.textBaseline = "top";
-      context.fillText(getFPS(), data.x, data.y);
+      Game.context.font = data.font;
+      Game.context.textBaseline = "top";
+      Game.context.fillText(getFPS(), data.x, data.y);
     }
   }
 

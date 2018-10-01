@@ -1,69 +1,73 @@
-class ProgressElement extends UIElement
+define(['uiElement', 'game'], function(UIElement, Game)
 {
-  constructor(label, pos, parent)
+  class ProgressElement extends UIElement
   {
-    super(label, pos, parent);
-    this.loaders = [];
-    this.values = {min : 0, max : 0, current : 0, step : 1, axis : 'vertical'};
-  }
-
-  update(dt)
-  {
-    for(var i = 0; i < this.loaders.length; ++i)
+    constructor(label, pos, parent)
     {
-      var loader = this.loaders[i];
-      if(loader.status == 'waiting')
+      super(label, pos, parent);
+      this.loaders = [];
+      this.values = {min : 0, max : 0, current : 0, step : 1, axis : 'vertical'};
+    }
+
+    update(dt)
+    {
+      for(var i = 0; i < this.loaders.length; ++i)
       {
-        try
+        var loader = this.loaders[i];
+        if(loader.status == 'waiting')
         {
-          loader.result = loader.func();
-          loader.status = 'done';
-          ++this.values.current;
+          try
+          {
+            loader.result = loader.func();
+            loader.status = 'done';
+            ++this.values.current;
+          }
+          catch (e)
+          {
+            loader.result = e;
+            loaders.status = 'error';
+          }
+          break;
         }
-        catch (e)
+        if(i == this.loaders.length - 1)
         {
-          loader.result = e;
-          loaders.status = 'error';
+          this.done();
         }
-        break;
-      }
-      if(i == this.loaders.length - 1)
-      {
-        this.done();
       }
     }
-  }
 
-  draw(pos)
-  {
-    context.fillStyle = this.default;
-    this.drawShape(pos);
-    context.fillStyle = this.fg;
-    this.rect({x : pos.x, y : pos.y, width : pos.width * (this.values.current / this.values.max), height : pos.height});
-    if(this.label)
+    draw(pos)
     {
-      context.fillStyle = this.labelfg;
-      context.textAlign = this.textAlign;
-      context.textBaseline = this.textBaseline;
-      if(this.fitWidth)
+      Game.context.fillStyle = this.default;
+      this.drawShape(pos);
+      Game.context.fillStyle = this.fg;
+      this.rect({x : pos.x, y : pos.y, width : pos.width * (this.values.current / this.values.max), height : pos.height});
+      if(this.label)
       {
-        context.fillText(this.label, pos.x, pos.y, pos.width);
-      }
-      else
-      {
-        context.fillText(this.label, pos.x, pos.y);
+        Game.context.fillStyle = this.labelfg;
+        Game.context.textAlign = this.textAlign;
+        Game.context.textBaseline = this.textBaseline;
+        if(this.fitWidth)
+        {
+          Game.context.fillText(this.label, pos.x, pos.y, pos.width);
+        }
+        else
+        {
+          Game.context.fillText(this.label, pos.x, pos.y);
+        }
       }
     }
-  }
 
-  done()
-  {
-    this.guiComponent.rem(this);
-  }
+    done()
+    {
+      UIElement.guiComponent.rem(this);
+    }
 
-  add(loader)
-  {
-    this.loaders.push({status : 'waiting', func : loader});
-    ++this.values.max;
+    add(loader)
+    {
+      this.loaders.push({status : 'waiting', func : loader});
+      ++this.values.max;
+    }
   }
-}
+  return ProgressElement;
+});
