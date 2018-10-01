@@ -1,206 +1,214 @@
-var frames = 0;
-var frameRate = 30;
-
-function getFPS()
+define(['ecsobject'], function(EcsObject)
 {
-  return frameRate;
-}
+  var Systems = EcsObject.Systems;
 
-setInterval(function()
-{
-  frameRate = frames;
-  frames = 0;
-}, 1000);
+  var frames = 0;
+  var frameRate = 30;
+  var Game = {}
 
-var drawOrders = {[0] : {drawOrder : 0}};
-var drawOrderKeys = [0];
-
-function sortDrawOrders()
-{
-  drawOrderKeys = [];
-  for(var order in drawOrders)
+  Game.getFPS = function()
   {
-    drawOrderKeys.push(order);
+    return frameRate;
   }
-  drawOrderKeys.sort();
-}
 
-function addDrawOrder(value, dontSort)
-{
-  drawOrders[value] = {drawOrder : value};
-  if(!dontSort)
+  setInterval(function()
   {
+    frameRate = frames;
+    frames = 0;
+  }, 1000);
+
+  var drawOrders = {[0] : {drawOrder : 0}};
+  var drawOrderKeys = [0];
+
+  function sortDrawOrders()
+  {
+    drawOrderKeys = [];
+    for(var order in drawOrders)
+    {
+      drawOrderKeys.push(order);
+    }
+    drawOrderKeys.sort();
+  }
+
+  Game.addDrawOrder = function(value, dontSort)
+  {
+    drawOrders[value] = {drawOrder : value};
+    if(!(dontSort == true))
+    {
+      sortDrawOrders();
+    }
+  }
+
+  Game.addDrawOrders = function(arr)
+  {
+    for(var i = 0; i < arr.length; ++i)
+    {
+      this.addDrawOrder(arr[i], true);
+    }
     sortDrawOrders();
   }
-}
 
-function addDrawOrders(arr)
-{
-  for(var i = 0; i < arr.length; ++i)
+  Game.canvas = document.getElementById("canvas");
+  Game.context = canvas.getContext("2d");
+  Game.canvasRect = canvas.getBoundingClientRect();
+
+  var updateArgs = {dt : 0};
+
+  canvas.oncontextmenu = function(e)
   {
-    addDrawOrder(arr[i], true);
+    return false;
+  };
+
+  canvas.onkeydown = function(event)
+  {
+    event = event || window.event;
+    Systems.pushEvent("eventKeyDown", event)
   }
-  sortDrawOrders();
-}
 
-var canvas = document.getElementById("canvas");
-var context = canvas.getContext("2d");
-var canvasRect = canvas.getBoundingClientRect();
-
-var updateArgs = {dt : 0};
-
-canvas.oncontextmenu = function(e)
-{
-  return false;
-};
-
-canvas.onkeydown = function(event)
-{
-  event = event || window.event;
-  Systems.pushEvent("eventKeyDown", event)
-}
-
-canvas.onkeyup = function(event)
-{
-  event = event || window.event;
-  Systems.pushEvent("eventKeyUp", event)
-}
-
-canvas.onmousemove = function(event)
-{
-  event = event || window.event;
-  Systems.pushEvent("eventMouseMoved", {x : event.clientX - canvasRect.left, y : event.clientY - canvasRect.top});
-}
-
-canvas.onmousedown = function(event)
-{
-  event = event || window.event;
-
-  var button;
-  if("which" in event)
+  canvas.onkeyup = function(event)
   {
-    switch(event.which)
+    event = event || window.event;
+    Systems.pushEvent("eventKeyUp", event)
+  }
+
+  canvas.onmousemove = function(event)
+  {
+    event = event || window.event;
+    Systems.pushEvent("eventMouseMoved", {x : event.clientX - Game.canvasRect.left, y : event.clientY - Game.canvasRect.top});
+  }
+
+  canvas.onmousedown = function(event)
+  {
+    event = event || window.event;
+
+    var button;
+    if("which" in event)
     {
-      case 1:
-        button = "left";
-        break;
-      case 2:
-        button = "middle";
-        break;
-      case 3:
-        button = "right";
-        break;
-      default:
-        button = "unknown";
-        break;
+      switch(event.which)
+      {
+        case 1:
+          button = "left";
+          break;
+        case 2:
+          button = "middle";
+          break;
+        case 3:
+          button = "right";
+          break;
+        default:
+          button = "unknown";
+          break;
+      }
     }
-  }
-  else if ("button" in event)
-  {
-    switch(event.button)
+    else if ("button" in event)
     {
-      case 0:
-        button = "left";
-        break;
-      case 1:
-        button = "middle";
-        break;
-      case 2:
-        button = "right";
-        break;
-      default:
-        button = "unknown";
-        break;
+      switch(event.button)
+      {
+        case 0:
+          button = "left";
+          break;
+        case 1:
+          button = "middle";
+          break;
+        case 2:
+          button = "right";
+          break;
+        default:
+          button = "unknown";
+          break;
+      }
     }
+
+    Systems.pushEvent('eventMouseDown', {x : event.clientX - Game.canvasRect.left, y : event.clientY - Game.canvasRect.top, buttonName : button});
   }
 
-  Systems.pushEvent('eventMouseDown', {x : event.clientX - canvasRect.left, y : event.clientY - canvasRect.top, buttonName : button});
-}
-
-canvas.onmouseup = function(event)
-{
-  event = event || window.event;
-
-  var button;
-  if("which" in event)
+  canvas.onmouseup = function(event)
   {
-    switch(event.which)
+    event = event || window.event;
+
+    var button;
+    if("which" in event)
     {
-      case 1:
-        button = "left";
-        break;
-      case 2:
-        button = "middle";
-        break;
-      case 3:
-        button = "right";
-        break;
-      default:
-        button = "unknown";
-        break;
+      switch(event.which)
+      {
+        case 1:
+          button = "left";
+          break;
+        case 2:
+          button = "middle";
+          break;
+        case 3:
+          button = "right";
+          break;
+        default:
+          button = "unknown";
+          break;
+      }
     }
+    else if ("button" in event)
+    {
+      switch(event.button)
+      {
+        case 0:
+          button = "left";
+          break;
+        case 1:
+          button = "middle";
+          break;
+        case 2:
+          button = "right";
+          break;
+        default:
+          button = "unknown";
+          break;
+      }
+    }
+
+    Systems.pushEvent('eventMouseUp', {x : event.clientX - Game.canvasRect.left, y : event.clientY - Game.canvasRect.top, buttonName : button});
   }
-  else if ("button" in event)
+
+  canvas.onmouseleave = function(event)
   {
-    switch(event.button)
-    {
-      case 0:
-        button = "left";
-        break;
-      case 1:
-        button = "middle";
-        break;
-      case 2:
-        button = "right";
-        break;
-      default:
-        button = "unknown";
-        break;
-    }
+    event = event || window.event;
+    Systems.pushEvent('eventMouseLeave', event);
   }
 
-  Systems.pushEvent('eventMouseUp', {x : event.clientX - canvasRect.left, y : event.clientY - canvasRect.top, buttonName : button});
-}
+  canvas.onmouseenter = function(event)
+  {
+    event = event || window.event;
+    Systems.pushEvent('eventMouseEnter', event);
+  }
 
-canvas.onmouseleave = function(event)
-{
-  event = event || window.event;
-  Systems.pushEvent('eventMouseLeave', event);
-}
+  canvas.onwheel = function(event)
+  {
+    event = event || window.event;
+    Systems.pushEvent('eventMouseWheel', event);
+  }
 
-canvas.onmouseenter = function(event)
-{
-  event = event || window.event;
-  Systems.pushEvent('eventMouseEnter', event);
-}
+  function dispatchDraw(value)
+  {
+    Systems.pushEvent("eventDraw", drawOrders[value]);
+  }
 
-canvas.onwheel = function(event)
-{
-  event = event || window.event;
-  Systems.pushEvent('eventMouseWheel', event);
-}
+  var last = 0;
+  function update(now)
+  {
+    updateArgs.dt = (now - last) / 1000;
+    last = now;
 
-function dispatchDraw(value)
-{
-  Systems.pushEvent("eventDraw", drawOrders[value]);
-}
+    ++frames;
 
-var last = 0;
-function update(now)
-{
-  updateArgs.dt = (now - last) / 1000;
-  last = now;
+    Systems.pushEvent("eventUpdate", updateArgs);
+    Systems.flushEvents();
 
-  ++frames;
+    Game.context.clearRect(0, 0, canvas.width, canvas.height);
+    drawOrderKeys.forEach(dispatchDraw);
+    Systems.flushEvents();
 
-  Systems.pushEvent("eventUpdate", updateArgs);
-  Systems.flushEvents();
-
-  context.clearRect(0, 0, canvas.width, canvas.height);
-  drawOrderKeys.forEach(dispatchDraw);
-  Systems.flushEvents();
+    window.requestAnimationFrame(update);
+  };
 
   window.requestAnimationFrame(update);
-};
 
-window.requestAnimationFrame(update);
+  return Game;
+});

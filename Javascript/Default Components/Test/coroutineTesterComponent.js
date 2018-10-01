@@ -1,21 +1,26 @@
-class CoroutineTesterComponent extends Component
+define(['component'], function(Component)
 {
-  constructor(entity)
+  class CoroutineTesterComponent extends Component
   {
-    super(entity);
-    this.scheduler = new CoroutineScheduler();
-    this.scheduler.addRoutine(function*()
+    constructor(entity)
     {
-      for(var i = 0; i < 100; ++i)
+      super(entity);
+      this.scheduler = new CoroutineScheduler();
+      this.scheduler.addRoutine(function*()
       {
-        console.log("%c" + i, "color:red");
-        yield 1;
-      }
-    });
+        for(var i = 0; i < 100; ++i)
+        {
+          console.log("%c" + i, "color:red");
+          yield 1;
+        }
+      });
+    }
+
+    eventUpdate(step)
+    {
+      this.scheduler.update(step.dt);
+    }
   }
 
-  eventUpdate(step)
-  {
-    this.scheduler.update(step.dt);
-  }
-}
+  return CoroutineTesterComponent;
+});

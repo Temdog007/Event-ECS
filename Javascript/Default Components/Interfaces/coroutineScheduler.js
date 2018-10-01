@@ -1,100 +1,105 @@
-class CoroutineScheduler
+define(function()
 {
-  constructor()
+  class CoroutineScheduler
   {
-    this.routines = [];
-  }
-
-  addRoutine(func)
-  {
-    this.routines.push(
+    constructor()
     {
-      current : 0,
-      target : 0,
-      func : func()
-    });
-  }
+      this.routines = [];
+    }
 
-  finishRoutine(func)
-  {
-    for(var i = 0; i < this.routines.length; ++i)
+    addRoutine(func)
     {
-      var routine = this.routines[i];
-      if(routine.func == func)
+      this.routines.push(
       {
-        var result = false;
-        while(!done)
+        current : 0,
+        target : 0,
+        func : func()
+      });
+    }
+
+    finishRoutine(func)
+    {
+      for(var i = 0; i < this.routines.length; ++i)
+      {
+        var routine = this.routines[i];
+        if(routine.func == func)
         {
-          result = func.next();
-        }
-        break;
-      }
-    }
-  }
-
-  cancelRoutine(func)
-  {
-    for(var i = 0; i < this.routines.length; ++i)
-    {
-      var routine = this.routines[i];
-      if(routine.func == func)
-      {
-        this.routines.splice(i, 1);
-        break;
-      }
-    }
-  }
-
-  hasRoutine(func)
-  {
-    for(var i = 0; i < this.routines.length; ++i)
-    {
-      var routine = this.routines[i];
-      if(routine.func == func)
-      {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  clear()
-  {
-    this.routines = [];
-  }
-
-  update(step)
-  {
-    for(var i = 0; i < this.routines.length; ++i)
-    {
-      var routine = this.routines[i];
-      if(typeof routine.target == "number")
-      {
-        routine.current += step;
-        if(routine.current < routine.target)
-        {
-          continue;
+          var result = false;
+          while(!done)
+          {
+            result = func.next();
+          }
+          break;
         }
       }
+    }
 
-      var result = routine.func.next();
-      if(result.done)
+    cancelRoutine(func)
+    {
+      for(var i = 0; i < this.routines.length; ++i)
       {
-        this.routines.splice(i, 1);
-      }
-      else
-      {
-        routine.current = 0;
-        routine.target = result.value;
-        if(result.value == null)
+        var routine = this.routines[i];
+        if(routine.func == func)
         {
-          routine.target = 0;
+          this.routines.splice(i, 1);
+          break;
+        }
+      }
+    }
+
+    hasRoutine(func)
+    {
+      for(var i = 0; i < this.routines.length; ++i)
+      {
+        var routine = this.routines[i];
+        if(routine.func == func)
+        {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    clear()
+    {
+      this.routines = [];
+    }
+
+    update(step)
+    {
+      for(var i = 0; i < this.routines.length; ++i)
+      {
+        var routine = this.routines[i];
+        if(typeof routine.target == "number")
+        {
+          routine.current += step;
+          if(routine.current < routine.target)
+          {
+            continue;
+          }
+        }
+
+        var result = routine.func.next();
+        if(result.done)
+        {
+          this.routines.splice(i, 1);
         }
         else
         {
+          routine.current = 0;
           routine.target = result.value;
+          if(result.value == null)
+          {
+            routine.target = 0;
+          }
+          else
+          {
+            routine.target = result.value;
+          }
         }
       }
     }
   }
-}
+
+  return CoroutineScheduler;
+});

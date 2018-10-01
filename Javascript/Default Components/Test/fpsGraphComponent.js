@@ -1,8 +1,13 @@
-class FpsGraphComponent extends GraphableComponent
+define(['graphableComponent', 'game'], function(GraphableComponent, Game)
 {
-  eventUpdate(args)
+  class FpsGraphComponent extends GraphableComponent
   {
-    var fps = 0.75/args.dt + 0.25 * frameRate;
-    this.updateGraph(fps, "FPS: " + Math.floor(fps * 10) / 10, args.dt);
+    eventUpdate(args)
+    {
+      var fps = 0.75/args.dt + 0.25 * Game.getFPS();
+      this.updateGraph(fps, "FPS: " + Math.floor(fps * 10) / 10, args.dt);
+    }
   }
-}
+
+  return FpsGraphComponent;
+});

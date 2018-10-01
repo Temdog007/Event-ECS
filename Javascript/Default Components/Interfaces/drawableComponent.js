@@ -1,23 +1,28 @@
-class DrawableComponent extends Component
+define(['component'], function(Component)
 {
-  constructor(entity)
+  class DrawableComponent extends Component
   {
-    super(entity);
+    constructor(entity)
+    {
+      super(entity);
 
-    this.setDefaults({drawOrder : 0})
+      this.setDefaults({drawOrder : 0})
+    }
+
+    canDraw(args, drawOrder)
+    {
+      return args != null && args.drawOrder == this.get("drawOrder");
+    }
+
+    eventDraw(args)
+    {
+      if(!this.canDraw(args)){return;}
+
+      this.doDraw(args);
+    }
+
+    doDraw(){}
   }
 
-  canDraw(args, drawOrder)
-  {
-    return args != null && args.drawOrder == this.get("drawOrder");
-  }
-
-  eventDraw(args)
-  {
-    if(!this.canDraw(args)){return;}
-
-    this.doDraw(args);
-  }
-
-  doDraw(){}
-}
+  return DrawableComponent;
+});

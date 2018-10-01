@@ -1,37 +1,66 @@
-class RectangleComponent extends DrawableComponent
-{
-  doDraw(args)
+require.config({
+  baseUrl : '../../',
+  paths :
   {
-    context.fillStyle = "blue";
-    context.fillRect(0,0,100,100);
+    imageDrawerComponent : 'Default Components/Drawing/imageDrawerComponent',
+    drawableComponent : 'Default Components/Interfaces/drawableComponent',
+    graphableComponent : 'Default Components/Interfaces/graphableComponent',
+    eventTesterComponent : 'Default Components/Test/eventTesterComponent',
+    coroutineTesterComponent : 'Default Components/Test/coroutineTesterComponent',
+    fpsDisplayerComponent : 'Default Components/Test/fpsDisplayerComponent',
+    logTestComponent : 'Default Components/Test/logTestComponent',
+    fpsGraphComponent : 'Default Components/Test/fpsGraphComponent',
+    game : 'Tests/game'
   }
-}
+})
 
-var system = Systems.addSystem(new System("Test"));
-system.registerEntity("Test1", [RectangleComponent, EventTesterComponent]);
-system.registerEntity("Test2", [LogTestComponent]);
-system.registerEntity("Test3", [FpsGraphComponent]);
-system.registerEntity("Test4", [FpsDisplayerComponent]);
-system.registerEntity("Test5", [ImageDrawerComponent]);
-system.registerEntity("Test6", [CoroutineTesterComponent]);
+require(
+[
+  'drawableComponent', 'system', 'eventTesterComponent', 'fpsDisplayerComponent',
+  'logTestComponent', 'fpsGraphComponent', 'coroutineTesterComponent', 'coroutineTesterComponent',
+  'imageDrawerComponent', 'game'
+],
+function(DrawableComponent, System, EventTesterComponent, FpsDisplayerComponent, LogTestComponent,
+  FpsGraphComponent, CoroutineTesterComponent, CoroutineTesterComponent, ImageDrawerComponent, Game)
+{
+  class RectangleComponent extends DrawableComponent
+  {
+    doDraw(args)
+    {
+      Game.context.fillStyle = "blue";
+      Game.context.fillRect(0,0,100,100);
+    }
+  }
 
-// var e1 = system.createEntity("Test2");
-// e1.set("drawOrder", -1);
-// e1.set("width", 200);
-// e1.set('x', 0);
-// e1.set('y', 0);
+  var Systems = DrawableComponent.Systems;
 
-var e2 = system.createEntity("Test5");
-e2.set("drawable", document.getElementById("testimage"));
+  var system = Systems.addSystem(new System("Test"));
+  system.registerEntity("Test1", [RectangleComponent, EventTesterComponent]);
+  system.registerEntity("Test2", [LogTestComponent]);
+  system.registerEntity("Test3", [FpsGraphComponent]);
+  system.registerEntity("Test4", [FpsDisplayerComponent]);
+  system.registerEntity("Test5", [ImageDrawerComponent]);
+  system.registerEntity("Test6", [CoroutineTesterComponent]);
 
-var e3 = system.createEntity("Test2");
-e3.set("drawOrder", -1);
-e3.set("width", 200);
-e3.set("y", 400);
-e3.set('color', 'blue');
+  var e1 = system.createEntity("Test2");
+  e1.set("drawOrder", -1);
+  e1.set("width", 200);
+  e1.set('x', 0);
+  e1.set('y', 0);
 
-var e = system.createEntity("Test3");
-e.set("drawOrder", 0);
-e.set("lineColor", "orange");
+  var e2 = system.createEntity("Test5");
+  e2.set("drawable", document.getElementById("testimage"));
 
-addDrawOrder(-1);
+  var e3 = system.createEntity("Test2");
+  e3.set("drawOrder", -1);
+  e3.set("width", 200);
+  e3.set("y", 400);
+  e3.set('color', 'blue');
+
+  var e = system.createEntity("Test3");
+  e.set("drawOrder", 0);
+  e.set("lineColor", "orange");
+  e.set("drawOrder", -2);
+
+  Game.addDrawOrders([-2, -1]);
+});
