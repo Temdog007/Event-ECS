@@ -1,156 +1,161 @@
-class System extends EcsObject
+define(['./ecsobject', './entity'], function(EcsObject, Entity)
 {
-  constructor(name, systemList)
+  class System extends EcsObject
   {
-    super();
-    this.systemName = name;
-    this.systemList = systemList;
-    this.entities = [];
-    this.enabledEntities = [];
-    this.registeredEntities = {};
-  }
-
-  registerEntity(name, args)
-  {
-    if(this.registeredEntities[name] != null)
+    constructor(name, systemList)
     {
-      throw {msg : "An entity with this name has already by registered", name : name};
+      super();
+      this.name = name;
+      this.systemList = systemList;
+      this.entities = [];
+      this.enabledEntities = [];
+      this.registeredEntities = {};
     }
 
-    this.registeredEntities[name] = args;
-  }
-
-  createEntity(name)
-  {
-    var en = new Entity(this);
-    this.entities.push(en);
-    this.enabledEntities.push(en);
-    if(name)
+    registerEntity(name, args)
     {
-      var args = this.registeredEntities[name];
-      if(typeof args === "function")
+      if(this.registeredEntities[name] != null)
       {
-        en.addComponent(args);
+        throw {msg : "An entity with this name has already by registered", name : name};
       }
-      else if(Array.isArray(args))
+
+      this.registeredEntities[name] = args;
+    }
+
+    createEntity(name)
+    {
+      var en = new Entity(this);
+      this.entities.push(en);
+      this.enabledEntities.push(en);
+      if(name)
       {
-        for(var i = 0; i < args.length; ++i)
+        var args = this.registeredEntities[name];
+        if(typeof args === "function")
         {
-          en.addComponent(args[i]);
+          en.addComponent(args);
+        }
+        else if(Array.isArray(args))
+        {
+          for(var i = 0; i < args.length; ++i)
+          {
+            en.addComponent(args[i]);
+          }
         }
       }
+      return en;
     }
-    return en;
-  }
 
-  removeEntity(entity)
-  {
-    for(var i = 0; i < this.entities.length; ++i)
+    removeEntity(entity)
     {
-      var en = this.entities[i];
-      if(en == entity || en.id == entity)
+      for(var i = 0; i < this.entities.length; ++i)
       {
-        this.dispatchEvent('eventRemovingEntity', {entity : en, system : this});
-        this.entities.splice(i, 1);
-        this.dispatchEvent('eventRemovedEntity', {entity : en, system : this});
-        this.updateEnabledEntities();
-        return true;
+        var en = this.entities[i];
+        if(en == entity || en.id == entity)
+        {
+          this.dispatchEvent('eventRemovingEntity', {entity : en, system : this});
+          this.entities.splice(i, 1);
+          this.dispatchEvent('eventRemovedEntity', {entity : en, system : this});
+          this.updateEnabledEntities();
+          return true;
+        }
+      }
+      return false;
+    }
+
+    forEach(func)
+    {
+      for(var i = 0; i < this.entities.length; ++i)
+      {
+        func(this.entities[i]);
       }
     }
-    return false;
-  }
 
-  forEach(func)
-  {
-    for(var i = 0; i < this.entities.length; ++i)
+    get entityCount()
     {
-      func(this.entities[i]);
+      return this.entities.length;
     }
-  }
 
-  get entityCount()
-  {
-    return this.entities.length;
-  }
-
-  findEntitiesByFunction(func)
-  {
-    var entities = [];
-    for(var i = 0; i < this.entities.length; ++i)
+    findEntitiesByFunction(func)
     {
-      var en = this.entities[i];
-      if(func(en))
+      var entities = [];
+      for(var i = 0; i < this.entities.length; ++i)
       {
-        entities.push(en);
+        var en = this.entities[i];
+        if(func(en))
+        {
+          entities.push(en);
+        }
+      }
+      return entities;
+    }
+
+    findEntitiesByID(id)
+    {
+      var entities = [];
+      for(var i = 0; i < this.entities.length; ++i)
+      {
+        var en = this.entities[i];
+        if(en.id == id)
+        {
+          entities.push(en);
+        }
+      }
+      return entities;
+    }
+
+    findEntities(arg)
+    {
+      if(typeof arg == "function")
+      {
+        return this.findEntitiesByFunction(arg);
+      }
+      else if(typeof arg == "number")
+      {
+        return this.findEntitiesByID(arg);
       }
     }
-    return entities;
-  }
 
-  findEntitiesByID(id)
-  {
-    var entities = [];
-    for(var i = 0; i < this.entities.length; ++i)
+    broadcastEvent(eventName, args)
     {
-      var en = this.entities[i];
-      if(en.id == id)
+      if(this.systemList != null)
       {
-        entities.push(en);
+        this.systemList.pushEvent(eventName, args);
       }
     }
-    return entities;
-  }
 
-  findEntities(arg)
-  {
-    if(typeof arg == "function")
+    dispatchEvent(eventName, args)
     {
-      return this.findEntitiesByFunction(arg);
-    }
-    else if(typeof arg == "number")
-    {
-      return this.findEntitiesByID(arg);
-    }
-  }
-
-  broadcastEvent(eventName, args)
-  {
-    if(this.systemList != null)
-    {
-      this.systemList.pushEvent(eventName, args);
-    }
-  }
-
-  dispatchEvent(eventName, args)
-  {
-    var list;
-    if(args != null && args.ignoreEnabled)
-    {
-      list = this.entities;
-    }
-    else
-    {
-      list = this.enabledEntities;
-    }
-
-    for(var i = 0; i < list.length; ++i)
-    {
-      var en = list[i];
-      en.dispatchEvent(eventName, args);
-    }
-  }
-
-  updateEnabledEntities()
-  {
-    var entities = [];
-    for(var i = 0; i < this.entities.length; ++i)
-    {
-      var en = this.entities[i];
-      if(en.enabled)
+      var list;
+      if(args != null && args.ignoreEnabled)
       {
-        entities.push(en);
+        list = this.entities;
+      }
+      else
+      {
+        list = this.enabledEntities;
+      }
+
+      for(var i = 0; i < list.length; ++i)
+      {
+        var en = list[i];
+        en.dispatchEvent(eventName, args);
       }
     }
-    this.enabledEntities = entities;
+
+    updateEnabledEntities()
+    {
+      var entities = [];
+      for(var i = 0; i < this.entities.length; ++i)
+      {
+        var en = this.entities[i];
+        if(en.enabled)
+        {
+          entities.push(en);
+        }
+      }
+      this.enabledEntities = entities;
+    }
   }
-}
+
+  return System;
+});

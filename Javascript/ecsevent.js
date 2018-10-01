@@ -1,18 +1,23 @@
-class ECSEvent
+define(function()
 {
-  constructor(name, args)
+  class ECSEvent
   {
-    this._name = name;
-    this._args = args;
+    constructor(name, args)
+    {
+      this._name = name;
+      this._args = args;
+    }
+
+    get name()
+    {
+      return this._name;
+    }
+
+    get args()
+    {
+      return this._args;
+    }
   }
 
-  get name()
-  {
-    return this._name;
-  }
-
-  get args()
-  {
-    return this._args;
-  }
-}
+  return ECSEvent;
+});
