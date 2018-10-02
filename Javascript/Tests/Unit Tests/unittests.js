@@ -5,8 +5,8 @@ require.config({
     assert : "Tests/Unit Tests/assert"
   }
 });
-require(['ecsobject', "component", "entity", "system", "assert"],
-function(EcsObject, Component, Entity, System, Systems)
+require(['ecsobject', "component", "entity", "system", "assert", 'systemlist'],
+function(EcsObject, Component, Entity, System, _, Systems)
 {
   class TestComponent extends Component
   {
@@ -66,8 +66,6 @@ function(EcsObject, Component, Entity, System, Systems)
       this.name = "TestComponent2";
     }
   }
-
-  var Systems = EcsObject.Systems;
 
   console.log("%cRunning System Test", "color:green");
   var system = new System();
