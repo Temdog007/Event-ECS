@@ -27,7 +27,7 @@ define(function()
       texture.height = this.height;
       gl.bindTexture(gl.TEXTURE_2D, texture);
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA,
-                    gl.RGBA, gl.UNSIGNED_BYTE, image);
+                    gl.RGBA, gl.UNSIGNED_BYTE, this);
 
       // WebGL1 has different requirements for power of 2 images
       // vs non power of 2 images so check if the image is a
