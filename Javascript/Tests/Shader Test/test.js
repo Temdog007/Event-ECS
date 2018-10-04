@@ -56,7 +56,8 @@ function(Component, Game, Systems, System, loadTexture, createSquare, shaders, m
     uniformLocations: {
       projectionMatrix: gl.getUniformLocation(program, 'uProjectionMatrix'),
       uSampler: gl.getUniformLocation(program, 'uSampler'),
-      tint : gl.getUniformLocation(program, 'tint')
+      oldColor : gl.getUniformLocation(program, 'oldColor'),
+      newColor : gl.getUniformLocation(program, 'newColor')
     },
   };
 
@@ -64,7 +65,7 @@ function(Component, Game, Systems, System, loadTexture, createSquare, shaders, m
   var textureBuffer = createSquare(gl);
 
   // var texture = loadTexture(gl, "bombing blocks screenshot (6).png");
-  var texture = loadTexture(gl, "ufo.png");
+  var texture = loadTexture(gl, "plunger.png");
 
   class Test extends Component
   {
@@ -76,17 +77,15 @@ function(Component, Game, Systems, System, loadTexture, createSquare, shaders, m
         y : 100,
         width : 100,
         height : 100,
-        tint : [1,1,1,1],
+        oldColor : [1,0,1,1],
+        newColor : [0,1,0,1]
       });
     }
 
     eventUpdate(args)
     {
-      for(var i = 1; i < 3; ++i)
-      {
-        this.data.tint[i] += args.dt;
-        this.data.tint[i] %= 1;
-      }
+      this.data.newColor[1] += args.dt;
+      this.data.newColor[1] %= 1;
     }
 
     eventDraw()
@@ -123,7 +122,8 @@ function(Component, Game, Systems, System, loadTexture, createSquare, shaders, m
 
       gl.uniformMatrix4fv(programinfo.uniformLocations.projectionMatrix, false, mat);
 
-      gl.uniform4fv(programinfo.uniformLocations.tint, data.tint);
+      gl.uniform4fv(programinfo.uniformLocations.newColor, data.newColor);
+      gl.uniform4fv(programinfo.uniformLocations.oldColor, data.oldColor);
 
       gl.uniform1i(programinfo.uniformLocations.uSampler, 0);
 
