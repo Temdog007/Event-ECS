@@ -185,6 +185,16 @@ define(['ecsobject'], function(EcsObject)
     Systems.pushEvent('eventMouseWheel', event);
   }
 
+  window.addEventListener("gamepadconnected", function(event)
+  {
+    Systems.pushEvent('eventGamepadConnected', event);
+  });
+
+  window.addEventListener("gamepaddisconnected", function(event)
+  {
+    Systems.pushEvent('eventGamepadConnected', event);
+  });
+
   function dispatchDraw(value)
   {
     Systems.pushEvent("eventDraw", drawOrders[value]);
