@@ -10,6 +10,11 @@ define(['ecsevent'], function(ECSEvent)
 
     addSystem(system)
     {
+      if(typeof system == "string")
+      {
+        var System = require("system");
+        system = new System(system);
+      }
       this.systems.push(system);
       system.systemList = this;
       return system;
