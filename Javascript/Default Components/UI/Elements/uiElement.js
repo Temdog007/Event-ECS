@@ -11,6 +11,7 @@ define(['position', 'style', 'guiComponent', 'game'],
       this._dt = 0;
       this._parent = parent;
       this._children = [];
+      this._fitWidth = true;
 
       if(parent)
       {
@@ -26,6 +27,16 @@ define(['position', 'style', 'guiComponent', 'game'],
     static get guiComponent()
     {
       return GuiComponent.instance;
+    }
+
+    get fitWidth()
+    {
+      return this._fitWidth;
+    }
+
+    set fitWidth(value)
+    {
+      this._fitWidth = value;
     }
 
     get x()
@@ -58,6 +69,16 @@ define(['position', 'style', 'guiComponent', 'game'],
       this.pos.width = value;
     }
 
+    get w()
+    {
+      return this.width;
+    }
+
+    set w(value)
+    {
+      this.width = value;
+    }
+
     get height()
     {
       return this.pos.height;
@@ -68,12 +89,32 @@ define(['position', 'style', 'guiComponent', 'game'],
       this.pos.height = value;
     }
 
+    get h()
+    {
+      return this.height;
+    }
+
+    set h(value)
+    {
+      this.height = value;
+    }
+
     get radius()
     {
       return this.pos.radius;
     }
 
     set radius(value)
+    {
+      this.pos.radius = value;
+    }
+
+    get r()
+    {
+      return this.pos.radius;
+    }
+
+    set r(value)
     {
       this.pos.radius = value;
     }
@@ -240,7 +281,7 @@ define(['position', 'style', 'guiComponent', 'game'],
 
     drawImage(pos)
     {
-      Game.context.drawImage(this.img, 0, 0, this.img.width, this.img.height, this.x, this.y, this.width, this.height);
+      Game.context.drawImage(this.img, 0, 0, this.img.width, this.img.height, pos.x, pos.y, pos.width, pos.height);
     }
 
     drawShape(pos)
@@ -493,13 +534,12 @@ define(['position', 'style', 'guiComponent', 'game'],
     {
       if(this.parent)
       {
-        var scissor = this.parent.scissor;
         var ScrollGroupElement = require('scrollGroupElement');
         if(this.parent instanceof ScrollGroupElement && this != this.parent.scrollv && this != this.parent.scrollh)
         {
-          scissor = new Position(this.parent.getPosition());
+          return new Position(this.parent.getPosition());
         }
-        return scissor;
+        return this.parent.scissor;
       }
     }
 
@@ -551,6 +591,11 @@ define(['position', 'style', 'guiComponent', 'game'],
       UIElement.guiComponent.elements.splice(oldindex, 1);
       UIElement.guiComponent.elements.splice(newindex, 0, replacement);
       return replacement;
+    }
+
+    remove()
+    {
+      UIElement.guiComponent.rem(this);
     }
   }
   return UIElement;

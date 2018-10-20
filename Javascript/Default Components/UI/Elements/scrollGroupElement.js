@@ -72,7 +72,7 @@ define(['uiElement', 'scrollElement', 'game'], function(UIElement, ScrollElement
         Game.context.textAlign = this.textAlign;
         Game.context.textBaseline = this.textBaseline;
         Game.context.fillStyle = this.labelfg;
-        Game.context.fillText(this.label, pos.x, pos.y, pos.width);
+        Game.context.fillText(this.label, pos.x + pos.width * 0.5, pos.y, pos.width);
       }
     }
   }

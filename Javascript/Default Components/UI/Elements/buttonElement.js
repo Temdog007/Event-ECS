@@ -38,8 +38,8 @@ define(['uiElement', 'game'], function(UIElement, Game)
       }
       this.drawShape(pos);
 
-      Game.context.textBaseline = this.textBaseline;
-      Game.context.textAlign = this.textAlign;
+      Game.context.textBaseline = "middle";
+      Game.context.textAlign = "center";
       Game.context.fillStyle = this.labelfg;
       if(this.shape == 'circle')
       {
@@ -50,7 +50,7 @@ define(['uiElement', 'game'], function(UIElement, Game)
         if(this.label)
         {
           var y = this.img ? pos.y + this.radius * 2 : pos.y;
-          Game.context.fillText(this.label, pos.x, y, pos.radius * 2);
+          Game.context.fillText(this.label, pos.x + pos.width * 0.5, y + pos.height * 0.5, pos.radius * 2);
         }
       }
       else
@@ -62,7 +62,7 @@ define(['uiElement', 'game'], function(UIElement, Game)
         if(this.label)
         {
           var y = this.img ? pos.y + this.height : pos.y;
-          Game.context.fillText(this.label, pos.x, y, pos.width);
+          Game.context.fillText(this.label, pos.x + pos.width * 0.5, y + pos.height * 0.5, pos.width);
         }
       }
     }

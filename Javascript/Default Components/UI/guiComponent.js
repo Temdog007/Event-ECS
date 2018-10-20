@@ -287,10 +287,6 @@ function(DrawableComponent, Style, Position, Game, Systems)
         {
           var value = element.values.current;
           element.dragging(this.mouseover);
-          if(value != this.elements.values.current)
-          {
-            element.playSound();
-          }
         }
       }
     }

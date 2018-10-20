@@ -1,4 +1,5 @@
-define(['uiElement', 'game', 'position'], function(UIElement, Game, Position)
+define(['uiElement', 'game', 'position'],
+function(UIElement, Game, Position)
 {
   class ScrollElement extends UIElement
   {
@@ -78,6 +79,7 @@ define(['uiElement', 'game', 'position'], function(UIElement, Game, Position)
 
     drag(x, y)
     {
+      var value = this.current;
       var pos = this.getPosition();
       var hs = this.hs;
       if(hs == 'auto')
@@ -112,6 +114,18 @@ define(['uiElement', 'game', 'position'], function(UIElement, Game, Position)
       this.drag(x,y);
     }
 
+    click(x, y)
+    {
+      if(this.drag)
+      {
+        this.drag(x,y);
+      }
+      if(this.drop)
+      {
+        this.drop(x,y);
+      }
+    }
+
     wheelup()
     {
       this.step(1);
@@ -129,7 +143,8 @@ define(['uiElement', 'game', 'position'], function(UIElement, Game, Position)
 
     draw(pos)
     {
-      if(this == UIElement.guiComponent.mousein || this == UIElement.guiComponent.drag || this == UIElement.guiComponent.focus)
+      if(this == UIElement.guiComponent.mousein ||
+        this == UIElement.guiComponent.drag || this == UIElement.guiComponent.focus)
       {
         Game.context.fillStyle = this.default;
       }
@@ -139,7 +154,8 @@ define(['uiElement', 'game', 'position'], function(UIElement, Game, Position)
       }
       this.rect(pos);
 
-      if(this == UIElement.guiComponent.mousein || this == UIElement.guiComponent.drag || this == UIElement.guiComponent.focus)
+      if(this == UIElement.guiComponent.mousein ||
+        this == UIElement.guiComponent.drag || this == UIElement.guiComponent.focus)
       {
         Game.context.fillStyle = this.fg;
       }
@@ -174,8 +190,8 @@ define(['uiElement', 'game', 'position'], function(UIElement, Game, Position)
           Math.max(pos.y, pos.y + ((pos.height - hs) * ((this.current - this.min) / (this.max - this.min)))))
             : pos.y;
 
-      handlepos.width = this.axis == 'horizontal' ? hs : this.unit;
-      handlepos.height = this.axis == 'vertical' ? hs : this.unit;
+      handlepos.width = this.axis == 'horizontal' ? hs : this.width;
+      handlepos.height = this.axis == 'vertical' ? hs : this.height;
       handlepos.radius = pos.radius;
 
       this.drawShape(handlepos);

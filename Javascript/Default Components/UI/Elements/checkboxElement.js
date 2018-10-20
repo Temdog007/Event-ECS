@@ -1,4 +1,5 @@
-define(['uiElement', 'game', 'position'], function(UIElement, Game, Position)
+define(['uiElement', 'game', 'position'],
+function(UIElement, Game, Position)
 {
   class CheckboxElement extends UIElement
   {
@@ -39,9 +40,22 @@ define(['uiElement', 'game', 'position'], function(UIElement, Game, Position)
       if(this.label)
       {
         Game.context.fillStyle = this.labelfg;
-        this.textAlign = this.textAlign;
-        this.textBaseline = this.textBaseline;
-        Game.context.fillText(this.label, pos.x, pos.y, pos.radius * 2);
+        Game.context.textAlign = "center";
+        Game.context.textBaseline = "middle";
+        var x, y, width;
+        if(this.shape == "circle")
+        {
+          x = pos.x + pos.radius;
+          y = pos.y + pos.radius;
+          width = pos.w;
+        }
+        else
+        {
+          x = pos.x + pos.w * 0.5;
+          y = pos.y + pos.h * 0.5;
+          width = pos.w;
+        }
+        Game.context.fillText(this.label, x, y, width);
       }
     }
   }
