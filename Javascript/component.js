@@ -44,11 +44,6 @@ define(['ecsobject'], function(EcsObject)
       return this.entity.removeComponent(this.id);
     }
 
-    dispatchEvent(eventName, args)
-    {
-      return this.entity.dispatchEvent(eventName, args);
-    }
-
     eventAddedComponent(args)
     {
       if(args == null || args.component != this){return;}

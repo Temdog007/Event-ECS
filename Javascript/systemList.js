@@ -5,7 +5,6 @@ define(['ecsevent'], function(ECSEvent)
     constructor()
     {
       this.systems = [];
-      this.events = [];
     }
 
     addSystem(system)
@@ -39,40 +38,26 @@ define(['ecsevent'], function(ECSEvent)
       this.systems = [];
     }
 
-    hasEvent(eventName, args)
-    {
-      for(var i = 0; i < this.events.length; ++i)
-      {
-        var ev = this.events[i];
-        if(ev.name == eventName && ev.args == args)
-        {
-          return true;
-        }
-      }
-      return false;
-    }
-
     pushEvent(eventName, args)
     {
-      this.events.push(new ECSEvent(eventName, args));
+      var ev = new ECSEvent(eventName, args);
+      for(var i in this.systems)
+      {
+        this.systems[i].pushEvent(ev);
+      }
     }
 
     flushEvents()
     {
-      var count = this.events.length;
-      var current = 0;
-      while(current++ < count && this.events.length > 0)
+      var count = 0;
+      for(var i in this.systems)
       {
-        var ev = this.events.shift();
-        for(var i = 0; i < this.systems.length; ++i)
+        if(this.systems[i].enabled)
         {
-          var sys = this.systems[i];
-          if(sys.enabled || (ev.args != null && ev.args.ignoreEnabled))
-          {
-            sys.dispatchEvent(ev.name, ev.args);
-          }
+          count += this.systems[i].flushEvents();
         }
       }
+      return count;
     }
 
     getSystem(value)
@@ -98,7 +83,7 @@ define(['ecsevent'], function(ECSEvent)
       return results;
     }
 
-    get count()
+    get systemCount()
     {
       return this.systems.length;
     }

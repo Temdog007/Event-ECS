@@ -1,41 +1,39 @@
-define(['ecsobject', 'entity'], function(EcsObject, Entity)
+define(['ecsobject', 'entity', 'ecsevent'], function(EcsObject, Entity, ECSEvent)
 {
   class System extends EcsObject
   {
-    constructor(name, systemList)
+    constructor(name)
     {
       super();
       this.name = name;
-      this.systemList = systemList;
-      this.entities = [];
-      this.enabledEntities = [];
-      this.registeredEntities = {};
+      this._entities = [];
+      this._events = [];
+      this._registeredEntities = {};
     }
 
     registerEntity(name, args)
     {
-      if(this.registeredEntities[name] != null)
+      if(this._registeredEntities[name] != null)
       {
         throw {msg : "An entity with this name has already by registered", name : name};
       }
 
-      this.registeredEntities[name] = args;
+      this._registeredEntities[name] = args;
     }
 
     createEntity(name)
     {
-      if(name && typeof this.registeredEntities[name] != "function"
-              && !Array.isArray(this.registeredEntities[name]))
+      if(name && typeof this._registeredEntities[name] != "function"
+              && !Array.isArray(this._registeredEntities[name]))
       {
         throw "Invalid entity name " + name;
       }
 
       var en = new Entity(this);
-      this.entities.push(en);
-      this.enabledEntities.push(en);
+      this._entities.push(en);
       if(name)
       {
-        var args = this.registeredEntities[name];
+        var args = this._registeredEntities[name];
         if(typeof args === "function")
         {
           en.addComponent(args);
@@ -53,15 +51,13 @@ define(['ecsobject', 'entity'], function(EcsObject, Entity)
 
     removeEntity(entity)
     {
-      for(var i = 0; i < this.entities.length; ++i)
+      for(var i = 0; i < this._entities.length; ++i)
       {
-        var en = this.entities[i];
+        var en = this._entities[i];
         if(en == entity || en.id == entity)
         {
-          this.dispatchEvent('eventRemovingEntity', {entity : en, system : this});
-          this.entities.splice(i, 1);
-          this.dispatchEvent('eventRemovedEntity', {entity : en, system : this});
-          this.updateEnabledEntities();
+          this._entities.splice(i, 1);
+          this.pushEvent('eventRemovedEntity', {entity : en, system : this});
           return true;
         }
       }
@@ -70,43 +66,43 @@ define(['ecsobject', 'entity'], function(EcsObject, Entity)
 
     forEach(func)
     {
-      for(var i = 0; i < this.entities.length; ++i)
+      for(var i = 0; i < this._entities.length; ++i)
       {
-        func(this.entities[i]);
+        func(this._entities[i]);
       }
     }
 
     get entityCount()
     {
-      return this.entities.length;
+      return this._entities.length;
     }
 
     findEntitiesByFunction(func)
     {
-      var entities = [];
-      for(var i = 0; i < this.entities.length; ++i)
+      var _entities = [];
+      for(var i = 0; i < this._entities.length; ++i)
       {
-        var en = this.entities[i];
+        var en = this._entities[i];
         if(func(en))
         {
-          entities.push(en);
+          _entities.push(en);
         }
       }
-      return entities;
+      return _entities;
     }
 
     findEntitiesByID(id)
     {
-      var entities = [];
-      for(var i = 0; i < this.entities.length; ++i)
+      var _entities = [];
+      for(var i = 0; i < this._entities.length; ++i)
       {
-        var en = this.entities[i];
+        var en = this._entities[i];
         if(en.id == id)
         {
-          entities.push(en);
+          _entities.push(en);
         }
       }
-      return entities;
+      return _entities;
     }
 
     findEntities(arg)
@@ -122,47 +118,63 @@ define(['ecsobject', 'entity'], function(EcsObject, Entity)
       throw "Must have a number or function passed to findEntities. Got: " + typeof arg;
     }
 
-    broadcastEvent(eventName, args)
+    hasEvent(eventName, args)
     {
-      if(this.systemList != null)
+      for(var i = 0; i < this._events.length; ++i)
       {
-        this.systemList.pushEvent(eventName, args);
+        var ev = this._events[i];
+        if(ev === eventName || (ev.name == eventName && ev.args == args))
+        {
+          return true;
+        }
       }
+      return false;
     }
 
-    dispatchEvent(eventName, args)
+    pushEvent(eventName, args)
     {
-      var list;
-      if(args != null && args.ignoreEnabled)
+      if(eventName instanceof ECSEvent)
       {
-        list = this.entities;
+        this._events.push(eventName);
+      }
+      else if(typeof eventName == "string")
+      {
+        this._events.push(new ECSEvent(eventName, args));
       }
       else
       {
-        list = this.enabledEntities;
+        throw "Cannot push event: " + eventName;
       }
+    }
+
+    flushEvents()
+    {
+      if(this._events.length == 0 || this._entities.length == 0){return 0;}
 
       var count = 0;
-      for(var i = 0; i < list.length; ++i)
+      var current = this._events.length;
+      while(current-- > 0 && this._events.length > 0)
       {
-        var en = list[i];
-        count += en.dispatchEvent(eventName, args);
+        var ev = this._events.shift();
+        count += this.dispatchEvent(ev.name, ev.args);
       }
       return count;
     }
 
-    updateEnabledEntities()
+    dispatchEvent(eventName, args)
     {
-      var entities = [];
-      for(var i = 0; i < this.entities.length; ++i)
+      var ignoreEnabled = args != null && args.ignoreEnabled ? true : false;
+
+      var count = 0;
+      for(var i = 0; i < this._entities.length; ++i)
       {
-        var en = this.entities[i];
-        if(en.enabled)
+        var en = this._entities[i];
+        if(ignoreEnabled || en.enabled)
         {
-          entities.push(en);
+          count += en.dispatchEvent(eventName, args);
         }
       }
-      this.enabledEntities = entities;
+      return count;
     }
   }
 

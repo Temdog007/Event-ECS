@@ -12,12 +12,6 @@ define(['systemlist'], function(Systems)
     {
       this._enabled = true;
       this._id = GetUniqueID();
-      this.eventArgs =
-      {
-        changes : {},
-        ignoreEnabled : false,
-        id : this._id
-      };
     }
 
     static get Systems()
@@ -38,7 +32,6 @@ define(['systemlist'], function(Systems)
     set enabled(_enabled)
     {
       this._enabled = _enabled;
-      this.set("enabled", _enabled, true);
     }
 
     get name()
@@ -49,39 +42,6 @@ define(['systemlist'], function(Systems)
     set name(value)
     {
       this._name = value;
-    }
-
-    set(_name, value, ignoreEnabled = false)
-    {
-      var oldValue = this._data[_name];
-      if(oldValue == null || _name == "dispatchEventOnValueChange")
-      {
-        this._data[_name] = value;
-      }
-      else if (oldValue != value)
-      {
-        this._data[_name] = value;
-        if(this.get("dispatchEventOnValueChange") == true)
-        {
-          if(Systems.hasEvent("eventValueChanged", this.eventArgs))
-          {
-            this.eventArgs.ignoreEnabled = this.eventArgs.ignoreEnabled || ignoreEnabled;
-            this.eventArgs.changes[_name] = true;
-          }
-          else
-          {
-            this.eventArgs.ignoreEnabled = ignoreEnabled || false;
-            this.eventArgs.changes = {};
-            this.eventArgs.changes[_name] = true;
-            Systems.pushEvent("eventValueChanged", this.eventArgs);
-          }
-        }
-      }
-    }
-
-    get(_name)
-    {
-      return this._data[_name];
     }
 
     setDefault(key, value)
