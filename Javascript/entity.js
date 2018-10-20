@@ -24,13 +24,15 @@ define(['ecsobject'], function(EcsObject)
       super();
       this._system = _system;
       this.components = [];
+      this._data = {enabled : true};
     }
 
     addComponent(component)
     {
       if(this[component.name])
       {
-          throw {msg : "Cannot add duplicate components to one entity", component : component.name};
+        console.trace();
+        throw {msg : "Cannot add duplicate components to one entity", component : component};
       }
 
       var comp;
@@ -49,6 +51,41 @@ define(['ecsobject'], function(EcsObject)
       return comp;
     }
 
+    addComponents(components)
+    {
+      if(!Array.isArray(components))
+      {
+        throw new TypeError("Need to send array to addComponents");
+      }
+
+      var rval = [];
+      for(var key in components)
+      {
+        rval.push(this.addComponent(components[key]));
+      }
+      return rval;
+    }
+
+    removeComponent(id)
+    {
+      for(var i = 0; i < this.components.length; ++i)
+      {
+        var component = this.components[i];
+        if(component.id == id)
+        {
+          this.components.splice(i,1);
+          console.assert(delete this[component.name], "Failed to delete component from entity");
+          return true;
+        }
+      }
+      return false;
+    }
+
+    get data()
+    {
+      return this._data;
+    }
+
     set enabled(enabled)
     {
       super.enabled = enabled;
@@ -58,19 +95,6 @@ define(['ecsobject'], function(EcsObject)
     get enabled()
     {
       return super.enabled;
-    }
-
-    removeComponent(id)
-    {
-      for(var i = 0; i < this.components.length; ++i)
-      {
-        if(this.components[i].id == id)
-        {
-          this.components.splice(i,1);
-          return true;
-        }
-      }
-      return false;
     }
 
     get system()
@@ -96,19 +120,6 @@ define(['ecsobject'], function(EcsObject)
     {
       this.forEach(removeAll);
       return this._system.removeEntity(this);
-    }
-
-    removeComponent(id)
-    {
-      for(var i = 0; i < this.components.length; ++i)
-      {
-        if(this.components[i].id == id)
-        {
-          this.components.splice(i, 1);
-          return true;
-        }
-      }
-      return false;
     }
 
     dispatchEvent(eventName, args)

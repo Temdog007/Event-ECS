@@ -13,6 +13,7 @@ define(function()
       this._focus = "rgb(160,160,160)";
       this._textAlign = "left";
       this._textBaseline = "top";
+      this._hs = 16;
 
       if(s)
       {
@@ -26,6 +27,7 @@ define(function()
         this._focus = s.focus || this.focus;
         this._textAlign = s.textAlign || this.textAlign;
         this._textBaseline = s.textBaseline || this.textBaseline;
+        this._hs = s._hs || s.unit || this.hs;
       }
     }
 
@@ -35,7 +37,7 @@ define(function()
       this.font = this.font || s.font;
       this.fg = this.fg || s.fg;
       this.bg = this.bg || s.bg;
-      this.labelfg = s.labelfg;
+      this.labelfg = this._labelfg || s._labelfg;
       this.default = this.default || s.default;
       this.hilite = this.hilite || s.hilite;
       this.focus = this.focus || s.focus;

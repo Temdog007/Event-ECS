@@ -15,6 +15,7 @@ define(['ecsevent'], function(ECSEvent)
         var System = require("system");
         system = new System(system);
       }
+
       this.systems.push(system);
       system.systemList = this;
       return system;
@@ -22,7 +23,7 @@ define(['ecsevent'], function(ECSEvent)
 
     removeSystem(system)
     {
-      for(var i = 0; i < this.systems; ++i)
+      for(var i = 0; i < this.systems.length; ++i)
       {
         if(this.systems[i].id == system.id)
         {
@@ -60,7 +61,7 @@ define(['ecsevent'], function(ECSEvent)
     {
       var count = this.events.length;
       var current = 0;
-      while(current < count && this.events.length > 0)
+      while(current++ < count && this.events.length > 0)
       {
         var ev = this.events.shift();
         for(var i = 0; i < this.systems.length; ++i)
@@ -71,7 +72,6 @@ define(['ecsevent'], function(ECSEvent)
             sys.dispatchEvent(ev.name, ev.args);
           }
         }
-        ++current;
       }
     }
 
@@ -89,11 +89,13 @@ define(['ecsevent'], function(ECSEvent)
 
     forEachSystem(func, args)
     {
+      var results = [];
       for(var i = 0; i < this.systems.length; ++i)
       {
         var sys = this.systems[i];
-        func(sys, args);
+        results.push(func(sys, args));
       }
+      return results;
     }
 
     get count()

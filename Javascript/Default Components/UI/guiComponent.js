@@ -1,5 +1,5 @@
-define(['drawableComponent', 'style', 'position', 'game'],
-function(DrawableComponent, Style, Position, Game)
+define(['drawableComponent', 'style', 'position', 'game', 'systemlist'],
+function(DrawableComponent, Style, Position, Game, Systems)
 {
   var instanceObj = (function()
   {
@@ -280,6 +280,19 @@ function(DrawableComponent, Style, Position, Game)
     {
       this._mx = args.x;
       this._my = args.y;
+      if(this.drag)
+      {
+        var element = this.drag;
+        if(element.dragging)
+        {
+          var value = element.values.current;
+          element.dragging(this.mouseover);
+          if(value != this.elements.values.current)
+          {
+            element.playSound();
+          }
+        }
+      }
     }
 
     eventMouseDown(args)
@@ -361,26 +374,112 @@ function(DrawableComponent, Style, Position, Game)
       this.drag = null;
     }
 
-    eventMouseWheel(args)
+    static handleWheel(element, dir, y)
     {
-      if(args.deltaY != 0 && this.mousein)
+      if(!element.display){return false;}
+
+      var ScrollGroupElement = require("scrollGroupElement");
+      var ScrollElement = require("scrollElement");
+      if(element instanceof ScrollGroupElement)
       {
-        var element = this.mousein;
-        if(args.deltaY > 0)
+        var scroll;
+        if(dir == "horizontal")
         {
-          if(element.wheeldown)
+          scroll = element.scrollh;
+        }
+        else if(dir == "vertical")
+        {
+          scroll = element.scrollv;
+        }
+
+        if(scroll && scroll.values && scroll.values.min != scroll.values.max)
+        {
+          if(y < 0)
           {
-            element.wheeldown(this.mx, this.my);
+            if(scroll.wheelup)
+            {
+              scroll.wheelup();
+              return true;
+            }
+          }
+          else
+          {
+            if(scroll.wheeldown)
+            {
+              scroll.wheeldown();
+              return true;
+            }
+          }
+        }
+      }
+      else if(element instanceof ScrollElement)
+      {
+        if(y < 0)
+        {
+          if(element.wheelup)
+          {
+            element.wheelup();
+            return true;
           }
         }
         else
         {
-          if(element.wheelup)
+          if(element.wheeldown)
           {
-            element.wheelup(this.mx, this.my);
+            element.wheeldown();
+            return true;
           }
         }
       }
+
+      for(var key in element.children)
+      {
+        if(GuiComponent.handleWheel(element.children[key], dir, y))
+        {
+          return true;
+        }
+      }
+
+      return false;
+    }
+
+    eventMouseWheel(args)
+    {
+      var y = args.deltaY;
+      if(y != 0)
+      {
+        for(var i = this.elements.length-1; i >= 0; --i)
+        {
+          var element = this.elements[i];
+          if(element.display && GuiComponent.handleWheel(element, "vertical", y))
+          {
+            break;
+          }
+        }
+      }
+    }
+
+    handleStick(dir, value)
+    {
+      if(Math.abs(value) > 0.25)
+      {
+        for(var i = this.elements.length-1; i >= 0; --i)
+        {
+          var element = this.elements[i];
+          if(element.display && GuiComponent.handleWheel(element, dir, value))
+          {
+            break;
+          }
+        }
+      }
+    }
+
+    eventGamepadAxis(args)
+    {
+      if(!args){return;}
+
+      this.handleStick("horizontal", args.rx);
+      this.handleStick("vertical", args.ry);
     }
 
     eventKeyDown(args)

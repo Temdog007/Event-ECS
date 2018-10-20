@@ -48,6 +48,15 @@ define(['ecsobject'], function(EcsObject)
     {
       return this.entity.dispatchEvent(eventName, args);
     }
+
+    eventAddedComponent(args)
+    {
+      if(args == null || args.component != this){return;}
+
+      this.added();
+    }
+
+    added(){}
   }
 
   return Component;

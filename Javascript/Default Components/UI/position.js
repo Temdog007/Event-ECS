@@ -8,8 +8,17 @@ define(function()
       {
         this._x = p.x || 0;
         this._y = p.y || 0;
-        this._width = p.width || 16;
-        this._height = p.height || 16;
+        if(p instanceof Position ? p._radius : (p.radius || p.r))
+        {
+          this._radius = p._radius || p.r;
+          this.width = this.radius * 2;
+          this.height = this.radius * 2;
+        }
+        else
+        {
+          this._width = p.width || p.w || 16;
+          this._height = p.height || p.h || 16;
+        }
       }
       else
       {
@@ -27,6 +36,7 @@ define(function()
       newPos.y += p.y;
       newPos.width += p.width;
       newPos.height += p.height;
+      newPos.radius += p.radius;
       return newPos;
     }
 
@@ -37,6 +47,18 @@ define(function()
       newPos.y -= p.y;
       newPos.width -= p.width;
       newPos.height -= p.height;
+      newPos.radius -= p.radius;
+      return newPos;
+    }
+
+    combine(p)
+    {
+      var newPos = new Position();
+      newPos.x = Math.min(this.x, p.x);
+      newPos.y = Math.min(this.y, p.y);
+      newPos.r = Math.min(this.r, p.r);
+      newPos.w = Math.min(this.w, p.w);
+      newPos.h = Math.min(this.h, p.h);
       return newPos;
     }
 
@@ -75,6 +97,16 @@ define(function()
       this._width = value;
     }
 
+    get w()
+    {
+      return this.width;
+    }
+
+    set w(value)
+    {
+      this.width = value;
+    }
+
     get height()
     {
       return this._height;
@@ -85,6 +117,16 @@ define(function()
       this._height = value;
     }
 
+    get h()
+    {
+      return this.height;
+    }
+
+    set h(value)
+    {
+      this.height = value;
+    }
+
     get radius()
     {
       return this._radius || (Math.min(this.width, this.height) / 2);
@@ -93,6 +135,16 @@ define(function()
     set radius(value)
     {
       this._radius = value;
+    }
+
+    get r()
+    {
+      return this.radius;
+    }
+
+    set r(value)
+    {
+      this.radius = value;
     }
   }
 

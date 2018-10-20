@@ -24,6 +24,12 @@ define(['ecsobject', 'entity'], function(EcsObject, Entity)
 
     createEntity(name)
     {
+      if(name && typeof this.registeredEntities[name] != "function"
+              && !Array.isArray(this.registeredEntities[name]))
+      {
+        throw "Invalid entity name " + name;
+      }
+
       var en = new Entity(this);
       this.entities.push(en);
       this.enabledEntities.push(en);
@@ -113,6 +119,7 @@ define(['ecsobject', 'entity'], function(EcsObject, Entity)
       {
         return this.findEntitiesByID(arg);
       }
+      throw "Must have a number or function passed to findEntities. Got: " + typeof arg;
     }
 
     broadcastEvent(eventName, args)
@@ -135,11 +142,13 @@ define(['ecsobject', 'entity'], function(EcsObject, Entity)
         list = this.enabledEntities;
       }
 
+      var count = 0;
       for(var i = 0; i < list.length; ++i)
       {
         var en = list[i];
-        en.dispatchEvent(eventName, args);
+        count += en.dispatchEvent(eventName, args);
       }
+      return count;
     }
 
     updateEnabledEntities()

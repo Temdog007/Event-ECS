@@ -11,24 +11,18 @@ define(['systemlist'], function(Systems)
     constructor()
     {
       this._enabled = true;
-      this._data = {enabled : true};
       this._id = GetUniqueID();
       this.eventArgs =
       {
-          changes : {},
-          ignoreEnabled : false,
-          id : this._id
+        changes : {},
+        ignoreEnabled : false,
+        id : this._id
       };
     }
 
     static get Systems()
     {
       return Systems;
-    }
-
-    get data()
-    {
-      return this._data;
     }
 
     get id()
