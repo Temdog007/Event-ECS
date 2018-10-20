@@ -21,6 +21,7 @@ define(['uiElement', 'game'], function(UIElement, Game)
       this.alpha = 1;
       this.life = 5;
       this.autopos = autopos;
+      this.fitWidth = false;
     }
 
     update(dt)
