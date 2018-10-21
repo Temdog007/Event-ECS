@@ -240,7 +240,6 @@ define(['ecsobject'], function(EcsObject)
 
   function addUpdateEvents()
   {
-    context.clearRect(0, 0, canvas.width, canvas.height);
     for(var i in layersSorted)
     {
       var layer = layers[layersSorted[i]];
@@ -254,6 +253,7 @@ define(['ecsobject'], function(EcsObject)
     Systems.pushEvent("eventDraw");
     Systems.flushEvents();
 
+    context.clearRect(0, 0, canvas.width, canvas.height);
     context.save();
     for(var i in layersSorted)
     {

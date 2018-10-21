@@ -50,20 +50,6 @@ function(Game, _, Systems, box2d, WorldComponent, BodyComponent, BodyDrawerCompo
         shape.Set(new box2d.b2Vec2(200, 200), new box2d.b2Vec2(100, 100));
         body.CreateFixture(shape, 10);
         break;
-      // case 3:
-      //   console.log(box2d);
-      //   var shape = new box2d.b2ChainShape();
-      //   var buffer = box2d.allocate(32, 'float', box2d.ALLOC_STACK);
-      //   var vertices = [0, 0, 800, 0, 800, 100, 0, 100];
-      //   for(var i = 0; i < 8; i += 2)
-      //   {
-      //     box2d.setValue(buffer + (i * 4), vertices[i], 'float');
-      //     box2d.setValue(buffer + ((i+1) * 4), vertices[i+1], 'float');
-      //   }
-      //   buffer = box2d.wrapPointer(buffer, 4);
-      //   shape.CreateLoop(buffer, 4);
-      //   body.CreateFixture(shape, 10);
-      //   break;
     }
   }
 });

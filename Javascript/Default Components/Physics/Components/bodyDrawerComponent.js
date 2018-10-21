@@ -1,5 +1,5 @@
-define(['box2d', 'drawableComponent', 'Game'],
-function(box2d, Component, Game)
+define(['box2d', 'drawableComponent'],
+function(box2d, Component)
 {
   class BodyDrawerComponent extends Component
   {
@@ -83,24 +83,7 @@ function(box2d, Component, Game)
           }
           else if (shapeType == box2d.b2Shape.e_chain)
           {
-            var shape = box2d.wrapPointer(current.GetShape().a, box2d.b2ChainShape);
-            var count = shape.GetVertexCount();
-            this.context.beginPath();
-            for(var i = 0; i < count; ++i)
-            {
-              var vertex = body.GetWorldPoint(shape.GetVertex(i));
-              var x = vertex.get_x(), y = vertex.get_y();
-              if(i == 0)
-              {
-                this.context.moveTo(x,y);
-              }
-              else
-              {
-                this.context.lineTo(x,y);
-              }
-            }
-            this.context.closePath();
-            this.context.stroke();
+            throw "Can't draw Chain Shape because can't create them in javascript";
           }
           else if(shapeType == box2d.b2Shape.e_polygon)
           {
