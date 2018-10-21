@@ -220,8 +220,24 @@ function(DrawableComponent, Style, Position, Game, Systems)
       }
     }
 
+    get dirty()
+    {
+      for(var i = 0; i < this.elements.length; ++i)
+      {
+        if(this.elements[i].dirty)
+        {
+          return true;
+        }
+      }
+      return false;
+    }
+
     eventDraw(args)
     {
+      if(!this.dirty){return;}
+
+      this.layer.clear();
+
       for(var i = 0; i < this.elements.length; ++i)
       {
         var element = this.elements[i];
@@ -242,6 +258,7 @@ function(DrawableComponent, Style, Position, Game, Systems)
           {
             this.context.restore();
           }
+          element.dirty = false;
         }
       }
       if(this.mousein && this.mousein.tip)

@@ -24,6 +24,32 @@ define(['uiElement', 'game'], function(UIElement, Game)
       this.fitWidth = false;
     }
 
+    get alpha()
+    {
+      return this._alpha;
+    }
+
+    set alpha(value)
+    {
+      if(value == this._alpha){return;}
+
+      this._alpha = value;
+      this.dirty = true;
+    }
+
+    get life()
+    {
+      return this._alpha;
+    }
+
+    set life(value)
+    {
+      if(value == this._life){return;}
+
+      this._life = value;
+      this.dirty = true;
+    }
+
     update(dt)
     {
       this.alpha -= dt / this.life;

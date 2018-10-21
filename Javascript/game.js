@@ -53,9 +53,15 @@ define(['ecsobject'], function(EcsObject)
       this.canvas = document.createElement("canvas");
       this.context = this.canvas.getContext("2d");
       this.rect = this.canvas.getBoundingClientRect();
+      this.dontClear = false;
       this.resize();
       var f = this;
       canvas.addEventListener("onresize", function() {f.resize();});
+    }
+
+    clear()
+    {
+      this.context.clearRect(0, 0, this.width, this.height);
     }
 
     resize()
@@ -243,10 +249,10 @@ define(['ecsobject'], function(EcsObject)
     for(var i in layersSorted)
     {
       var layer = layers[layersSorted[i]];
-      if(!layer){
+      if(!layer || layer.dontClear){
         continue;
       }
-      layer.context.clearRect(0, 0, layer.width, layer.height);
+      layer.clear();
     }
 
     Systems.pushEvent("eventUpdate", updateArgs);

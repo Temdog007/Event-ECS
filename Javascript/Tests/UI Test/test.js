@@ -41,6 +41,9 @@ function(System, GuiComponent, TypeTextElement, FeedbackElement, ImageElement,
   var entity = system.createEntity();
   var component = entity.addComponent(GuiComponent);
 
+  var layer = component.layer;
+  layer.dontClear = true;
+
   var sometext = "This is some text that will be typed out overtime. This text will not be wrapped.";
   var textout = new TypeTextElement(sometext, {x : canvas.height / 2, width : canvas.height / 2});
   textout.fitWidth = true;

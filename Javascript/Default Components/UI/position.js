@@ -27,6 +27,17 @@ define(function()
         this._width = 16;
         this._height = 16;
       }
+      this._dirty = true;
+    }
+
+    set dirty(value)
+    {
+      this._dirty = value;
+    }
+
+    get dirty()
+    {
+      return this._dirty;
     }
 
     add(p)
@@ -74,7 +85,9 @@ define(function()
 
     set x(value)
     {
+      if(this._x == value){return;}
       this._x = value;
+      this.dirty = true;
     }
 
     get y()
@@ -84,7 +97,9 @@ define(function()
 
     set y(value)
     {
+      if(this._y == value){return;}
       this._y = value;
+      this.dirty = true;
     }
 
     get width()
@@ -94,7 +109,9 @@ define(function()
 
     set width(value)
     {
+      if(this._width == value){return;}
       this._width = value;
+      this.dirty = true;
     }
 
     get w()
@@ -114,7 +131,9 @@ define(function()
 
     set height(value)
     {
+      if(this._height == value){return;}
       this._height = value;
+      this.dirty = true;
     }
 
     get h()
@@ -134,7 +153,9 @@ define(function()
 
     set radius(value)
     {
+      if(this._radius == value){return;}
       this._radius = value;
+      this.dirty = true;
     }
 
     get r()

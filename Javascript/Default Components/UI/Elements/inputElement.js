@@ -13,6 +13,32 @@ define(['uiElement', 'game'], function(UIElement, Game)
       this.ispasswordchar = passwordchar ? passwordchar.toString() : '*';
     }
 
+    get cursor()
+    {
+      return this._cursor;
+    }
+
+    set cursor(value)
+    {
+      if(value == this._cursor){return;}
+
+      this._cursor = value;
+      this.dirty = true;
+    }
+
+    get cursorlife()
+    {
+      return this._cursorlife;
+    }
+
+    set cursorlife(value)
+    {
+      if(value == this._cursorlife){return;}
+
+      this._cursorlife = value;
+      this.dirty = true;
+    }
+
     update(dt)
     {
       if(this.cursor > this.value.length)

@@ -15,6 +15,29 @@ define(['groupElement', 'position', 'buttonElement'], function(GroupElement, Pos
       }
     }
 
+    set view(v)
+    {
+      if(this._view == v){return;}
+
+      this._view = v;
+      this.dirty = true;
+    }
+
+    get view()
+    {
+      return this._view;
+    }
+
+    get dirty()
+    {
+      return super.dirty || this.orig.dirty;
+    }
+
+    set dirty(value)
+    {
+      super.dirty = value;
+    }
+
     set width(f)
     {
       super.width = f;

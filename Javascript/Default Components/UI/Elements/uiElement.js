@@ -29,6 +29,16 @@ define(['position', 'style', 'guiComponent', 'game'],
       return GuiComponent.instance;
     }
 
+    get dirty()
+    {
+      return this.style.dirty || this.pos.dirty;
+    }
+
+    set dirty(value)
+    {
+      this.style.dirty = this.pos.dirty = value;
+    }
+
     get context()
     {
       return GuiComponent.instance.context;
@@ -142,6 +152,18 @@ define(['position', 'style', 'guiComponent', 'game'],
     set display(b)
     {
       this._display = b;
+      this.dirty = true;
+    }
+
+    get value()
+    {
+      return this._value;
+    }
+
+    set value(v)
+    {
+      this._value = v;
+      this.dirty = true;
     }
 
     get bg()
@@ -171,7 +193,10 @@ define(['position', 'style', 'guiComponent', 'game'],
 
     set label(b)
     {
+      if(this._label == b) {return;}
+
       this._label = b;
+      this.dirty = true;
     }
 
     get labelfg()

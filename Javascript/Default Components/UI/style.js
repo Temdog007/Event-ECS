@@ -29,6 +29,7 @@ define(function()
         this._textBaseline = s.textBaseline || this.textBaseline;
         this._hs = s._hs || s.unit || this.hs;
       }
+      this.dirty = true;
     }
 
     append(s)
@@ -43,6 +44,17 @@ define(function()
       this.focus = this.focus || s.focus;
       this.textAlign = this.textAlign || s.textAlign;
       this.textBaseline = this.textBaseline || s.textBaseline;
+      this.dirty = true;
+    }
+
+    set dirty(value)
+    {
+      this._dirty = value;
+    }
+
+    get dirty()
+    {
+      return this._dirty;
     }
 
     get unit()
@@ -53,6 +65,7 @@ define(function()
     set unit(u)
     {
       this._unit = u;
+      this.dirty = true;
     }
 
     get font()
@@ -63,6 +76,7 @@ define(function()
     set font(f)
     {
       this._font = f;
+      this.dirty = true;
     }
 
     get fg()
@@ -73,6 +87,7 @@ define(function()
     set fg(f)
     {
       this._fg = f;
+      this.dirty = true;
     }
 
     get bg()
@@ -83,6 +98,7 @@ define(function()
     set bg(f)
     {
       this._bg = f;
+      this.dirty = true;
     }
 
     get labelfg()
@@ -93,6 +109,7 @@ define(function()
     set labelfg(f)
     {
       this._labelfg = f;
+      this.dirty = true;
     }
 
     get default()
@@ -103,6 +120,7 @@ define(function()
     set default(d)
     {
       this._default = d;
+      this.dirty = true;
     }
 
     get hilite()
@@ -113,6 +131,7 @@ define(function()
     set hilite(d)
     {
       this._hilite = d;
+      this.dirty = true;
     }
 
     get focus()
@@ -123,6 +142,7 @@ define(function()
     set focus(d)
     {
       this._focus = d;
+      this.dirty = true;
     }
 
     get hs()
@@ -133,6 +153,7 @@ define(function()
     set hs(d)
     {
       this._hs = d;
+      this.dirty = true;
     }
 
     get textAlign()
@@ -143,6 +164,7 @@ define(function()
     set textAlign(f)
     {
       this._textAlign = f;
+      this.dirty = true;
     }
 
     get textBaseline()
@@ -153,6 +175,7 @@ define(function()
     set textBaseline(f)
     {
       this._textBaseline = f;
+      this.dirty = true;
     }
   }
   return Style;
