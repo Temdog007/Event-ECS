@@ -2,11 +2,11 @@ require.config({
   baseUrl : "../..",
   paths :
   {
-    game : "Tests/game"
+    DrawableComponent : "Default COmponents/Interfaces/drawableComponent"
   }
 });
 
-require(['game', 'system', 'systemlist', 'component'], function(Game, System, Systems, Component)
+require(['game', 'system', 'systemlist', 'DrawableComponent'], function(Game, System, Systems, Component)
 {
   function objToString(obj)
   {
@@ -23,19 +23,19 @@ require(['game', 'system', 'systemlist', 'component'], function(Game, System, Sy
     constructor(entity)
     {
       super(entity);
-      Game.context.font = "30px Arial";
+      this.context.font = "30px Arial";
       this.set("drawOrder", 0);
     }
 
     eventDraw()
     {
-      Game.context.fillStyle = "white";
-      Game.context.textBaseline = "top";
+      this.context.fillStyle = "white";
+      this.context.textBaseline = "top";
 
       var gamepads = navigator.getGamepads();
       for(var i = 0; i < gamepads.length; ++i)
       {
-        Game.context.fillText(objToString(gamepads[i]), 100, i * 30);
+        this.context.fillText(objToString(gamepads[i]), 100, i * 30);
       }
     }
 

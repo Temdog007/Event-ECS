@@ -2,16 +2,16 @@ require.config({
   baseUrl : '../../',
   paths :
   {
-    game : "Tests/game",
     loadTexture : "Tests/Shader Test/loadTexture",
     createSquare : "Tests/Shader Test/createSquare",
     shaders : "Tests/Shader Test/shaders",
-    'm4' : 'Tests/Shader Test/m4'
+    'm4' : 'Tests/Shader Test/m4',
+    DrawableComponent : "Default Components/Interfaces/DrawableComponent"
   }
 });
 
-require(['component', 'game', 'systemlist', 'system', 'loadTexture', 'createSquare', 'shaders', 'm4'],
-function(Component, Game, Systems, System, loadTexture, createSquare, shaders, mat4)
+require(['DrawableComponent', 'game', 'systemlist', 'system', 'loadTexture', 'createSquare', 'shaders', 'm4'],
+function(DrawableComponent, Game, Systems, System, loadTexture, createSquare, shaders, mat4)
 {
   var canvas = document.createElement("canvas");
   var gl = canvas.getContext("webgl");
@@ -67,7 +67,7 @@ function(Component, Game, Systems, System, loadTexture, createSquare, shaders, m
   // var texture = loadTexture(gl, "bombing blocks screenshot (6).png");
   var texture = loadTexture(gl, "plunger.png");
 
-  class Test extends Component
+  class Test extends DrawableComponent
   {
     constructor(entity)
     {
@@ -129,7 +129,7 @@ function(Component, Game, Systems, System, loadTexture, createSquare, shaders, m
 
       gl.drawArrays(gl.TRIANGLES, 0, 6);
 
-      Game.context.drawImage(canvas, 0, 0, canvas.width, canvas.height,
+      this.context.drawImage(canvas, 0, 0, canvas.width, canvas.height,
         data.x, data.y, data.width, data.height);
     }
   }

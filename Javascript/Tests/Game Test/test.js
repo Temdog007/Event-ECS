@@ -9,8 +9,7 @@ require.config({
     coroutineTesterComponent : 'Default Components/Test/coroutineTesterComponent',
     fpsDisplayerComponent : 'Default Components/Test/fpsDisplayerComponent',
     logTestComponent : 'Default Components/Test/logTestComponent',
-    fpsGraphComponent : 'Default Components/Test/fpsGraphComponent',
-    game : 'Tests/game'
+    fpsGraphComponent : 'Default Components/Test/fpsGraphComponent'
   }
 })
 
@@ -25,10 +24,10 @@ function(DrawableComponent, System, EventTesterComponent, FpsDisplayerComponent,
 {
   class RectangleComponent extends DrawableComponent
   {
-    doDraw(args)
+    eventDraw(args)
     {
-      Game.context.fillStyle = "blue";
-      Game.context.fillRect(0,0,100,100);
+      this.context.fillStyle = "blue";
+      this.context.fillRect(0,0,100,100);
     }
   }
 
@@ -62,5 +61,5 @@ function(DrawableComponent, System, EventTesterComponent, FpsDisplayerComponent,
   e.set("lineColor", "orange");
   e.set("drawOrder", -2);
 
-  Game.addDrawOrders([-2, -1]);
+  Game.addLayers([-2, -1]);
 });

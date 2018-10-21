@@ -220,7 +220,7 @@ function(DrawableComponent, Style, Position, Game, Systems)
       }
     }
 
-    doDraw(args)
+    eventDraw(args)
     {
       for(var i = 0; i < this.elements.length; ++i)
       {
@@ -231,16 +231,16 @@ function(DrawableComponent, Style, Position, Game, Systems)
           var scissor = element.scissor;
           if(scissor)
           {
-            Game.context.save();
-            Game.context.beginPath();
-            Game.context.rect(scissor.x, scissor.y, scissor.width, scissor.height);
-            Game.context.clip();
+            this.context.save();
+            this.context.beginPath();
+            this.context.rect(scissor.x, scissor.y, scissor.width, scissor.height);
+            this.context.clip();
           }
-          Game.context.font = element.font;
+          this.context.font = element.font;
           element.draw(pos);
           if(scissor)
           {
-            Game.context.restore();
+            this.context.restore();
           }
         }
       }
@@ -250,28 +250,28 @@ function(DrawableComponent, Style, Position, Game, Systems)
         var tippos = element.getPosition();
         tippos.x += this.style.unit * 0.5;
         tippos.y += this.style.unit * 0.5;
-        pos.width = Game.context.measureText(element.tip).width + this.style.unit;
+        pos.width = this.context.measureText(element.tip).width + this.style.unit;
 
-        Game.context.fillStyle = this.style.bg;
+        this.context.fillStyle = this.style.bg;
         var pos = new Position();
         pos.x = Math.max(0,
-          Math.min(tippos.x, canvas.width - Game.context.measureText(element.tip).width + this.style.unit));
+          Math.min(tippos.x, canvas.width - this.context.measureText(element.tip).width + this.style.unit));
         pos.y = Math.max(0,
           Math.min(tippos.y, canvas.height - this.style.unit));
         pos.width = tippos.width;
         pos.height= this.style.unit;
         this.mousein.rect(pos);
 
-        Game.context.fillStyle = this.style.fg;
-        Game.context.textAlign = this.style.textAlign;
-        Game.context.textBaseline = this.style.textBaseline;
-        if(element.width > Game.context.measureText(element.tip).width)
+        this.context.fillStyle = this.style.fg;
+        this.context.textAlign = this.style.textAlign;
+        this.context.textBaseline = this.style.textBaseline;
+        if(element.width > this.context.measureText(element.tip).width)
         {
-          Game.context.fillText(element.tip, pos.x, pos.y, element.width);
+          this.context.fillText(element.tip, pos.x, pos.y, element.width);
         }
         else
         {
-          Game.context.fillText(element.tip, pos.x, pos.y);
+          this.context.fillText(element.tip, pos.x, pos.y);
         }
       }
     }

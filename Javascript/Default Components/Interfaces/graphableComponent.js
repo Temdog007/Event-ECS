@@ -71,7 +71,7 @@ define(['drawableComponent', 'game'], function(DrawableComponent, Game)
       }
     }
 
-    doDraw(args)
+    eventDraw(args)
     {
       var data = this.data;
 
@@ -79,22 +79,22 @@ define(['drawableComponent', 'game'], function(DrawableComponent, Game)
       var len = data.vals.length;
       var step = data.width / len;
 
-      Game.context.strokeStyle = data.lineColor;
-      Game.context.lineWidth = data.lineWidth;
-      Game.context.beginPath();
+      this.context.strokeStyle = data.lineColor;
+      this.context.lineWidth = data.lineWidth;
+      this.context.beginPath();
       for(var i = 1; i < len; ++i)
       {
         var a = data.vals[i-1];
         var b = data.vals[i];
-        Game.context.moveTo(step * (i-2) + data.x, data.height * (-a/maxval + 1) + data.y);
-        Game.context.lineTo(step * (i-1) + data.x, data.height * (-b/maxval + 1) + data.y);
+        this.context.moveTo(step * (i-2) + data.x, data.height * (-a/maxval + 1) + data.y);
+        this.context.lineTo(step * (i-1) + data.x, data.height * (-b/maxval + 1) + data.y);
       }
-      Game.context.stroke();
+      this.context.stroke();
 
-      Game.context.font = data.font;
-      Game.context.fillStyle = data.fontColor;
-      Game.context.textBaseline = "top";
-      Game.context.fillText(data.label, data.x, data.height + data.y);
+      this.context.font = data.font;
+      this.context.fillStyle = data.fontColor;
+      this.context.textBaseline = "top";
+      this.context.fillText(data.label, data.x, data.height + data.y);
     }
 
     eventMouseDown(args)

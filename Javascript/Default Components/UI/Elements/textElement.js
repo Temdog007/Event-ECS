@@ -7,8 +7,8 @@ define(['uiElement', 'game'], function(UIElement, Game)
       super(label, pos, parent);
       if(autosize)
       {
-        Game.context.font = this.font;
-        this.width = Game.context.measureText(this.label).width;
+        this.context.font = this.font;
+        this.width = this.context.measureText(this.label).width;
       }
     }
 
@@ -22,11 +22,11 @@ define(['uiElement', 'game'], function(UIElement, Game)
       for(var n = 0; n < words.length; n++)
       {
         var testLine = line + words[n] + ' ';
-        var metrics = Game.context.measureText(testLine);
+        var metrics = this.context.measureText(testLine);
         var testWidth = metrics.width;
         if (testWidth > this.width && n > 0)
         {
-          Game.context.fillText(line, x, y);
+          this.context.fillText(line, x, y);
           line = words[n] + ' ';
           y += lineHeight;
         }
@@ -35,19 +35,19 @@ define(['uiElement', 'game'], function(UIElement, Game)
           line = testLine;
         }
       }
-      Game.context.fillText(line, x, y);
+      this.context.fillText(line, x, y);
       this.height = Math.max(lineHeight, Math.abs(y - oldY) + lineHeight);
     }
 
     draw(pos)
     {
-      Game.context.fillStyle = this.labelfg;
-      Game.context.textBaseline = this.textBaseline;
-      Game.context.textAlign = this.textAlign;
+      this.context.fillStyle = this.labelfg;
+      this.context.textBaseline = this.textBaseline;
+      this.context.textAlign = this.textAlign;
 
       if(this.fitWidth)
       {
-        Game.context.fillText(this.label, pos.x, pos.y, pos.width);
+        this.context.fillText(this.label, pos.x, pos.y, pos.width);
       }
       else if(this.wrap)
       {
@@ -55,7 +55,7 @@ define(['uiElement', 'game'], function(UIElement, Game)
       }
       else
       {
-        Game.context.fillText(this.label, pos.x, pos.y);
+        this.context.fillText(this.label, pos.x, pos.y);
       }
     }
 

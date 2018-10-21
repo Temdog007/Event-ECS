@@ -34,40 +34,78 @@ define(['ecsobject'], function(EcsObject)
     frames = 0;
   }, 1000);
 
-  var drawOrders = {[0] : {drawOrder : 0}};
-  var drawOrderKeys = [0];
+  var canvas = document.getElementById("canvas");
+  var context = canvas.getContext("2d");
+  var canvasRect = canvas.getBoundingClientRect();
 
-  function sortDrawOrders()
+  var layers = {};
+  var layersSorted;
+
+  Game.getLayer = function(x)
   {
-    drawOrderKeys = [];
-    for(var order in drawOrders)
-    {
-      drawOrderKeys.push(order);
-    }
-    drawOrderKeys.sort();
+    return layers[x];
   }
 
-  Game.addDrawOrder = function(value, dontSort)
+  class Layer
   {
-    drawOrders[value] = {drawOrder : value};
+    constructor()
+    {
+      this.canvas = document.createElement("canvas");
+      this.context = this.canvas.getContext("2d");
+      this.rect = this.canvas.getBoundingClientRect();
+      this.resize();
+      var f = this;
+      canvas.addEventListener("onresize", function() {f.resize();});
+    }
+
+    resize()
+    {
+      this.canvas.width = canvas.width;
+      this.canvas.height = canvas.height;
+    }
+
+    get width()
+    {
+      return this.canvas.width;
+    }
+
+    get height()
+    {
+      return this.canvas.height;
+    }
+  }
+
+  function sortLayers()
+  {
+    layersSorted = Object.keys(layers).sort();
+  }
+
+  Game.addLayer = function(value, dontSort)
+  {
+    if(layers[value]){return;}
+
+    layers[value] = new Layer();
     if(!(dontSort == true))
     {
-      sortDrawOrders();
+      sortLayers();
     }
   }
 
-  Game.addDrawOrders = function(arr)
+  Game.addLayers = function(arr)
   {
+    if(!Array.isArray(arr))
+    {
+      throw "Must add an array of numbers";
+    }
+
     for(var i = 0; i < arr.length; ++i)
     {
-      this.addDrawOrder(arr[i], true);
+      this.addLayer(arr[i], true);
     }
-    sortDrawOrders();
+    sortLayers();
   }
 
-  Game.canvas = document.getElementById("canvas");
-  Game.context = canvas.getContext("2d");
-  Game.canvasRect = canvas.getBoundingClientRect();
+  Game.addLayer(0);
 
   canvas.oncontextmenu = function(e)
   {
@@ -89,7 +127,7 @@ define(['ecsobject'], function(EcsObject)
   canvas.onmousemove = function(event)
   {
     event = event || window.event;
-    Systems.pushEvent("eventMouseMoved", {x : event.clientX - Game.canvasRect.left, y : event.clientY - Game.canvasRect.top});
+    Systems.pushEvent("eventMouseMoved", {x : event.clientX - canvasRect.left, y : event.clientY - canvasRect.top});
   }
 
   canvas.onmousedown = function(event)
@@ -134,7 +172,7 @@ define(['ecsobject'], function(EcsObject)
       }
     }
 
-    Systems.pushEvent('eventMouseDown', {x : event.clientX - Game.canvasRect.left, y : event.clientY - Game.canvasRect.top, buttonName : button});
+    Systems.pushEvent('eventMouseDown', {x : event.clientX - canvasRect.left, y : event.clientY - canvasRect.top, buttonName : button});
   }
 
   canvas.onmouseup = function(event)
@@ -179,7 +217,7 @@ define(['ecsobject'], function(EcsObject)
       }
     }
 
-    Systems.pushEvent('eventMouseUp', {x : event.clientX - Game.canvasRect.left, y : event.clientY - Game.canvasRect.top, buttonName : button});
+    Systems.pushEvent('eventMouseUp', {x : event.clientX - canvasRect.left, y : event.clientY - canvasRect.top, buttonName : button});
   }
 
   canvas.onmouseleave = function(event)
@@ -200,19 +238,32 @@ define(['ecsobject'], function(EcsObject)
     Systems.pushEvent('eventMouseWheel', event);
   }
 
-  function dispatchDraw(value)
-  {
-    Systems.pushEvent("eventDraw", drawOrders[value]);
-  }
-
   function addUpdateEvents()
   {
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    for(var i in layersSorted)
+    {
+      var layer = layers[layersSorted[i]];
+      if(!layer){
+        continue;
+      }
+      layer.context.clearRect(0, 0, layer.width, layer.height);
+    }
+
     Systems.pushEvent("eventUpdate", updateArgs);
+    Systems.pushEvent("eventDraw");
     Systems.flushEvents();
 
-    Game.context.clearRect(0, 0, canvas.width, canvas.height);
-    drawOrderKeys.forEach(dispatchDraw);
-    Systems.flushEvents();
+    context.save();
+    for(var i in layersSorted)
+    {
+      var layer = layers[layersSorted[i]];
+      if(!layer){
+        continue;
+      }
+      context.drawImage(layer.canvas, 0, 0);
+    }
+    context.restore();
   }
 
   var updateArgs = {dt : 0};

@@ -30,18 +30,18 @@ define(['drawableComponent', 'game'], function(DrawableComponent, Game)
       data.x %= canvas.width;
     }
 
-    doDraw(args)
+    eventDraw(args)
     {
       var data = this.data;
       if(data.font != null)
       {
-        Game.context.font = data.font;
+        this.context.font = data.font;
       }
-      Game.context.fillStyle = data.color;
-      Game.context.textBaseline = "top";
-      Game.context.fillText(data.text, data.x, data.y);
+      this.context.fillStyle = data.color;
+      this.context.textBaseline = "top";
+      this.context.fillText(data.text, data.x, data.y);
 
-      Game.context.fillText(Game.getFPS(), data.x, data.y + data.space);
+      this.context.fillText(Game.getFPS(), data.x, data.y + data.space);
     }
   }
 

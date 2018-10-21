@@ -6,7 +6,6 @@ require.config({
     position : 'Default Components/UI/position',
     style : 'Default Components/UI/style',
     drawableComponent : 'Default Components/Interfaces/drawableComponent',
-    game : 'Tests/game',
 
     uiElement : 'Default Components/UI/Elements/uiElement',
     typeTextElement : 'Default Components/UI/Elements/typeTextElement',

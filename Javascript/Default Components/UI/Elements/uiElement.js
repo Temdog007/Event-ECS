@@ -29,6 +29,16 @@ define(['position', 'style', 'guiComponent', 'game'],
       return GuiComponent.instance;
     }
 
+    get context()
+    {
+      return GuiComponent.instance.context;
+    }
+
+    get canvas()
+    {
+      return GuiComponent.instance.canvas;
+    }
+
     get fitWidth()
     {
       return this._fitWidth;
@@ -281,16 +291,16 @@ define(['position', 'style', 'guiComponent', 'game'],
 
     drawImage(pos)
     {
-      Game.context.drawImage(this.img, 0, 0, this.img.width, this.img.height, pos.x, pos.y, pos.width, pos.height);
+      this.context.drawImage(this.img, 0, 0, this.img.width, this.img.height, pos.x, pos.y, pos.width, pos.height);
     }
 
     drawShape(pos)
     {
       if(this.shape == "circle")
       {
-        Game.context.beginPath();
-        Game.context.arc(pos.x + pos.radius, pos.y + pos.radius, pos.radius, 0, Math.PI * 2);
-        Game.context.fill();
+        this.context.beginPath();
+        this.context.arc(pos.x + pos.radius, pos.y + pos.radius, pos.radius, 0, Math.PI * 2);
+        this.context.fill();
       }
       else
       {
@@ -303,11 +313,11 @@ define(['position', 'style', 'guiComponent', 'game'],
       mode = mode || 'fill';
       if(mode == 'fill')
       {
-        Game.context.fillRect(pos.x, pos.y, pos.width, pos.height);
+        this.context.fillRect(pos.x, pos.y, pos.width, pos.height);
       }
       else
       {
-        Game.context.strokeRect(pos.x, pos.y, pos.width, pos.height);
+        this.context.strokeRect(pos.x, pos.y, pos.width, pos.height);
       }
     }
 

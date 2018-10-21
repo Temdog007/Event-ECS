@@ -2,8 +2,7 @@ require.config({
   baseUrl : '../../',
   paths :
   {
-    drawableComponent : 'Default Components/Interfaces/drawableComponent',
-    game : 'Tests/game'
+    drawableComponent : 'Default Components/Interfaces/drawableComponent'
   }
 })
 
@@ -31,23 +30,23 @@ function(_, DrawableComponent, Systems, Game)
       });
     }
 
-    doDraw()
+    eventDraw()
     {
-      Game.context.save();
+      this.context.save();
 
       var data = this.data;
       if(this.get("doScale"))
       {
-        Game.context.translate(data.x + data.width / 2, data.y + data.height / 2);
-        Game.context.scale(-1,1);
-        Game.context.drawImage(img, 0, 0, img.width, img.height, -data.width / 2, -data.height / 2, data.width, data.height);
+        this.context.translate(data.x + data.width / 2, data.y + data.height / 2);
+        this.context.scale(-1,1);
+        this.context.drawImage(img, 0, 0, img.width, img.height, -data.width / 2, -data.height / 2, data.width, data.height);
       }
       else
       {
-        Game.context.drawImage(img, 0, 0, img.width, img.height, data.x, data.y, data.width, data.height);
+        this.context.drawImage(img, 0, 0, img.width, img.height, data.x, data.y, data.width, data.height);
       }
 
-      Game.context.restore();
+      this.context.restore();
     }
   }
 

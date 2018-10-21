@@ -38,22 +38,22 @@ define(['uiElement', 'game'], function(UIElement, Game)
 
     draw(pos)
     {
-      Game.context.fillStyle = this.default;
+      this.context.fillStyle = this.default;
       this.drawShape(pos);
-      Game.context.fillStyle = this.fg;
+      this.context.fillStyle = this.fg;
       this.rect({x : pos.x, y : pos.y, width : pos.width * (this.values.current / this.values.max), height : pos.height});
       if(this.label)
       {
-        Game.context.fillStyle = this.labelfg;
-        Game.context.textAlign = this.textAlign;
-        Game.context.textBaseline = this.textBaseline;
+        this.context.fillStyle = this.labelfg;
+        this.context.textAlign = this.textAlign;
+        this.context.textBaseline = this.textBaseline;
         if(this.fitWidth)
         {
-          Game.context.fillText(this.label, pos.x, pos.y, pos.width);
+          this.context.fillText(this.label, pos.x, pos.y, pos.width);
         }
         else
         {
-          Game.context.fillText(this.label, pos.x, pos.y);
+          this.context.fillText(this.label, pos.x, pos.y);
         }
       }
     }

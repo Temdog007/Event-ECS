@@ -16,10 +16,10 @@ define(['uiElement', 'game'], function(UIElement, Game)
       }
       if(this.label)
       {
-        Game.context.fillStyle = this.labelfg;
-        Game.context.textAlign = this.textAlign;
-        Game.context.textBaseline = this.textBaseline;
-        Game.context.fillText(this.label, pos.x, pos.y + pos.height);
+        this.context.fillStyle = this.labelfg;
+        this.context.textAlign = this.textAlign;
+        this.context.textBaseline = this.textBaseline;
+        this.context.fillText(this.label, pos.x, pos.y + pos.height);
       }
     }
   }

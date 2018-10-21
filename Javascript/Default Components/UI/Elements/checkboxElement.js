@@ -18,17 +18,17 @@ function(UIElement, Game, Position)
     {
       if(this == UIElement.guiComponent.mousein)
       {
-        Game.context.fillStyle = this.hilite;
+        this.context.fillStyle = this.hilite;
       }
       else
       {
-        Game.context.fillStyle = this.default;
+        this.context.fillStyle = this.default;
       }
       this.drawShape(pos);
 
       if(this.value)
       {
-        Game.context.fillStyle = this.fg;
+        this.context.fillStyle = this.fg;
         var tpos = new Position();
         tpos.x = pos.x + pos.width * 0.25;
         tpos.y = pos.y + pos.height * 0.25;
@@ -39,9 +39,9 @@ function(UIElement, Game, Position)
       }
       if(this.label)
       {
-        Game.context.fillStyle = this.labelfg;
-        Game.context.textAlign = "center";
-        Game.context.textBaseline = "middle";
+        this.context.fillStyle = this.labelfg;
+        this.context.textAlign = "center";
+        this.context.textBaseline = "middle";
         var x, y, width;
         if(this.shape == "circle")
         {
@@ -55,7 +55,7 @@ function(UIElement, Game, Position)
           y = pos.y + pos.h * 0.5;
           width = pos.w;
         }
-        Game.context.fillText(this.label, x, y, width);
+        this.context.fillText(this.label, x, y, width);
       }
     }
   }

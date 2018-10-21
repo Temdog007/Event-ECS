@@ -65,14 +65,14 @@ define(['uiElement', 'scrollElement', 'game'], function(UIElement, ScrollElement
 
     draw(pos)
     {
-      Game.context.fillStyle = this.bg;
+      this.context.fillStyle = this.bg;
       this.drawShape(pos);
       if(this.label)
       {
-        Game.context.textAlign = this.textAlign;
-        Game.context.textBaseline = this.textBaseline;
-        Game.context.fillStyle = this.labelfg;
-        Game.context.fillText(this.label, pos.x + pos.width * 0.5, pos.y, pos.width);
+        this.context.textAlign = this.textAlign;
+        this.context.textBaseline = this.textBaseline;
+        this.context.fillStyle = this.labelfg;
+        this.context.fillText(this.label, pos.x + pos.width * 0.5, pos.y, pos.width);
       }
     }
   }

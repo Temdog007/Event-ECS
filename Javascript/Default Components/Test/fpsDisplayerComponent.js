@@ -14,14 +14,14 @@ define(['drawableComponent'], function(DrawableComponent)
       });
     }
 
-    doDraw(args)
+    eventDraw(args)
     {
       var data = this.data;
-      Game.context.fillStyle = data.color;
+      this.context.fillStyle = data.color;
 
-      Game.context.font = data.font;
-      Game.context.textBaseline = "top";
-      Game.context.fillText(getFPS(), data.x, data.y);
+      this.context.font = data.font;
+      this.context.textBaseline = "top";
+      this.context.fillText(getFPS(), data.x, data.y);
     }
   }
 

@@ -2,11 +2,11 @@ require.config({
   baseUrl : "../../",
   paths :
   {
-    game : "Tests/game"
+    drawableComponent : "Default Components/Interfaces/drawableComponent"
   }
 });
 
-require(['system', 'systemlist', 'component', 'game'], function(System, Systems, Component, Game)
+require(['system', 'systemlist', 'drawableComponent', 'game'], function(System, Systems, Component, Game)
 {
   class Rect extends Component
   {
@@ -37,19 +37,19 @@ require(['system', 'systemlist', 'component', 'game'], function(System, Systems,
     {
       var data = this.data;
 
-      Game.context.save();
+      this.context.save();
       if(data.center)
       {
-        Game.context.translate(data.x, data.y);
+        this.context.translate(data.x, data.y);
       }
       else
       {
-        Game.context.translate(data.x + data.w / 2, data.y + data.h / 2);
+        this.context.translate(data.x + data.w / 2, data.y + data.h / 2);
       }
-      Game.context.rotate(data.r);
-      Game.context.fillStyle = data.color;
-      Game.context.fillRect(-data.w / 2, -data.h / 2, data.w, data.h);
-      Game.context.restore();
+      this.context.rotate(data.r);
+      this.context.fillStyle = data.color;
+      this.context.fillRect(-data.w / 2, -data.h / 2, data.w, data.h);
+      this.context.restore();
     }
   }
 
@@ -62,7 +62,7 @@ require(['system', 'systemlist', 'component', 'game'], function(System, Systems,
     return entity;
   }
 
-  var cx = Game.canvas.width / 2, cy = Game.canvas.height / 2;
+  var cx = canvas.width / 2, cy = canvas.height / 2;
 
   var entity1 = makeEntity();
   entity1.set("color", "blue");

@@ -36,34 +36,34 @@ define(['uiElement', 'game'], function(UIElement, Game)
     {
       if(this == UIElement.guiComponent.focus)
       {
-        Game.context.fillStyle = this.bg;
+        this.context.fillStyle = this.bg;
       }
       else if(this == UIElement.guiComponent.mousein)
       {
-        Game.context.fillStyle = this.hilite;
+        this.context.fillStyle = this.hilite;
       }
       else
       {
-        Game.context.fillStyle = this.default;
+        this.context.fillStyle = this.default;
       }
       this.drawShape(pos);
 
-      Game.context.textAlign = this.textAlign;
-      Game.context.textBaseline = this.textBaseline;
+      this.context.textAlign = this.textAlign;
+      this.context.textBaseline = this.textBaseline;
 
       var editw = pos.width - this.unit * 0.5;
       if(editw >= 1)
       {
-        Game.context.save();
+        this.context.save();
 
-        Game.context.beginPath();
-        Game.context.rect(pos.x + this.style.unit * 0.25, pos.y, editw, pos.height);
-        Game.context.clip();
+        this.context.beginPath();
+        this.context.rect(pos.x + this.style.unit * 0.25, pos.y, editw, pos.height);
+        this.context.clip();
 
-        Game.context.fillStyle = this.fg;
+        this.context.fillStyle = this.fg;
         var str = this.ispassword ? this.ispasswordchar.repeat(TextElement.utf8len(this.value.toString())) : this.value.toString();
 
-        var cursorx = this.textorigin + Game.context.measureText(str.substring(0, this.cursor)).width;
+        var cursorx = this.textorigin + this.context.measureText(str.substring(0, this.cursor)).width;
         if(cursorx < 0)
         {
           this.textorigin = Math.min(0, this.textorigin - cursorx);
@@ -77,25 +77,25 @@ define(['uiElement', 'game'], function(UIElement, Game)
 
         if(this.fitWidth)
         {
-          Game.context.fillText(str, pos.x + this.unit * 0.25 + this.textorigin, pos.y + (pos.height - this.unit) * 0.5, pos.width);
+          this.context.fillText(str, pos.x + this.unit * 0.25 + this.textorigin, pos.y + (pos.height - this.unit) * 0.5, pos.width);
         }
         else
         {
-          Game.context.fillText(str, pos.x + this.unit * 0.25 + this.textorigin, pos.y + (pos.height - this.unit) * 0.5);
+          this.context.fillText(str, pos.x + this.unit * 0.25 + this.textorigin, pos.y + (pos.height - this.unit) * 0.5);
         }
 
         if(this == UIElement.guiComponent.focus && this.cursorlife < 0.5)
         {
-          Game.context.fillRect(pos.x + this.style.unit * 0.25 + cursorx, pos.y + this.style.unit * 0.125,
+          this.context.fillRect(pos.x + this.style.unit * 0.25 + cursorx, pos.y + this.style.unit * 0.125,
                 1, pos.height - this.style.unit * 0.25);
         }
 
-        Game.context.restore();
+        this.context.restore();
       }
       if(this.label)
       {
-        Game.context.fillStyle = this.labelfg;
-        Game.context.fillText(this.label, pos.x - ((this.style.unit * 0.5) + Game.context.measureText(this.label).width),
+        this.context.fillStyle = this.labelfg;
+        this.context.fillText(this.label, pos.x - ((this.style.unit * 0.5) + this.context.measureText(this.label).width),
           pos.y + ((this.height - this.style.unit) * 0.5));
       }
     }

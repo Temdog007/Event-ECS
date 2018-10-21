@@ -1,4 +1,4 @@
-define(['component'], function(Component)
+define(['component', 'game'], function(Component, Game)
 {
   class DrawableComponent extends Component
   {
@@ -9,19 +9,31 @@ define(['component'], function(Component)
       this.setDefaults({drawOrder : 0})
     }
 
-    canDraw(args, drawOrder)
+    set drawOrder(value)
     {
-      return args != null && args.drawOrder == this.get("drawOrder");
+      this.set("drawOrder", value);
+      Game.addLayer(value);
     }
 
-    eventDraw(args)
+    get drawOrder()
     {
-      if(!this.canDraw(args)){return;}
-
-      this.doDraw(args);
+      return this.get("drawOrder");
     }
 
-    doDraw(){}
+    get layer()
+    {
+      return Game.getLayer(this.drawOrder);
+    }
+
+    get canvas()
+    {
+      return this.layer.canvas;
+    }
+
+    get context()
+    {
+      return this.layer.context;
+    }
   }
 
   return DrawableComponent;

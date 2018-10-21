@@ -7,8 +7,8 @@ define(['uiElement', 'game'], function(UIElement, Game)
       super(label, pos, parent);
       if(autosize)
       {
-        Game.context.fillStyle = this.default;
-        this.width = Game.context.measureText(label).width;
+        this.context.fillStyle = this.default;
+        this.width = this.context.measureText(label).width;
       }
     }
 
@@ -18,29 +18,29 @@ define(['uiElement', 'game'], function(UIElement, Game)
       {
         if(this == UIElement.guiComponent.mousein)
         {
-          Game.context.fillStyle = this.style.focus;
+          this.context.fillStyle = this.style.focus;
         }
         else
         {
-          Game.context.fillStyle = this.hilite;
+          this.context.fillStyle = this.hilite;
         }
       }
       else
       {
         if(this == UIElement.guiComponent.mousein)
         {
-          Game.context.fillStyle = this.hilite;
+          this.context.fillStyle = this.hilite;
         }
         else
         {
-          Game.context.fillStyle = this.default;
+          this.context.fillStyle = this.default;
         }
       }
       this.drawShape(pos);
 
-      Game.context.textBaseline = "middle";
-      Game.context.textAlign = "center";
-      Game.context.fillStyle = this.labelfg;
+      this.context.textBaseline = "middle";
+      this.context.textAlign = "center";
+      this.context.fillStyle = this.labelfg;
       if(this.shape == 'circle')
       {
         if(this.img)
@@ -50,7 +50,7 @@ define(['uiElement', 'game'], function(UIElement, Game)
         if(this.label)
         {
           var y = this.img ? pos.y + this.radius * 2 : pos.y;
-          Game.context.fillText(this.label, pos.x + pos.width * 0.5, y + pos.height * 0.5, pos.radius * 2);
+          this.context.fillText(this.label, pos.x + pos.width * 0.5, y + pos.height * 0.5, pos.radius * 2);
         }
       }
       else
@@ -62,7 +62,7 @@ define(['uiElement', 'game'], function(UIElement, Game)
         if(this.label)
         {
           var y = this.img ? pos.y + this.height : pos.y;
-          Game.context.fillText(this.label, pos.x + pos.width * 0.5, y + pos.height * 0.5, pos.width);
+          this.context.fillText(this.label, pos.x + pos.width * 0.5, y + pos.height * 0.5, pos.width);
         }
       }
     }

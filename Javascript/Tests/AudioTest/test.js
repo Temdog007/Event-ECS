@@ -1,17 +1,5 @@
 require.config({
-  baseUrl : '../../',
-  paths :
-  {
-    imageDrawerComponent : 'Default Components/Drawing/imageDrawerComponent',
-    drawableComponent : 'Default Components/Interfaces/drawableComponent',
-    graphableComponent : 'Default Components/Interfaces/graphableComponent',
-    eventTesterComponent : 'Default Components/Test/eventTesterComponent',
-    coroutineTesterComponent : 'Default Components/Test/coroutineTesterComponent',
-    fpsDisplayerComponent : 'Default Components/Test/fpsDisplayerComponent',
-    logTestComponent : 'Default Components/Test/logTestComponent',
-    fpsGraphComponent : 'Default Components/Test/fpsGraphComponent',
-    game : 'Tests/game'
-  }
+  baseUrl : '../../'
 })
 
 require(

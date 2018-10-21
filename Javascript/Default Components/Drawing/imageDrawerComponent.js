@@ -13,13 +13,13 @@ define(['drawableComponent', 'game'], function(DrawableComponent, Game)
       });
     }
 
-    doDraw(args)
+    eventDraw(args)
     {
       var d = this.get("drawable");
       if(d == null) {return;}
 
       var data = this.data;
-      Game.context.drawImage(d,
+      this.context.drawImage(d,
         0, 0, d.width, d.height,
         data.x, data.y, data.width, data.height);
     }

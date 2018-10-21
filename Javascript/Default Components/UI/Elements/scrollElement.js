@@ -146,22 +146,22 @@ function(UIElement, Game, Position)
       if(this == UIElement.guiComponent.mousein ||
         this == UIElement.guiComponent.drag || this == UIElement.guiComponent.focus)
       {
-        Game.context.fillStyle = this.default;
+        this.context.fillStyle = this.default;
       }
       else
       {
-        Game.context.fillStyle = this.bg;
+        this.context.fillStyle = this.bg;
       }
       this.rect(pos);
 
       if(this == UIElement.guiComponent.mousein ||
         this == UIElement.guiComponent.drag || this == UIElement.guiComponent.focus)
       {
-        Game.context.fillStyle = this.fg;
+        this.context.fillStyle = this.fg;
       }
       else
       {
-        Game.context.fillStyle = this.hilite;
+        this.context.fillStyle = this.hilite;
       }
 
       var hs = this.hs;
@@ -197,10 +197,10 @@ function(UIElement, Game, Position)
       this.drawShape(handlepos);
       if(this.label)
       {
-        Game.context.textAlign = this.textAlign;
-        Game.context.textBaseline = this.textBaseline;
-        Game.context.fillStyle = this.labelfg;
-        Game.context.fillText(this.label,
+        this.context.textAlign = this.textAlign;
+        this.context.textBaseline = this.textBaseline;
+        this.context.fillStyle = this.labelfg;
+        this.context.fillText(this.label,
           (this.axis == 'horizontal' ? pos.x - pos.width : pos.x + pos.width * 0.5),
           (this.axis == 'vertical' ? pos.y + pos.height * 0.5 : pos.y + pos.height * 0.5));
       }

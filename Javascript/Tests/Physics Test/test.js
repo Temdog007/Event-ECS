@@ -2,7 +2,6 @@ require.config({
   baseUrl : "../..",
   paths :
   {
-    game : "Tests/game",
     drawableComponent : 'Default Components/Interfaces/drawableComponent',
     Box2D_v2_3_1 : "Default Components/Physics/Box2D_v2_3_1",
     box2d : "Default Components/Physics/box2d",

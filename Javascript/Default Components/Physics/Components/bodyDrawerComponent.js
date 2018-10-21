@@ -42,12 +42,12 @@ function(box2d, Component, Game)
       return (body.IsActive() && body.IsAwake()) ? 1 : 0.5;
     }
 
-    doDraw()
+    eventDraw()
     {
-      Game.context.save();
+      this.context.save();
 
-      Game.context.globalAlpha = this.alpha;
-      Game.context.strokeStyle = this.color;
+      this.context.globalAlpha = this.alpha;
+      this.context.strokeStyle = this.color;
 
       var body = this.body;
       if(body)
@@ -61,67 +61,67 @@ function(box2d, Component, Game)
             var shape = box2d.wrapPointer(current.GetShape().a, box2d.b2CircleShape);
             var center = shape.get_m_p();
             center = body.GetWorldPoint(center);
-            Game.context.beginPath();
-            Game.context.arc(center.get_x(), center.get_y(), shape.get_m_radius(), 0, Math.PI * 2);
-            Game.context.stroke();
+            this.context.beginPath();
+            this.context.arc(center.get_x(), center.get_y(), shape.get_m_radius(), 0, Math.PI * 2);
+            this.context.stroke();
           }
           else if (shapeType == box2d.b2Shape.e_edge)
           {
             var shape = box2d.wrapPointer(current.GetShape().a, box2d.b2EdgeShape);
-            Game.context.beginPath();
+            this.context.beginPath();
 
             var vertex = body.GetWorldPoint(shape.get_m_vertex1());
             var x = vertex.get_x(), y = vertex.get_y();
-            Game.context.moveTo(x,y);
+            this.context.moveTo(x,y);
 
             vertex = body.GetWorldPoint(shape.get_m_vertex2());
             x = vertex.get_x(); y = vertex.get_y();
-            Game.context.lineTo(x,y);
+            this.context.lineTo(x,y);
 
-            Game.context.closePath();
-            Game.context.stroke();
+            this.context.closePath();
+            this.context.stroke();
           }
           else if (shapeType == box2d.b2Shape.e_chain)
           {
             var shape = box2d.wrapPointer(current.GetShape().a, box2d.b2ChainShape);
             var count = shape.GetVertexCount();
-            Game.context.beginPath();
+            this.context.beginPath();
             for(var i = 0; i < count; ++i)
             {
               var vertex = body.GetWorldPoint(shape.GetVertex(i));
               var x = vertex.get_x(), y = vertex.get_y();
               if(i == 0)
               {
-                Game.context.moveTo(x,y);
+                this.context.moveTo(x,y);
               }
               else
               {
-                Game.context.lineTo(x,y);
+                this.context.lineTo(x,y);
               }
             }
-            Game.context.closePath();
-            Game.context.stroke();
+            this.context.closePath();
+            this.context.stroke();
           }
           else if(shapeType == box2d.b2Shape.e_polygon)
           {
             var shape = box2d.wrapPointer(current.GetShape().a, box2d.b2PolygonShape);
             var count = shape.GetVertexCount();
-            Game.context.beginPath();
+            this.context.beginPath();
             for(var i = 0; i < count; ++i)
             {
               var vertex = body.GetWorldPoint(shape.GetVertex(i));
               var x = vertex.get_x(), y = vertex.get_y();
               if(i == 0)
               {
-                Game.context.moveTo(x,y);
+                this.context.moveTo(x,y);
               }
               else
               {
-                Game.context.lineTo(x,y);
+                this.context.lineTo(x,y);
               }
             }
-            Game.context.closePath();
-            Game.context.stroke();
+            this.context.closePath();
+            this.context.stroke();
           }
           else
           {
@@ -131,7 +131,7 @@ function(box2d, Component, Game)
         }
       }
 
-      Game.context.restore();
+      this.context.restore();
     }
   }
 
