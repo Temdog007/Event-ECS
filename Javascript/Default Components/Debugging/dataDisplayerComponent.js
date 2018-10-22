@@ -12,6 +12,24 @@ define(['component', 'systemlist'], function(Component, Systems)
     button.updateForeground();
   }
 
+  function updateEntityData()
+  {
+    if(this.type == "checkbox")
+    {
+      this.entity.data[this.key] = this.checked;
+    }
+    else
+    {
+      this.entity.data[this.key] = this.value;
+    }
+  }
+
+  function onEntityDataChange(evt)
+  {
+    var button = evt.srcElement;
+    button.updateEntityData();
+  }
+
   function createToggleButton(ecsObject)
   {
     var toggleButton = document.createElement("button");
@@ -65,15 +83,64 @@ define(['component', 'systemlist'], function(Component, Systems)
       en.innerHTML = "Data";
       entityDiv.appendChild(en);
 
-      var ul = document.createElement("ul");
-      ul.className = "Enttiy Data";
-      entityDiv.appendChild(ul);
+      var table = document.createElement("table");
+      // table.className = "Entity Data" + entity.id;
+      table.style.margin = "5px";
+      table.style.display = "inherit";
+      entityDiv.appendChild(table);
+
+      var tr = document.createElement("tr");
+      table.appendChild(tr);
+
+      var th = document.createElement("th");
+      th.innerHTML = "Key";
+      tr.appendChild(th);
+
+      th = document.createElement("th");
+      th.innerHTML = "Value";
+      tr.appendChild(th);
 
       for(var k in entity.data)
       {
-        var d = document.createElement("li");
-        d.innerHTML = k + ": " + entity.data[k];
-        ul.appendChild(d);
+        tr = document.createElement("tr");
+        table.appendChild(tr);
+
+        var data = entity.data[k];
+        var type = typeof data;
+
+        var th = document.createElement("th");
+        tr.appendChild(th);
+
+        var label = document.createElement("label");
+        label.innerHTML = k;
+        label.style.margin = 5;
+        th.appendChild(label);
+
+        th = document.createElement("th");
+        tr.appendChild(th);
+
+        var el = document.createElement("input");
+        el.style.width = "100%";
+        el.value = data;
+        el.key = k;
+        el.entity = entity;
+        el.updateEntityData = updateEntityData;
+        el.addEventListener("change", onEntityDataChange);
+        th.appendChild(el);
+
+        if(type == "number")
+        {
+          el.type = "number";
+        }
+        else if(type == "string")
+        {
+          el.type = "text";
+        }
+        else if(type == "boolean")
+        {
+          el.type = "checkbox";
+          el.checked = data;
+        }
       }
 
       en = document.createElement("h3");
@@ -180,6 +247,25 @@ define(['component', 'systemlist'], function(Component, Systems)
       {
         updateHTML();
         data.current = 0;
+      }
+    }
+
+    eventKeyDown(args)
+    {
+      if(args.key == "F1")
+      {
+        if(rightSide.style.width == "0%")
+        {
+          leftSide.style.width = "50%";
+          rightSide.style.width = "50%";
+          rightSide.style.display = "block";
+        }
+        else
+        {
+          leftSide.style.width = "100%";
+          rightSide.style.width = "0%";
+          rightSide.style.display = "none";
+        }
       }
     }
 

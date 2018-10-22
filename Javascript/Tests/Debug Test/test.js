@@ -19,13 +19,15 @@ function(Game, Systems, Component)
       this.setDefaults({
         msg : "Default Message",
         systemID : this.system.id,
-        systemName : this.system.name
+        systemName : this.system.name,
+        bool : true
       });
     }
 
     eventDebug()
     {
-      console.log("Debug Message from " + this.system.name + " at  " + Date.now());
+      console.log(this.data.bool + " " + this.data.msg + ": " + 
+      this.data.systemName + "(" + this.data.systemID + ") at  " + Date.now());
     }
   }
 
