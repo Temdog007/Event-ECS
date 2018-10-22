@@ -18,33 +18,36 @@
     height : 100%;
     display : block;
     overflow : hidden;
-    background-color: inherit;
+    background-color: black;
   }
 </style>
 
 <body id="body">
   <div class="wrapper" style="width: 100%">
-    <div id="leftSide" style="float:left; width:100%">
+    <div id="leftSide" style="float:left; width:100%;">
       <canvas id="canvas" tabindex='1'/>
     </div>
     <div id="rightSide" style="float:right; width:0%; display:none">
-      <div>
-        <button type="button" id="updateButton">Update</button>
-        <button type="button" id="refreshButton">Clear</button>
-      </div>
-      <input type="checkbox" checked="false" id="autoUpdateCheckbox">Auto Update</input><br>
-      <div id="autoUpdate" style="display:none">
-        Update Every <input type="number" id='autoUpdateInterval' placeholder="1000" value="1000"> milliseconds<br>
-      </div>
-      <div id="debugContent" style="background-color:#dddd; margin:px">
-        <h2>Systems</h2>
-        <div id="systemsContent" style="display:inlne-grid; grid-gap:10px;">
+      <div id="space" style="float:left; width:5%;"></div>
+      <div style="float:right; width:95%;">
+        <div>
+          <button type="button" id="updateButton">Update</button>
+          <button type="button" id="refreshButton">Clear</button>
         </div>
-        <h2>Entities</h2>
-        <div id="entitiesContent">
+        <input type="checkbox" checked="false" id="autoUpdateCheckbox">Auto Update</input><br>
+        <div id="autoUpdate" style="display:none">
+          Update Every <input type="number" id='autoUpdateInterval' placeholder="1000" value="1000"> milliseconds<br>
+        </div>
+        <div id="debugContent" style="background-color:#dddd; margin:px">
+          <h2>Systems</h2>
+          Dispatch Event <input type="text" size="50" placeholder="Enter event to dispatch" id="eventDispatcher"><br>
+          <div id="systemsContent" style="display:inlne-grid; grid-gap:10px;">
+          </div>
+          <h2>Entities</h2>
+          <div id="entitiesContent">
+          </div>
         </div>
       </div>
-      Dispatch Event <input type="text" placeholder="Enter event to dispatch" id="eventDispatcher">
     </div>
     <script>
       autoUpdateCheckbox.addEventListener("click", function(evt)
@@ -70,8 +73,8 @@
         {
           if(rightSide.style.width == "0%")
           {
-            leftSide.style.width = "50%";
-            rightSide.style.width = "50%";
+            leftSide.style.width = "75%";
+            rightSide.style.width = "25%";
             rightSide.style.display = "block";
           }
           else

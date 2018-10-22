@@ -42,6 +42,21 @@ require(['systemlist'], function(Systems)
     return toggleButton;
   }
 
+  function addComponent(evt)
+  {
+    if(evt.keyCode == 13)
+    {
+      var text = evt.srcElement;
+      text.entity.addComponent(text.value);
+    }
+  }
+
+  function removeComponent(evt)
+  {
+    var button = evt.srcElement;
+    console.assert(button.component.remove(), "Failed to remove component");
+  }
+
   function updateEntityDivVisibility()
   {
     var system;
@@ -95,8 +110,18 @@ require(['systemlist'], function(Systems)
       entityDiv.id = entity.id;
       entityDiv.className = "Entity";
       entityDiv.style.display = "none";
+      entityDiv.style.border = "10px solid black";
+      entityDiv.style.margin = "5px";
 
       entityDiv.appendChild(createToggleButton(entity));
+
+      var t = document.createElement("input");
+      t.type = "text";
+      t.size = "50";
+      t.entity = entity;
+      t.placeholder = "Enter name of component to add to this entity";
+      t.addEventListener("keyup", addComponent);
+      entityDiv.appendChild(t);
 
       var en = document.createElement("h3");
       en.innerHTML = "Data";
@@ -172,9 +197,19 @@ require(['systemlist'], function(Systems)
       entityDiv.appendChild(ul);
       for(var i in entity._components)
       {
-        var d = document.createElement("li");
-        d.appendChild(createToggleButton(entity._components[i]));
-        ul.appendChild(d);
+        var li = document.createElement("li");
+        ul.appendChild(li);
+
+        var div = document.createElement("div");
+        li.appendChild(div);
+
+        div.appendChild(createToggleButton(entity._components[i]));
+
+        var button = document.createElement("button");
+        button.component = entity._components[i];
+        button.textContent = "Remove";
+        button.addEventListener("click", removeComponent);
+        div.appendChild(button);
       }
 
       entitiesContent.appendChild(entityDiv);

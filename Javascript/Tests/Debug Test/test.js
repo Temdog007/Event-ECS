@@ -33,10 +33,21 @@ function(Game, Systems, Component)
     }
   }
 
+  class EmptyComponent2 extends EmptyComponent
+  {
+    eventUpdate(args)
+    {
+      this.data.time -= args.dt;
+    }
+  }
+
   for(var i = 0; i < 5; ++i)
   {
     var system = Systems.addSystem("Test System" + i);
     var entity = system.createEntity();
+    entity.addComponents([EmptyComponent, EmptyComponent2]);
+
+    entity = system.createEntity();
     entity.addComponent(EmptyComponent);
   }
 });
