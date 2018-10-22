@@ -25,31 +25,44 @@ define(['ecsobject', 'component'], function(EcsObject, Component)
       this.data[key] = value;
     }
 
-    addComponent(component)
+    setDefault(key, value)
     {
-      if(this[component.name])
+      if(this.get(key) == null && value != null)
+      {
+        this.set(key, value);
+      }
+    }
+
+    setDefaults(obj)
+    {
+      for(var key in obj)
+      {
+        this.setDefault(key, obj[key]);
+      }
+    }
+
+    addComponent(componentConstructor)
+    {
+      if(typeof componentConstructor == "string")
+      {
+        componentConstructor = require(componentConstructor);
+      }
+
+      if(typeof componentConstructor != "function")
+      {
+        throw "Must pass constructor or required module that returns a consturctor";
+      }
+
+      if(this[componentConstructor.name])
       {
         throw "Cannot add duplicate components to one entity: " + component;
       }
 
-      var comp;
-      if(typeof component == "function")
-      {
-        comp = new component(this);
-      }
-      else if(typeof component == "string")
-      {
-        comp = require(component);
-      }
-      else
-      {
-        comp = component;
-      }
-
-      this[component.name] = comp;
-      this.components.push(comp);
-      this.system.pushEvent('eventAddedComponent', {component : comp, entity : this});
-      return comp;
+      var component = new componentConstructor(this);
+      this[componentConstructor.name] = component;
+      this.components.push(component);
+      this.system.pushEvent('eventAddedComponent', {component : component, entity : this});
+      return component;
     }
 
     addComponents(components)
@@ -160,6 +173,30 @@ define(['ecsobject', 'component'], function(EcsObject, Component)
         }
       }
       return count;
+    }
+
+    toSimpleObject()
+    {
+      var obj = super.toSimpleObject();
+
+      obj.data = {};
+      for(var i in this.data)
+      {
+        var data = this.data[i];
+        var type = typeof data;
+        if(data == "number" || data == "string" || data == "boolean")
+        {
+          obj.data[i] = this.data[i];
+        }
+      }
+
+      obj.components = [];
+      for(var i in this.components)
+      {
+        obj.components.push(this.components[i].toSimpleObject());
+      }
+
+      return obj;
     }
   }
 

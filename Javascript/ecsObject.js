@@ -44,20 +44,13 @@ define(['systemlist'], function(Systems)
       this._name = value;
     }
 
-    setDefault(key, value)
+    toSimpleObject()
     {
-      if(this.get(key) == null && value != null)
-      {
-        this.set(key, value);
-      }
-    }
-
-    setDefaults(obj)
-    {
-      for(var key in obj)
-      {
-        this.setDefault(key, obj[key]);
-      }
+      return {
+        id : this.id,
+        name : this.name,
+        enabled : this.enabled
+      };
     }
   }
 

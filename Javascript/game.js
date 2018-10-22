@@ -281,7 +281,7 @@ define(['ecsobject'], function(EcsObject)
 
   function update(now)
   {
-    updateArgs.dt = (now - last) / 1000;
+    updateArgs.dt = now - last;
     last = now;
 
     ++frames;

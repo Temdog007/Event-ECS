@@ -176,6 +176,20 @@ define(['ecsobject', 'entity', 'ecsevent'], function(EcsObject, Entity, ECSEvent
       }
       return count;
     }
+
+    toSimpleObject()
+    {
+      var obj = super.toSimpleObject();
+
+      obj.entities = [];
+      for(var i in this.entities)
+      {
+        var entity = this.entities[i];
+        obj.entities.push(entity.toSimpleObject());
+      }
+
+      return obj;
+    }
   }
 
   return System;

@@ -87,6 +87,19 @@ define(['ecsevent'], function(ECSEvent)
     {
       return this.systems.length;
     }
+
+    toSimpleObject()
+    {
+      var data = [];
+
+      for(var i in this.systems)
+      {
+        var system = this.systems[i];
+        data.push(system.toSimpleObject());
+      }
+
+      return data;
+    }
   }
 
   return new SystemList();

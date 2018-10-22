@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8"/>
+
+<html>
+<head>
+  <script data-main="test" src="../../require.js"></script>
+</head>
+
+<title>ECS Debugging Test</title>
+
+<body>
+  <div class="wrapper" style="width: 100%">
+    <div style="float:left; width:50%">
+      <canvas id="canvas" tabindex='1' style="background-color:red"/>
+    </div>
+    <div style="float:right; width:50%">
+      <script>
+        function onCheckboxUpdated(checkbox)
+        {
+          var d = document.getElementById("autoUpdate");
+          d.style.visibility = checkbox.checked ? "visible" : "hidden";
+        }
+      </script>
+      <button type="button" id="updateButton">Click to Update Data</button><br>
+      <input type="checkbox" checked="false" id="autoUpdateCheckbox" onclick="onCheckboxUpdated(this)">Auto Update</input><br>
+      <div id="autoUpdate" style="visibility:hidden;">
+        Update Every <input type="number" id='autoUpdateInterval' placeholder="1000" value="1000"> milliseconds<br>
+      </div>
+      <div id="debugContent" style="background-color:#dddd">
+        <h2>Systems</h2>
+        <div id="systemsContent" style="display:inlne-grid; grid-gap:10px;">
+        </div>
+        <h2>Entities</h2>
+        <div id="entitiesContent">
+        </div>
+      </div>
+      <input type="text" placeholder="Enter event to dispatch" id="eventDispatcher">
+    </div>
+  </div>
+</body>
+</html>

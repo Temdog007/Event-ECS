@@ -14,6 +14,16 @@ define(['ecsobject'], function(EcsObject)
       this._entity = entity;
     }
 
+    setDefault(key, value)
+    {
+      this.entity.setDefault(key, value);
+    }
+
+    setDefaults(obj)
+    {
+      this.entity.setDefaults(obj);
+    }
+
     set(key, value)
     {
       this.entity.set(key, value);
