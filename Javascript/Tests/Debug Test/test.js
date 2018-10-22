@@ -25,7 +25,7 @@ function(Game, Systems, Component)
 
     eventDebug()
     {
-      console.log("Debug Message from " + this.system.name);
+      console.log("Debug Message from " + this.system.name + " at  " + Date.now());
     }
   }
 

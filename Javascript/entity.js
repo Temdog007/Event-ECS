@@ -11,7 +11,7 @@ define(['ecsobject', 'component'], function(EcsObject, Component)
     {
       super();
       this._system = _system;
-      this.components = [];
+      this._components = [];
       this._data = {};
     }
 
@@ -55,27 +55,27 @@ define(['ecsobject', 'component'], function(EcsObject, Component)
 
       if(this[componentConstructor.name])
       {
-        throw "Cannot add duplicate components to one entity: " + component;
+        throw "Cannot add duplicate _components to one entity: " + component;
       }
 
       var component = new componentConstructor(this);
       this[componentConstructor.name] = component;
-      this.components.push(component);
+      this._components.push(component);
       this.system.pushEvent('eventAddedComponent', {component : component, entity : this});
       return component;
     }
 
-    addComponents(components)
+    addComponents(_components)
     {
-      if(!Array.isArray(components))
+      if(!Array.isArray(_components))
       {
         throw new TypeError("Need to send array to addComponents");
       }
 
       var rval = [];
-      for(var key in components)
+      for(var key in _components)
       {
-        rval.push(this.addComponent(components[key]));
+        rval.push(this.addComponent(_components[key]));
       }
       return rval;
     }
@@ -96,12 +96,12 @@ define(['ecsobject', 'component'], function(EcsObject, Component)
 
     removeComponentByValue(comp)
     {
-      for(var i = 0; i < this.components.length; ++i)
+      for(var i = 0; i < this._components.length; ++i)
       {
-        var component = this.components[i];
+        var component = this._components[i];
         if(component == comp)
         {
-          this.components.splice(i,1);
+          this._components.splice(i,1);
           console.assert(delete this[component.name], "Failed to delete component from entity");
           return true;
         }
@@ -111,12 +111,12 @@ define(['ecsobject', 'component'], function(EcsObject, Component)
 
     removeComponentById(id)
     {
-      for(var i = 0; i < this.components.length; ++i)
+      for(var i = 0; i < this._components.length; ++i)
       {
-        var component = this.components[i];
+        var component = this._components[i];
         if(component.id == id)
         {
-          this.components.splice(i,1);
+          this._components.splice(i,1);
           console.assert(delete this[component.name], "Failed to delete component from entity");
           return true;
         }
@@ -136,14 +136,14 @@ define(['ecsobject', 'component'], function(EcsObject, Component)
 
     get componentCount()
     {
-      return this.components.length;
+      return this._components.length;
     }
 
     forEach(func)
     {
-      for(var i = 0; i < this.components.length; ++i)
+      for(var i = 0; i < this._components.length; ++i)
       {
-        var comp = this.components[i];
+        var comp = this._components[i];
         func(comp);
       }
     }
@@ -159,9 +159,9 @@ define(['ecsobject', 'component'], function(EcsObject, Component)
       var ignoreEnabled = args != null && args.ignoreEnabled ? true : false;
 
       var count = 0;
-      for(var i = 0; i < this.components.length; ++i)
+      for(var i = 0; i < this._components.length; ++i)
       {
-        var comp = this.components[i];
+        var comp = this._components[i];
         if(ignoreEnabled || comp.enabled)
         {
           var func = comp[eventName];
@@ -190,10 +190,10 @@ define(['ecsobject', 'component'], function(EcsObject, Component)
         }
       }
 
-      obj.components = [];
-      for(var i in this.components)
+      obj._components = [];
+      for(var i in this._components)
       {
-        obj.components.push(this.components[i].toSimpleObject());
+        obj._components.push(this._components[i].toSimpleObject());
       }
 
       return obj;

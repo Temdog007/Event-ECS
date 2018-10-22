@@ -2,14 +2,26 @@ define(['component', 'systemlist'], function(Component, Systems)
 {
   function updateSystemForeground()
   {
-    this.style.backgroundColor = this.system.enabled ? "silver" : "dimGray";
+    this.style.backgroundColor = this.ecsObject.enabled ? "silver" : "dimGray";
   }
 
   function toggleEnabled(evt)
   {
     var button = evt.srcElement;
-    button.system.enabled = !button.system.enabled;
+    button.ecsObject.enabled = !button.ecsObject.enabled;
     button.updateForeground();
+  }
+
+  function createToggleButton(ecsObject)
+  {
+    var toggleButton = document.createElement("button");
+    toggleButton.ecsObject = ecsObject;
+    toggleButton.style.textAlign = "center";
+    toggleButton.updateForeground = updateSystemForeground;
+    toggleButton.textContent = ecsObject.name + " (ID " + ecsObject.id + ")";
+    toggleButton.addEventListener("click", toggleEnabled);
+    toggleButton.updateForeground();
+    return toggleButton;
   }
 
   function updateEntityDivVisibility()
@@ -37,11 +49,6 @@ define(['component', 'systemlist'], function(Component, Systems)
     }
   }
 
-  function updateComponent(component)
-  {
-
-  }
-
   function updateEntity(entity)
   {
     var entityDiv = document.getElementById(entity.id);
@@ -51,6 +58,12 @@ define(['component', 'systemlist'], function(Component, Systems)
       entityDiv.id = entity.id;
       entityDiv.className = "Entity";
       entityDiv.style.display = "none";
+
+      entityDiv.appendChild(createToggleButton(entity));
+
+      var en = document.createElement("h3");
+      en.innerHTML = "Data";
+      entityDiv.appendChild(en);
 
       var ul = document.createElement("ul");
       ul.className = "Enttiy Data";
@@ -63,12 +76,21 @@ define(['component', 'systemlist'], function(Component, Systems)
         ul.appendChild(d);
       }
 
-      entitiesContent.appendChild(entityDiv);
-    }
+      en = document.createElement("h3");
+      en.innerHTML = "Components";
+      entityDiv.appendChild(en);
 
-    for(var i in entity._components)
-    {
-      updateComponent(entity._components[i]);
+      ul = document.createElement("ul");
+      ul.className = "Enttiy Components";
+      entityDiv.appendChild(ul);
+      for(var i in entity._components)
+      {
+        var d = document.createElement("li");
+        d.appendChild(createToggleButton(entity._components[i]));
+        ul.appendChild(d);
+      }
+
+      entitiesContent.appendChild(entityDiv);
     }
 
     return entityDiv;
@@ -91,14 +113,7 @@ define(['component', 'systemlist'], function(Component, Systems)
       radioButton.addEventListener("click", updateHTML);
       systemDiv.appendChild(radioButton);
 
-      var toggleButton = document.createElement("button");
-      toggleButton.system = system;
-      toggleButton.style.textAlign = "center";
-      toggleButton.updateForeground = updateSystemForeground;
-      toggleButton.textContent = system.name;
-      toggleButton.addEventListener("click", toggleEnabled);
-      systemDiv.appendChild(toggleButton);
-      toggleButton.updateForeground();
+      systemDiv.appendChild(createToggleButton(system));
 
       systemsContent.appendChild(systemDiv);
     }
