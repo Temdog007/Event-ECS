@@ -1,4 +1,4 @@
-define(['component', 'systemlist'], function(Component, Systems)
+require(['systemlist'], function(Systems)
 {
   function updateSystemForeground()
   {
@@ -70,7 +70,26 @@ define(['component', 'systemlist'], function(Component, Systems)
   function updateEntity(entity)
   {
     var entityDiv = document.getElementById(entity.id);
-    if(!entityDiv)
+    if(entityDiv)
+    {
+      var inputs = entityDiv.getElementsByClassName("EntityDataValue");
+      for(var i in inputs)
+      {
+        var input = inputs[i];
+        if(input.key && input.entity)
+        {
+          if(input.type == "checkbox")
+          {
+            input.checked = input.entity.data[input.key];
+          }
+          else
+          {
+            input.value = input.entity.data[input.key];
+          }
+        }
+      }
+    }
+    else
     {
       entityDiv = document.createElement("div");
       entityDiv.id = entity.id;
@@ -84,7 +103,6 @@ define(['component', 'systemlist'], function(Component, Systems)
       entityDiv.appendChild(en);
 
       var table = document.createElement("table");
-      // table.className = "Entity Data" + entity.id;
       table.style.margin = "5px";
       table.style.display = "inherit";
       entityDiv.appendChild(table);
@@ -120,6 +138,7 @@ define(['component', 'systemlist'], function(Component, Systems)
         tr.appendChild(th);
 
         var el = document.createElement("input");
+        el.className = 'EntityDataValue';
         el.style.width = "100%";
         el.value = data;
         el.key = k;
@@ -131,6 +150,7 @@ define(['component', 'systemlist'], function(Component, Systems)
         if(type == "number")
         {
           el.type = "number";
+          el.step = "any";
         }
         else if(type == "string")
         {
@@ -198,87 +218,25 @@ define(['component', 'systemlist'], function(Component, Systems)
     updateEntityDivVisibility();
   }
 
-  class DataDisplayerComponent extends Component
+  updateButton.addEventListener("click", updateHTML);
+
+  eventDispatcher.addEventListener("keyup", function(evt)
   {
-    constructor(entity)
+    evt.preventDefault();
+    if(evt.keyCode == 13)
     {
-      super(entity);
-
-      this.setDefaults({
-        updateRate : 1000,
-        current : 0,
-        autoUpdate : false
-      });
-
-      var comp = this;
-      updateButton.addEventListener("click", updateHTML);
-      autoUpdateCheckbox.addEventListener("click", function(evt)
-      {
-        var checkbox = evt.srcElement;
-        comp.data.autoUpdate = checkbox.checked;
-      });
-      autoUpdateInterval.addEventListener("change", function(evt)
-      {
-        var text = evt.srcElement;
-        var value = text.value;
-        if(value)
-        {
-          comp.data.current = 0;
-          comp.data.updateRate = value;
-        }
-      });
-      eventDispatcher.addEventListener("keyup", function(evt)
-      {
-        evt.preventDefault();
-        if(evt.keyCode == 13)
-        {
-          Systems.pushEvent(evt.srcElement.value);
-        }
-      });
+      Systems.pushEvent(evt.srcElement.value);
     }
+  });
 
-    eventUpdate(args)
+  function autoUpdateHTML()
+  {
+    if(autoUpdateCheckbox.checked)
     {
-      var data = this.data;
-      if(!data.autoUpdate){return;}
-
-      data.current += args.dt;
-      if(data.current > data.updateRate)
-      {
-        updateHTML();
-        data.current = 0;
-      }
+      updateHTML();
     }
-
-    eventKeyDown(args)
-    {
-      if(args.key == "F1")
-      {
-        if(rightSide.style.width == "0%")
-        {
-          leftSide.style.width = "50%";
-          rightSide.style.width = "50%";
-          rightSide.style.display = "block";
-        }
-        else
-        {
-          leftSide.style.width = "100%";
-          rightSide.style.width = "0%";
-          rightSide.style.display = "none";
-        }
-      }
-    }
-
-    get systemData()
-    {
-      return Component.Systems.toSimpleObject();
-    }
-
-    get systemDataStr()
-    {
-      return this.systemData.toString();
-    }
+    setTimeout(autoUpdateHTML, autoUpdateInterval.value);
   }
 
-  return DataDisplayerComponent;
+  setTimeout(autoUpdateHTML, autoUpdateInterval.value);
 });

@@ -244,6 +244,9 @@ define(['ecsobject'], function(EcsObject)
     Systems.pushEvent('eventMouseWheel', event);
   }
 
+  var updateArgs = {dt : 0};
+  var last = 0;
+
   function addUpdateEvents()
   {
     for(var i in layersSorted)
@@ -271,9 +274,6 @@ define(['ecsobject'], function(EcsObject)
     }
     context.restore();
   }
-
-  var updateArgs = {dt : 0};
-  var last = 0;
 
   Object.defineProperty(Game, 'dt', {
     get : function(){return updateArgs.dt;}

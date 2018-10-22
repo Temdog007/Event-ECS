@@ -28,15 +28,11 @@
       <canvas id="canvas" tabindex='1'/>
     </div>
     <div id="rightSide" style="float:right; width:0%; display:none">
-      <script>
-        function onCheckboxUpdated(checkbox)
-        {
-          var d = document.getElementById("autoUpdate");
-          d.style.display = checkbox.checked ? "block" : "none";
-        }
-      </script>
-      <button type="button" id="updateButton">Click to Update Data</button><br>
-      <input type="checkbox" checked="false" id="autoUpdateCheckbox" onclick="onCheckboxUpdated(this)">Auto Update</input><br>
+      <div>
+        <button type="button" id="updateButton">Update</button>
+        <button type="button" id="refreshButton">Clear</button>
+      </div>
+      <input type="checkbox" checked="false" id="autoUpdateCheckbox">Auto Update</input><br>
       <div id="autoUpdate" style="display:none">
         Update Every <input type="number" id='autoUpdateInterval' placeholder="1000" value="1000"> milliseconds<br>
       </div>
@@ -50,6 +46,43 @@
       </div>
       Dispatch Event <input type="text" placeholder="Enter event to dispatch" id="eventDispatcher">
     </div>
+    <script>
+      autoUpdateCheckbox.addEventListener("click", function(evt)
+      {
+        var checkbox = evt.srcElement;
+        var d = document.getElementById("autoUpdate");
+        d.style.display = checkbox.checked ? "block" : "none";
+      });
+      refreshButton.addEventListener("click", function(evt)
+      {
+        while(systemsContent.hasChildNodes())
+        {
+          systemsContent.removeChild(systemsContent.lastChild);
+        }
+        while(entitiesContent.hasChildNodes())
+        {
+          entitiesContent.removeChild(entitiesContent.lastChild);
+        }
+      });
+      window.addEventListener("keyup", function(args)
+      {
+        if(args.key == "F1")
+        {
+          if(rightSide.style.width == "0%")
+          {
+            leftSide.style.width = "50%";
+            rightSide.style.width = "50%";
+            rightSide.style.display = "block";
+          }
+          else
+          {
+            leftSide.style.width = "100%";
+            rightSide.style.width = "0%";
+            rightSide.style.display = "none";
+          }
+        }
+      });
+    </script>
   </div>
 </body>
 </html>

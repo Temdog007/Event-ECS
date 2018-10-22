@@ -1,17 +1,13 @@
 require.config({
   baseUrl : '../..',
   paths : {
-    DataDisplayerComponent : 'Default Components/Debugging/DataDisplayerComponent'
+    debugUpdate : "Tests/Debug Test/debugUpdate"
   }
 });
 
-require(['game', 'systemlist', 'component', 'system', 'DataDisplayerComponent'],
+require(['game', 'systemlist', 'component', 'system', 'debugUpdate'],
 function(Game, Systems, Component)
 {
-  var system = Systems.addSystem("Debugging System");
-  var entity = system.createEntity();
-  entity.addComponent("DataDisplayerComponent");
-
   class EmptyComponent extends Component
   {
     added()
@@ -20,14 +16,20 @@ function(Game, Systems, Component)
         msg : "Default Message",
         systemID : this.system.id,
         systemName : this.system.name,
-        bool : true
+        bool : true,
+        time : 0
       });
+    }
+
+    eventUpdate(args)
+    {
+      this.data.time += args.dt;
     }
 
     eventDebug()
     {
-      console.log(this.data.bool + " " + this.data.msg + ": " + 
-      this.data.systemName + "(" + this.data.systemID + ") at  " + Date.now());
+      console.log(this.data.bool + " " + this.data.msg + ": " +
+      this.data.systemName + "(" + this.data.systemID + ") at  " + this.data.time);
     }
   }
 
