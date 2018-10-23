@@ -1,5 +1,5 @@
-define(['box2d', 'drawableComponent'],
-function(box2d, Component)
+define(['box2d', 'drawableComponent', 'game'],
+function(box2d, Component, Game)
 {
   class BodyDrawerComponent extends Component
   {
@@ -62,7 +62,11 @@ function(box2d, Component)
             var center = shape.get_m_p();
             center = body.GetWorldPoint(center);
             this.context.beginPath();
-            this.context.arc(center.get_x(), center.get_y(), shape.get_m_radius(), 0, Math.PI * 2);
+            this.context.arc(
+              center.get_x()*Game.mpp,
+              center.get_y()*Game.mpp,
+              shape.get_m_radius()*Game.mpp,
+              0, Math.PI * 2);
             this.context.stroke();
           }
           else if (shapeType == box2d.b2Shape.e_edge)
@@ -72,10 +76,14 @@ function(box2d, Component)
 
             var vertex = body.GetWorldPoint(shape.get_m_vertex1());
             var x = vertex.get_x(), y = vertex.get_y();
+            x *= Game.mpp;
+            y *= Game.mpp;
             this.context.moveTo(x,y);
 
             vertex = body.GetWorldPoint(shape.get_m_vertex2());
             x = vertex.get_x(); y = vertex.get_y();
+            x *= Game.mpp;
+            y *= Game.mpp;
             this.context.lineTo(x,y);
 
             this.context.closePath();
@@ -94,6 +102,8 @@ function(box2d, Component)
             {
               var vertex = body.GetWorldPoint(shape.GetVertex(i));
               var x = vertex.get_x(), y = vertex.get_y();
+              x *= Game.mpp;
+              y *= Game.mpp;
               if(i == 0)
               {
                 this.context.moveTo(x,y);

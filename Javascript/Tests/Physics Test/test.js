@@ -23,6 +23,32 @@ function(Game, _, Systems, box2d, WorldComponent, BodyComponent, BodyDrawerCompo
   var entity = system.createEntity();
   entity.addComponent(WorldComponent);
 
+  var ppm = 0.01;
+  var mpp = 1 / ppm;
+  var width = canvas.width * ppm, height = canvas.height * ppm;
+
+  Object.defineProperty(Game, 'ppm', {
+    get : function()
+    {
+      return ppm;
+    },
+    set : function(value)
+    {
+      ppm = value;
+    }
+  });
+
+  Object.defineProperty(Game, 'mpp', {
+    get : function()
+    {
+      return mpp;
+    },
+    set : function(value)
+    {
+      mpp = value;
+    }
+  });
+
   for(var i = 0; i < 3; ++i)
   {
     var entity = system.createEntity();
@@ -33,22 +59,22 @@ function(Game, _, Systems, box2d, WorldComponent, BodyComponent, BodyDrawerCompo
     {
       case 0:
         var shape = new box2d.b2PolygonShape();
-        shape.SetAsBox(400, 50);
-        body.CreateFixture(shape, 10);
-        body.SetTransform(new box2d.b2Vec2(canvas.width / 2, canvas.height - 50), 0);
+        shape.SetAsBox(4, 0.5);
+        body.CreateFixture(shape, 0.1);
+        body.SetTransform(new box2d.b2Vec2(width / 2, height - 0.5), 0);
         break;
       case 1:
         var shape = new box2d.b2CircleShape();
-        shape.set_m_radius(100);
-        var f = body.CreateFixture(shape, 10);
-        body.SetTransform(new box2d.b2Vec2(canvas.width / 2, canvas.height / 2), 0);
+        shape.set_m_radius(1);
+        var f = body.CreateFixture(shape, 0.1);
+        body.SetTransform(new box2d.b2Vec2(width / 2, height / 2), 0);
         body.SetType(box2d.b2_dynamicBody);
         f.SetRestitution(0.75);
         break;
       case 2:
         var shape = new box2d.b2EdgeShape();
-        shape.Set(new box2d.b2Vec2(200, 200), new box2d.b2Vec2(100, 100));
-        body.CreateFixture(shape, 10);
+        shape.Set(new box2d.b2Vec2(2, 2), new box2d.b2Vec2(1, 1));
+        body.CreateFixture(shape, 0.1);
         break;
     }
   }
