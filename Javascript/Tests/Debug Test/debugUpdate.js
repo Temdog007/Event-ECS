@@ -57,6 +57,19 @@ require(['systemlist'], function(Systems)
     console.assert(button.component.remove(), "Failed to remove component");
   }
 
+  function reloadComponent(evt)
+  {
+    var button = evt.srcElement;
+    var name = button.component.name;
+
+    console.assert(button.component.remove(), "Failed to remove component");
+    require.undef(name);
+    require([name], function(Component)
+    {
+      button.component = button.entity.addComponent(Component);
+    });
+  }
+
   function updateEntityDivVisibility()
   {
     var system;
@@ -192,24 +205,51 @@ require(['systemlist'], function(Systems)
       en.innerHTML = "Components";
       entityDiv.appendChild(en);
 
-      ul = document.createElement("ul");
-      ul.className = "Enttiy Components";
-      entityDiv.appendChild(ul);
+      table = document.createElement("table");
+      table.style.margin = "5px";
+      table.style.display = "inherit";
+      entityDiv.appendChild(table);
+
+      tr = document.createElement("tr");
+      table.appendChild(tr);
+
+      th = document.createElement("th");
+      th.innerHTML = "Name";
+      tr.appendChild(th);
+
+      th = document.createElement("th");
+      th.innerHTML = "Reload";
+      tr.appendChild(th);
+
+      th = document.createElement("th");
+      th.innerHTML = "Remove";
+      tr.appendChild(th);
+
       for(var i in entity._components)
       {
-        var li = document.createElement("li");
-        ul.appendChild(li);
+        var tr = document.createElement("tr");
+        table.appendChild(tr);
 
-        var div = document.createElement("div");
-        li.appendChild(div);
+        th = document.createElement("th");
+        tr.appendChild(th);
+        th.appendChild(createToggleButton(entity._components[i]));
 
-        div.appendChild(createToggleButton(entity._components[i]));
-
+        th = document.createElement("th");
+        tr.appendChild(th);
         var button = document.createElement("button");
         button.component = entity._components[i];
         button.textContent = "Remove";
         button.addEventListener("click", removeComponent);
-        div.appendChild(button);
+        th.appendChild(button);
+
+        th = document.createElement("th");
+        tr.appendChild(th);
+        button = document.createElement("button");
+        button.component = entity._components[i];
+        button.entity = entity;
+        button.textContent = "Reload";
+        button.addEventListener("click", reloadComponent);
+        th.appendChild(button);
       }
 
       entitiesContent.appendChild(entityDiv);

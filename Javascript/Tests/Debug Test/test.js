@@ -1,53 +1,29 @@
 require.config({
   baseUrl : '../..',
   paths : {
-    debugUpdate : "Tests/Debug Test/debugUpdate"
+    debugUpdate : "Tests/Debug Test/debugUpdate",
+    DrawableComponent : "Default Components/Interfaces/DrawableComponent",
+    EmptyComponent : "Tests/Debug Test/emptyComponent",
+    EmptyComponent0 : "Tests/Debug Test/emptyComponent0",
+    EmptyComponent00 : "Tests/Debug Test/emptyComponent00",
   }
 });
 
-require(['game', 'systemlist', 'component', 'system', 'debugUpdate'],
-function(Game, Systems, Component)
+require(['game', 'systemlist', 'EmptyComponent', 'EmptyComponent0',
+            'EmptyComponent00', 'system', 'debugUpdate'],
+function(Game, Systems, EmptyComponent, EmptyComponent0, EmptyComponent00)
 {
-  class EmptyComponent extends Component
-  {
-    added()
-    {
-      this.setDefaults({
-        msg : "Default Message",
-        systemID : this.system.id,
-        systemName : this.system.name,
-        bool : true,
-        time : 0
-      });
-    }
-
-    eventUpdate(args)
-    {
-      this.data.time += args.dt;
-    }
-
-    eventDebug()
-    {
-      console.log(this.data.bool + " " + this.data.msg + ": " +
-      this.data.systemName + "(" + this.data.systemID + ") at  " + this.data.time);
-    }
-  }
-
-  class EmptyComponent2 extends EmptyComponent
-  {
-    eventUpdate(args)
-    {
-      this.data.time -= args.dt;
-    }
-  }
-
   for(var i = 0; i < 5; ++i)
   {
     var system = Systems.addSystem("Test System" + i);
     var entity = system.createEntity();
-    entity.addComponents([EmptyComponent, EmptyComponent2]);
+    entity.addComponents([EmptyComponent, EmptyComponent0]);
 
     entity = system.createEntity();
     entity.addComponent(EmptyComponent);
+    if(i == 0)
+    {
+      entity.addComponent(EmptyComponent00);
+    }
   }
 });
