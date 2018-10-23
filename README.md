@@ -15,6 +15,7 @@ The WPF C# application is designed to give a visual representation of the ECS in
 * Disabling systems, entities, and components
 * Reloading components to use the latest updates to the code
 
+![Alt text](Images/screenshot1.png?raw=true "GUI Screenshot1")
 ![Alt text](Images/screenshot2.png?raw=true "GUI Screenshot2")
 ![Alt text](Images/screenshot3.png?raw=true "Game Screenshot")
 
