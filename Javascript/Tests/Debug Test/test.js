@@ -5,25 +5,26 @@ require.config({
     DrawableComponent : "Default Components/Interfaces/DrawableComponent",
     EmptyComponent : "Tests/Debug Test/emptyComponent",
     EmptyComponent0 : "Tests/Debug Test/emptyComponent0",
-    EmptyComponent00 : "Tests/Debug Test/emptyComponent00",
+    SquareDrawerCompnent : "Tests/Debug Test/SquareDrawerCompnent",
   }
 });
 
 require(['game', 'systemlist', 'EmptyComponent', 'EmptyComponent0',
-            'EmptyComponent00', 'system', 'debugUpdate'],
-function(Game, Systems, EmptyComponent, EmptyComponent0, EmptyComponent00)
+            'SquareDrawerCompnent', 'system', 'debugUpdate'],
+function(Game, Systems, EmptyComponent, EmptyComponent0, SquareDrawerCompnent)
 {
-  for(var i = 0; i < 5; ++i)
+  var system, entity;
+  for(var i = 0; i < 1; ++i)
   {
-    var system = Systems.addSystem("Test System" + i);
-    var entity = system.createEntity();
-    entity.addComponents([EmptyComponent, EmptyComponent0]);
+    system = Systems.addSystem("Test System ");
+    // entity = system.createEntity();
+    // entity.addComponents([EmptyComponent, EmptyComponent0]);
 
     entity = system.createEntity();
-    entity.addComponent(EmptyComponent);
+    // entity.addComponent(EmptyComponent);
     if(i == 0)
     {
-      entity.addComponent(EmptyComponent00);
+      entity.addComponent(SquareDrawerCompnent);
     }
   }
 });
