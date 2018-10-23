@@ -164,7 +164,7 @@ require(['systemlist'], function(Systems)
         var data = entity.data[k];
         var type = typeof data;
 
-        var th = document.createElement("th");
+        var th = document.createElement("td");
         tr.appendChild(th);
 
         var label = document.createElement("label");
@@ -172,7 +172,7 @@ require(['systemlist'], function(Systems)
         label.style.margin = 5;
         th.appendChild(label);
 
-        th = document.createElement("th");
+        th = document.createElement("td");
         tr.appendChild(th);
 
         var el = document.createElement("input");
@@ -230,11 +230,11 @@ require(['systemlist'], function(Systems)
         var tr = document.createElement("tr");
         table.appendChild(tr);
 
-        th = document.createElement("th");
+        th = document.createElement("td");
         tr.appendChild(th);
         th.appendChild(createToggleButton(entity._components[i]));
 
-        th = document.createElement("th");
+        th = document.createElement("td");
         tr.appendChild(th);
         var button = document.createElement("button");
         button.component = entity._components[i];
@@ -242,7 +242,7 @@ require(['systemlist'], function(Systems)
         button.addEventListener("click", removeComponent);
         th.appendChild(button);
 
-        th = document.createElement("th");
+        th = document.createElement("td");
         tr.appendChild(th);
         button = document.createElement("button");
         button.component = entity._components[i];
