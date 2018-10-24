@@ -163,6 +163,9 @@ require(['systemlist'], function(Systems)
 
         var data = entity.data[k];
         var type = typeof data;
+        if(type != "string" && type != "number" && type != "boolean"){
+          continue;
+        }
 
         var th = document.createElement("td");
         tr.appendChild(th);
