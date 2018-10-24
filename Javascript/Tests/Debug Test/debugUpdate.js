@@ -1,5 +1,32 @@
 require(['systemlist'], function(Systems)
 {
+  function clear(evt)
+  {
+    while(systemsContent.hasChildNodes())
+    {
+      systemsContent.removeChild(systemsContent.lastChild);
+    }
+    while(entitiesContent.hasChildNodes())
+    {
+      entitiesContent.removeChild(entitiesContent.lastChild);
+    }
+  }
+
+  refreshButton.addEventListener("click", clear);
+
+  function getSelectedSystem()
+  {
+    var radioButtons = document.getElementsByClassName("SystemRadioButton");
+    for(var i in radioButtons)
+    {
+      var button = radioButtons[i];
+      if(button.checked)
+      {
+        return button.system;
+      }
+    }
+  }
+
   function updateSystemForeground()
   {
     this.style.backgroundColor = this.ecsObject.enabled ? "silver" : "dimGray";
@@ -48,6 +75,9 @@ require(['systemlist'], function(Systems)
     {
       var text = evt.srcElement;
       text.entity.addComponent(text.value);
+      var system = getSelectedSystem();
+      clear();
+      updateHTML(system);
     }
   }
 
@@ -55,34 +85,30 @@ require(['systemlist'], function(Systems)
   {
     var button = evt.srcElement;
     console.assert(button.component.remove(), "Failed to remove component");
+    var system = getSelectedSystem();
+    clear();
+    updateHTML(system);
   }
 
   function reloadComponent(evt)
   {
     var button = evt.srcElement;
     var name = button.component.name;
-
+    var system = getSelectedSystem();
     console.assert(button.component.remove(), "Failed to remove component");
     require.undef(name);
-    require([name], function(Component)
+    require([name.charAt(0).toLowerCase() + name.substring(1)], function(Component)
     {
       button.component = button.entity.addComponent(Component);
+      console.log("Reloaded: " + Component.name);
+      updateHTML(system);
     });
+    clear();
   }
 
   function updateEntityDivVisibility()
   {
-    var system;
-    var radioButtons = document.getElementsByClassName("SystemRadioButton");
-    for(var i in radioButtons)
-    {
-      var button = radioButtons[i];
-      if(button.checked)
-      {
-        system = button.system;
-        break;
-      }
-    }
+    var system = getSelectedSystem();
 
     var divs = document.getElementsByClassName("Entity");
     for(var i in divs)
@@ -290,10 +316,27 @@ require(['systemlist'], function(Systems)
     }
   }
 
-  function updateHTML()
+  function updateHTML(system)
   {
+    var system = system || getSelectedSystem();
+
     Systems.forEachSystem(updateSystem);
     updateEntityDivVisibility();
+
+    if(system)
+    {
+      var systems = document.getElementsByClassName("SystemRadioButton");
+      for(var i in systems)
+      {
+        var div = systems[i];
+        if(div.system && !div.checked && div.system.id == system.id)
+        {
+          div.checked = true;
+          updateHTML(system);
+          break;
+        }
+      }
+    }
   }
 
   updateButton.addEventListener("click", updateHTML);
