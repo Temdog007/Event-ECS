@@ -1,4 +1,4 @@
-define(['box2d', 'component'], function(box2d, Component)
+define(['component'], function(Component)
 {
   var instance;
   class WorldComponent extends Component
@@ -7,11 +7,10 @@ define(['box2d', 'component'], function(box2d, Component)
     {
       super(entity);
 
+      var world = new Matter.World.create({ x : 0, y : 9.81});
       this.setDefaults({
-        step : 1 / 60,
-        positionIterations : 2,
-        velocityIterations : 3,
-        world : new box2d.b2World(new box2d.b2Vec2(0, 9.81))
+        engine : new Matter.Engine.create({enabledSleeping : true, world : world}),
+        world : world
       });
       instance = this;
     }
@@ -21,9 +20,11 @@ define(['box2d', 'component'], function(box2d, Component)
       return instance;
     }
 
-    createBody(bodyDef)
+    createBody(options)
     {
-      return this.world.CreateBody(bodyDef);
+      var body = Matter.Body.create(options);
+      Matter.World.addBody(this.world, body);
+      return body;
     }
 
     get world()
@@ -31,9 +32,14 @@ define(['box2d', 'component'], function(box2d, Component)
       return this.get("world");
     }
 
+    get engine()
+    {
+      return this.get("engine");
+    }
+
     eventUpdate(args)
     {
-      this.world.Step(this.get("step"), this.get("velocityIterations"), this.get("positionIterations"));
+      Matter.Engine.update(this.engine);
     }
   }
 

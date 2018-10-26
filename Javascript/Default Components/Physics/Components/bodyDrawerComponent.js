@@ -1,5 +1,5 @@
-define(['box2d', 'drawableComponent', 'game'],
-function(box2d, Component, Game)
+define(['drawableComponent', 'game'],
+function(Component, Game)
 {
   class BodyDrawerComponent extends Component
   {
@@ -8,8 +8,8 @@ function(box2d, Component, Game)
       super(entity);
       this.setDefaults({
         staticColor : "lime",
-        kinematicColor : "blue",
-        dynamicColor : "pink"
+        dynamicColor : "pink",
+        fill : true
       });
     }
 
@@ -21,25 +21,19 @@ function(box2d, Component, Game)
     get color()
     {
       var body = this.body;
-      var type = body.GetType();
-      if(type == box2d.b2_dynamicBody)
+      if(body.isStatic)
       {
-        return this.get("dynamicColor");
-      }
-      else if(type == box2d.b2_kinematicBody)
-      {
-        return this.get("kinematicColor");
+        return this.get("staticColor");
       }
       else
       {
-        return this.get("staticColor");
+        return this.get("dynamicColor");
       }
     }
 
     get alpha()
     {
-      var body = this.body;
-      return (body.IsActive() && body.IsAwake()) ? 1 : 0.5;
+      return this.body.isSleeping ? 0.5 : 1;
     }
 
     eventDraw()
@@ -47,80 +41,27 @@ function(box2d, Component, Game)
       this.context.save();
 
       this.context.globalAlpha = this.alpha;
+      this.context.fillStyle = this.color;
       this.context.strokeStyle = this.color;
 
       var body = this.body;
       if(body)
       {
-        var current = body.GetFixtureList();
-        while(current && current.a)
+        var verts = body.vertices;
+        this.context.beginPath();
+        this.context.moveTo(verts[0].x, verts[0].y);
+        for(var i = 1; i < verts.length; ++i)
         {
-          var shapeType = current.GetType();
-          if(shapeType == box2d.b2Shape.e_circle)
-          {
-            var shape = box2d.wrapPointer(current.GetShape().a, box2d.b2CircleShape);
-            var center = shape.get_m_p();
-            center = body.GetWorldPoint(center);
-            this.context.beginPath();
-            this.context.arc(
-              center.get_x()*Game.mpp,
-              center.get_y()*Game.mpp,
-              shape.get_m_radius()*Game.mpp,
-              0, Math.PI * 2);
-            this.context.stroke();
-          }
-          else if (shapeType == box2d.b2Shape.e_edge)
-          {
-            var shape = box2d.wrapPointer(current.GetShape().a, box2d.b2EdgeShape);
-            this.context.beginPath();
-
-            var vertex = body.GetWorldPoint(shape.get_m_vertex1());
-            var x = vertex.get_x(), y = vertex.get_y();
-            x *= Game.mpp;
-            y *= Game.mpp;
-            this.context.moveTo(x,y);
-
-            vertex = body.GetWorldPoint(shape.get_m_vertex2());
-            x = vertex.get_x(); y = vertex.get_y();
-            x *= Game.mpp;
-            y *= Game.mpp;
-            this.context.lineTo(x,y);
-
-            this.context.closePath();
-            this.context.stroke();
-          }
-          else if (shapeType == box2d.b2Shape.e_chain)
-          {
-            throw "Can't draw Chain Shape because can't create them in javascript";
-          }
-          else if(shapeType == box2d.b2Shape.e_polygon)
-          {
-            var shape = box2d.wrapPointer(current.GetShape().a, box2d.b2PolygonShape);
-            var count = shape.GetVertexCount();
-            this.context.beginPath();
-            for(var i = 0; i < count; ++i)
-            {
-              var vertex = body.GetWorldPoint(shape.GetVertex(i));
-              var x = vertex.get_x(), y = vertex.get_y();
-              x *= Game.mpp;
-              y *= Game.mpp;
-              if(i == 0)
-              {
-                this.context.moveTo(x,y);
-              }
-              else
-              {
-                this.context.lineTo(x,y);
-              }
-            }
-            this.context.closePath();
-            this.context.stroke();
-          }
-          else
-          {
-            throw "Unknown shape type: " + shapeType;
-          }
-          current = current.GetNext();
+          this.context.lineTo(verts[i].x, verts[i].y);
+        }
+        this.context.closePath();
+        if(this.data.fill)
+        {
+          this.context.fill();
+        }
+        else
+        {
+          this.context.stroke();
         }
       }
 
