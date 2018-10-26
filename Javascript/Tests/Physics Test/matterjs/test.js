@@ -1,12 +1,12 @@
 require.config({
-  baseUrl : "../..",
+  baseUrl : "../../..",
   paths :
   {
     drawableComponent : 'Default Components/Interfaces/drawableComponent',
     matter : "Default Components/Physics/matter_min",
-    WorldComponent : "Default Components/Physics/Components/WorldComponent",
-    BodyComponent : "Default Components/Physics/Components/BodyComponent",
-    BodyDrawerComponent : "Default Components/Physics/Components/BodyDrawerComponent"
+    WorldComponent : "Default Components/Physics/Matter JS Components/WorldComponent",
+    BodyComponent : "Default Components/Physics/Matter JS Components/BodyComponent",
+    BodyDrawerComponent : "Default Components/Physics/Matter JS Components/BodyDrawerComponent"
   }
 });
 
