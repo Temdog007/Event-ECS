@@ -5,13 +5,14 @@ require.config({
     loadTexture : "Tests/Shader Test/loadTexture",
     createSquare : "Tests/Shader Test/createSquare",
     shaders : "Tests/Shader Test/shaders",
-    'm4' : 'Tests/Shader Test/m4',
+    m4 : 'Tests/Shader Test/m4',
+    'bindTexture' : "Tests/Shader Test/bindTexture",
     DrawableComponent : "Default Components/Interfaces/DrawableComponent"
   }
 });
 
-require(['DrawableComponent', 'game', 'systemlist', 'system', 'loadTexture', 'createSquare', 'shaders', 'm4'],
-function(DrawableComponent, Game, Systems, System, loadTexture, createSquare, shaders, mat4)
+require(['DrawableComponent', 'game', 'systemlist', 'system', 'loadTexture', 'createSquare', 'shaders', 'm4', 'bindTexture'],
+function(DrawableComponent, Game, Systems, System, loadTexture, createSquare, shaders, mat4, bindTexture)
 {
   var canvas = document.createElement("canvas");
   var gl = canvas.getContext("webgl");
@@ -64,8 +65,32 @@ function(DrawableComponent, Game, Systems, System, loadTexture, createSquare, sh
   var buffer = createSquare(gl);
   var textureBuffer = createSquare(gl);
 
-  // var texture = loadTexture(gl, "bombing blocks screenshot (6).png");
-  var texture = loadTexture(gl, "plunger.png");
+  function loadCanvas(canvas)
+  {
+    const texture = gl.createTexture();
+    texture.width = canvas.width;
+    texture.height = canvas.height;
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+
+    // Because images have to be download over the internet
+    // they might take a moment until they are ready.
+    // Until then put a single pixel in the texture so we can
+    // use it immediately. When the image has finished downloading
+    // we'll update the texture with the contents of the image.
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA,
+                  1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
+                  new Uint8Array([0, 0, 255, 255]));
+    
+    canvas.texture = texture;
+    canvas.gl = gl;
+    bindTexture(canvas);
+  }
+
+  // Shaders don't work with canvases
+  var testCanvas = document.createElement("canvas");
+  var testContext = testCanvas.getContext("2d");
+  testContext.fillRect(0, 0, 300, 100);
+  loadCanvas(testCanvas);
 
   class Test extends DrawableComponent
   {
@@ -73,22 +98,29 @@ function(DrawableComponent, Game, Systems, System, loadTexture, createSquare, sh
     {
       super(entity);
       this.setDefaults({
-        x : 200,
-        y : 100,
         width : 100,
         height : 100,
         oldColor : [1,0,1,1],
         newColor : [0,1,0,1]
       });
+
+      // var texture = loadTexture(gl, "bombing blocks screenshot (6).png");
+      this.texture = loadTexture(gl, "plunger.png");
     }
 
     eventUpdate(args)
     {
-      this.data.newColor[1] += args.dt;
+      this.data.newColor[1] += args.dt * 0.001;
       this.data.newColor[1] %= 1;
     }
 
     eventDraw()
+    {
+      this.drawTexture(this.texture, 100, 100);
+      this.drawTexture(testCanvas.texture, 300, 300);
+    }
+
+    drawTexture(texture, x, y)
     {
       var width = texture.width;
       var height = texture.height;
@@ -130,7 +162,7 @@ function(DrawableComponent, Game, Systems, System, loadTexture, createSquare, sh
       gl.drawArrays(gl.TRIANGLES, 0, 6);
 
       this.context.drawImage(canvas, 0, 0, canvas.width, canvas.height,
-        data.x, data.y, data.width, data.height);
+        x, y, data.width, data.height);
     }
   }
 
