@@ -3,6 +3,7 @@ function(DrawableComponent, Systems, System, loadTexture, createSquare, shaders,
 {
     var webCanvas = document.createElement("canvas");
     var gl = webCanvas.getContext("webgl");
+    console.log(webCanvas);
 
     if(gl == null)
     {
@@ -24,7 +25,7 @@ function(DrawableComponent, Systems, System, loadTexture, createSquare, shaders,
     }
 
     var vert = loadShader(gl.VERTEX_SHADER, shaders.vert);
-    var frag = loadShader(gl.FRAGMENT_SHADER, shaders.defFs);
+    var frag = loadShader(gl.FRAGMENT_SHADER, shaders.frag);
 
     var program = gl.createProgram();
     gl.attachShader(program, vert);
@@ -68,6 +69,7 @@ function(DrawableComponent, Systems, System, loadTexture, createSquare, shaders,
 
         // var texture = loadTexture(gl, "bombing blocks screenshot (6).png");
         this.texture = loadTexture(gl, "plunger.png");
+        console.log(this.texture.width, this.texture.height);
         }
 
         eventUpdate(args)
@@ -111,13 +113,13 @@ function(DrawableComponent, Systems, System, loadTexture, createSquare, shaders,
             gl.enableVertexAttribArray(programinfo.attribLocations.textureCoord);
             gl.vertexAttribPointer(programinfo.attribLocations.textureCoord, 2, gl.FLOAT, false, 0, 0);
 
-            var mat = mat4.orthographic(0, webCanvas.width, webCanvas.height, 0, -2, 2);
+            var mat = mat4.orthographic(0, webCanvas.width, webCanvas.height, 0, -1000, 1000);
             mat = mat4.translate(mat, webCanvas.width * 0.5, webCanvas.height * 0.5, 0);
             mat = mat4.xRotate(mat, this.data.xRotation);
             mat = mat4.yRotate(mat, this.data.yRotation);
             mat = mat4.zRotate(mat, this.data.zRotation);
             mat = mat4.translate(mat, -webCanvas.width * 0.5, -webCanvas.height * 0.5, 0);
-            mat = mat4.scale(mat, webCanvas.width, webCanvas.height, 2);
+            mat = mat4.scale(mat, webCanvas.width, webCanvas.height, 1);
             
             gl.uniformMatrix4fv(programinfo.uniformLocations.projectionMatrix, false, mat);
 
