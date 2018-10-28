@@ -112,6 +112,7 @@ function(DrawableComponent, _, Systems, System, loadTexture, createSquare, shade
     return testCanvas;
   }
 
+  var arr = [3,4,6,7];
   class Test extends DrawableComponent
   {
     constructor(entity)
@@ -120,7 +121,7 @@ function(DrawableComponent, _, Systems, System, loadTexture, createSquare, shade
       this.setDefaults({
         width : 100,
         height : 100,
-        min_luma : 0.2
+        min_luma : 0.7
       });
 
       // var texture = loadTexture(gl, "bombing blocks screenshot (6).png");
@@ -137,14 +138,16 @@ function(DrawableComponent, _, Systems, System, loadTexture, createSquare, shade
       this.data.textures = [this.texture, this.texture2];
       this.data.textures.push(createTestCanvas("threshold").texture)
       this.data.textures.push(createTestCanvas("blur").texture)
-      this.data.textures.push(createTestCanvas("blur").texture)
+      this.data.textures.push(createTestCanvas("blur2").texture)
       this.data.textures.push(createTestCanvas("frag").texture)
       this.data.textures.push(createTestCanvas("blur").texture)
-      this.data.textures.push(createTestCanvas("blur").texture)
+      this.data.textures.push(createTestCanvas("blur2").texture)
       this.data.textures[3].dirWidth = true;
-      this.data.textures[4].dirhw = true;
+      this.data.textures[4].dirWidth = true;
+      this.data.textures[4].disabled = true;
       this.data.textures[6].dirHeight = true;
-      this.data.textures[7].dirwh = true;
+      this.data.textures[7].dirHeight = true;
+      this.data.textures[7].disabled = true;
       
 
       this.data.textures.push(createTestCanvas("godsray").texture)
@@ -171,6 +174,7 @@ function(DrawableComponent, _, Systems, System, loadTexture, createSquare, shade
         {x : 400, y : 300},
         {x : 600, y : 400}
       ]
+      this.time = 0;
     }
 
     eventUpdate(args)
@@ -181,14 +185,23 @@ function(DrawableComponent, _, Systems, System, loadTexture, createSquare, shade
         data.newColor[1] += args.dt * 0.001;
         data.newColor[1] %= 1;
       }
-      this.data.min_luma += (args.dt * 0.001) 
-      this.data.min_luma %= 1;
+
+      this.time += args.dt;
+      if(this.time > 500)
+      {
+        this.time = 0;
+        var textures = this.data.textures;
+        for(var i in arr)
+        {
+          textures[arr[i]].disabled = !textures[arr[i]].disabled;
+        }
+      }
 
       var tex = this.data.textures[8];
-      // tex.light_position[0] += args.dt * 0.001;
-      tex.light_position[1] += args.dt * 0.001;
-      // tex.light_position[0] %= 1;
-      tex.light_position[1] %= 1;
+      tex.light_position[0] += args.dt * 0.001;
+      // tex.light_position[1] += args.dt * 0.001;
+      tex.light_position[0] %= 1;
+      // tex.light_position[1] %= 1;
     }
 
     eventDraw()
@@ -212,6 +225,7 @@ function(DrawableComponent, _, Systems, System, loadTexture, createSquare, shade
 
     drawTexture(texture, x, y, c)
     {
+      if(texture.disabled){return;}
       c = c || canvas;
 
       var width = texture.width;
@@ -258,16 +272,6 @@ function(DrawableComponent, _, Systems, System, loadTexture, createSquare, shade
       else if(texture.dirHeight)
       {
         gl.uniform2fv(programinfo.uniformLocations.direction, [0, 1/ height]);
-      }
-      else if(texture.dirwh)
-      {
-        return;
-        // gl.uniform2fv(programinfo.uniformLocations.direction, [1 / width, -1 / height]);
-      }
-      else if(texture.dirhw)
-      {
-        return;
-        // gl.uniform2fv(programinfo.uniformLocations.direction, [1 / width, 1 / height]);
       }
       else if(texture.ray)
       {

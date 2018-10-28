@@ -128,6 +128,109 @@ define(function()
   }
   `;
 
+  var blur2 = `
+    precision mediump float;
+    varying vec2 vTextureCoord;
+    uniform sampler2D uSampler;
+    uniform vec2 direction;
+
+    void main()
+    {
+      vec4 c = vec4(0.0);
+  
+      c += vec4(0.011109) * texture2D(uSampler, vTextureCoord + vec2(-15.000000) * direction);
+      c += vec4(0.019841) * texture2D(uSampler, vTextureCoord + vec2(-14.000000) * direction);
+      c += vec4(0.034047) * texture2D(uSampler, vTextureCoord + vec2(-13.000000) * direction);
+      c += vec4(0.056135) * texture2D(uSampler, vTextureCoord + vec2(-12.000000) * direction);
+      c += vec4(0.088922) * texture2D(uSampler, vTextureCoord + vec2(-11.000000) * direction);
+      c += vec4(0.135335) * texture2D(uSampler, vTextureCoord + vec2(-10.000000) * direction);
+      c += vec4(0.197899) * texture2D(uSampler, vTextureCoord + vec2(-9.000000) * direction);
+      c += vec4(0.278037) * texture2D(uSampler, vTextureCoord + vec2(-8.000000) * direction);
+      c += vec4(0.375311) * texture2D(uSampler, vTextureCoord + vec2(-7.000000) * direction);
+      c += vec4(0.486752) * texture2D(uSampler, vTextureCoord + vec2(-6.000000) * direction);
+      c += vec4(0.606531) * texture2D(uSampler, vTextureCoord + vec2(-5.000000) * direction);
+      c += vec4(0.726149) * texture2D(uSampler, vTextureCoord + vec2(-4.000000) * direction);
+      c += vec4(0.835270) * texture2D(uSampler, vTextureCoord + vec2(-3.000000) * direction);
+      c += vec4(0.923116) * texture2D(uSampler, vTextureCoord + vec2(-2.000000) * direction);
+      c += vec4(0.980199) * texture2D(uSampler, vTextureCoord + vec2(-1.000000) * direction);
+      c += vec4(1.000000) * texture2D(uSampler, vTextureCoord + vec2(0.000000) * direction);
+      c += vec4(0.980199) * texture2D(uSampler, vTextureCoord + vec2(1.000000) * direction);
+      c += vec4(0.923116) * texture2D(uSampler, vTextureCoord + vec2(2.000000) * direction);
+      c += vec4(0.835270) * texture2D(uSampler, vTextureCoord + vec2(3.000000) * direction);
+      c += vec4(0.726149) * texture2D(uSampler, vTextureCoord + vec2(4.000000) * direction);
+      c += vec4(0.606531) * texture2D(uSampler, vTextureCoord + vec2(5.000000) * direction);
+      c += vec4(0.486752) * texture2D(uSampler, vTextureCoord + vec2(6.000000) * direction);
+      c += vec4(0.375311) * texture2D(uSampler, vTextureCoord + vec2(7.000000) * direction);
+      c += vec4(0.278037) * texture2D(uSampler, vTextureCoord + vec2(8.000000) * direction);
+      c += vec4(0.197899) * texture2D(uSampler, vTextureCoord + vec2(9.000000) * direction);
+      c += vec4(0.135335) * texture2D(uSampler, vTextureCoord + vec2(10.000000) * direction);
+      c += vec4(0.088922) * texture2D(uSampler, vTextureCoord + vec2(11.000000) * direction);
+      c += vec4(0.056135) * texture2D(uSampler, vTextureCoord + vec2(12.000000) * direction);
+      c += vec4(0.034047) * texture2D(uSampler, vTextureCoord + vec2(13.000000) * direction);
+      c += vec4(0.019841) * texture2D(uSampler, vTextureCoord + vec2(14.000000) * direction);
+      c += vec4(0.011109) * texture2D(uSampler, vTextureCoord + vec2(15.000000) * direction);
+      gl_FragColor = c * vec4(0.079940);}
+  `;
+
+  var blur3 = `
+    precision mediump float;
+    varying vec2 vTextureCoord;
+    uniform sampler2D uSampler;
+    uniform vec2 direction;
+
+    void main()
+    {
+      vec4 c = vec4(0.0);
+  
+      c += vec4(0.009075) * texture2D(uSampler, vTextureCoord + vec2(-23.000000) * direction);
+      c += vec4(0.013538) * texture2D(uSampler, vTextureCoord + vec2(-22.000000) * direction);
+      c += vec4(0.019841) * texture2D(uSampler, vTextureCoord + vec2(-21.000000) * direction);
+      c += vec4(0.028566) * texture2D(uSampler, vTextureCoord + vec2(-20.000000) * direction);
+      c += vec4(0.040401) * texture2D(uSampler, vTextureCoord + vec2(-19.000000) * direction);
+      c += vec4(0.056135) * texture2D(uSampler, vTextureCoord + vec2(-18.000000) * direction);
+      c += vec4(0.076621) * texture2D(uSampler, vTextureCoord + vec2(-17.000000) * direction);
+      c += vec4(0.102740) * texture2D(uSampler, vTextureCoord + vec2(-16.000000) * direction);
+      c += vec4(0.135335) * texture2D(uSampler, vTextureCoord + vec2(-15.000000) * direction);
+      c += vec4(0.175131) * texture2D(uSampler, vTextureCoord + vec2(-14.000000) * direction);
+      c += vec4(0.222635) * texture2D(uSampler, vTextureCoord + vec2(-13.000000) * direction);
+      c += vec4(0.278037) * texture2D(uSampler, vTextureCoord + vec2(-12.000000) * direction);
+      c += vec4(0.341108) * texture2D(uSampler, vTextureCoord + vec2(-11.000000) * direction);
+      c += vec4(0.411112) * texture2D(uSampler, vTextureCoord + vec2(-10.000000) * direction);
+      c += vec4(0.486752) * texture2D(uSampler, vTextureCoord + vec2(-9.000000) * direction);
+      c += vec4(0.566154) * texture2D(uSampler, vTextureCoord + vec2(-8.000000) * direction);
+      c += vec4(0.646905) * texture2D(uSampler, vTextureCoord + vec2(-7.000000) * direction);
+      c += vec4(0.726149) * texture2D(uSampler, vTextureCoord + vec2(-6.000000) * direction);
+      c += vec4(0.800737) * texture2D(uSampler, vTextureCoord + vec2(-5.000000) * direction);
+      c += vec4(0.867428) * texture2D(uSampler, vTextureCoord + vec2(-4.000000) * direction);
+      c += vec4(0.923116) * texture2D(uSampler, vTextureCoord + vec2(-3.000000) * direction);
+      c += vec4(0.965069) * texture2D(uSampler, vTextureCoord + vec2(-2.000000) * direction);
+      c += vec4(0.991151) * texture2D(uSampler, vTextureCoord + vec2(-1.000000) * direction);
+      c += vec4(1.000000) * texture2D(uSampler, vTextureCoord + vec2(0.000000) * direction);
+      c += vec4(0.991151) * texture2D(uSampler, vTextureCoord + vec2(1.000000) * direction);
+      c += vec4(0.965069) * texture2D(uSampler, vTextureCoord + vec2(2.000000) * direction);
+      c += vec4(0.923116) * texture2D(uSampler, vTextureCoord + vec2(3.000000) * direction);
+      c += vec4(0.867428) * texture2D(uSampler, vTextureCoord + vec2(4.000000) * direction);
+      c += vec4(0.800737) * texture2D(uSampler, vTextureCoord + vec2(5.000000) * direction);
+      c += vec4(0.726149) * texture2D(uSampler, vTextureCoord + vec2(6.000000) * direction);
+      c += vec4(0.646905) * texture2D(uSampler, vTextureCoord + vec2(7.000000) * direction);
+      c += vec4(0.566154) * texture2D(uSampler, vTextureCoord + vec2(8.000000) * direction);
+      c += vec4(0.486752) * texture2D(uSampler, vTextureCoord + vec2(9.000000) * direction);
+      c += vec4(0.411112) * texture2D(uSampler, vTextureCoord + vec2(10.000000) * direction);
+      c += vec4(0.341108) * texture2D(uSampler, vTextureCoord + vec2(11.000000) * direction);
+      c += vec4(0.278037) * texture2D(uSampler, vTextureCoord + vec2(12.000000) * direction);
+      c += vec4(0.222635) * texture2D(uSampler, vTextureCoord + vec2(13.000000) * direction);
+      c += vec4(0.175131) * texture2D(uSampler, vTextureCoord + vec2(14.000000) * direction);
+      c += vec4(0.135335) * texture2D(uSampler, vTextureCoord + vec2(15.000000) * direction);
+      c += vec4(0.102740) * texture2D(uSampler, vTextureCoord + vec2(16.000000) * direction);
+      c += vec4(0.076621) * texture2D(uSampler, vTextureCoord + vec2(17.000000) * direction);
+      c += vec4(0.056135) * texture2D(uSampler, vTextureCoord + vec2(18.000000) * direction);
+      c += vec4(0.040401) * texture2D(uSampler, vTextureCoord + vec2(19.000000) * direction);
+      c += vec4(0.028566) * texture2D(uSampler, vTextureCoord + vec2(20.000000) * direction);
+      c += vec4(0.019841) * texture2D(uSampler, vTextureCoord + vec2(21.000000) * direction);
+      c += vec4(0.013538) * texture2D(uSampler, vTextureCoord + vec2(22.000000) * direction);
+      c += vec4(0.009075) * texture2D(uSampler, vTextureCoord + vec2(23.000000) * direction);
+      gl_FragColor = c * vec4(0.053284);}`
+
   var threshold = `
     precision mediump float;
     varying vec2 vTextureCoord;
@@ -183,6 +286,8 @@ define(function()
     frag : fsSource,
     defFs : defFs,
     blur : blur,
+    blur2 : blur2,
+    blur3 : blur3,
     threshold : threshold,
     godsray : godsray
   };
