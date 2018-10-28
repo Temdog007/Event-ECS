@@ -7,12 +7,13 @@ require.config({
     shaders : "Tests/Shader Test/shaders",
     m4 : 'Tests/Shader Test/m4',
     'bindTexture' : "Tests/Shader Test/bindTexture",
+    'createTexture' : "Tests/Shader Test/createTexture",
     DrawableComponent : "Default Components/Interfaces/DrawableComponent"
   }
 });
 
-require(['DrawableComponent', 'game', 'systemlist', 'system', 'loadTexture', 'createSquare', 'shaders', 'm4', 'bindTexture'],
-function(DrawableComponent, Game, Systems, System, loadTexture, createSquare, shaders, mat4, bindTexture)
+require(['DrawableComponent', 'game', 'systemlist', 'system', 'loadTexture', 'createSquare', 'shaders', 'm4', 'bindTexture', 'createTexture'],
+function(DrawableComponent, _, Systems, System, loadTexture, createSquare, shaders, mat4, bindTexture, createTexture)
 {
   var canvas = document.createElement("canvas");
   var gl = canvas.getContext("webgl");
@@ -37,7 +38,7 @@ function(DrawableComponent, Game, Systems, System, loadTexture, createSquare, sh
   }
 
   var vert = loadShader(gl.VERTEX_SHADER, shaders.vert);
-  var frag = loadShader(gl.FRAGMENT_SHADER, shaders.frag);
+  var frag = loadShader(gl.FRAGMENT_SHADER, shaders.blur);
 
   var program = gl.createProgram();
   gl.attachShader(program, vert);
@@ -67,30 +68,21 @@ function(DrawableComponent, Game, Systems, System, loadTexture, createSquare, sh
 
   function loadCanvas(canvas)
   {
-    const texture = gl.createTexture();
-    texture.width = canvas.width;
-    texture.height = canvas.height;
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-
-    // Because images have to be download over the internet
-    // they might take a moment until they are ready.
-    // Until then put a single pixel in the texture so we can
-    // use it immediately. When the image has finished downloading
-    // we'll update the texture with the contents of the image.
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA,
-                  1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
-                  new Uint8Array([0, 0, 255, 255]));
-    
-    canvas.texture = texture;
+    canvas.texture = createTexture(gl);
     canvas.gl = gl;
     bindTexture(canvas);
   }
 
   // Shaders don't work with canvases
   var testCanvas = document.createElement("canvas");
+  testCanvas.width = 64;
+  testCanvas.height = 64;
   var testContext = testCanvas.getContext("2d");
-  testContext.fillRect(0, 0, 300, 100);
+  testContext.fillStyle = "white";
+  testContext.fillRect(16, 16, 32, 32);
   loadCanvas(testCanvas);
+  testCanvas.texture.oldColor = [0,0,0,1];
+  testCanvas.texture.newColor = [1,1,0,1];
 
   class Test extends DrawableComponent
   {
@@ -99,24 +91,35 @@ function(DrawableComponent, Game, Systems, System, loadTexture, createSquare, sh
       super(entity);
       this.setDefaults({
         width : 100,
-        height : 100,
-        oldColor : [1,0,1,1],
-        newColor : [0,1,0,1]
+        height : 100
       });
 
       // var texture = loadTexture(gl, "bombing blocks screenshot (6).png");
       this.texture = loadTexture(gl, "plunger.png");
+      this.texture.oldColor = [1,0,1,1];
+      this.texture.newColor = [1,0,1,1];
+
+      this.texture2 = createTexture(gl);
+      this.texture2.oldColor = [0,0,1,1];
+      this.texture2.newColor = [0,1,1,1];
+
+      this.data.textures = [this.texture, this.texture2, testCanvas.texture];
     }
 
     eventUpdate(args)
     {
-      this.data.newColor[1] += args.dt * 0.001;
-      this.data.newColor[1] %= 1;
+      for(var i in this.data.textures)
+      {
+        var data = this.data.textures[i];
+        data.newColor[1] += args.dt * 0.001;
+        data.newColor[1] %= 1;
+      }
     }
 
     eventDraw()
     {
-      this.drawTexture(this.texture, 100, 100);
+      this.drawTexture(this.texture, 400, 100);
+      this.drawTexture(this.texture2, 100, 100);
       this.drawTexture(testCanvas.texture, 300, 300);
     }
 
@@ -154,11 +157,12 @@ function(DrawableComponent, Game, Systems, System, loadTexture, createSquare, sh
 
       gl.uniformMatrix4fv(programinfo.uniformLocations.projectionMatrix, false, mat);
 
-      gl.uniform4fv(programinfo.uniformLocations.newColor, data.newColor);
-      gl.uniform4fv(programinfo.uniformLocations.oldColor, data.oldColor);
+      // gl.uniform4fv(programinfo.uniformLocations.newColor, texture.newColor);
+      // gl.uniform4fv(programinfo.uniformLocations.oldColor, texture.oldColor);
 
       gl.uniform1i(programinfo.uniformLocations.uSampler, 0);
 
+      gl.uniform2fv(programinfo.uniformLocations.direction, [1/32, 0]);
       gl.drawArrays(gl.TRIANGLES, 0, 6);
 
       this.context.drawImage(canvas, 0, 0, canvas.width, canvas.height,

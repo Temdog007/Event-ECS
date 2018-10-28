@@ -53,9 +53,85 @@ define(function()
     }
   `;
 
+  var blur = `
+    precision mediump float;
+    varying vec2 vTextureCoord;
+    uniform sampler2D uSampler;
+    uniform vec2 direction;
+
+    void main()
+    {
+      vec4 c = vec4(0.0);
+  
+      c += vec4(0.011109) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.014921) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.019841) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.026121) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.034047) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.043937) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.056135) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.071005) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.088922) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.110251) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.135335) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.164474) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.197899) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.235746) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.278037) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.324652) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.375311) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.429557) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.486752) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.546074) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.606531) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.666977) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.726149) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.782705) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.835270) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.882497) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.923116) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.955997) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.980199) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.995012) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(1.000000) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.995012) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.980199) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.955997) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.923116) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.882497) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.835270) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.782705) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.726149) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.666977) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.606531) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.546074) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.486752) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.429557) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.375311) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.324652) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.278037) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.235746) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.197899) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.164474) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.135335) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.110251) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.088922) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.071005) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.056135) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.043937) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.034047) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.026121) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.019841) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.014921) * texture2D(uSampler, vTextureCoord * direction);
+      c += vec4(0.011109) * texture2D(uSampler, vTextureCoord * direction);
+      gl_FragColor = c * vec4(0.039985);
+    }
+  `;
+
   return {
     vert : vsSource,
     frag : fsSource,
-    defFs : defFs
+    defFs : defFs,
+    blur : blur
   };
 });
