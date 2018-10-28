@@ -2,11 +2,17 @@ require.config({
   baseUrl : "../../",
   paths :
   {
-    drawableComponent : "Default Components/Interfaces/drawableComponent"
+    drawableComponent : "Default Components/Interfaces/drawableComponent",
+    loadTexture : "Tests/Shader Test/loadTexture",
+    createSquare : "Tests/Shader Test/createSquare",
+    shaders : "Tests/Shader Test/shaders",
+    m4 : 'Tests/Shader Test/m4',
+    'bindTexture' : "Tests/Shader Test/bindTexture",
+    '3drotate' : "Tests/Rotation Test/3drotate"
   }
 });
 
-require(['system', 'systemlist', 'drawableComponent', 'game'], function(System, Systems, Component, Game)
+require(['system', 'systemlist', 'drawableComponent', 'game', '3drotate'], function(_, Systems, Component, _, rosh)
 {
   class Rect extends Component
   {
@@ -29,7 +35,7 @@ require(['system', 'systemlist', 'drawableComponent', 'game'], function(System, 
     {
       if(this.data.rotate)
       {
-        this.data.r += args.dt;
+        this.data.r += args.dt * 0.001;
       }
     }
 
