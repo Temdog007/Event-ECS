@@ -107,7 +107,6 @@ require.config({
         {
             if(!this.renderer){return;}
             this.renderer.render(this.scene, this.camera);
-            // this.context.drawImage(this.renderer.domElement, 0, 0, this.renderer.domElement.width, this.renderer.domElement.height, 0, 0, this.canvas.width, this.canvas.height);
         }
 
         eventKeyDown(args)

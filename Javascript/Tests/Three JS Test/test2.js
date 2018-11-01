@@ -6,7 +6,14 @@ define(['DrawableComponent', 'Tests/Three JS Test/three'], function(Component, T
         {
             super(entity);
 
-            var geometry = new THREE.SphereGeometry(20);
+            var vertices = [
+                new THREE.Vector2(0, 0),
+                new THREE.Vector2(0, 1),
+                new THREE.Vector2(1, 1),
+                new THREE.Vector2(1, 0),
+            ]
+
+            var geometry = new THREE.ShapeGeometry(new THREE.Shape(vertices));
             var material = new THREE.MeshBasicMaterial();
     
             this.mesh = new THREE.Mesh( geometry, material );
