@@ -9,8 +9,7 @@ define(['DrawableComponent', 'Tests/Three JS Test/three'], function(Component, T
             var vertices = [
                 new THREE.Vector2(0, 0),
                 new THREE.Vector2(1, 0),
-                new THREE.Vector2(1, 1),
-                new THREE.Vector2(0, 1),
+                new THREE.Vector2(0.5, 1),
             ];
             vertices.forEach(function(vertex)
             {
@@ -23,20 +22,32 @@ define(['DrawableComponent', 'Tests/Three JS Test/three'], function(Component, T
             var shape = new THREE.Shape(vertices);
             var geometry = new THREE.ShapeGeometry(shape);
 
-            this.mesh = new THREE.Mesh( geometry );
+            this.mesh = new THREE.Mesh( geometry, new THREE.MeshNormalMaterial()  );
             this.mesh.position.x = 50;
             this.mesh.position.y = 50;
             this.time = 0;
             Component.Systems.pushEvent("eventAddMesh", this.mesh)
 
-            var comp = this;
-            var loader = new THREE.TextureLoader();
-            loader.load('ufo.png', function(image){
-                comp.mesh2 = new THREE.Mesh( new THREE.ExtrudeGeometry(shape, {depth : 10, bevelEnabled : false}), new THREE.MeshBasicMaterial({map : image}) );
-                comp.mesh2.position.x = -50;
-                comp.mesh2.position.y = -50;
-                Component.Systems.pushEvent("eventAddMesh", comp.mesh2)
-            });
+            this.mesh2 = new THREE.Mesh( new THREE.ExtrudeGeometry(shape, {depth : 10, bevelEnabled : false}), new THREE.MeshNormalMaterial() );
+            this.mesh2.position.x = 50;
+            this.mesh2.position.y = -50;
+            Component.Systems.pushEvent("eventAddMesh", this.mesh2);
+
+            var verts = [];
+            for(var angle = 0; angle <= Math.PI * 0.5; angle += Math.PI * 0.5 / 16)
+            {
+                verts.push(new THREE.Vector2(Math.cos(angle) * 20, Math.sin(angle) * 20));
+            }
+            verts.push(new THREE.Vector2(-20, 20));
+            verts.push(new THREE.Vector2(-20, 0));
+            verts.push(new THREE.Vector2(0,0));
+            var shape = new THREE.Shape(verts);
+
+            this.mesh3 = new THREE.Mesh( new THREE.ExtrudeGeometry(shape, {depth : 10, bevelEnabled : false}), new THREE.MeshNormalMaterial());
+            this.mesh3.position.x = -50;
+            this.mesh3.position.y = -25;
+            this.mesh3.position.z = 25;
+            Component.Systems.pushEvent("eventAddMesh", this.mesh3);
         }
 
         eventUpdate(args)
@@ -44,9 +55,9 @@ define(['DrawableComponent', 'Tests/Three JS Test/three'], function(Component, T
             this.time += args.dt * 0.001;
             this.mesh.position.x = (this.time % 1) * 50;
 
-            // if(!this.mesh2){return;}
-            // this.mesh2.rotation.x += args.dt * 0.001;
-            // this.mesh2.rotation.y += args.dt * 0.002;
+            if(!this.mesh2){return;}
+            this.mesh2.rotation.x += args.dt * 0.001;
+            this.mesh2.rotation.y += args.dt * 0.002;
         }
     }
 
