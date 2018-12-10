@@ -26,12 +26,14 @@ define(['DrawableComponent', 'Tests/Three JS Test/three'], function(Component, T
             this.mesh.position.x = 50;
             this.mesh.position.y = 50;
             this.time = 0;
-            Component.Systems.pushEvent("eventAddMesh", this.mesh)
+
+            var Systems = require("systemlist");
+            Systems.pushEvent("eventAddMesh", this.mesh)
 
             this.mesh2 = new THREE.Mesh( new THREE.ExtrudeGeometry(shape, {depth : 10, bevelEnabled : false}), new THREE.MeshNormalMaterial() );
             this.mesh2.position.x = 50;
             this.mesh2.position.y = -50;
-            Component.Systems.pushEvent("eventAddMesh", this.mesh2);
+            Systems.pushEvent("eventAddMesh", this.mesh2);
 
             var verts = [];
             for(var angle = 0; angle <= Math.PI * 0.5; angle += Math.PI * 0.5 / 16)
@@ -43,11 +45,17 @@ define(['DrawableComponent', 'Tests/Three JS Test/three'], function(Component, T
             verts.push(new THREE.Vector2(0,0));
             var shape = new THREE.Shape(verts);
 
-            this.mesh3 = new THREE.Mesh( new THREE.ExtrudeGeometry(shape, {depth : 10, bevelEnabled : false}), new THREE.MeshNormalMaterial());
-            this.mesh3.position.x = -50;
-            this.mesh3.position.y = -25;
-            this.mesh3.position.z = 25;
-            Component.Systems.pushEvent("eventAddMesh", this.mesh3);
+            var mesh3 = new THREE.Mesh( new THREE.ExtrudeGeometry(shape, {depth : 10, bevelEnabled : false}), new THREE.MeshNormalMaterial());
+            mesh3.position.x = -50;
+            mesh3.position.y = -25;
+            mesh3.position.z = 25;
+            Systems.pushEvent("eventAddMesh", mesh3);
+
+            mesh3 = new THREE.Mesh( new THREE.ExtrudeGeometry(shape, {depth : 5, bevelEnabled : true, bevelThickness : 1, bevelSize : 1, bevelSegments : 5}), new THREE.MeshNormalMaterial());
+            mesh3.position.x = 50;
+            mesh3.position.y = -25;
+            mesh3.position.z = 25;
+            Systems.pushEvent("eventAddMesh", mesh3);
         }
 
         eventUpdate(args)

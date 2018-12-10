@@ -1,7 +1,5 @@
-define(['ecsobject'], function(EcsObject)
+define(['systemlist', 'ecsevent'], function(Systems, ECSEvent)
 {
-  var Systems = EcsObject.Systems;
-
   window.addEventListener("gamepadconnected", function(e)
   {
     Systems.pushEvent("eventGamepadConnected", e.gamepad);
@@ -12,31 +10,24 @@ define(['ecsobject'], function(EcsObject)
     Systems.pushEvent("eventGamepadDisconnected", e.gamepad);
   });
 
-  var frames = 0;
-  var frameRate = 30;
   var Game = {}
 
-  var startTime = Date.now();
-
-  Game.getFPS = function()
-  {
-    return frameRate;
-  }
-
-  Game.getStartTime = function()
-  {
-    return startTime;
-  }
-
-  setInterval(function()
-  {
-    frameRate = frames;
-    frames = 0;
-  }, 1000);
+  CanvasRenderingContext2D.prototype.__defineGetter__('width', function(){return this.canvas.width;});
+  CanvasRenderingContext2D.prototype.__defineGetter__('height', function(){return this.canvas.height;});
 
   var canvas = document.getElementById("canvas");
   var context = canvas.getContext("2d");
   var canvasRect = canvas.getBoundingClientRect();
+
+  function resize()
+  {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    canvasRect = canvas.getBoundingClientRect();
+    Systems.pushEvent('eventResize');
+  }
+  window.addEventListener("resize", resize);
+  resize();
 
   var layers = {};
   var layersSorted;
@@ -48,26 +39,41 @@ define(['ecsobject'], function(EcsObject)
 
   class Layer
   {
-    constructor()
+    constructor(id)
     {
       this.canvas = document.createElement("canvas");
+      this._id = id;
       this.context = this.canvas.getContext("2d");
       this.rect = this.canvas.getBoundingClientRect();
       this.dontClear = false;
+      this.resize = Layer.resize.bind(this);
+      window.addEventListener("resize", this.resize);
       this.resize();
-      var f = this;
-      canvas.addEventListener("onresize", function() {f.resize();});
+    }
+
+    get id()
+    {
+      return this._id;
     }
 
     clear()
     {
-      this.context.clearRect(0, 0, this.width, this.height);
+      var rect = this.clearRect;
+      if(rect)
+      {
+        this.context.clearRect(rect.x, rect.y, rect.width, rect.height);
+      }
+      else
+      {
+        this.context.clearRect(0, 0, this.width, this.height);
+      }
     }
 
-    resize()
+    static resize()
     {
-      this.canvas.width = canvas.width;
-      this.canvas.height = canvas.height;
+      this.width = window.innerWidth;
+      this.height = window.innerHeight;
+      this.rect = this.canvas.getBoundingClientRect();
     }
 
     get width()
@@ -75,9 +81,19 @@ define(['ecsobject'], function(EcsObject)
       return this.canvas.width;
     }
 
+    set width(value)
+    {
+      this.canvas.width = value;
+    }
+
     get height()
     {
       return this.canvas.height;
+    }
+
+    set height(value)
+    {
+      this.canvas.height = value;
     }
   }
 
@@ -88,13 +104,17 @@ define(['ecsobject'], function(EcsObject)
 
   Game.addLayer = function(value, dontSort)
   {
-    if(layers[value]){return;}
-
-    layers[value] = new Layer();
-    if(!(dontSort == true))
+    if(!layers[value])
     {
-      sortLayers();
+
+      layers[value] = new Layer(value);
+      if(dontSort !== true)
+      {
+        sortLayers();
+      }
+      Systems.pushEvent("eventLayerAdded", layers[value]);
     }
+    return layers[value];
   }
 
   Game.addLayers = function(arr)
@@ -133,7 +153,11 @@ define(['ecsobject'], function(EcsObject)
   canvas.onmousemove = function(event)
   {
     event = event || window.event;
-    Systems.pushEvent("eventMouseMoved", {x : event.clientX - canvasRect.left, y : event.clientY - canvasRect.top});
+    Systems.pushEvent("eventMouseMoved", {
+      x : (event.clientX - canvasRect.left) / (canvasRect.right - canvasRect.left) * canvas.width, 
+      y : (event.clientY - canvasRect.top) / (canvasRect.bottom - canvasRect.top) * canvas.height, 
+      event : event
+    });
   }
 
   canvas.onmousedown = function(event)
@@ -178,7 +202,12 @@ define(['ecsobject'], function(EcsObject)
       }
     }
 
-    Systems.pushEvent('eventMouseDown', {x : event.clientX - canvasRect.left, y : event.clientY - canvasRect.top, buttonName : button});
+    Systems.pushEvent('eventMouseDown', {
+      x : (event.clientX - canvasRect.left) / (canvasRect.right - canvasRect.left) * canvas.width, 
+      y : (event.clientY - canvasRect.top) / (canvasRect.bottom - canvasRect.top) * canvas.height, 
+      button : event.button, 
+      event : event,
+      buttonName : button});
   }
 
   canvas.onmouseup = function(event)
@@ -223,7 +252,12 @@ define(['ecsobject'], function(EcsObject)
       }
     }
 
-    Systems.pushEvent('eventMouseUp', {x : event.clientX - canvasRect.left, y : event.clientY - canvasRect.top, buttonName : button});
+    Systems.pushEvent('eventMouseUp', {
+      x : (event.clientX - canvasRect.left) / (canvasRect.right - canvasRect.left) * canvas.width, 
+      y : (event.clientY - canvasRect.top) / (canvasRect.bottom - canvasRect.top) * canvas.height, 
+      button : event.button, 
+      event : event, 
+      buttonName : button});
   }
 
   canvas.onmouseleave = function(event)
@@ -245,11 +279,38 @@ define(['ecsobject'], function(EcsObject)
   }
 
   var updateArgs = {dt : 0};
+  var frames = 0;
+  var frameRate = 0;
   var last = 0;
+  var startTime = Date.now();
+  setInterval(function()
+  {
+    frameRate = frames;
+    frames = 0;
+  }, 1000);
+
+  var updateEvent = new ECSEvent("eventUpdate", updateArgs);
+  var drawEvent = new ECSEvent("eventDraw");
+
+  function updateContext()
+  {
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    context.save();
+    for(var i = 0; i < layersSorted.length; ++i)
+    {
+      var layer = layers[layersSorted[i]];
+      if(!layer){
+        continue;
+      }
+      context.drawImage(layer.canvas, 0, 0, layer.width, layer.height,
+                            0, 0, canvas.width, canvas.height);
+    }
+    context.restore();
+  }
 
   function addUpdateEvents()
   {
-    for(var i in layersSorted)
+    for(var i = 0; i < layersSorted.length; ++i)
     {
       var layer = layers[layersSorted[i]];
       if(!layer || layer.dontClear){
@@ -258,50 +319,34 @@ define(['ecsobject'], function(EcsObject)
       layer.clear();
     }
 
-    Systems.pushEvent("eventUpdate", updateArgs);
-    Systems.pushEvent("eventDraw");
+    Systems.pushEvent(updateEvent);
+    Systems.pushEvent(drawEvent);
     Systems.flushEvents();
 
-    context.clearRect(0, 0, canvas.width, canvas.height);
-    context.save();
-    for(var i in layersSorted)
-    {
-      var layer = layers[layersSorted[i]];
-      if(!layer){
-        continue;
-      }
-      context.drawImage(layer.canvas, 0, 0);
-    }
-    context.restore();
+    setTimeout(updateContext, 0);
   }
 
-  Object.defineProperty(Game, 'dt', {
-    get : function(){return updateArgs.dt;}
+  Object.defineProperties(Game, {
+    dt : {
+      get : function(){return updateArgs.dt;}
+    },
+    frames : {
+      get : function(){return frames;}
+    },
+    frameRate : {
+      get : function(){ return frameRate;}
+    },
+    time : {
+      get : function() { return Date.now() - startTime;}
+    }
   });
 
   function update(now)
   {
+    ++frames;
     updateArgs.dt = now - last;
     last = now;
-
-    ++frames;
-
-    if(Game.safeMode)
-    {
-      try
-      {
-        addUpdateEvents();
-      }
-      catch(e)
-      {
-        console.log(e);
-      }
-    }
-    else
-    {
-      addUpdateEvents();
-    }
-
+    setTimeout(addUpdateEvents, 0);
     window.requestAnimationFrame(update);
   };
 

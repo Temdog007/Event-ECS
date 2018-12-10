@@ -24,14 +24,14 @@ function(DrawableComponent, System, EventTesterComponent, FpsDisplayerComponent,
 {
   class RectangleComponent extends DrawableComponent
   {
-    eventDraw(args)
+    eventDraw()
     {
       this.context.fillStyle = "blue";
       this.context.fillRect(0,0,100,100);
     }
   }
 
-  var Systems = DrawableComponent.Systems;
+  var Systems = require("systemlist");
 
   var system = Systems.addSystem(new System("Test"));
   system.registerEntity("Test1", [RectangleComponent, EventTesterComponent]);
@@ -49,6 +49,8 @@ function(DrawableComponent, System, EventTesterComponent, FpsDisplayerComponent,
 
   var e2 = system.createEntity("Test5");
   e2.set("drawable", document.getElementById("testimage"));
+  e2.set('x', 300);
+  e2.set('y', 500)
 
   var e3 = system.createEntity("Test2");
   e3.set("drawOrder", -1);
@@ -57,9 +59,13 @@ function(DrawableComponent, System, EventTesterComponent, FpsDisplayerComponent,
   e3.set('color', 'blue');
 
   var e = system.createEntity("Test3");
-  e.set("drawOrder", 0);
   e.set("lineColor", "orange");
   e.set("drawOrder", -2);
+
+  e = system.createEntity("Test4");
+  e.set("y", 500);
+  e.set("drawOrder", 0);
+  e.set("lineColor", "green");
 
   Game.addLayers([-2, -1]);
 });

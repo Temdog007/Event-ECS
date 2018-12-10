@@ -1,4 +1,4 @@
-define(['systemlist'], function(Systems)
+define(function()
 {
   var GetUniqueID = (function ()
   {
@@ -12,11 +12,6 @@ define(['systemlist'], function(Systems)
     {
       this._enabled = true;
       this._id = GetUniqueID();
-    }
-
-    static get Systems()
-    {
-      return Systems;
     }
 
     get id()

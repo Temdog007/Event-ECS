@@ -23,14 +23,14 @@ define(['drawableComponent', 'game'], function(DrawableComponent, Game)
       }
     }
 
-    eventUpdate(args)
+    eventUpdate()
     {
       var data = this.data;
       data.x += 10;
       data.x %= canvas.width;
     }
 
-    eventDraw(args)
+    eventDraw()
     {
       var data = this.data;
       if(data.font != null)
@@ -41,7 +41,7 @@ define(['drawableComponent', 'game'], function(DrawableComponent, Game)
       this.context.textBaseline = "top";
       this.context.fillText(data.text, data.x, data.y);
 
-      this.context.fillText(Game.getFPS(), data.x, data.y + data.space);
+      this.context.fillText(Game.frameRate, data.x, data.y + data.space);
     }
   }
 

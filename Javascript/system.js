@@ -1,4 +1,4 @@
-define(['ecsobject', 'entity', 'ecsevent'], function(EcsObject, Entity, ECSEvent)
+define(['ecsobject', 'entity', 'ecsevent', 'queue'], function(EcsObject, Entity, ECSEvent, Queue)
 {
   class System extends EcsObject
   {
@@ -7,7 +7,7 @@ define(['ecsobject', 'entity', 'ecsevent'], function(EcsObject, Entity, ECSEvent
       super();
       this.name = name;
       this._entities = [];
-      this._events = [];
+      this._events = new Queue();
       this._registeredEntities = {};
     }
 
@@ -19,6 +19,14 @@ define(['ecsobject', 'entity', 'ecsevent'], function(EcsObject, Entity, ECSEvent
       }
 
       this._registeredEntities[name] = args;
+    }
+
+    registerEntities(args)
+    {
+      for(var key in args)
+      {
+        this.registerEntity(key, args[key]);
+      }
     }
 
     createEntity(name)
@@ -49,14 +57,21 @@ define(['ecsobject', 'entity', 'ecsevent'], function(EcsObject, Entity, ECSEvent
       return en;
     }
 
+    hasEntity(entity)
+    {
+      return this._entities.includes(entity);
+    }
+
     removeEntity(entity)
     {
-      for(var i = 0; i < this._entities.length; ++i)
+      if(entity.dead){return false;}
+      
+      for(var en of this._entities)
       {
-        var en = this._entities[i];
         if(en == entity || en.id == entity)
         {
-          this._entities.splice(i, 1);
+          entity.dead = true;
+          entity.remove();
           this.pushEvent('eventRemovedEntity', {entity : en, system : this});
           return true;
         }
@@ -66,37 +81,36 @@ define(['ecsobject', 'entity', 'ecsevent'], function(EcsObject, Entity, ECSEvent
 
     forEach(func)
     {
-      for(var i = 0; i < this._entities.length; ++i)
+      for(var en of this._entities)
       {
-        func(this._entities[i]);
+        func(en);
       }
     }
 
     get entityCount()
     {
+      this._entities = this._entities.filter(en => !en.dead);
       return this._entities.length;
     }
 
     findEntitiesByFunction(func)
     {
-      var _entities = [];
-      for(var i = 0; i < this._entities.length; ++i)
+      var entities = [];
+      for(var en of this._entities)
       {
-        var en = this._entities[i];
         if(func(en))
         {
-          _entities.push(en);
+          entities.push(en);
         }
       }
-      return _entities;
+      return entities;
     }
 
     findEntitiesByID(id)
     {
       var _entities = [];
-      for(var i = 0; i < this._entities.length; ++i)
+      for(var en of this._entities)
       {
-        var en = this._entities[i];
         if(en.id == id)
         {
           _entities.push(en);
@@ -120,9 +134,8 @@ define(['ecsobject', 'entity', 'ecsevent'], function(EcsObject, Entity, ECSEvent
 
     hasEvent(eventName, args)
     {
-      for(var i = 0; i < this._events.length; ++i)
+      for(var ev of this._events)
       {
-        var ev = this._events[i];
         if(ev === eventName || (ev.name == eventName && ev.args == args))
         {
           return true;
@@ -133,13 +146,15 @@ define(['ecsobject', 'entity', 'ecsevent'], function(EcsObject, Entity, ECSEvent
 
     pushEvent(eventName, args)
     {
+      if(!this.enabled){return;}
+      
       if(eventName instanceof ECSEvent)
       {
-        this._events.push(eventName);
+        this._events.enqueue(eventName);
       }
       else if(typeof eventName == "string")
       {
-        this._events.push(new ECSEvent(eventName, args));
+        this._events.enqueue(new ECSEvent(eventName, args));
       }
       else
       {
@@ -155,7 +170,7 @@ define(['ecsobject', 'entity', 'ecsevent'], function(EcsObject, Entity, ECSEvent
       var current = this._events.length;
       while(current-- > 0 && this._events.length > 0)
       {
-        var ev = this._events.shift();
+        var ev = this._events.dequeue();
         count += this.dispatchEvent(ev.name, ev.args);
       }
       return count;
@@ -169,7 +184,11 @@ define(['ecsobject', 'entity', 'ecsevent'], function(EcsObject, Entity, ECSEvent
       for(var i = 0; i < this._entities.length; ++i)
       {
         var en = this._entities[i];
-        if(ignoreEnabled || en.enabled)
+        if(en.dead)
+        {
+          this._entities.splice(i--, 1);
+        }
+        else if(ignoreEnabled || en.enabled)
         {
           count += en.dispatchEvent(eventName, args);
         }
@@ -182,7 +201,7 @@ define(['ecsobject', 'entity', 'ecsevent'], function(EcsObject, Entity, ECSEvent
       var obj = super.toSimpleObject();
 
       obj.entities = [];
-      for(var i in this.entities)
+      for(var i = 0; i < this._entities.length; ++i)
       {
         var entity = this.entities[i];
         obj.entities.push(entity.toSimpleObject());

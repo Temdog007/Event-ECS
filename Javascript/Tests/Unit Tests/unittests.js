@@ -84,6 +84,7 @@ function(EcsObject, Component, Entity, System, _, Systems)
   console.assertEquals(Systems.flushEvents(), 1);
   console.assertEquals(entity.get("updateCalls"), 1);
   console.assertTrue(entity.remove());
+  Systems.flushEvents();
   console.assertEquals(system.entityCount, 0);
   console.log("%cSystem List Test Complete", "color:green");
 
@@ -99,6 +100,7 @@ function(EcsObject, Component, Entity, System, _, Systems)
   console.assertEquals(entity2.get("addedComponentCalls"), 1);
   console.assertFalse(entity.remove());
   console.assertTrue(entity2.remove());
+  Systems.flushEvents();
   console.assertEquals(system.entityCount, 0);
 
   var entity3 = system.createEntity('test2');
@@ -109,6 +111,7 @@ function(EcsObject, Component, Entity, System, _, Systems)
   console.assertTrue(entity3.TestComponent.remove());
   console.assertEquals(entity3.componentCount, 1);
   console.assertTrue(entity3.remove());
+  Systems.flushEvents();
   console.assertEquals(system.entityCount, 0);
   console.log("%cComponent Register Test Complete", "color:green");
 
@@ -154,13 +157,13 @@ function(EcsObject, Component, Entity, System, _, Systems)
   console.assertEquals(entity.get("updateCalls"), 5);
 
   system3.enabled = true;
-  console.assertEquals(Systems.flushEvents(), 1);
-  console.assertEquals(entity.get("updateCalls"), 6);
+  console.assertEquals(Systems.flushEvents(), 0);
+  console.assertEquals(entity.get("updateCalls"), 5);
 
   entity.enabled = false;
   console.assertEquals(Systems.flushEvents(), 0);
   Systems.pushEvent("eventUpdate");
   console.assertEquals(Systems.flushEvents(), 0);
-  console.assertEquals(entity.get("updateCalls"), 6);
+  console.assertEquals(entity.get("updateCalls"), 5);
   console.log("%cSystem List Finding Test Complete", "color:green");
 });

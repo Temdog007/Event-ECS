@@ -1,4 +1,4 @@
-define(['drawableComponent'], function(DrawableComponent)
+define(['drawableComponent', 'game'], function(DrawableComponent, Game)
 {
   class FpsDisplayerComponent extends DrawableComponent
   {
@@ -14,14 +14,14 @@ define(['drawableComponent'], function(DrawableComponent)
       });
     }
 
-    eventDraw(args)
+    eventDraw()
     {
       var data = this.data;
       this.context.fillStyle = data.color;
 
       this.context.font = data.font;
       this.context.textBaseline = "top";
-      this.context.fillText(getFPS(), data.x, data.y);
+      this.context.fillText(Game.frameRate, data.x, data.y);
     }
   }
 

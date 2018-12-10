@@ -56,7 +56,7 @@ define(['ecsobject'], function(EcsObject)
 
     eventAddedComponent(args)
     {
-      if(args == null || args.component != this){return;}
+      if(args == null || args.component != this || args.entity != this.entity){return;}
 
       this.added();
     }

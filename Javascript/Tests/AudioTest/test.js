@@ -4,9 +4,9 @@ require.config({
 
 require(
 [
-  'component', 'system', 'game'
+  'component', 'systemlist', 'game', 'system'
 ],
-function(Component, System, Game)
+function(Component, Systems, _, System)
 {
   class AudioComponent extends Component
   {
@@ -20,8 +20,6 @@ function(Component, System, Game)
       this.audio.play();
     }
   }
-
-  var Systems = Component.Systems;
 
   var system = Systems.addSystem(new System("Test"));
   var entity = system.createEntity();

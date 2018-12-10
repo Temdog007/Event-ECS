@@ -29,15 +29,16 @@ require(
 [
   'system', 'guiComponent', 'typeTextElement', 'feedbackElement', 'imageElement',
   'hiddenElement', 'collapseGroupElement', 'optionElement', 'checkboxElement',
-  'textElement', 'progressElement', 'buttonElement', 'groupElement', 'scrollElement',
+  'textElement', 'progressElement', 'buttonElement', 'groupElement',
   'scrollGroupElement', 'inputElement', 'uiElement'
 ],
 function(System, GuiComponent, TypeTextElement, FeedbackElement, ImageElement,
   HiddenElement, CollapseGroupElement, OptionElement, CheckboxElement,
-  TextElement, ProgressElement, ButtonElement, GroupElement, ScrollElement,
+  TextElement, ProgressElement, ButtonElement, GroupElement,
   ScrollGroupElement, InputElement, UIElement)
 {
-  var system = System.Systems.addSystem(new System("GUI Test"));
+  var Systems = require('systemlist');
+  var system = Systems.addSystem(new System("GUI Test"));
   var entity = system.createEntity();
   var component = entity.addComponent(GuiComponent);
 

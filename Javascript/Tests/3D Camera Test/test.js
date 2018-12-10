@@ -374,7 +374,6 @@ function(mat4, shaders, Component, Systems, _, createSphere, loadTexture, create
 
             this.shaderFunc = sphereShader.bind(this);
             var sphere = createSphere(10, 4);
-            console.log(sphere);
 
             this.positionBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
@@ -446,5 +445,5 @@ function(mat4, shaders, Component, Systems, _, createSphere, loadTexture, create
         }
     }
 
-    entity.addComponents([SphereComponent]);
+    entity.addComponents([SphereComponent, CubeComponent]);
 });

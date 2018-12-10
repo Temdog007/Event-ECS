@@ -1,4 +1,4 @@
-define(['ecsevent'], function(ECSEvent)
+define(['ecsevent', 'system'], function(ECSEvent, System)
 {
   class SystemList
   {
@@ -11,13 +11,18 @@ define(['ecsevent'], function(ECSEvent)
     {
       if(typeof system == "string")
       {
-        var System = require("system");
         system = new System(system);
       }
+      system.Systems = this;
 
       this.systems.push(system);
       system.systemList = this;
       return system;
+    }
+
+    hasSystem(system)
+    {
+      return this.systems.includes(system);
     }
 
     removeSystem(system)
@@ -40,22 +45,32 @@ define(['ecsevent'], function(ECSEvent)
 
     pushEvent(eventName, args)
     {
-      var ev = new ECSEvent(eventName, args);
-      for(var i in this.systems)
+      var ev;
+      if(typeof eventName === "string")
       {
-        this.systems[i].pushEvent(ev);
+        ev = new ECSEvent(eventName, args);
       }
+      else if(eventName instanceof ECSEvent)
+      {
+        ev = eventName;
+      }
+      else
+      {
+        throw "Bad event: " + eventName;
+      }
+
+      for(var i = 0; i < this.systems.length; ++i)
+        {
+          this.systems[i].pushEvent(ev);
+        }
     }
 
     flushEvents()
     {
       var count = 0;
-      for(var i in this.systems)
+      for(var system of this.systems)
       {
-        if(this.systems[i].enabled)
-        {
-          count += this.systems[i].flushEvents();
-        }
+        count += system.flushEvents();
       }
       return count;
     }
@@ -68,6 +83,25 @@ define(['ecsevent'], function(ECSEvent)
         if(sys.id == value || sys.name == value)
         {
           return sys;
+        }
+      }
+    }
+
+    find(id)
+    {
+      for(var system of this.systems)
+      {
+        if(system.id == id)
+        {
+          return system;
+        }
+
+        for(var entity of system._entities)
+        {
+          if(entity.id == id)
+          {
+            return entity;
+          }
         }
       }
     }
@@ -92,7 +126,7 @@ define(['ecsevent'], function(ECSEvent)
     {
       var data = [];
 
-      for(var i in this.systems)
+      for(var i = 0; i < this.systems.length; ++i)
       {
         var system = this.systems[i];
         data.push(system.toSimpleObject());

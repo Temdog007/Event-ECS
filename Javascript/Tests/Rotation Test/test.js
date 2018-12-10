@@ -6,14 +6,17 @@ require.config({
     loadTexture : "Tests/Shader Test/loadTexture",
     createSquare : "Tests/Shader Test/createSquare",
     shaders : "Tests/Shader Test/shaders",
+    'createTexture' : "Tests/Shader Test/createTexture",
     m4 : 'Tests/Shader Test/m4',
     'bindTexture' : "Tests/Shader Test/bindTexture",
     '3drotate' : "Tests/Rotation Test/3drotate"
   }
 });
 
-require(['system', 'systemlist', 'drawableComponent', 'game', '3drotate'], function(_, Systems, Component, _, rosh)
+require(['system', 'systemlist', 'drawableComponent', 'game', '3drotate'], function()
 {
+  var Component = require("drawableComponent");
+
   class Rect extends Component
   {
     constructor(entity)
@@ -59,6 +62,7 @@ require(['system', 'systemlist', 'drawableComponent', 'game', '3drotate'], funct
     }
   }
 
+  var Systems = require("systemlist");
   var system = Systems.addSystem("Test");
 
   function makeEntity()

@@ -4,7 +4,7 @@ define(['graphableComponent', 'game'], function(GraphableComponent, Game)
   {
     eventUpdate(args)
     {
-      var fps = 0.75/args.dt + 0.25 * Game.getFPS();
+      var fps = 0.75/(args.dt*0.001) + 0.25 * Game.frameRate;
       this.updateGraph(fps, "FPS: " + Math.floor(fps * 10) / 10, args.dt);
     }
   }

@@ -15,13 +15,30 @@ require.config({
         this.camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight);
         this.camera.position.z = 100;
 
-        var geometry = new THREE.SphereGeometry(20);
-        var material = new THREE.MeshBasicMaterial({map : image, color : "cyan"});
+        var geometry = new THREE.SphereGeometry(20, 10, 10, 0, Math.PI * 0.5);
+        var material = new THREE.MeshNormalMaterial();
+        // var material = new THREE.MeshBasicMaterial({map : image, color : "cyan"});
 
         this.meshes = [];
 
-        var mesh = new THREE.Mesh( geometry, material );
+        var n = new THREE.Mesh( geometry );
+        // mesh.position.x = 50;
+
+        geometry = new THREE.BoxGeometry(20, 20, 20);
+        var m = new THREE.Mesh(geometry);
+        m.position.y = 10;
+        m.position.x = -5;
+
+        var g = new THREE.Geometry();
+        n.updateMatrix();
+        g.merge(n.geometry, n.matrix);
+
+        m.updateMatrix();
+        g.merge(m.geometry, m.matrix);
+
+        var mesh = new THREE.Mesh(g, material);
         mesh.position.x = 50;
+
         this.scene.add( mesh );
         this.meshes.push(mesh);
 

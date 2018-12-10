@@ -27,26 +27,28 @@
     <div id="leftSide" style="float:left; width:100%;">
       <canvas id="canvas" tabindex='1'/>
     </div>
-    <div id="rightSide" style="float:right; width:0%; display:none">
-      <div id="space" style="float:left; width:5%;"></div>
-      <div style="float:right; width:95%;">
-        <div>
-          <button type="button" id="updateButton">Update</button>
-          <button type="button" id="refreshButton">Clear</button>
-        </div>
-        <input type="checkbox" checked="false" id="autoUpdateCheckbox">Auto Update</input><br>
-        <div id="autoUpdate" style="display:none">
-          Update Every <input type="number" id='autoUpdateInterval' placeholder="1000" value="1000"> milliseconds<br>
-        </div>
-        <div id="debugContent" style="background-color:#dddd; margin:px">
-          <h2>Systems</h2>
-          Dispatch Event <input type="text" size="50" placeholder="Enter event to dispatch" id="eventDispatcher"><br>
-          <div id="systemsContent" style="display:inlne-grid; grid-gap:10px;">
-          </div>
-          <h2>Entities</h2>
-          <div id="entitiesContent">
-          </div>
-        </div>
+    <div id="debugMenu" style="display:none; padding:5px; position:fixed; z-index: 2; top:0; right:0; height:100%; overflow:auto; background:#aaaa">
+      <button type="button" id="updateButton">Update</button>
+      <input type="checkbox" checked="false" id="autoUpdateCheckbox">Auto Update
+      <div id="autoUpdate" style="display:none">
+        <label for="autoUpdateInterval">Update Every</label> <input type="number" id='autoUpdateInterval' placeholder="10000" value="10000"> milliseconds<br>
+      </div>
+      <button id="sideButton">Switch Sides</button><br>
+      <div id="debugContent"">
+        <table style="width:100%">
+          <tr>
+            <th>Dispatch Event</th>
+            <th><input type="text" style="width:100%" placeholder="Enter event to dispatch" id="eventDispatcher"></th>
+          </tr>
+            <th>Add Entity</th>
+            <th><input type="text" style="width:100%" placeholder="Enter the name of a registered entity" id="entityAdder"></th>
+        </table>
+        <label for="system_select">Select System</label>
+        <select id="system_select" autocomplete="off" style="width:100%"></select><br>
+        <div id="system_enabler_div"></div><br>
+        <label for="entity_select">Select Entity</label>
+        <select id="entity_select" autocomplete="off" style="width:100%"></select>
+        <div id="entityContent"></div>
       </div>
     </div>
     <script>
@@ -56,36 +58,13 @@
         var d = document.getElementById("autoUpdate");
         d.style.display = checkbox.checked ? "block" : "none";
       });
-      refreshButton.addEventListener("click", function(evt)
-      {
-        while(systemsContent.hasChildNodes())
-        {
-          systemsContent.removeChild(systemsContent.lastChild);
-        }
-        while(entitiesContent.hasChildNodes())
-        {
-          entitiesContent.removeChild(entitiesContent.lastChild);
-        }
-      });
       window.addEventListener("keyup", function(args)
       {
         if(args.key == "F1")
         {
-          if(rightSide.style.width == "0%")
-          {
-            leftSide.style.width = "75%";
-            rightSide.style.width = "25%";
-            rightSide.style.display = "block";
-          }
-          else
-          {
-            leftSide.style.width = "100%";
-            rightSide.style.width = "0%";
-            rightSide.style.display = "none";
-          }
+          debugMenu.style.display = debugMenu.style.display == "none" ? "block" : "none";
         }
       });
-    </script>
-  </div>
+  </script>
 </body>
 </html>
