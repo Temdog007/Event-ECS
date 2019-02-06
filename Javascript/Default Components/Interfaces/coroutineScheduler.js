@@ -7,13 +7,14 @@ define(function()
       this.routines = [];
     }
 
-    addRoutine(func)
+    addRoutine(func, args)
     {
       this.routines.push(
       {
         current : 0,
         target : 0,
-        func : func()
+        func : func(args),
+        args : args
       });
     }
 
@@ -24,11 +25,11 @@ define(function()
         var routine = this.routines[i];
         if(routine.func == func)
         {
-          var result = false;
-          while(!done)
+          var result;
+          do
           {
             result = func.next();
-          }
+          }while(!result.done);
           break;
         }
       }
@@ -78,16 +79,35 @@ define(function()
             continue;
           }
         }
+        else if(typeof routine.target == "object")
+        {
+          var rval = routine.target;
+          if(rval.type == "frames")
+          {
+            ++routine.current;
+            if(routine.current < rval.value)
+            {
+              continue;
+            }
+          }
+          else if(rval.type == "time")
+          {
+            routine.current += step;
+            if(routine.current < rval.value)
+            {
+              continue;
+            }
+          }
+        }
 
-        var result = routine.func.next();
+        var result = routine.func.next(routine.args);
         if(result.done)
         {
-          this.routines.splice(i, 1);
+          this.routines.splice(i--, 1);
         }
         else
         {
           routine.current = 0;
-          routine.target = result.value;
           if(result.value == null)
           {
             routine.target = 0;

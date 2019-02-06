@@ -11,6 +11,14 @@ define(['ecsobject', 'entity', 'ecsevent', 'queue'], function(EcsObject, Entity,
       this._registeredEntities = {};
     }
 
+    *[Symbol.iterator]()
+    {
+      for(var entity of this._entities)
+      {
+        yield entity;
+      }
+    }
+
     registerEntity(name, args)
     {
       if(this._registeredEntities[name] != null)
@@ -48,9 +56,9 @@ define(['ecsobject', 'entity', 'ecsevent', 'queue'], function(EcsObject, Entity,
         }
         else if(Array.isArray(args))
         {
-          for(var i = 0; i < args.length; ++i)
+          for(var comp of args)
           {
-            en.addComponent(args[i]);
+            en.addComponent(comp);
           }
         }
       }
@@ -96,7 +104,7 @@ define(['ecsobject', 'entity', 'ecsevent', 'queue'], function(EcsObject, Entity,
     findEntitiesByFunction(func)
     {
       var entities = [];
-      for(var en of this._entities)
+      for(var en of this)
       {
         if(func(en))
         {
@@ -108,15 +116,15 @@ define(['ecsobject', 'entity', 'ecsevent', 'queue'], function(EcsObject, Entity,
 
     findEntitiesByID(id)
     {
-      var _entities = [];
-      for(var en of this._entities)
+      var entities = [];
+      for(var en of this)
       {
         if(en.id == id)
         {
-          _entities.push(en);
+          entities.push(en);
         }
       }
-      return _entities;
+      return entities;
     }
 
     findEntities(arg)
@@ -134,7 +142,7 @@ define(['ecsobject', 'entity', 'ecsevent', 'queue'], function(EcsObject, Entity,
 
     hasEvent(eventName, args)
     {
-      for(var ev of this._events)
+      for(var ev in this._events.iterate())
       {
         if(ev === eventName || (ev.name == eventName && ev.args == args))
         {
@@ -164,7 +172,11 @@ define(['ecsobject', 'entity', 'ecsevent', 'queue'], function(EcsObject, Entity,
 
     flushEvents()
     {
-      if(this._events.length == 0 || this._entities.length == 0){return 0;}
+      if(this._events.length == 0 || this._entities.length == 0)
+      {
+        this._events.clear();
+        return 0;
+      }
 
       var count = 0;
       var current = this._events.length;
@@ -178,7 +190,7 @@ define(['ecsobject', 'entity', 'ecsevent', 'queue'], function(EcsObject, Entity,
 
     dispatchEvent(eventName, args)
     {
-      var ignoreEnabled = args != null && args.ignoreEnabled ? true : false;
+      var ignoreEnabled = (args != null && args.ignoreEnabled) ? true : false;
 
       var count = 0;
       for(var i = 0; i < this._entities.length; ++i)

@@ -4,13 +4,18 @@ define(function()
     {
         constructor()
         {
-            this._list = [];
+            this._list = arguments.length > 0 ? Array.prototype.slice.call(arguments) : [];
             this._offset = 0;
         }
 
         get length()
         {
             return (this._list.length - this._offset);
+        }
+
+        clear()
+        {
+            this._list.length = 0;
         }
 
         get isEmpty()
@@ -47,7 +52,7 @@ define(function()
         {
             for(var i = this._offset; i < this._list.length; ++i)
             {
-                yield this._offset[i];
+                yield this._list[i];
             }
         }
     }

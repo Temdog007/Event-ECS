@@ -7,16 +7,15 @@ define(['ecsevent', 'system'], function(ECSEvent, System)
       this.systems = [];
     }
 
-    addSystem(system)
+    addSystem(system, i)
     {
       if(typeof system == "string")
       {
         system = new System(system);
       }
-      system.Systems = this;
 
-      this.systems.push(system);
-      system.systemList = this;
+      i = i || 0;
+      this.systems.splice(i, 0, system);
       return system;
     }
 
@@ -59,10 +58,10 @@ define(['ecsevent', 'system'], function(ECSEvent, System)
         throw "Bad event: " + eventName;
       }
 
-      for(var i = 0; i < this.systems.length; ++i)
-        {
-          this.systems[i].pushEvent(ev);
-        }
+      for(var system of this.systems)
+      {
+        system.pushEvent(ev);
+      }
     }
 
     flushEvents()
@@ -96,11 +95,18 @@ define(['ecsevent', 'system'], function(ECSEvent, System)
           return system;
         }
 
-        for(var entity of system._entities)
+        for(var entity of system)
         {
           if(entity.id == id)
           {
             return entity;
+          }
+          for(var component of entity)
+          {
+            if(component.id == id)
+            {
+              return component;
+            }
           }
         }
       }

@@ -8,6 +8,15 @@ define(['ecsobject', 'component'], function(EcsObject, Component)
       this._system = _system;
       this._components = [];
       this._data = {};
+      this._eventMap = {};
+    }
+
+    *[Symbol.iterator]()
+    {
+      for(var comp of this._components)
+      {
+        yield comp;
+      }
     }
 
     get(value)
@@ -32,10 +41,9 @@ define(['ecsobject', 'component'], function(EcsObject, Component)
     {
       if(typeof key == "object")
       {
-        throw "Cannot use object as key";
+        this.setDefaults(key);
       }
-
-      if(this.get(key) == null && value != null)
+      else if(this.get(key) == null && value != null)
       {
         this.set(key, value);
       }
@@ -67,23 +75,41 @@ define(['ecsobject', 'component'], function(EcsObject, Component)
       }
 
       var component = new componentConstructor(this);
+      
+      if(!component instanceof Component)
+      {
+        throw "Components must extends Component class";
+      }
+
       this[componentConstructor.name] = component;
       this._components.push(component);
       this.system.pushEvent('eventAddedComponent', {component : component, entity : this});
+      for(var methodName of getAllMethodNames(component))
+      {
+        var value = component[methodName];
+        if(methodName.startsWith("event"))
+        {
+          if(this._eventMap[methodName] === undefined)
+          {
+            this._eventMap[methodName] = [];
+          }
+          this._eventMap[methodName].push(component);
+        }
+      }
       return component;
     }
 
-    addComponents(_components)
+    addComponents(components)
     {
-      if(!Array.isArray(_components))
+      if(!Array.isArray(components))
       {
         throw new TypeError("Need to send array to addComponents");
       }
-
+      
       var rval = [];
-      for(var key in _components)
+      for(var comp of components)
       {
-        rval.push(this.addComponent(_components[key]));
+        rval.push(this.addComponent(comp));
       }
       return rval;
     }
@@ -104,14 +130,17 @@ define(['ecsobject', 'component'], function(EcsObject, Component)
 
     removeComponentByValue(comp)
     {
-      for(var component of this._components)
+      for(var i = 0; i < this._components.length; ++i)
       {
-        if(component == comp)
+        var component = this._components[i];
+        if(component === comp)
         {
           if(!component.dead)
           {
             component.dead = true;
             component.remove();
+            this._components.splice(i, 1);
+            this._removeEventMap(component);
           }
           console.assert(delete this[component.name], "Failed to delete component from entity");
           return true;
@@ -122,20 +151,40 @@ define(['ecsobject', 'component'], function(EcsObject, Component)
 
     removeComponentById(id)
     {
-      for(var component of this._components)
+      for(var i = 0; i < this._components.length; ++i)
       {
-        if(component.id == id)
+        var component = this._components[i];
+        if(component.id === id)
         {
           if(!component.dead)
           {
             component.dead = true;
             component.remove();
+            this._components.splice(i, 1);
+            this._removeEventMap(component);
           }
           console.assert(delete this[component.name], "Failed to delete component from entity");
           return true;
         }
       }
       return false;
+    }
+
+    _removeEventMap(component)
+    {
+      for(var i in this._eventMap)
+      {
+        var list = this._eventMap[i];
+        for(var j = 0; j < list.length; ++j)
+        {
+          var comp = list[j];
+          if(comp === component)
+          {
+            list.splice(j, 1);
+            break;
+          }
+        }
+      }
     }
 
     get data()
@@ -181,24 +230,22 @@ define(['ecsobject', 'component'], function(EcsObject, Component)
 
     dispatchEvent(eventName, args)
     {
-      var ignoreEnabled = args != null && args.ignoreEnabled ? true : false;
+      var list = this._eventMap[eventName];
+      if(list === undefined || list.length === 0){return 0;}
 
+      var ignoreEnabled = (args != null && args.ignoreEnabled) ? true : false;
+      
       var count = 0;
-      for(var i = 0; i < this._components.length; ++i)
+      for(var component of list)
       {
-        var comp = this._components[i];
-        if(comp.dead)
+        if(ignoreEnabled || component.enabled)
         {
-          this._components.splice(i--,1);
+          component[eventName].call(component, args);
+          ++count;
         }
-        else if(ignoreEnabled || comp.enabled)
+        if(args != null && args.handled === true)
         {
-          var func = comp[eventName];
-          if(typeof func === "function")
-          {
-            func.call(comp, args);
-            ++count;
-          }
+          break;
         }
       }
       return count;
@@ -228,5 +275,15 @@ define(['ecsobject', 'component'], function(EcsObject, Component)
     }
   }
 
+  function getAllMethodNames(obj)
+  {
+    var methods = new Set();
+    while(obj = Reflect.getPrototypeOf(obj))
+    {
+      var keys = Reflect.ownKeys(obj);
+      keys.forEach(k => methods.add(k));
+    }
+    return methods;
+  }
   return Entity;
 });
